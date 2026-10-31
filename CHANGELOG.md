@@ -6,12 +6,12 @@ Every release of Forjr, newest first. A version is three numbers: a change that 
 
 ### Core Changes
 
-- Rename Tent.js to Forjr: the package `forjr` with `npm create forjr`, the command `forjr`, `forjr.ts`, `forjr.d.ts` and `.forjr/`, `ForjrError`, the words of the environment `FORJR_*`, the runner's folder `~/.forjr`, the packages `@forjr/runtime-<system>`, and `forjr.exe`, `forjrw.exe` and `forjr service` on Windows: 4ac8258
-- Rename the error codes to begin with `F`, each keeping its number, and the engine's own tables and addresses to `_f_` and `/_f/`: 4ac8258
-- Write the description as `forjr.description/2`; an engine reads no data of the former name: 4ac8258
-- Fix `forjr dev` that never ended when it was closed while a build still ran: 4ac8258
-- Add `forjr map`: the app for the AI that reads it, each definition on one line with who may call it, what it reads and writes, who uses it and its tests, cut to a size in tokens: 725c51f
-- Add tests made for AI: a test whose files are unchanged is replayed, a failed call tells its facts, the clock is held and chance is seeded, and tests are made from the declarations: 7153e13
+- Rename Tent.js to Forjr: the package `forjr` with `npm create forjr`, the command `forjr`, `forjr.ts`, `forjr.d.ts` and `.forjr/`, `ForjrError`, the words of the environment `FORJR_*`, the runner's folder `~/.forjr`, the packages `@forjr/runtime-<system>`, and `forjr.exe`, `forjrw.exe` and `forjr service` on Windows: 2a4ae05
+- Rename the error codes to begin with `F`, each keeping its number, and the engine's own tables and addresses to `_f_` and `/_f/`: 2a4ae05
+- Write the description as `forjr.description/2`; an engine reads no data of the former name: 2a4ae05
+- Fix `forjr dev` that never ended when it was closed while a build still ran: 2a4ae05
+- Add `forjr map`: the app for the AI that reads it, each definition on one line with who may call it, what it reads and writes, who uses it and its tests, cut to a size in tokens: 2a4ae05
+- Add tests made for AI: a test whose files are unchanged is replayed, a failed call tells its facts, the clock is held and chance is seeded, and tests are made from the declarations: 24216c9
 
 ## Tent.js
 
