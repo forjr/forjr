@@ -1,4 +1,4 @@
-import type { Makers } from 'tentjs/engine'
+import type { Makers } from 'forjr/engine'
 
 // A provider of the builder's own for three models that are no language models: one that decides whether a text
 // may pass, one that scores an answer, and one that sorts a message. Each says what it used.

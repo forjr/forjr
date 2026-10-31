@@ -1,4 +1,4 @@
-import { each, flow, range, sum, text, concat } from 'tentjs'
+import { each, flow, range, sum, text, concat } from 'forjr'
 import { flaky, note } from './functions.ts'
 
 // A flow whose `run` holds only our words: it is read and stored, and never built into a module.

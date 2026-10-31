@@ -1,4 +1,4 @@
-import { route } from 'tentjs'
+import { route } from 'forjr'
 
 // A route on the address of the proof: the engine answers the authority there before the route is asked.
 export const challenge = route('challenge', {

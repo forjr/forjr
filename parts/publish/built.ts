@@ -1,5 +1,5 @@
 import type { Finding } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import { finding } from '../core/internal.ts'
 import type { Point } from '../history/index.ts'
@@ -7,7 +7,7 @@ import type { Point } from '../history/index.ts'
 /**
  * Builds the files of a point that were written into a folder of their own, for release, and holds them to the
  * check, whatever the point says of itself. Answers the description, the folder of the bundle, its version id and
- * the warnings. Throws T9101 with the errors where the build or the check finds one, and where the point left a
+ * the warnings. Throws F9101 with the errors where the build or the check finds one, and where the point left a
  * file out for its size.
  */
 export async function checkedBuild(
@@ -27,7 +27,7 @@ export async function checkedBuild(
     ...checked.findings,
     ...left.map((line) =>
       finding(
-        'T9101',
+        'F9101',
         `${line}: the point left the file out for its size, \`historyFileSize\` in \`limits\` of the project.`,
         {},
       ),
@@ -35,8 +35,8 @@ export async function checkedBuild(
   ]
   const errors = found.filter((one) => one.level === 'error')
   if (errors.length || !built.versionId)
-    throw new TentError(
-      'T9101',
+    throw new ForjrError(
+      'F9101',
       `The files of the point ${point.id} do not pass the check, and are not published: ${errors.map((one) => `${one.code} ${one.message}`).join(' ')}`,
       {
         fields: { point: point.id, reason: 'check', count: String(errors.length) },

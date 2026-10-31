@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { CallContext } from '../context.ts'
 import { within } from '../context.ts'
 import { limitOf } from '../limits.ts'
@@ -32,7 +32,7 @@ export function appModelCall(o: Opened, name: string, given: unknown, caller: Ca
   const args = asked.method === 'call' ? [given] : given
   if (!Array.isArray(args))
     return Promise.reject(
-      new TentError('T0002', `A model call ${name} is handed its values as a list.`, {
+      new ForjrError('F0002', `A model call ${name} is handed its values as a list.`, {
         fix: `Hand \`app.call\` the values of the call in a list, as \`app.call('${name}', ['...'])\`.`,
       }),
     )

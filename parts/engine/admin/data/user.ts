@@ -15,7 +15,7 @@ import { forgetCounts } from '../../counts/removed.ts'
 import { writeCounts } from '../../counts/gather.ts'
 
 /**
- * `tent data user export <id>` and `tent data user remove <id>`. The export answers every row the person
+ * `forjr data user export <id>` and `forjr data user remove <id>`. The export answers every row the person
  * owns and their row of `users`. The removal shows the count first: it answers how many rows of each table are
  * theirs, and removes them only with `yes`, in one write, with `removed` written in place of the person wherever
  * the log names them; in an app that keeps a data file for each tenant it answers once the pass that reaches

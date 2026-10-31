@@ -6,10 +6,10 @@ import { join } from 'node:path'
  * other. Answers true where the disk holds them as two, as a disk of Linux does.
  */
 export async function tellsCapitalsApart(folder: string): Promise<boolean> {
-  const laid = join(folder, '.tent-capitals')
+  const laid = join(folder, '.forjr-capitals')
   await writeFile(laid, '', { flag: 'wx' })
   try {
-    return (await lstat(join(folder, '.TENT-CAPITALS')).catch(() => undefined)) === undefined
+    return (await lstat(join(folder, '.FORJR-CAPITALS')).catch(() => undefined)) === undefined
   } finally {
     await rm(laid, { force: true })
   }

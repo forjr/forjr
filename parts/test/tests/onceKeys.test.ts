@@ -3,7 +3,7 @@ import test from 'node:test'
 import { mcpApp, people } from './mcpApp.ts'
 import { api, keyedApp, keyOf } from './keyedApp.ts'
 
-test('[45-16] an API call sent twice with one Idempotency-Key runs once and is answered alike, and the same key with another input is T0002', async (t) => {
+test('[45-16] an API call sent twice with one Idempotency-Key runs once and is answered alike, and the same key with another input is F0002', async (t) => {
   const app = await keyedApp(t)
   const { key } = await keyOf(app, { scopes: ['*'] })
   // Every order costs 5: the sum of their totals counts them.
@@ -16,7 +16,7 @@ test('[45-16] an API call sent twice with one Idempotency-Key runs once and is a
   assert.equal(await orders(), 1)
   // The same key with another input is refused, and runs nothing.
   const other = await api(app, 'POST', 'addOrder', { key, input: { title: 'Chair', total: 9 }, headers: once })
-  assert.deepEqual([other.status, Object(other.body).code], [400, 'T0002'])
+  assert.deepEqual([other.status, Object(other.body).code], [400, 'F0002'])
   assert.equal(await orders(), 1)
   // Another key, and no key, run the call again.
   await api(app, 'POST', 'addOrder', { key, input: { title: 'Lamp', total: 5 }, headers: { 'idempotency-key': 'k2' } })
@@ -29,7 +29,7 @@ test('[45-16] an API call sent twice with one Idempotency-Key runs once and is a
   assert.equal(await orders(), 4)
 })
 
-test('[45-16] an MCP call sent twice with one Idempotency-Key runs once and is answered alike, and the same key with another input is T0002', async (t) => {
+test('[45-16] an MCP call sent twice with one Idempotency-Key runs once and is answered alike, and the same key with another input is F0002', async (t) => {
   const app = await mcpApp(t)
   const { ada } = await people(app)
   const client = app.mcp({ as: ada })
@@ -43,6 +43,6 @@ test('[45-16] an MCP call sent twice with one Idempotency-Key runs once and is a
   const listed = await client.call('openOrders', {})
   assert.deepEqual(Object(listed.structuredContent).value, [{ title: 'Lamp' }])
   const other = await call('Chair')
-  assert.match(JSON.stringify(other.body), /T0002/)
+  assert.match(JSON.stringify(other.body), /F0002/)
   assert.deepEqual(Object((await client.call('openOrders', {})).structuredContent).value, [{ title: 'Lamp' }])
 })

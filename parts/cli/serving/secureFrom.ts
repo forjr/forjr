@@ -15,7 +15,7 @@ const takes: Record<string, 'text' | 'file' | 'count'> = {
   plainPort: 'count',
 }
 
-/** What `--domain` and `--secure` of `tent start` set: `secure` of the engine, the names of the app, and its host. */
+/** What `--domain` and `--secure` of `forjr start` set: `secure` of the engine, the names of the app, and its host. */
 export interface Secured {
   secure: Secure
   address: string[]
@@ -25,7 +25,7 @@ export interface Secured {
 }
 
 /**
- * Takes the words of `tent start` and the folder they were typed in. Answers what `--domain` sets, with each entry
+ * Takes the words of `forjr start` and the folder they were typed in. Answers what `--domain` sets, with each entry
  * of `--secure`, or nothing where no `--domain` was typed. With `--domain` the engine listens on 443, or on
  * `--port`, on every address of the computer unless `--host` names one. Throws for an entry that is none of the
  * words of `--secure`, or one that is typed without `--domain`.

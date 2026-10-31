@@ -1,4 +1,4 @@
-import { boolean, choice, date, day, link, list, number, table, text } from 'tentjs'
+import { boolean, choice, date, day, link, list, number, table, text } from 'forjr'
 
 export const customers = table('customers', {
   columns: { name: text({ unique: true }), tier: choice(['bronze', 'silver', 'gold']), tags: list(text()) },

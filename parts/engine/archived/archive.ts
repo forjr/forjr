@@ -14,7 +14,7 @@ import {
 } from 'node:fs'
 import { readFile } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { fingerprintOf } from '../../core/internal.ts'
 import type { ChangeSink, FileName, SinkChange } from '../../data/index.ts'
@@ -102,7 +102,7 @@ export interface Archive {
   /**
    * Hands each change made from a moment and up to a moment to `take`, in the order they were made, as far back as
    * the archive reaches: one part of the archive is read at a time, so what is held is what `take` keeps. Throws
-   * T0009 where a gap of the archive lies between the two, and names it.
+   * F0009 where a gap of the archive lies between the two, and names it.
    */
   eachBetween(from: number, until: number, take: (change: SinkChange) => void): Promise<void>
   /** Answers where a backup stands, as a file or a folder: in the folder of the backups, or fetched from the store into `into`. */
@@ -157,9 +157,9 @@ function filesUnder(folder: string, path = ''): string[] {
 const moment = (at: number): string => new Date(at).toISOString()
 
 /** The error of a span of time that a gap of the archive lies in: what never reached it cannot be put back or undone. */
-const inGap = (gap: Gap): TentError =>
-  new TentError(
-    'T0009',
+const inGap = (gap: Gap): ForjrError =>
+  new ForjrError(
+    'F0009',
     `The archive has a gap: the writes ${gap.from} to ${gap.to}, made after ${moment(gap.after)}, never reached it, since the program stopped before it took them; it was found at ${moment(gap.at)}.`,
     {
       fix: 'Restore to a moment before the gap, or after the backup that was taken when it was found. An undo reaches back no further than that backup.',
@@ -425,7 +425,7 @@ export function makeArchive(o: Opened): Archive {
         const bytes = await placeOf().get(part.name)
         if (!bytes) throw new Error(`The part \`${part.name}\` of the archive is not there.`)
         if (part.print !== undefined && fingerprintOf(bytes) !== part.print)
-          throw new TentError('T0009', `The part \`${part.name}\` of the archive is not the one that was sent.`)
+          throw new ForjrError('F0009', `The part \`${part.name}\` of the archive is not the one that was sent.`)
         for (const change of changesIn(bytes, part.name)) if (held(change)) take(change)
       }
       // What waits to be sent, and the part that is open, are read where they lie.

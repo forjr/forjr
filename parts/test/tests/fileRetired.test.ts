@@ -40,10 +40,13 @@ test('[50-5@6] the rows of a tenant table that is removed on purpose stay in the
   const text = readFileSync(tables, 'utf8')
   assert.match(text, signs)
   writeFileSync(tables, text.replace(signs, ''))
-  const tent = join(folder, 'tent.ts')
+  const forjr = join(folder, 'forjr.ts')
   writeFileSync(
-    tent,
-    readFileSync(tent, 'utf8').replace("title: 'Notes that move',", "title: 'Notes that move',\n  removed: ['signs'],"),
+    forjr,
+    readFileSync(forjr, 'utf8').replace(
+      "title: 'Notes that move',",
+      "title: 'Notes that move',\n  removed: ['signs'],",
+    ),
   )
   const without = await app.add(await built('bundle-2'))
   const taken = await app.switch(without)
@@ -85,9 +88,9 @@ export const marks = table('marks', {
 
 test('[50-5@6] a file that holds the rows of a retired table alone is not removed by the upkeep: where two tenant tables are removed one after the other, the rows of the first are still read by a version that holds it again', async (t) => {
   const folder = copyOf(t, 'moving')
-  const [tables, tent] = [join(folder, 'tables.ts'), join(folder, 'tent.ts')]
+  const [tables, forjr] = [join(folder, 'tables.ts'), join(folder, 'forjr.ts')]
   appendFileSync(tables, marks)
-  const [whole, project] = [readFileSync(tables, 'utf8'), readFileSync(tent, 'utf8')]
+  const [whole, project] = [readFileSync(tables, 'utf8'), readFileSync(forjr, 'utf8')]
   const built = async (out: string): Promise<string> => {
     const made = await buildProject(folder, { for: 'dev', out: join(folder, '..', out) })
     assert.deepEqual(
@@ -119,13 +122,13 @@ test('[50-5@6] a file that holds the rows of a retired table alone is not remove
 
   // The signs are removed on purpose, and the marks stay a tenant table: the pass retires the signs in the file of the room.
   writeFileSync(tables, whole.replace(signs, ''))
-  writeFileSync(tent, stated("'signs'"))
+  writeFileSync(forjr, stated("'signs'"))
   await app.switch(await app.add(await built('bundle-2')))
   await passed()
   assert.equal(readFile(file, 'SELECT count(*) AS "n" FROM "signs"')[0]?.n, 1)
   // Then the marks are removed too: no tenant table names the rooms any more.
   writeFileSync(tables, whole.replace(signs, '').replace(marks, ''))
-  writeFileSync(tent, stated("'signs', 'marks'"))
+  writeFileSync(forjr, stated("'signs', 'marks'"))
   await app.switch(await app.add(await built('bundle-3')))
   await passed()
   assert.equal(existsSync(file), true)
@@ -134,9 +137,9 @@ test('[50-5@6] a file that holds the rows of a retired table alone is not remove
   app.clock.advance('1 day')
   await moment(600)
   assert.equal(existsSync(file), true, 'the upkeep removed a file that held the row of a retired table')
-  // What is retired is dropped by `tent data clean` alone: the version that holds both tables reads the sign.
+  // What is retired is dropped by `forjr data clean` alone: the version that holds both tables reads the sign.
   writeFileSync(tables, whole)
-  writeFileSync(tent, project)
+  writeFileSync(forjr, project)
   assert.equal(await app.add(both), first)
   await app.switch(first)
   assert.deepEqual(

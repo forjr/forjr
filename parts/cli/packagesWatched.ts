@@ -38,6 +38,8 @@ function nearestFolder(place: string, top: string): string {
 export function packagesWatched(folder: string, changed: () => void): { watch(names: string[]): void; close(): void } {
   const top = resolve(folder)
   const watched = new Map<string, FSWatcher>()
+  // A build that ends after `forjr dev` closed still sets its packages: a watch laid then would hold the program open.
+  let closed = false
   let timer: ReturnType<typeof setTimeout> | undefined
   const told = (): void => {
     clearTimeout(timer)
@@ -79,6 +81,7 @@ export function packagesWatched(folder: string, changed: () => void): { watch(na
 
   return {
     watch(names) {
+      if (closed) return
       for (const [name, one] of watched)
         if (!names.includes(name)) {
           one.close()
@@ -87,6 +90,7 @@ export function packagesWatched(folder: string, changed: () => void): { watch(na
       for (const name of names) if (!watched.has(name)) arm(name)
     },
     close() {
+      closed = true
       clearTimeout(timer)
       for (const one of watched.values()) one.close()
       watched.clear()

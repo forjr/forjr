@@ -58,7 +58,7 @@ export interface Machine {
   many(): boolean
   at(): At
   machines(): MachineRow[]
-  /** Holds a write of the app to a machine that writes now. Throws T0030 or T0029 on any other, and on a reader the error that hands a request on. */
+  /** Holds a write of the app to a machine that writes now. Throws F0030 or F0029 on any other, and on a reader the error that hands a request on. */
   writes(what: string): void
   /** Answers once what a request did may leave this machine. Throws where it may not. */
   leaves(asked: Underway): Promise<void>
@@ -68,7 +68,7 @@ export interface Machine {
   taken(request: Request, about: About): Taken
   /** Whether a request carries the key of a reader, as an address of the link is asked with one. */
   carries(request: Request): boolean
-  /** Answers the key of a reader that a request for an address of the link carries. Throws T0001 where it carries none. */
+  /** Answers the key of a reader that a request for an address of the link carries. Throws F0001 where it carries none. */
   keyed(request: Request, about: About): ReaderKey
   /** Of an app on one machine: becomes the writer of a link where a request carries a key of a reader that the app holds. */
   joinable?(request: Request): Promise<void>
@@ -82,13 +82,13 @@ export interface Machine {
   ): Promise<Response>
   /** Carries a member of the app out as the machines of the app do: `work` is what carries it out on this machine. */
   sent(member: Member, args: unknown[], as: Caller, reads: boolean, work: () => unknown): Promise<unknown>
-  /** Opens the link of a reader, and answers the end that the reader holds. Throws T0001 for a request with no key of a reader. */
+  /** Opens the link of a reader, and answers the end that the reader holds. Throws F0001 for a request with no key of a reader. */
   link(request: Request, about: About): Link
   /** What the request that is under way has done on this machine so far, or nothing where none is. */
   asked(): Underway | undefined
   /** Is told each committed write: a writer hands it to its readers, and it is noted for the request that made it. */
   noted(change: Change): void
-  /** Makes this machine the writer, as `tent take-over` asks it. Answers the epoch and the number of its last write. */
+  /** Makes this machine the writer, as `forjr take-over` asks it. Answers the epoch and the number of its last write. */
   takeOver(): Promise<{ epoch: string; n: number }>
   close(): void
 }

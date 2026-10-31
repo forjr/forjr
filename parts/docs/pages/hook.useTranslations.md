@@ -5,7 +5,7 @@ Reads the messages of the language files in the code of a view, and writes a val
 ## Example
 
 ```tsx
-import { screen, read, useTranslations } from 'tentjs/ui'
+import { screen, read, useTranslations } from 'forjr/ui'
 import { getOrder } from '../functions/orders'
 
 export const orderScreen = screen('orderScreen', {
@@ -42,11 +42,11 @@ export const orderScreen = screen('orderScreen', {
 | `'date'`, `'time'`, `'dateTime'` | The day with the month as a short word and the year; hours and minutes; both. A `date` in the viewer's zone, a `day` with none |
 | `'relative'` | The time between the value and now, as "3 days ago" |
 
-`language` is the language of the page, and `languages` those of the project, the default first. `zone` is the time zone the page writes in: the viewer's own, kept in the cookie `tent_zone`, and `project.zone` in the first HTML of a first visit, after which the page corrects the times it shows.
+`language` is the language of the page, and `languages` those of the project, the default first. `zone` is the time zone the page writes in: the viewer's own, kept in the cookie `forjr_zone`, and `project.zone` in the first HTML of a first visit, after which the page corrects the times it shows.
 
 ## Errors
 
-`code.T6021`: `'currency'` handed to `format` in place in a project that states no `currency`.
+`code.F6021`: `'currency'` handed to `format` in place in a project that states no `currency`.
 
 ## See also
 

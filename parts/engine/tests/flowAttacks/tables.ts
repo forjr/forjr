@@ -1,4 +1,4 @@
-import { list, number, project, table, text } from 'tentjs'
+import { list, number, project, table, text } from 'forjr'
 
 export const flowAttacks = project('flowAttacks', {
   limits: { actionTime: '400 ms' },

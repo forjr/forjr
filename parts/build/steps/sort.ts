@@ -21,11 +21,11 @@ function rootsOf(work: Work): string[] {
   return []
 }
 
-/** Whether a screen file exports `messages(...)` of `tentjs/ui` as its default: then it is a language file. */
+/** Whether a screen file exports `messages(...)` of `forjr/ui` as its default: then it is a language file. */
 function isLanguageFile(seen: Scan): boolean {
   const call = seen.byDefault ? unwrap(seen.byDefault) : undefined
   const callee = call?.type === 'CallExpression' ? nameOf(kid(call, 'callee')) : undefined
-  return seen.imports.some((one) => one.from === 'tentjs/ui' && one.name === 'messages' && one.local === callee)
+  return seen.imports.some((one) => one.from === 'forjr/ui' && one.name === 'messages' && one.local === callee)
 }
 
 function sortOf(work: Work, file: SourceFile): void {
@@ -39,14 +39,14 @@ function sortOf(work: Work, file: SourceFile): void {
   if (file.sort === 'screen' && isLanguageFile(file.seen)) file.sort = 'messages'
   if (second) {
     const imports = file.seen.sorts.map(
-      (one) => `\`${one === 'backend' ? 'tentjs' : one === 'screen' ? 'tentjs/ui' : 'tentjs/cli'}\``,
+      (one) => `\`${one === 'backend' ? 'forjr' : one === 'screen' ? 'forjr/ui' : 'forjr/cli'}\``,
     )
     found(
       work,
-      'T1005',
+      'F1005',
       file,
       file.seen.named.find((one) => sorts[one.from] === second)?.node,
-      `The file ${file.path} imports ${imports.join(' and ')}. A file imports from one of \`tentjs\`, \`tentjs/ui\` and \`tentjs/cli\`, never two of them.`,
+      `The file ${file.path} imports ${imports.join(' and ')}. A file imports from one of \`forjr\`, \`forjr/ui\` and \`forjr/cli\`, never two of them.`,
       'Move the definitions of one side into a file of their own, which imports that side alone. A helper that both sides use lives in a file that imports neither.',
     )
   }
@@ -69,7 +69,7 @@ export const step: Step = {
         if (path === undefined)
           found(
             work,
-            'T1014',
+            'F1014',
             file,
             named.node,
             `The file ${file.path} names \`${named.from}\`, which lies outside the folder of the project.`,

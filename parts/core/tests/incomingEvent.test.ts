@@ -2,13 +2,13 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { typeCheck } from './typed.ts'
 
-const project = `import { project } from 'tentjs'
+const project = `import { project } from 'forjr'
 
 export const shop = project('shop', {})
 `
 
 test('[24-7] the flow that an incoming call starts is handed its event typed as the call: kind, id, headers, body, params and query', () => {
-  const flows = `import { flow, incoming, log } from 'tentjs'
+  const flows = `import { flow, incoming, log } from 'forjr'
 
 export const f = flow('f', {
   run: async ({ event }) => {
@@ -26,8 +26,8 @@ export const f = flow('f', {
 
 export const i = incoming('i', { path: '/hooks/i', open: 'why', then: f })
 `
-  assert.deepEqual(typeCheck('incoming-event', { 'tent.ts': project, 'flows.ts': flows }), [])
-  const wrong = `import { flow } from 'tentjs'
+  assert.deepEqual(typeCheck('incoming-event', { 'forjr.ts': project, 'flows.ts': flows }), [])
+  const wrong = `import { flow } from 'forjr'
 
 export const f = flow('f', {
   run: async ({ event }) => {
@@ -37,7 +37,7 @@ export const f = flow('f', {
 })
 `
   assert.deepEqual(
-    typeCheck('incoming-event-wrong', { 'tent.ts': project, 'flows.ts': wrong }).map((one) => [one.file, one.line]),
+    typeCheck('incoming-event-wrong', { 'forjr.ts': project, 'flows.ts': wrong }).map((one) => [one.file, one.line]),
     [['flows.ts', 5]],
     'the event of a flow with no trigger is no event of a table',
   )

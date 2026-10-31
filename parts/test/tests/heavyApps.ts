@@ -12,7 +12,7 @@ export const system = { as: { kind: 'system' } } as const
 /** The test app of the project of heavy work, with kinds of worker and options of its project added to what it states, closed when the test ends. */
 export async function heavyWith(t: TestContext, kinds = '', project = ''): Promise<TestApp> {
   const folder = copyOf(t, 'heavy')
-  const file = join(folder, 'tent.ts')
+  const file = join(folder, 'forjr.ts')
   writeFileSync(file, readFileSync(file, 'utf8').replace('  workers: {\n', `${project}  workers: {\n${kinds}`))
   const app = await testApp({ folder })
   closing(t, () => app.close())

@@ -19,7 +19,7 @@ import {
   table,
   text,
   vector,
-} from 'tentjs'
+} from 'forjr'
 
 // The document chat of the pieces of AI, in plain definitions, with what the example leaves out: the users, and
 // the changes that add a document and a chat.

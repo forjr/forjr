@@ -85,7 +85,7 @@ export { readSecrets, unreadSecrets } from './values/readSecrets.ts'
 export type { ValuesAsked } from './values/stored.ts'
 export { replaceSecretKey } from './values/replaceKey.ts'
 export { makeSecretKey, newSecretKey, secretsNamed, storedValues } from './values/stored.ts'
-// What each test of `tent test` touched, noted where its work is: the program of the tests keeps and writes it.
+// What each test of `forjr test` touched, noted where its work is: the program of the tests keeps and writes it.
 export type { TestNotes, TouchedKind } from './touched.ts'
 export {
   noteAllAs,

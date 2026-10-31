@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { isId } from './ids.ts'
 
 /**
@@ -36,10 +36,10 @@ const isEntry = (one: unknown): one is BackedUp =>
 /** Whether a folder is a whole backup of the files of tenants: it holds its list. */
 export const isBackup = (folder: string): boolean => existsSync(join(folder, listFile))
 
-/** Answers the list of a backup. Throws T0009 for a folder that holds none, and for a list that is none. */
+/** Answers the list of a backup. Throws F0009 for a folder that holds none, and for a list that is none. */
 export function listOf(folder: string): BackedUp[] {
   const none = (why: string) =>
-    new TentError('T0009', `The folder at ${folder} is no backup of the files of tenants: ${why}.`, {
+    new ForjrError('F0009', `The folder at ${folder} is no backup of the files of tenants: ${why}.`, {
       fix: 'Hand over a folder that `backup` made.',
     })
   if (!isBackup(folder)) throw none(`it holds no \`${listFile}\``)

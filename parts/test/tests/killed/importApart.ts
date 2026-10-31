@@ -16,7 +16,7 @@ const system = { as: { kind: 'system' } }
 const records = readFileSync(file, 'utf8').trim().split('\n').length
 if ((await app.read({ from: 'visits', of: club }, system)).length < records) {
   const { port, token } = JSON.parse(readFileSync(join(dataFolder, 'engine.json'), 'utf8'))
-  const asked = new Request(`http://127.0.0.1:${port}/_t/admin/data`, {
+  const asked = new Request(`http://127.0.0.1:${port}/_f/admin/data`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
     body: JSON.stringify({ args: { what: 'import', file, with: 'addVisit', map: ['Full name=name'] } }),

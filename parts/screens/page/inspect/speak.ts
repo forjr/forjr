@@ -48,7 +48,7 @@ export function inspecting(o: { store: PageStore }): void {
     const now = JSON.stringify([screen, path, version])
     if (now === shown) return
     shown = now
-    requestAnimationFrame(() => requestAnimationFrame(() => post({ t: 'tent.ready', screen, path, version })))
+    requestAnimationFrame(() => requestAnimationFrame(() => post({ t: 'forjr.ready', screen, path, version })))
   }
   ready()
   o.store.listen(ready)
@@ -60,7 +60,7 @@ export function inspecting(o: { store: PageStore }): void {
     const now = JSON.stringify(element ? [element.place, element.uses, element.rect] : null)
     if (now === over) return
     over = now
-    post(element ? { t: 'tent.over', element } : { t: 'tent.over' })
+    post(element ? { t: 'forjr.over', element } : { t: 'forjr.over' })
   }
   document.addEventListener('pointermove', (event) => pointed(event.target), { capture: true, passive: true })
   document.documentElement.addEventListener('pointerleave', () => pointed(null), { passive: true })
@@ -76,7 +76,7 @@ export function inspecting(o: { store: PageStore }): void {
         event.stopImmediatePropagation()
         if (kind !== 'click') return
         const element = told(event.target)
-        post(element ? { t: 'tent.picked', element } : { t: 'tent.picked' })
+        post(element ? { t: 'forjr.picked', element } : { t: 'forjr.picked' })
       },
       { capture: true },
     )
@@ -85,12 +85,12 @@ export function inspecting(o: { store: PageStore }): void {
     if (event.source !== tool || event.origin !== origin) return
     const asked: unknown = event.data
     if (!isStored(asked)) return
-    if (asked.t === 'tent.pick') picking = asked.on === true
-    else if (asked.t === 'tent.tree') post({ t: 'tent.tree', elements: treeOf(document, o.store.page.screen) })
-    else if (asked.t === 'tent.goTo') {
+    if (asked.t === 'forjr.pick') picking = asked.on === true
+    else if (asked.t === 'forjr.tree') post({ t: 'forjr.tree', elements: treeOf(document, o.store.page.screen) })
+    else if (asked.t === 'forjr.goTo') {
       const path = pathHeld(asked.path)
       if (path !== undefined) o.store.goTo(path)
-    } else if (asked.t === 'tent.highlight') highlight(asked)
+    } else if (asked.t === 'forjr.highlight') highlight(asked)
   })
 
   /** Draws a frame around the elements of a place, or takes it away where the message names none. A message of another form sets nothing. */

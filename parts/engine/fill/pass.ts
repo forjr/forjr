@@ -3,7 +3,7 @@ import type { Opened } from '../opened.ts'
 import type { FillGroup } from './columns.ts'
 import { fillGroups } from './columns.ts'
 import { nextFillAt, openDue } from './closedFiles.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { makeEmbeds } from './embedding.ts'
 import { openBehind } from './fileNotes.ts'
 import { fillInputOf, fillRowIn } from './inputs.ts'
@@ -79,10 +79,10 @@ function dueOf(o: Opened, group: FillGroup, now: number): { due: Due[]; next?: n
   return { due, ...(next === undefined ? {} : { next }) }
 }
 
-/** Fails the rows of a column whose `by` states `atLimit: 'fail'` at its limit: each counts a try, with T7102. */
+/** Fails the rows of a column whose `by` states `atLimit: 'fail'` at its limit: each counts a try, with F7102. */
 function failAtLimit(o: Opened, group: FillGroup, rows: Due[], held: ColumnHeld): void {
-  const error = new TentError(
-    'T7102',
+  const error = new ForjrError(
+    'F7102',
     `The filling of the column reached its limit \`perDay\` of ${held.limit} ${held.unit}.`,
     { fields: { limit: 'perDay', unit: held.unit }, fix: 'Raise `limits.perDay` of its `by`, or let it wait.' },
   )

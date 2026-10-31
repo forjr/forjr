@@ -3,7 +3,7 @@ import { wordOf } from '../admin.ts'
 import { servicesOf } from '../services/env.ts'
 
 /**
- * `tent mcp approve <service>`: asks an outside MCP server for its tools now, with the values of its auth, or
+ * `forjr mcp approve <service>`: asks an outside MCP server for its tools now, with the values of its auth, or
  * with `as` with the connection of that user. Answers each tool with its description and its input, and for a
  * server that says in its own documents where it signs people in, the host that does.
  */

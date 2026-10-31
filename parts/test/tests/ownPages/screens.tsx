@@ -1,4 +1,4 @@
-import { read, screen } from 'tentjs/ui'
+import { read, screen } from 'forjr/ui'
 import { stuckDrawer } from './functions'
 
 export const homeScreen = screen('homeScreen', {

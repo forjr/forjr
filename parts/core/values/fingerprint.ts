@@ -3,7 +3,7 @@ import { fingerprintOf } from '../write.ts'
 
 /**
  * Takes a text. Answers SHA-256 of its bytes as UTF-8, written as lowercase hex. Handed a reference it answers its
- * record. Throws T0027 for anything but text.
+ * record. Throws F0027 for anything but text.
  */
 export function fingerprint(text: string): string
 export function fingerprint(...values: unknown[]): unknown {

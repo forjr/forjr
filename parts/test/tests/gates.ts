@@ -86,14 +86,14 @@ export async function signedIn(
 
 /** The page record of a document, read as the page code finds and reads it. */
 export function recordOf(html: string): Record<string, unknown> {
-  const found = /<script type="application\/json" id="tent-page">([\s\S]*?)<\/script>/.exec(html)
+  const found = /<script type="application\/json" id="forjr-page">([\s\S]*?)<\/script>/.exec(html)
   assert.ok(found, `the document holds a page record: ${html.slice(0, 200)}`)
   return JSON.parse(found[1])
 }
 
 /** The text of the page record as the document writes it, between the tags of its script. */
 export const blockOf = (html: string): string =>
-  /<script type="application\/json" id="tent-page">([\s\S]*?)<\/script>/.exec(html)?.[1] ?? ''
+  /<script type="application\/json" id="forjr-page">([\s\S]*?)<\/script>/.exec(html)?.[1] ?? ''
 
 /** One thing that a reader of HTML makes of a document: an element with its attributes, the end of one, or a comment. */
 export interface Tag {

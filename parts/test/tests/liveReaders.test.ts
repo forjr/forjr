@@ -41,7 +41,7 @@ const order = (app: TestApp, title: string): Promise<unknown> =>
 
 /** The number of the epoch that a machine stands in, as a mark names it. */
 const epochOf = async (app: TestApp): Promise<string> =>
-  String((await send(app, 'listOrders')).headers.get('tent-at')).split('.')[0]
+  String((await send(app, 'listOrders')).headers.get('forjr-at')).split('.')[0]
 
 /**
  * Changes one text of the project of a test for another, builds the project into a folder of its own, and answers
@@ -72,7 +72,7 @@ test('[29-8] a watch on a reader is answered with no request reaching the writer
     const page = watcher(reader)
     const first = await page.watch('a', 'listOrders')
     assert.deepEqual([first.t, Object(first.value).length], ['result', (await titles(reader)).length])
-    // `at` is the write the answer was worked out at, in the form of `Tent-At`.
+    // `at` is the write the answer was worked out at, in the form of `Forjr-At`.
     assert.equal(first.at, `${await epochOf(app)}.${reader.at().n}`)
     await send(app, 'addOrder', { title: `two for ${reader.at().n}` })
     await until('the page of the reader is sent the row', () => page.of('rows', 'a').length === 1)
@@ -243,8 +243,8 @@ test('[29-8] with two versions loadable a page of the older one is served by a r
     [first, first, first],
   )
   // The versions are the writer's: a reader adds, switches and drops nothing by itself.
-  assert.equal(await codeOf(near.switch(second)), 'T0030')
-  assert.equal(await codeOf(far.drop(second)), 'T0030')
+  assert.equal(await codeOf(near.switch(second)), 'F0030')
+  assert.equal(await codeOf(far.drop(second)), 'F0030')
   // Each version that can be loaded serves the pages that name it, on a reader as on the writer.
   const before = callsOf(t, 'data', 'listOrders')
   for (const reader of [near, far]) {
@@ -284,7 +284,7 @@ test(
     // A reader of this app may be behind for two minutes, so a link that carries nothing is not given up before
     // the time that a switch gives a reader has passed.
     const { app, near, far } = await machinesOf(t, (folder) => {
-      const file = join(folder, 'tent.ts')
+      const file = join(folder, 'forjr.ts')
       const stated = "{ title: 'Many machines' }"
       assert.ok(readFileSync(file, 'utf8').includes(stated))
       writeFileSync(
@@ -330,7 +330,7 @@ test(
 )
 
 test(
-  '[29-6@6] a reader that is not current closes its live connections and refuses a new one with T0029',
+  '[29-6@6] a reader that is not current closes its live connections and refuses a new one with F0029',
   readersHeld,
   async (t) => {
     const { app, near } = await machinesOf(t)
@@ -340,7 +340,7 @@ test(
     await beat(app, 7)
     assert.equal(near.at().current, false)
     await until('the live connection of the reader was closed', () => page.closed())
-    assert.equal(await codeOf(() => watcher(near)), 'T0029')
+    assert.equal(await codeOf(() => watcher(near)), 'F0029')
     // Joined again and current, it takes a live connection as before.
     near.join()
     await current(app, near)
@@ -358,7 +358,7 @@ test(
       await nextVersion(
         t,
         'shorter',
-        'tent.ts',
+        'forjr.ts',
         "{ title: 'Many machines' }",
         "{ title: 'Many machines', limits: { behind: '2 seconds' } }",
       ),
@@ -392,7 +392,7 @@ test(
 
 test('[29-6@6] a version that a reader cannot load is never ready there, and the log of the reader says so as the log of the writer does', async (t) => {
   const { app, near, far } = await machinesOf(t, (folder) => {
-    const file = join(folder, 'tent.ts')
+    const file = join(folder, 'forjr.ts')
     const stated = "{ title: 'Many machines' }"
     writeFileSync(
       file,

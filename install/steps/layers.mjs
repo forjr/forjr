@@ -50,10 +50,10 @@ export function laidOut(c, system) {
   cpSync(join(c.work, 'tree', 'player'), join(at, 'player'), { recursive: true })
   cpSync(join(c.work, 'tree', 'tools'), join(at, 'tools'), { recursive: true })
   for (const layer of ['player', 'tools']) json(join(at, layer, 'package.json'), { type: 'module' })
-  cpSync(join(c.root, 'install', 'player', 'tent.mjs'), join(at, 'player', 'tent.mjs'))
-  cpSync(join(c.root, 'install', 'unix', 'tent'), join(at, 'player', 'launcher', 'tent'))
+  cpSync(join(c.root, 'install', 'player', 'forjr.mjs'), join(at, 'player', 'forjr.mjs'))
+  cpSync(join(c.root, 'install', 'unix', 'forjr'), join(at, 'player', 'launcher', 'forjr'))
   json(join(at, 'player', 'shipped.json'), {
-    format: 'tent.shipped/1',
+    format: 'forjr.shipped/1',
     version: c.version,
     ...(c.from ? { releases: c.from } : {}),
   })

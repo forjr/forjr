@@ -14,7 +14,7 @@ function fileOf(file: string): { check: unknown[]; rows: number; highest: unknow
   const db = new DatabaseSync(file)
   try {
     const counted = db.prepare('SELECT count(*) AS "rows", max("k") AS "highest" FROM "entries"').get()
-    const meta = db.prepare(`SELECT "value" FROM "_t_meta" WHERE "key" = 'n'`).get()
+    const meta = db.prepare(`SELECT "value" FROM "_f_meta" WHERE "key" = 'n'`).get()
     return {
       check: db
         .prepare('PRAGMA integrity_check')
@@ -94,6 +94,6 @@ test('[20-6] a backup taken during writes restores to a file that passes the int
   assert.equal(fileOf(both[1]).n, taken.n + 1)
   assert.equal(fileOf(first).n, taken.n)
   // A file that is no data file is not put in place, and the store is as it was.
-  await assert.rejects(restore(store, join(folder, 'nothing.db')), { code: 'T0009' })
+  await assert.rejects(restore(store, join(folder, 'nothing.db')), { code: 'F0009' })
   assert.equal(store.read({ from: 'entries', count: true }, system).value, taken.n + 1)
 })

@@ -1,4 +1,4 @@
-import { command } from 'tentjs/cli'
+import { command } from 'forjr/cli'
 import { hello } from '../functions'
 
 // A command written in code, which runs on the person's computer once the address is added.

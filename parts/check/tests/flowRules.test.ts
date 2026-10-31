@@ -9,9 +9,9 @@ import { checkRules } from '../ours.ts'
 import { list } from '../rules/list.ts'
 import { copyOf, heldToProjects, lineWith } from './copies.ts'
 
-// The rules of the flows, each by the name of its file in the list. T5003 is held apart: it reads the facts of a
+// The rules of the flows, each by the name of its file in the list. F5003 is held apart: it reads the facts of a
 // running app, and finds nothing where none are handed in.
-const alone = ['T5001', 'T5002', 'T3004/flows', 'T7009/flows', 'T5007/kinds', 'T5007/definitions']
+const alone = ['F5001', 'F5002', 'F3004/flows', 'F7009/flows', 'F5007/kinds', 'F5007/definitions']
 const file = 'flows/orders.ts'
 
 /** A project of a rule, copied, with what the rules of our own find in it. */
@@ -28,22 +28,22 @@ async function checked(name: string, side: 'pass' | 'fail', facts?: Facts) {
 function whole(findings: Finding[], level = 'error'): void {
   for (const one of findings) {
     // A finding of a kind of worker stands at the project, and every other at its definition.
-    assert.ok([file, 'tent.ts'].includes(String(one.where?.file)), one.code)
+    assert.ok([file, 'forjr.ts'].includes(String(one.where?.file)), one.code)
     assert.ok((one.where?.line ?? 0) > 0, one.code)
     assert.ok(one.message.length > 10 && one.fix, one.code)
-    assert.equal(one.docs, `tent docs ${one.code}`)
+    assert.equal(one.docs, `forjr docs ${one.code}`)
     assert.equal(one.level, level, one.code)
   }
 }
 
 test('[15-1@7b] every rule of the flows has a passing project and a failing project, and the failing one gives exactly its code', async () => {
   const names = list.map((one) => one.name)
-  for (const name of [...alone, 'T5003']) assert.ok(names.includes(name), `the rule ${name} is built`)
+  for (const name of [...alone, 'F5003']) assert.ok(names.includes(name), `the rule ${name} is built`)
   for (const name of alone) whole((await heldToProjects(name)).findings)
 })
 
 test('[23-5] [15-1@7b] a call to a change outside a step is reported by the check, and so is each other work there and each word that is drawn, at its line, with the fix', async () => {
-  const { findings, at } = await checked('T5001', 'fail')
+  const { findings, at } = await checked('F5001', 'fail')
   const pieces = {
     'addOrder({ title: input.title })': /calls the change `addOrder`/,
     'await other()': /calls the flow `other`/,
@@ -56,7 +56,7 @@ test('[23-5] [15-1@7b] a call to a change outside a step is reported by the chec
   for (const [piece, sentence] of Object.entries(pieces)) {
     const [one, ...more] = at(piece)
     assert.ok(one && more.length === 0, `one finding at \`${piece}\``)
-    assert.equal(one.code, 'T5001')
+    assert.equal(one.code, 'F5001')
     assert.match(one.message, sentence)
     assert.match(one.message, /outside a step/)
     assert.match(String(one.fix), /await step\('a name', \(\) => \.\.\.\)/)
@@ -66,95 +66,95 @@ test('[23-5] [15-1@7b] a call to a change outside a step is reported by the chec
   assert.equal(findings.length, Object.keys(pieces).length)
   // The same work inside a step, a query, a read through `db`, a member of a handle that only reads, `log`, a
   // word that works on what it is handed, and `step.now()` between two steps are all as the documents ask.
-  assert.deepEqual((await checked('T5001', 'pass')).findings, [])
+  assert.deepEqual((await checked('F5001', 'pass')).findings, [])
 })
 
 test('[23-6] [15-1@7b] a step that is not awaited is reported by the check, at its line, and one whose promise is kept, answered or handed on is not', async () => {
-  const { findings, at } = await checked('T5002', 'fail')
+  const { findings, at } = await checked('F5002', 'fail')
   for (const [piece, tool] of [
     ["step('add'", 'step'],
     ["step.wait('1 day')", 'step.wait'],
   ]) {
     const [one, ...more] = at(piece)
     assert.ok(one && more.length === 0, `one finding at \`${piece}\``)
-    assert.equal(one.code, 'T5002')
+    assert.equal(one.code, 'F5002')
     assert.ok(one.message.includes(`\`${tool}\` is not awaited`), one.message)
     assert.match(String(one.fix), /await/)
     assert.equal(one.where?.definition, 'hasty')
   }
   assert.equal(findings.length, 2)
-  assert.deepEqual((await checked('T5002', 'pass')).findings, [])
+  assert.deepEqual((await checked('F5002', 'pass')).findings, [])
 })
 
-test('[15-1@7b] T5003: a step name that runs which have not ended depend on, and that is gone or renamed, is reported from the facts of the running app, as a warning at the flow', async () => {
+test('[15-1@7b] F5003: a step name that runs which have not ended depend on, and that is gone or renamed, is reported from the facts of the running app, as a warning at the flow', async () => {
   // What the running app says: runs of `bigOrder` that have not ended saved `tell sales` and wait at `approval`.
   const facts: Facts = { tableFindings: [], waitingStepNames: { bigOrder: ['tell sales', 'approval'] } }
   for (const side of ['pass', 'fail'] as const)
-    assert.deepEqual((await checked('T5003', side)).findings, [], `the ${side}ing project, with no facts`)
-  assert.deepEqual((await checked('T5003', 'pass', facts)).findings, [])
-  const { findings, at } = await checked('T5003', 'fail', facts)
+    assert.deepEqual((await checked('F5003', side)).findings, [], `the ${side}ing project, with no facts`)
+  assert.deepEqual((await checked('F5003', 'pass', facts)).findings, [])
+  const { findings, at } = await checked('F5003', 'fail', facts)
   assert.equal(findings.length, 1)
   const [one] = at("flow('bigOrder'")
   assert.ok(one, 'the finding stands at the flow')
-  assert.deepEqual([one.code, one.where?.definition], ['T5003', 'bigOrder'])
+  assert.deepEqual([one.code, one.where?.definition], ['F5003', 'bigOrder'])
   assert.match(one.message, /`tell sales`, which is gone or renamed/)
   whole(findings, 'warning')
 
   // Steps that the step tools name themselves, and the steps of a flow's own `onFail`, are no step of `run`.
   const own: Facts = { tableFindings: [], waitingStepNames: { bigOrder: ['tell sales', 'wait', 'onFail.tidy'] } }
-  assert.deepEqual((await checked('T5003', 'pass', own)).findings, [])
+  assert.deepEqual((await checked('F5003', 'pass', own)).findings, [])
   // Runs of a flow that the project no longer holds are told at the project.
   const gone: Facts = { tableFindings: [], waitingStepNames: { oldFlow: ['first'] } }
-  const told = (await checked('T5003', 'pass', gone)).findings
+  const told = (await checked('F5003', 'pass', gone)).findings
   assert.deepEqual(
     told.map((found) => [found.code, found.level, found.where?.file, found.where?.definition]),
-    [['T5003', 'warning', 'tent.ts', 'shop']],
+    [['F5003', 'warning', 'forjr.ts', 'shop']],
   )
   assert.match(told[0].message, /oldFlow/)
 })
 
-test('[23-18] [15-1@7b] a flow that does not run as its starter, called and waited for from an action that states no `system`, is T3004 for the check, and the same call from an action that states `system`, and `start`, are not', async () => {
-  const { at } = await checked('T3004/flows', 'fail')
+test('[23-18] [15-1@7b] a flow that does not run as its starter, called and waited for from an action that states no `system`, is F3004 for the check, and the same call from an action that states `system`, and `start`, are not', async () => {
+  const { at } = await checked('F3004/flows', 'fail')
   const [one, ...more] = at('await tidy()')
   assert.ok(one && more.length === 0)
-  assert.deepEqual([one.code, one.where?.definition], ['T3004', 'tidyNow'])
+  assert.deepEqual([one.code, one.where?.definition], ['F3004', 'tidyNow'])
   assert.match(one.message, /calls the flow `tidy` and waits for it/)
   assert.match(String(one.fix), /system: 'why'/)
   // The passing project holds the same call under `system`, a `start`, and a call of a flow that runs as its starter.
-  assert.deepEqual((await checked('T3004/flows', 'pass')).findings, [])
+  assert.deepEqual((await checked('F3004/flows', 'pass')).findings, [])
 })
 
-test("[23-30] [15-1@7b] an offered flow that neither states `as: 'starter'` nor `system` is T3004, and one with no `input` is T7009, each at its flow", async () => {
-  const full = await checked('T3004/flows', 'fail')
+test("[23-30] [15-1@7b] an offered flow that neither states `as: 'starter'` nor `system` is F3004, and one with no `input` is F7009, each at its flow", async () => {
+  const full = await checked('F3004/flows', 'fail')
   const [open, ...more] = full.at("flow('welcome'")
   assert.ok(open && more.length === 0)
-  assert.deepEqual([open.code, open.where?.definition], ['T3004', 'welcome'])
+  assert.deepEqual([open.code, open.where?.definition], ['F3004', 'welcome'])
   assert.match(open.message, /is offered, and has full access with no reason stated/)
   assert.match(String(open.fix), /as: 'starter'/)
   // The flow that nothing offers has full access and is not found.
   assert.equal(full.findings.length, 2)
 
-  const told = await checked('T7009/flows', 'fail')
+  const told = await checked('F7009/flows', 'fail')
   const [bare] = told.at("flow('welcome'")
-  assert.deepEqual([bare?.code, bare?.where?.definition], ['T7009', 'welcome'])
+  assert.deepEqual([bare?.code, bare?.where?.definition], ['F7009', 'welcome'])
   assert.match(bare.message, /offered to the pages of the app, and states no `input`\./)
   // One that is offered to an outside door says what a caller there must know of it.
   const [door] = told.at("flow('report'")
-  assert.deepEqual([door?.code, door?.where?.definition], ['T7009', 'report'])
+  assert.deepEqual([door?.code, door?.where?.definition], ['F7009', 'report'])
   assert.match(door.message, /offered to an outside door, and states no `about`, no `output`\./)
   // And one that an agent uses as a tool says what a model must know of it.
   const [tool] = told.at("flow('tidy'")
-  assert.deepEqual([tool?.code, tool?.where?.definition], ['T7009', 'tidy'])
+  assert.deepEqual([tool?.code, tool?.where?.definition], ['F7009', 'tidy'])
   assert.match(tool.message, /is a tool of an agent, and states no `about`, no `input`, no `output`\./)
   assert.equal(told.findings.length, 3)
   whole(told.findings)
 })
 
-test('[23-14] a value of the wrong type handed to a call inside a step, and a read of a field that the answer of an earlier step does not have, are each reported by `tent check`, from the type checker', async () => {
+test('[23-14] a value of the wrong type handed to a call inside a step, and a read of a field that the answer of an earlier step does not have, are each reported by `forjr check`, from the type checker', async () => {
   const folder = copyOf('flowTyped', 'flowTyped')
   const text = readFileSync(join(folder, file), 'utf8')
   const { findings } = await checkProject(folder)
-  const typed = findings.filter((one) => one.code === 'T8000')
+  const typed = findings.filter((one) => one.code === 'F8000')
   for (const piece of ['addOrder({ title: 5 })', 'saved.nothere']) {
     const line = lineWith(text, piece)
     assert.ok(line > 0, piece)
@@ -164,8 +164,8 @@ test('[23-14] a value of the wrong type handed to a call inside a step, and a re
   assert.equal(typed.length, 2, JSON.stringify(typed.map((one) => [one.where?.line, one.message])))
 })
 
-test('[51-2] [15-1@7b] the check reports as T5007 a worker of no kind, a worker beside background, a next that runs in a ring or names no cause or wait beside orHere, and system work or code with no uses on a kind that states systemWork false', async () => {
-  const { findings } = await checked('T5007/kinds', 'fail')
+test('[51-2] [15-1@7b] the check reports as F5007 a worker of no kind, a worker beside background, a next that runs in a ring or names no cause or wait beside orHere, and system work or code with no uses on a kind that states systemWork false', async () => {
+  const { findings } = await checked('F5007/kinds', 'fail')
   const told = findings.map((one) => one.message)
   for (const piece of [/tpu/, /beside /, /runs in a ring/, /names no cause/, /orHere/, /runs as the system/])
     assert.ok(
@@ -175,22 +175,22 @@ test('[51-2] [15-1@7b] the check reports as T5007 a worker of no kind, a worker 
   assert.equal(findings.filter((one) => /tpu/.test(one.message)).length, 2, 'on an action and on a step')
 })
 
-test('[51-2] [15-1@7b] the check notes as T5008 an action that states background and not sends false', async () => {
-  const failing = await checked('T5008', 'fail')
+test('[51-2] [15-1@7b] the check notes as F5008 an action that states background and not sends false', async () => {
+  const failing = await checked('F5008', 'fail')
   assert.deepEqual(
     failing.findings.map((one) => [one.code, one.level, one.where?.definition]),
-    [['T5008', 'note', 'encode']],
+    [['F5008', 'note', 'encode']],
   )
-  assert.deepEqual((await checked('T5008', 'pass')).findings, [])
+  assert.deepEqual((await checked('F5008', 'pass')).findings, [])
 })
 
-test('[51-2] [15-1@7b] T5007 finds a kind of worker that a step names through a variable', async () => {
-  const { findings } = await checked('T5007/kinds', 'fail')
+test('[51-2] [15-1@7b] F5007 finds a kind of worker that a step names through a variable', async () => {
+  const { findings } = await checked('F5007/kinds', 'fail')
   assert.equal(findings.filter((one) => /"quantum"/.test(one.message)).length, 1)
 })
 
-test('[15-1@7b] T5007: a batch whose code takes no list or answers none, a reserve past a limit of use that holds it, and an action that states changes false and starts a run or emits', async () => {
-  const { findings } = await checked('T5007/definitions', 'fail')
+test('[15-1@7b] F5007: a batch whose code takes no list or answers none, a reserve past a limit of use that holds it, and an action that states changes false and starts a run or emits', async () => {
+  const { findings } = await checked('F5007/definitions', 'fail')
   const told = findings.map((one) => `${one.where?.definition} ${one.message}`)
   for (const piece of [
     /batchOfOne .*takes no list/,
@@ -203,4 +203,29 @@ test('[15-1@7b] T5007: a batch whose code takes no list or answers none, a reser
       told.some((one) => piece.test(one)),
       `${piece}: ${JSON.stringify(told)}`,
     )
+})
+
+/** A project of these tests, copied, with the findings of the rules of the flows in it, each by its line. */
+async function found(name: string, code: string): Promise<{ line: number; message: string }[]> {
+  const folder = copyOf(join('flowCases', name), `flow-${name}`)
+  const { findings } = await checkRules(folder, {})
+  return findings
+    .filter((one) => one.code === code && one.where?.file === file)
+    .map((one) => ({ line: one.where?.line ?? 0, message: one.message }))
+}
+
+test('[23-5] the check finds no work outside a step where the step tool has another name, and finds a drawn word that was imported under another name', async () => {
+  const text = readFileSync(join(import.meta.dirname, 'flowCases', 'renamed', file), 'utf8')
+  const lines = (await found('renamed', 'F5001')).map((one) => one.line)
+  assert.deepEqual(lines, [lineWith(text, 'const at = clock()')])
+})
+
+test('[23-6] the check reports a step that is not awaited, also where it stands in an arrow, behind `void`, or with `then`', async () => {
+  const text = readFileSync(join(import.meta.dirname, 'flowCases', 'unawaited', file), 'utf8')
+  const lines = (await found('unawaited', 'F5002')).map((one) => one.line).sort((a, b) => a - b)
+  assert.deepEqual(lines, [
+    lineWith(text, "void step('first'"),
+    lineWith(text, 'forEach((title) => step('),
+    lineWith(text, "step('then'"),
+  ])
 })

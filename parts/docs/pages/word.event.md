@@ -13,7 +13,7 @@ on: event('order.shipped')
 | Option | Means |
 |---|---|
 | `option.event.key` | In `stopOn` of a flow: an arrow over `{ data }` of the event that answers the key of the runs it stops (`option.flow.stopOn`) |
-| `option.event.data` | A type, as `object({ order: text() })`: the event is declared, `emit` of it holds its data to the type, and each `on` and `step.waitFor` of it is handed that type. A backend file exports the declaration, and the build lists it in `tent.d.ts` by its name |
+| `option.event.data` | A type, as `object({ order: text() })`: the event is declared, `emit` of it holds its data to the type, and each `on` and `step.waitFor` of it is handed that type. A backend file exports the declaration, and the build lists it in `forjr.d.ts` by its name |
 | `option.event.where` | In `on` of a flow: the values that the data of the event must hold for the flow to start, as `{ flow: 'billing' }`. A flow is never started by `run.failed` or `run.stopped` of one of its own runs |
 
 ## Returns
@@ -33,8 +33,8 @@ export const tellCustomer = flow('tellCustomer', {
 
 ## Errors
 
-`code.T1014`: in `stopOn`, an event with no `key`. `code.T5111`, a warning: an event that no file declares is emitted with data of two shapes.
+`code.F1014`: in `stopOn`, an event with no `key`. `code.F5111`, a warning: an event that no file declares is emitted with data of two shapes.
 
 ## See also
 
-`word.emit`, `word.flow`, `option.flow.stopOn`, `code.T5111`, `option.project.cache`
+`word.emit`, `word.flow`, `option.flow.stopOn`, `code.F5111`, `option.project.cache`

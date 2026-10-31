@@ -33,11 +33,11 @@ export function keepTried(home: string): void {
 /**
  * Says, in one line, that the version of this install is on the list of known problems, as the install last read
  * it. Where that list is older than a day, or was never read, and no look in the last day read nothing, it starts
- * the look at it, which a program of its own does, so that no command waits for it. `TENT_NOTICES=off` switches
+ * the look at it, which a program of its own does, so that no command waits for it. `FORJR_NOTICES=off` switches
  * both off. A framework that runs from its own sources has no version, and says nothing.
  */
 export function noticed(told: (line: string) => void): void {
-  if (process.env.TENT_NOTICES === 'off') return
+  if (process.env.FORJR_NOTICES === 'off') return
   const shipped = shippedRelease()
   if (!shipped) return
   const home = runnerFolder()
@@ -45,7 +45,7 @@ export function noticed(told: (line: string) => void): void {
   const line = kept?.versions[shipped.version]
   if (line)
     told(
-      `Tent.js ${shipped.version} has a known problem: ${line.problem} It is fixed in ${line.fixed}: type tent update.`,
+      `Forjr ${shipped.version} has a known problem: ${line.problem} It is fixed in ${line.fixed}: type forjr update.`,
     )
   if (Date.now() - Math.max(kept?.readAt ?? 0, triedAt(home)) < day) return
   const look = spawn(process.execPath, [fileURLToPath(new URL('./knownLook.ts', import.meta.url))], {

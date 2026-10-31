@@ -176,7 +176,7 @@ function stepLengths(told: Told, node: unknown): void {
 /**
  * Takes a body as the build read it. Answers the body as it is stored: a copy, in which `time` and `reserve` of a
  * step, and `for` of its `remember`, are milliseconds where they were written as a length of time. A length that
- * is worked out stays as it is. Reports a written length that does not read (T1011).
+ * is worked out stays as it is. Reports a written length that does not read (F1011).
  */
 export function storedBody(told: Told, body: unknown[]): unknown[] {
   const stored: unknown[] = structuredClone(body)

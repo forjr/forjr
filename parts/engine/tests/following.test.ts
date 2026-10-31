@@ -139,7 +139,7 @@ test("[21-8] [05-5.7] two visitors who watch working of one agent are each sent 
   h.say(() => ({ text: 'Fine.' }))
   const visitor = async (): Promise<{ cookie: string; run: string }> => {
     const answer = await h.app.request(
-      new Request(`${h.origin}/_t/call/helper`, {
+      new Request(`${h.origin}/_f/call/helper`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', origin: h.origin },
         body: JSON.stringify({ input: { message: 'Hi.' } }),
@@ -167,12 +167,12 @@ test("[21-8] [05-5.7] two visitors who watch working of one agent are each sent 
   )
 })
 
-test('[05-5.9] a run-watch on a run of another caller is failed with T0001', async (t) => {
+test('[05-5.9] a run-watch on a run of another caller is failed with F0001', async (t) => {
   const h = await helped(t)
   h.say(oneTool('refund', { order: 'o1' }))
   const { run } = await started(h, h.leo)
   const page = await liveOf(h, h.maya)
   page.send({ t: 'run-watch', id: 'r3', run })
   await untilTried('the watch failed', () => page.of('failed', 'r3').length === 1)
-  assert.equal(Object(page.of('failed', 'r3')[0].error).code, 'T0001')
+  assert.equal(Object(page.of('failed', 'r3')[0].error).code, 'F0001')
 })

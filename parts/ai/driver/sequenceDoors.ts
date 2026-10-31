@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Listed, SequenceDoors } from '../../core/internal.ts'
 import { checkValue, twoLinesOf, walkSequence, written } from '../../core/internal.ts'
 import { modelCall } from '../layer/modelCall.ts'
@@ -40,7 +40,7 @@ function placeOf(step: string): number[] {
 export function passed(s: Sequencing): void {
   if (performance.now() - s.since > s.r.agent.limits.pass)
     throw ending(
-      new TentError('T5104', 'The sequence worked past `limits.pass` of the agent between two of its calls.', {
+      new ForjrError('F5104', 'The sequence worked past `limits.pass` of the agent between two of its calls.', {
         fix: 'Hand less work to one sequence, or raise `limits.pass` of the agent.',
       }),
     )
@@ -72,9 +72,9 @@ function walked(s: Sequencing, within?: number[]): { calls: Listed[]; more: bool
 
 /**
  * Asks the starter once for what the walk lists, in the step `ask N.P.K` of the waiting call or `all`. A walk that
- * lists more calls than are left of `toolCalls` ends the sequence with T7102 before any of them: the waiting call
+ * lists more calls than are left of `toolCalls` ends the sequence with F7102 before any of them: the waiting call
  * was counted already where `counted` says so, and an `all` counts none. A no, or the end of `limits.ask`, ends it
- * with T7111. A yes covers each listed call that asks, by the name of its step and its input. Answers what was shown.
+ * with F7111. A yes covers each listed call that asks, by the name of its step and its input. Answers what was shown.
  */
 async function asked(
   s: Sequencing,
@@ -88,8 +88,8 @@ async function asked(
   const left = limit - r.toolCalls.n + (counted ? 1 : 0)
   if (walk.calls.length > left)
     throw ending(
-      new TentError(
-        'T7102',
+      new ForjrError(
+        'F7102',
         `The sequence would make ${walk.calls.length} more calls, and ${left} are left of \`limits.toolCalls\` (${limit}).`,
         { fields: { limit: 'toolCalls', unit: 'calls' } },
       ),
@@ -100,7 +100,7 @@ async function asked(
     show: shown,
   })
   s.since = performance.now()
-  if (answer.approved !== true) throw ending(new TentError('T7111', 'The person refused this.'))
+  if (answer.approved !== true) throw ending(new ForjrError('F7111', 'The person refused this.'))
   const saved: unknown = Reflect.get(Object(answer.shown ?? shown), 'sequence')
   for (const one of Array.isArray(saved) ? saved : [])
     if (Reflect.get(Object(one), 'asks') === true)
@@ -117,12 +117,12 @@ async function toolDoor(s: Sequencing, name: string, input: unknown, at: number[
   const { r } = s
   const place = at.join('.')
   if (s.stopped.some((one) => place.startsWith(`${one}.`)))
-    throw new TentError('T0013', 'The entry stopped: another entry of its `all` failed.')
+    throw new ForjrError('F0013', 'The entry stopped: another entry of its `all` failed.')
   r.toolCalls.n += 1
   if (r.toolCalls.n > r.agent.limits.toolCalls) throw ending(reached('toolCalls', 'calls', r.agent.limits.toolCalls))
   const step = `tool ${s.n}.${s.m}.${place} ${name}`
   const tool = r.offered.find((one) => one.entry.told === name)
-  if (!tool) throw new TentError('T0001', `no such tool: ${name}`)
+  if (!tool) throw new ForjrError('F0001', `no such tool: ${name}`)
   // The input of a tool of an outside server is held by the server, by the schema its approval wrote.
   const misses = tool.kind === 'outside' ? [] : checkValue(tool.input, input)
   if (misses.length) {
@@ -130,7 +130,7 @@ async function toolDoor(s: Sequencing, name: string, input: unknown, at: number[
       called: r.told.called,
       specs: [...r.told.specs, ...r.told.outside],
     })
-    throw new TentError('T0002', [...misses.map((one) => one.message), lines].filter(Boolean).join('\n'))
+    throw new ForjrError('F0002', [...misses.map((one) => one.message), lines].filter(Boolean).join('\n'))
   }
   let leave = leaveOf(tool)
   if (tool.asks) {

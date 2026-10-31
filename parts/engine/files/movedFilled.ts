@@ -9,7 +9,7 @@ const ofTable = (table: string) => ({ from: filled.name, where: { col: 'tableNam
 
 /**
  * Takes a store, the name of a table, and the ids of rows of it where not all are meant. Answers the rows of
- * `_t_filled` of those rows, which move with them: none where the store holds no such table.
+ * `_f_filled` of those rows, which move with them: none where the store holds no such table.
  */
 export function filledOf(store: Store | undefined, table: string, ids?: Set<string>): Row[] {
   if (!store?.layout().some((one) => one.name === filled.name)) return []
@@ -18,7 +18,7 @@ export function filledOf(store: Store | undefined, table: string, ids?: Set<stri
 }
 
 /**
- * Writes rows of `_t_filled` where their rows go, inside a write, each as it stood: in place of the mark that the
+ * Writes rows of `_f_filled` where their rows go, inside a write, each as it stood: in place of the mark that the
  * adding of its row made there, so a value that was made is not made again.
  */
 export function addFilled(tx: Tx, rows: Row[]): void {
@@ -30,7 +30,7 @@ export function addFilled(tx: Tx, rows: Row[]): void {
   }
 }
 
-/** Removes every row of `_t_filled` of the rows of a table, inside a write of the place that the rows left. */
+/** Removes every row of `_f_filled` of the rows of a table, inside a write of the place that the rows left. */
 export function dropFilled(tx: Tx, table: string): void {
   let rows: Row[]
   try {

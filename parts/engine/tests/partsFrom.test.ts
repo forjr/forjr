@@ -48,5 +48,5 @@ test('[22-6@7a] the wait for a part does not count on the time of the call that 
   assert.equal(await run.app.call('readsPart', {}, { as: nobody }), placeOf(folder, 'tool', '1.2.0'))
   assert.ok(performance.now() - began >= 1000, 'the fetch was waited for')
   // The same wait with no fetch in it passes the time of the call.
-  await assert.rejects(run.app.call('waits', {}, { as: nobody }), { code: 'T0008' })
+  await assert.rejects(run.app.call('waits', {}, { as: nobody }), { code: 'F0008' })
 })

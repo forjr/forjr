@@ -25,13 +25,13 @@ interface Who {
 }
 ```
 
-`send` is called from `mail.send` alone. It is handed every address as a record and every list as a list, and each attached file read first, since a mailer reads no file itself. `refused` of its answer names the addresses that the service did not take: the message went to the others, and `mail.send` fails with `code.T0021`, which names them. A mailer that throws took the message for nobody. A mailer may have `close`, which the engine calls when the app is closed. In a test, `app.mailbox` takes the place of every mailer.
+`send` is called from `mail.send` alone. It is handed every address as a record and every list as a list, and each attached file read first, since a mailer reads no file itself. `refused` of its answer names the addresses that the service did not take: the message went to the others, and `mail.send` fails with `code.F0021`, which names them. A mailer that throws took the message for nobody. A mailer may have `close`, which the engine calls when the app is closed. In a test, `app.mailbox` takes the place of every mailer.
 
 ## Example
 
 ```ts
 // engine.ts
-import type { Mailer, Makers } from 'tentjs/engine'
+import type { Mailer, Makers } from 'forjr/engine'
 
 const mailer = (key: string): Mailer => ({
   send: async (message) => {
@@ -49,4 +49,4 @@ export default { mailer: ({ secrets }) => mailer(secrets.MAIL_KEY.reveal()) } sa
 
 ## See also
 
-`handle.mail`, `option.project.mail`, `code.T0020`, `code.T0021`
+`handle.mail`, `option.project.mail`, `code.F0020`, `code.F0021`

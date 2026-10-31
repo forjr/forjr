@@ -52,7 +52,7 @@ export interface RawWorker {
 
 /** Opens the link of a worker to an app with no network, with a key, and holds what arrives. */
 export function rawWorker(app: App, key: string): RawWorker {
-  const link = app.link(new Request('http://localhost/_t/work', { headers: { authorization: `Bearer ${key}` } }))
+  const link = app.link(new Request('http://localhost/_f/work', { headers: { authorization: `Bearer ${key}` } }))
   const heard: Record<string, unknown>[] = []
   const taken = new Set<Record<string, unknown>>()
   let over = false

@@ -6,7 +6,7 @@ import { cookieBytes, notForDevice, stateType } from './view.ts'
 
 /**
  * Takes the state of `project` as it was written. Answers it as it is stored: for each name its type, or its type
- * with where it is kept. Reports what the state of a project may not state (T1014): `in: 'address'`, which is for
+ * with where it is kept. Reports what the state of a project may not state (F1014): `in: 'address'`, which is for
  * a screen and a component; `back`, which is for a state that is kept in the address; a state `in: 'device'` of a
  * type that the cookie does not take; and a state that is no `boolean`, states no `default` and is not `optional`.
  */
@@ -21,7 +21,7 @@ export function projectState(told: Told, written: unknown): Stored {
     }
     known(told, where, entry, ['type', 'in', 'back', 'reset'])
     const type = stateType(told, where, entry.type)
-    const bad = (why: string, fix: string) => report(told, 'T1014', `\`${where}\` ${why}.`, fix)
+    const bad = (why: string, fix: string) => report(told, 'F1014', `\`${where}\` ${why}.`, fix)
     if (entry.in === 'address')
       bad(
         "is kept `in: 'address'`, which is for a screen and a component",

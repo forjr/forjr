@@ -1,4 +1,4 @@
-import { anyone, table, text } from 'tentjs'
+import { anyone, table, text } from 'forjr'
 
 export const items = table('items', {
   columns: { title: text() },

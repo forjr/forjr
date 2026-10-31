@@ -55,17 +55,17 @@ test('[50-2] raw SQL with of sees every table of the layout of a file: for a ten
   // shared file is not in it.
   assert.equal(
     codeOf(() => sql('delete from orders', [], { of: s.east })),
-    'T0012',
+    'F0012',
   )
   assert.equal(
     codeOf(() => sql('select count(*) c from teams', [], { of: s.east })),
-    'T0009',
+    'F0009',
   )
   // A tenant whose row is not in the shared file still names no tenant.
   for (const tenant of ['0'.repeat(26), '../x', ''])
     assert.equal(
       codeOf(() => sql('select count(*) c from orders', [], { of: tenant })),
-      'T2104',
+      'F2104',
     )
 
   // A file that lacks a table: the missing tables are made first, in a write of its own, which is one change of
@@ -120,7 +120,7 @@ test('[50-2] raw SQL with of sees every table of the layout of a file: for a ten
         Reflect.get(Object(db), 'sql')('delete from tasks', [], { of: s.east })
       }),
     ),
-    'T2109',
+    'F2109',
   )
   assert.deepEqual(appTablesOf(files.of(east)), ['orders'])
   assert.equal(changes.length, reading)
@@ -222,14 +222,14 @@ test('[50-2] raw SQL with of that only reads makes no file for a tenant with non
         run('delete from orders', [], { of: s.west })
       }),
     ),
-    'T2109',
+    'F2109',
   )
   assert.deepEqual(sqlOf(files)('select total from orders', [], { of: s.east }), [{ total: 3 }])
   assert.equal(files.has(west), false)
   assert.deepEqual(marked, [east])
 })
 
-test('[50-2] a change reads any file by raw SQL: a text that only reads opens the write of no file, so a change that reads one file with db.sql and writes another is no T2109, and only a text that writes opens the write of its file', (t) => {
+test('[50-2] a change reads any file by raw SQL: a text that only reads opens the write of no file, so a change that reads one file with db.sql and writes another is no F2109, and only a text that writes opens the write of its file', (t) => {
   const marked: FileName[] = []
   const files = filesOf(t, desk, { writing: (file) => marked.push(file) })
   const s = seedDesk(files, desk)
@@ -288,7 +288,7 @@ test('[50-2] a change reads any file by raw SQL: a text that only reads opens th
   assert.deepEqual(totals(s.north), [{ total: 10 }])
   assert.deepEqual(totals(s.south), [{ total: 20 }])
 
-  // A text that writes opens the write of its file: a second file is T2109, and the whole change is undone.
+  // A text that writes opens the write of its file: a second file is F2109, and the whole change is undone.
   for (const second of [
     (run: Sql) => run('update orders set total = 0', [], { of: s.north }),
     (run: Sql) => run('update teams set name = name'),
@@ -300,7 +300,7 @@ test('[50-2] a change reads any file by raw SQL: a text that only reads opens th
           second(run)
         }),
       ),
-      'T2109',
+      'F2109',
     )
   assert.equal(
     codeOf(() =>
@@ -309,7 +309,7 @@ test('[50-2] a change reads any file by raw SQL: a text that only reads opens th
         at(db, 'users').add({ name: 'Fay' })
       }),
     ),
-    'T2109',
+    'F2109',
   )
   assert.deepEqual(totals(s.north), [{ total: 10 }])
   assert.deepEqual(totals(s.south), [{ total: 20 }])

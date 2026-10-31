@@ -6,7 +6,7 @@ import type { Type } from '../type.ts'
 
 // The checks of a form are made at build from the types of its function's input: a send walks them, and reads no type.
 
-// Every kind of field that a form may send. A pattern that does not read is T1014 of the build (`describe.test.ts`),
+// Every kind of field that a form may send. A pattern that does not read is F1014 of the build (`describe.test.ts`),
 // so no input holds one.
 const input: Record<string, Type> = {
   name: { kind: 'text', min: 2, max: 5 },

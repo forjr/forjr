@@ -1,5 +1,5 @@
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { isStored } from '../core/internal.ts'
 import type { Connected, Renewals } from './connection.ts'
 import { connectionOf } from './connection.ts'
@@ -42,10 +42,10 @@ export interface Outside {
   call(service: string, stored: Stored, tool: string, input: unknown, o: OutsideFor): Promise<unknown>
 }
 
-/** T7112: a tool of an outside server that is not as it was approved, which is held back by itself. */
-const heldBack = (service: string, tool: string): TentError =>
-  new TentError('T7112', `The tool ${tool} of ${service} is not as it was approved, and is held back.`, {
-    fix: `Look at it again with \`tent mcp approve ${service}\`, and build and run the version that holds it.`,
+/** F7112: a tool of an outside server that is not as it was approved, which is held back by itself. */
+const heldBack = (service: string, tool: string): ForjrError =>
+  new ForjrError('F7112', `The tool ${tool} of ${service} is not as it was approved, and is held back.`, {
+    fix: `Look at it again with \`forjr mcp approve ${service}\`, and build and run the version that holds it.`,
   })
 
 /**
@@ -132,7 +132,7 @@ export function outsideOf(env: ConnectEnv, renewals: Renewals): Outside {
     const user = o.for ?? o.caller.user?.id
     if (isStored(stored.mcp) && stored.mcp.command !== undefined) {
       const channel = env.channel?.(service, user)
-      if (!channel) throw new TentError('T7115', `The program of ${service} is not running.`)
+      if (!channel) throw new ForjrError('F7115', `The program of ${service} is not running.`)
       // One client speaks over one channel, so that the numbers of its requests never meet.
       const kept = overChannels.get(channel) ?? mcpClient({ channel, ...bounds })
       overChannels.set(channel, kept)

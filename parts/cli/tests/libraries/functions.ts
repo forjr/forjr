@@ -1,4 +1,4 @@
-import { anyone, number, query, table, text } from 'tentjs'
+import { anyone, number, query, table, text } from 'forjr'
 
 const open = anyone('the screens of the libraries show the sales to every visitor')
 

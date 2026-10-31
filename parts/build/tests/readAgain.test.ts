@@ -10,18 +10,18 @@ import { buildSaved } from '../index.ts'
 // since the build before read it, and takes every other as that build read it.
 
 const files: Record<string, string> = {
-  'tent.ts': `import { project } from 'tentjs'\nexport const shop = project('shop', { title: 'Shop' })\n`,
-  'functions/notes.ts': `import { anyone, query, table, text } from 'tentjs'
+  'forjr.ts': `import { project } from 'forjr'\nexport const shop = project('shop', { title: 'Shop' })\n`,
+  'functions/notes.ts': `import { anyone, query, table, text } from 'forjr'
 
 export const notes = table('notes', { columns: { body: text() }, access: { read: anyone('every visitor') } })
 
 export const allNotes = query('allNotes', { access: anyone('every visitor'), rows: notes.oldest('body').limit(20) })
 `,
-  'screens/about.tsx': `import { screen } from 'tentjs/ui'
+  'screens/about.tsx': `import { screen } from 'forjr/ui'
 
 export const aboutScreen = screen('aboutScreen', { path: '/about', access: 'anyone', view: () => <span>About the shop</span> })
 `,
-  'screens/help.tsx': `import { screen } from 'tentjs/ui'
+  'screens/help.tsx': `import { screen } from 'forjr/ui'
 
 export const helpScreen = screen('helpScreen', { path: '/help', access: 'anyone', view: () => <span>Help</span> })
 `,
@@ -46,7 +46,7 @@ function save(folder: string, file: string, from: string, to: string): void {
 }
 
 // The files of the root that other steps of the build read, or the build writes: none is a source file it finds.
-const apart = new Set(['engine.ts', 'seed.ts', 'tent.d.ts'])
+const apart = new Set(['engine.ts', 'seed.ts', 'forjr.d.ts'])
 
 /** Every source file of the project that this program reads while `work` runs, by its path in the project. */
 async function readWhile(folder: string, work: () => Promise<unknown>): Promise<string[]> {
@@ -54,7 +54,8 @@ async function readWhile(folder: string, work: () => Promise<unknown>): Promise<
   const was = fs.readFileSync
   Reflect.set(fs, 'readFileSync', (...given: Parameters<typeof fs.readFileSync>) => {
     const path = relative(folder, String(given[0])).replaceAll('\\', '/')
-    if (!path.startsWith('..') && !path.startsWith('.tent') && !apart.has(path) && /\.tsx?$/.test(path)) read.push(path)
+    if (!path.startsWith('..') && !path.startsWith('.forjr') && !apart.has(path) && /\.tsx?$/.test(path))
+      read.push(path)
     return Reflect.apply(was, fs, given)
   })
   syncBuiltinESMExports()
@@ -91,7 +92,7 @@ test('[31-21] a build of a session reads anew only the files whose entry on the 
   assert.deepEqual(await readWhile(folder, () => buildSaved(folder)), [])
   writeFileSync(
     join(folder, 'screens', 'more.tsx'),
-    "import { screen } from 'tentjs/ui'\n\nexport const moreScreen = screen('moreScreen', { path: '/more', access: 'anyone', view: () => <span>More</span> })\n",
+    "import { screen } from 'forjr/ui'\n\nexport const moreScreen = screen('moreScreen', { path: '/more', access: 'anyone', view: () => <span>More</span> })\n",
   )
   let added: Awaited<ReturnType<typeof buildSaved>> | undefined
   assert.deepEqual(

@@ -201,18 +201,18 @@ test('[11-1@5] describe refuses an unknown option of screen and of component wit
     component('B', { view, prop: {} }),
   ])
   assert.deepEqual(unknown.found, [
-    'T1003 a: screen has no option `titel`. The nearest one is `title`.',
-    'T1003 B: component has no option `prop`. The nearest one is `props`.',
+    'F1003 a: screen has no option `titel`. The nearest one is `title`.',
+    'F1003 B: component has no option `prop`. The nearest one is `props`.',
   ])
-  assert.deepEqual(codesOf(described([shop, screen('a', { path: '/a', access: 'anyone' })]).found), ['T1008'])
-  assert.deepEqual(codesOf(described([shop, screen('a', { path: '/a', view })]).found), ['T1008'])
+  assert.deepEqual(codesOf(described([shop, screen('a', { path: '/a', access: 'anyone' })]).found), ['F1008'])
+  assert.deepEqual(codesOf(described([shop, screen('a', { path: '/a', view })]).found), ['F1008'])
   assert.deepEqual(described([shop, screen('a', { view, access: 'anyone' })]).found, [
-    'T1008 a: it states neither `path` nor `for`.',
+    'F1008 a: it states neither `path` nor `for`.',
   ])
   assert.deepEqual(described([shop, screen('a', { path: '/a', for: 'error', view, access: 'anyone' })]).found, [
-    'T1007 a: it states `path` and `for` at once.',
+    'F1007 a: it states `path` and `for` at once.',
   ])
-  assert.deepEqual(codesOf(described([shop, component('B', {})]).found), ['T1008'])
+  assert.deepEqual(codesOf(described([shop, component('B', {})]).found), ['F1008'])
   // An unknown name inside a part of a screen is refused the same way.
   const inside = described([
     shop,
@@ -225,22 +225,22 @@ test('[11-1@5] describe refuses an unknown option of screen and of component wit
     }),
   ])
   assert.deepEqual(inside.found, [
-    'T1003 a: cache has no option `publik`. The nearest one is `public`.',
-    'T1003 a: seo has no option `descripton`. The nearest one is `description`.',
-    'T1003 b: state.tab has no option `inn`. The nearest one is `in`.',
+    'F1003 a: cache has no option `publik`. The nearest one is `public`.',
+    'F1003 a: seo has no option `descripton`. The nearest one is `description`.',
+    'F1003 b: state.tab has no option `inn`. The nearest one is `in`.',
   ])
 })
 
 test('[11-1@5] names: a component starts with a capital letter and a screen with a small one, each name stands once, and a name every view is handed is reserved', () => {
-  assert.deepEqual(codesOf(described([shop, component('priceTag', { view })]).found), ['T1013'])
-  assert.deepEqual(codesOf(described([shop, component('Price_Tag', { view })]).found), ['T1013'])
+  assert.deepEqual(codesOf(described([shop, component('priceTag', { view })]).found), ['F1013'])
+  assert.deepEqual(codesOf(described([shop, component('Price_Tag', { view })]).found), ['F1013'])
   assert.deepEqual(codesOf(described([shop, screen('Orders', { path: '/o', view, access: 'anyone' })]).found), [
-    'T1013',
+    'F1013',
   ])
   assert.deepEqual(codesOf(described([shop, component('PriceTag2', { view })]).found), [])
   assert.deepEqual(
     codesOf(described([shop, openOrders, screen('openOrders', { path: '/o', view, access: 'anyone' })]).found),
-    ['T1004'],
+    ['F1004'],
   )
   const handed = [
     'params',
@@ -265,7 +265,7 @@ test('[11-1@5] names: a component starts with a capital letter and a screen with
       screen('b', { path: '/b', view, access: 'anyone', state: { [name]: text({ default: '' }) } }),
       component('C', { view, props: { [name]: text() } }),
     ]).found
-    assert.deepEqual(codesOf(found), ['T1009', 'T1009', 'T1009'], name)
+    assert.deepEqual(codesOf(found), ['F1009', 'F1009', 'F1009'], name)
     assert.match(found[0], new RegExp(`the name \`${name}\` of \`data\` is reserved`))
   }
   // A name of a property or of a state that the format knows is a name like any other.
@@ -283,11 +283,11 @@ test('[11-1@5] a state of a screen and of a component is held: where it is kept,
       ]).found,
     )
   const any = { optional: true } as const
-  assert.deepEqual(stated({ a: { type: text(any), in: 'page' } }), ['T1014'])
+  assert.deepEqual(stated({ a: { type: text(any), in: 'page' } }), ['F1014'])
   // A json, a file and a vector cannot be kept in the address, also inside a list or an object.
-  assert.deepEqual(stated({ a: { type: json(any), in: 'address' } }), ['T1014'])
-  assert.deepEqual(stated({ a: { type: list(json(), any), in: 'address' } }), ['T1014'])
-  assert.deepEqual(stated({ a: { type: object({ deep: json() }, any), in: 'address' } }), ['T1014'])
+  assert.deepEqual(stated({ a: { type: json(any), in: 'address' } }), ['F1014'])
+  assert.deepEqual(stated({ a: { type: list(json(), any), in: 'address' } }), ['F1014'])
+  assert.deepEqual(stated({ a: { type: object({ deep: json() }, any), in: 'address' } }), ['F1014'])
   assert.deepEqual(
     stated({
       a: { type: list(text(), any), in: 'address' },
@@ -296,9 +296,9 @@ test('[11-1@5] a state of a screen and of a component is held: where it is kept,
     [],
   )
   // The cookie takes a boolean, a choice, a number, or a text with a max of 100 or less.
-  assert.deepEqual(stated({ a: { type: text(any), in: 'device' } }), ['T1014'])
-  assert.deepEqual(stated({ a: { type: text({ max: 101, optional: true }), in: 'device' } }), ['T1014'])
-  assert.deepEqual(stated({ a: { type: list(text(), any), in: 'device' } }), ['T1014'])
+  assert.deepEqual(stated({ a: { type: text(any), in: 'device' } }), ['F1014'])
+  assert.deepEqual(stated({ a: { type: text({ max: 101, optional: true }), in: 'device' } }), ['F1014'])
+  assert.deepEqual(stated({ a: { type: list(text(), any), in: 'device' } }), ['F1014'])
   assert.deepEqual(
     stated({
       a: { type: text({ max: 100, default: '' }), in: 'device' },
@@ -308,16 +308,16 @@ test('[11-1@5] a state of a screen and of a component is held: where it is kept,
     [],
   )
   // A component declares no device state: its screen does.
-  assert.deepEqual(stated({ a: { type: boolean(), in: 'device' } }, 'component'), ['T1014'])
+  assert.deepEqual(stated({ a: { type: boolean(), in: 'device' } }, 'component'), ['F1014'])
   assert.deepEqual(
     stated({ a: { type: boolean(), in: 'browser' }, b: { type: text(any), in: 'address' } }, 'component'),
     [],
   )
   // `back` is for a state that is kept in the address.
-  assert.deepEqual(stated({ a: { type: text(any), back: true } }), ['T1014'])
-  assert.deepEqual(stated({ a: { type: text(any), in: 'browser', back: true } }), ['T1014'])
+  assert.deepEqual(stated({ a: { type: text(any), back: true } }), ['F1014'])
+  assert.deepEqual(stated({ a: { type: text(any), in: 'browser', back: true } }), ['F1014'])
   assert.deepEqual(stated({ a: { type: text(any), in: 'address', back: true } }), [])
-  assert.deepEqual(stated({ a: 5 }), ['T1014'])
+  assert.deepEqual(stated({ a: 5 }), ['F1014'])
 })
 
 test('[11-1@5] a state that is no boolean, states no default and is not optional is refused, by its name', () => {
@@ -336,9 +336,9 @@ test('[11-1@5] a state that is no boolean, states no default and is not optional
   for (const type of [text(), number(), choice(['x', 'y']), list(text()), object({ city: text() }), json()]) {
     for (const word of ['screen', 'component'] as const) {
       const bare = stated({ search: type }, word)
-      assert.deepEqual(codesOf(bare), ['T1014'], `${type.kind} of a ${word}`)
+      assert.deepEqual(codesOf(bare), ['F1014'], `${type.kind} of a ${word}`)
       assert.match(bare[0], /`state\.search` is no `boolean`, states no `default` and is not `optional`/)
-      assert.deepEqual(codesOf(stated({ search: { type, in: 'browser' } }, word)), ['T1014'], type.kind)
+      assert.deepEqual(codesOf(stated({ search: { type, in: 'browser' } }, word)), ['F1014'], type.kind)
     }
   }
   // A default that is zero or an empty text is a default like any other.
@@ -358,9 +358,9 @@ test('[11-1@5] a state of the project that is no boolean, states no default and 
   )
   for (const type of [text(), number(), choice(['x', 'y']), list(text()), object({ city: text() }), json()]) {
     const bare = stated({ search: type })
-    assert.deepEqual(codesOf(bare), ['T1014'], type.kind)
+    assert.deepEqual(codesOf(bare), ['F1014'], type.kind)
     assert.match(bare[0], /`state\.search` is no `boolean`, states no `default` and is not `optional`/)
-    assert.deepEqual(codesOf(stated({ search: { type, in: 'browser' } })), ['T1014'], type.kind)
+    assert.deepEqual(codesOf(stated({ search: { type, in: 'browser' } })), ['F1014'], type.kind)
   }
 })
 
@@ -389,8 +389,8 @@ test('[11-1@5] the device states of an app share one cookie: past 3,500 bytes to
   assert.deepEqual(app(6, 0), [])
   assert.deepEqual(app(0, 6), [])
   assert.deepEqual(app(3, 3), [])
-  assert.deepEqual(codesOf(app(7, 0)), ['T1014'])
-  assert.deepEqual(codesOf(app(0, 7)), ['T1014'])
+  assert.deepEqual(codesOf(app(7, 0)), ['F1014'])
+  assert.deepEqual(codesOf(app(0, 7)), ['F1014'])
   // Seven states of the project: each `"s0":"` and 400 bytes and `"`, six commas and two brackets, 2,857 bytes of
   // JSON, which base64url writes as 3,810.
   assert.match(app(7, 0)[0], /could hold 3810 bytes together/)
@@ -398,31 +398,31 @@ test('[11-1@5] the device states of an app share one cookie: past 3,500 bytes to
   assert.equal(found.length, 1)
   assert.match(
     found[0],
-    /^T1014 shop: the states that are kept `in: 'device'` could hold \d+ bytes together, and their one cookie holds 3500\./,
+    /^F1014 shop: the states that are kept `in: 'device'` could hold \d+ bytes together, and their one cookie holds 3500\./,
   )
 })
 
 test('[11-1@5] an address, a special screen, an entry of data and a line of the head of a screen are held', () => {
   const one = (options: object, projectOptions: object = {}) =>
     described([project('shop', projectOptions), openOrders, screen('a', { view, access: 'anyone', ...options })]).found
-  assert.deepEqual(codesOf(one({ path: 'orders' })), ['T1014'])
-  // An address under /_t/, and one whose first part is the code of a language of the project, could never be reached.
-  assert.deepEqual(codesOf(one({ path: '/_t/mine' })), ['T1014'])
-  assert.deepEqual(codesOf(one({ path: '/en/orders' })), ['T1014'])
-  assert.deepEqual(codesOf(one({ path: '/tr/orders' }, { languages: ['en', 'tr'] })), ['T1014'])
+  assert.deepEqual(codesOf(one({ path: 'orders' })), ['F1014'])
+  // An address under /_f/, and one whose first part is the code of a language of the project, could never be reached.
+  assert.deepEqual(codesOf(one({ path: '/_f/mine' })), ['F1014'])
+  assert.deepEqual(codesOf(one({ path: '/en/orders' })), ['F1014'])
+  assert.deepEqual(codesOf(one({ path: '/tr/orders' }, { languages: ['en', 'tr'] })), ['F1014'])
   assert.deepEqual(one({ path: '/tr/orders' }), [])
   assert.deepEqual(one({ path: '/english' }), [])
   assert.deepEqual(one({ path: '/' }), [])
-  assert.deepEqual(codesOf(one({ for: 'lost' })), ['T1014'])
+  assert.deepEqual(codesOf(one({ for: 'lost' })), ['F1014'])
   for (const special of ['notFound', 'error', 'grant', 'ask']) assert.deepEqual(one({ for: special }), [], special)
   // An entry of data is a read, and what it reads is named.
-  assert.deepEqual(codesOf(one({ path: '/a', data: { orders: { limit: 5 } } })), ['T1014'])
-  assert.deepEqual(codesOf(one({ path: '/a', data: { orders: read('openOrders', { refresh: 'soon' }) } })), ['T1011'])
-  assert.deepEqual(codesOf(one({ path: '/a', data: 5 })), ['T1014'])
-  assert.deepEqual(codesOf(one({ path: '/a', cache: 'a while' })), ['T1011'])
+  assert.deepEqual(codesOf(one({ path: '/a', data: { orders: { limit: 5 } } })), ['F1014'])
+  assert.deepEqual(codesOf(one({ path: '/a', data: { orders: read('openOrders', { refresh: 'soon' }) } })), ['F1011'])
+  assert.deepEqual(codesOf(one({ path: '/a', data: 5 })), ['F1014'])
+  assert.deepEqual(codesOf(one({ path: '/a', cache: 'a while' })), ['F1011'])
   // A line of the head takes the names of its kind, and a script comes from a host that was opened.
-  assert.deepEqual(codesOf(one({ path: '/a', head: [{ meta: { httpEquiv: 'refresh' } }] })), ['T1014'])
-  assert.deepEqual(codesOf(one({ path: '/a', head: [{ script: { src: 'https://js.example.com/a.js' } }] })), ['T1014'])
+  assert.deepEqual(codesOf(one({ path: '/a', head: [{ meta: { httpEquiv: 'refresh' } }] })), ['F1014'])
+  assert.deepEqual(codesOf(one({ path: '/a', head: [{ script: { src: 'https://js.example.com/a.js' } }] })), ['F1014'])
   assert.deepEqual(
     one(
       { path: '/a', head: [{ script: { src: 'https://js.example.com/a.js' } }] },
@@ -431,8 +431,8 @@ test('[11-1@5] an address, a special screen, an entry of data and a line of the 
     [],
   )
   // A view that is no arrow is refused, and so is a function where an option takes none.
-  assert.deepEqual(codesOf(one({ path: '/a', view: 'words' })), ['T1014'])
-  assert.deepEqual(codesOf(one({ path: '/a', about: () => 'x' })), ['T1014'])
+  assert.deepEqual(codesOf(one({ path: '/a', view: 'words' })), ['F1014'])
+  assert.deepEqual(codesOf(one({ path: '/a', about: () => 'x' })), ['F1014'])
 })
 
 test('[11-1@5] the shape of the description holds no tree, no form and no plain of a screen or a component, and no node among the values', () => {

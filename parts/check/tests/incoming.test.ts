@@ -8,14 +8,14 @@ import { copyOf, lineWith } from './copies.ts'
 
 // For each rule: the pieces of its failing project that a finding stands at, and what the finding says.
 const cases: Record<string, [piece: string, says: RegExp][]> = {
-  'T6007/incoming': [
+  'F6007/incoming': [
     ["incoming('formAgain'", /formEvents.*\/hooks\/forms/],
     ["route('formRoute'", /formEvents.*\/hooks\/forms/],
   ],
-  T3008: [["incoming('unsigned'", /neither `verify` nor `open`/]],
+  F3008: [["incoming('unsigned'", /neither `verify` nor `open`/]],
 }
 
-test('[32-7@8a] [15-1@8a] T3008 and the part of T6007 for a call coming in: each has a passing project and a failing project, and the failing one gives exactly its code, once for each mistake, at the line of the definition', async () => {
+test('[32-7@8a] [15-1@8a] F3008 and the part of F6007 for a call coming in: each has a passing project and a failing project, and the failing one gives exactly its code, once for each mistake, at the line of the definition', async () => {
   const names = list.map((one) => one.name)
   for (const [name, pieces] of Object.entries(cases)) {
     const [code] = name.split('/')

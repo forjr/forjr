@@ -11,9 +11,9 @@ const folders: string[] = []
 let hooked = false
 
 // What the made-up address of a name starts with: one page code answers for its own, and no other does.
-const mark = `tent-page:${Math.random().toString(36).slice(2)}/`
+const mark = `forjr-page:${Math.random().toString(36).slice(2)}/`
 
-// Each module of a package that a view names by `tent-package:<file>`, by its file, with the address it was first
+// Each module of a package that a view names by `forjr-package:<file>`, by its file, with the address it was first
 // found at: every version that holds a file of that name is answered with one module, loaded once. The name of the
 // file holds the fingerprint of what was built, so a package built anew is another file.
 const packages = new Map<string, string>()
@@ -52,8 +52,8 @@ export function findPageCode(folder: string): void {
       // by the name alone: a made-up module that a `require` loads is handed an address of a file as its own.
       if (name === import.meta.url) return { url: name, shortCircuit: true }
       const under = from !== undefined && folders.some((one) => from.startsWith(one))
-      if (under && name.startsWith('tent-package:')) {
-        const file = name.slice('tent-package:'.length)
+      if (under && name.startsWith('forjr-package:')) {
+        const file = name.slice('forjr-package:'.length)
         const url = packages.get(file) ?? new URL(file, from).href
         packages.set(file, url)
         return { url, shortCircuit: true }

@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Engine, Worker } from '../engine/index.ts'
 import { createEngine, makeSecretKey, storedValues } from '../engine/index.ts'
 import type { Machine, World } from './machines.ts'
@@ -46,7 +46,7 @@ export async function workerOf(world: World, writer: Machine, asked: WorkerAsked
   const index = [...world.machines.values()].filter((one) => one.address.includes('worker-')).length
   const key = world.workers[index]
   if (key === undefined)
-    throw new TentError('T0013', `A test app has ${world.workers.length} workers at the most.`, {
+    throw new ForjrError('F0013', `A test app has ${world.workers.length} workers at the most.`, {
       fix: 'Use fewer workers in one test.',
     })
   const machine = machineIn(world, 'worker')
@@ -89,7 +89,7 @@ export async function workerOf(world: World, writer: Machine, asked: WorkerAsked
   await start()
   const now = (): Worker => {
     if (!worker)
-      throw new TentError('T0013', 'This worker of the test was killed.', { fix: 'Start it again with `restart`.' })
+      throw new ForjrError('F0013', 'This worker of the test was killed.', { fix: 'Start it again with `restart`.' })
     return worker
   }
   const stop = async (): Promise<void> => {

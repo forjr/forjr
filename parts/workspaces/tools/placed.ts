@@ -1,15 +1,5 @@
+import { rawAt } from '../../build/index.ts'
 import type { Description } from '../../core/internal.ts'
-
-/** The place in a text of a character that is counted with one line ending, as a description counts it. */
-function rawAt(text: string, at: number): number {
-  let seen = 0
-  for (let k = 0; k < text.length; k++) {
-    if (text[k] === '\r' && text[k + 1] === '\n') continue
-    if (seen === at) return k
-    seen += 1
-  }
-  return text.length
-}
 
 /**
  * Takes a description, the name of a definition and the text of the file that holds it. Answers where in that

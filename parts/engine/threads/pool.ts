@@ -1,6 +1,6 @@
 import { Worker } from 'node:worker_threads'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { logCall } from '../door/failure.ts'
 import { limitOf } from '../limits.ts'
 import type { Opened } from '../opened.ts'
@@ -17,7 +17,7 @@ export interface QueryThreads {
   /**
    * Carries a query out on a thread, through every step of the door from 5 to 10, and answers a promise of what
    * leaves the engine. A query waits for a free thread. One that passes `queryTime` is stopped by ending its
-   * thread, and fails with T0008. `ends` is the moment at which the time of the call is up, where it began before:
+   * thread, and fails with F0008. `ends` is the moment at which the time of the call is up, where it began before:
    * the read is held to it over every thread it is handed to, and over the wait for a file between them.
    */
   call(name: string, input: unknown, caller: Caller, began: number, ends?: number): Promise<unknown>
@@ -63,7 +63,7 @@ export function queryThreads(o: Opened): QueryThreads {
   let closed = false
 
   /** Ends a call that did not come back from its thread: it is written into the log and told here, since its thread could not. */
-  const lost = (pending: Pending, error: TentError): void => {
+  const lost = (pending: Pending, error: ForjrError): void => {
     clearTimeout(pending.timer)
     const { name, caller } = pending.job
     logCall(o, { name, kind: 'query', caller, began: pending.began, error })
@@ -76,8 +76,8 @@ export function queryThreads(o: Opened): QueryThreads {
     if (at >= 0) threads.splice(at, 1)
   }
 
-  const late = (name: string): TentError =>
-    new TentError('T0008', `${name} read past \`limits.queryTime\`, and was stopped.`, {
+  const late = (name: string): ForjrError =>
+    new ForjrError('F0008', `${name} read past \`limits.queryTime\`, and was stopped.`, {
       fix: 'Read less in one query: state a `limit`, or an index for what its filter names.',
     })
 
@@ -156,7 +156,7 @@ export function queryThreads(o: Opened): QueryThreads {
               if (lacks) {
                 const key = `${file.table} ${file.id}`
                 if (pending.whole?.has(key))
-                  throw new TentError('T0012', 'A write was tried through a db that only reads.', {
+                  throw new ForjrError('F0012', 'A write was tried through a db that only reads.', {
                     fix: 'A query reads. Move what writes into a change or an action.',
                   })
                 pending.whole = (pending.whole ?? new Set()).add(key)
@@ -179,7 +179,7 @@ export function queryThreads(o: Opened): QueryThreads {
       drop(thread)
       const pending = thread.pending
       thread.pending = undefined
-      if (pending) lost(pending, new TentError('T0009', `The query thread of ${pending.job.name} ended: ${why}`))
+      if (pending) lost(pending, new ForjrError('F0009', `The query thread of ${pending.job.name} ended: ${why}`))
       if (!closed) next()
     }
     worker.on('error', (error) => ended(String(error)))
@@ -190,7 +190,7 @@ export function queryThreads(o: Opened): QueryThreads {
     call(name, input, caller, began, ends) {
       return new Promise((done, failed) => {
         if (closed) {
-          failed(new TentError('T0013', `The app ${o.name} was closed, and carries no query out.`))
+          failed(new ForjrError('F0013', `The app ${o.name} was closed, and carries no query out.`))
           return
         }
         const into = readsNow()
@@ -211,7 +211,7 @@ export function queryThreads(o: Opened): QueryThreads {
     },
     async close() {
       closed = true
-      const gone = new TentError('T0013', `The app ${o.name} was closed while its query waited.`)
+      const gone = new ForjrError('F0013', `The app ${o.name} was closed while its query waited.`)
       for (const pending of waiting.splice(0)) pending.failed(gone)
       await Promise.all(
         threads.splice(0).map((thread) => {

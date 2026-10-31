@@ -93,7 +93,7 @@ function overTheWire(
 }
 
 const call = (port: number, host: string, name: string, headers: Record<string, string> = {}) =>
-  overTheWire(port, host, `/_t/call/${name}`, {
+  overTheWire(port, host, `/_f/call/${name}`, {
     body: '{"input":{}}',
     headers: { 'content-type': 'application/json', ...headers },
   })
@@ -196,7 +196,7 @@ test('[05-18.2] a request that the door refuses at its first steps, sent to an a
   await untilWithin(() => asleep.length === 2, 'the app fell asleep again')
   const over = await call(port, 'shop.test', 'allMarks')
   assert.equal(woke.length, 2)
-  assert.equal(Object(over.body.error).code, 'T0005', JSON.stringify(over.body))
+  assert.equal(Object(over.body.error).code, 'F0005', JSON.stringify(over.body))
   assert.deepEqual(compared(over), compared(await call(port, 'shop.test', 'allMarks')))
   assert.deepEqual(await app.call('allMarks', {}, { as: system }), [])
 })
@@ -255,7 +255,7 @@ test('[05-18.4] a visitor who holds one live connection open and watches nothing
   await engine.open(bundle.folder, { dataFolder, mode: 'test', sleepAfter: '10 minutes' })
   const port = portOf(dataFolder)
   const origin = `http://localhost:${port}`
-  const socket = dial(`${origin}/_t/live`, { origin })
+  const socket = dial(`${origin}/_f/live`, { origin })
   // The page answers the signs of life, as a page does, and watches nothing.
   let heard = 0
   let closed = false

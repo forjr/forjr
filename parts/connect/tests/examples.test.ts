@@ -46,6 +46,6 @@ test('[24-7] each scheme passes the example that its provider wrote down, and fa
       })
     assert.doesNotThrow(() => checked(one.body), String(one.verify.scheme))
     const changed = `${one.body.slice(0, -1)}${one.body.endsWith('!') ? '?' : '!'}`
-    assert.throws(() => checked(changed), { code: 'T7118' }, String(one.verify.scheme))
+    assert.throws(() => checked(changed), { code: 'F7118' }, String(one.verify.scheme))
   }
 })

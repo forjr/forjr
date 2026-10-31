@@ -1,4 +1,4 @@
-import { anyone, boolean, caller, link, list, table, text, where } from 'tentjs'
+import { anyone, boolean, caller, link, list, table, text, where } from 'forjr'
 
 const open = anyone('a test reads and writes it from every machine')
 

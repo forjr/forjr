@@ -1,4 +1,4 @@
-import { table, text, where } from 'tentjs'
+import { table, text, where } from 'forjr'
 
 Reflect.set(globalThis, 'crossingLoaded', [...(Reflect.get(globalThis, 'crossingLoaded') ?? []), import.meta.url])
 

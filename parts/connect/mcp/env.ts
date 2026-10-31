@@ -3,7 +3,7 @@ import type { Description } from '../../core/internal.ts'
 
 /**
  * What the engine hands the MCP layer for one request. `call` passes steps 5 to 10 of the door as the caller, and
- * `agreed` is the text of a T7120 that comes back with a yes. `wire` is a failure as a caller is shown it, with its
+ * `agreed` is the text of a F7120 that comes back with a yes. `wire` is a failure as a caller is shown it, with its
  * status, and `limit` a limit of the project. `listen` answers the kept stream of a caller, where the project
  * keeps one, and `answered` hands on what a client answered to a request that was sent it down that stream.
  */
@@ -44,7 +44,7 @@ export interface OutsideTool {
   schema: object
 }
 
-/** A tool that is no function of an app, as `tent mcp` offers the commands of the project. */
+/** A tool that is no function of an app, as `forjr mcp` offers the commands of the project. */
 export interface LocalTool {
   name: string
   title: string

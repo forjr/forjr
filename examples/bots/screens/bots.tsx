@@ -1,4 +1,4 @@
-import { read, screen } from 'tentjs/ui'
+import { read, screen } from 'forjr/ui'
 import { TalkOf } from '../components/BotTalk'
 import { Frame } from '../components/Frame'
 import { botList } from '../functions/bots'

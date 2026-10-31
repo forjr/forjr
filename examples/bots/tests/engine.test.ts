@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import test from 'node:test'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 
 // Claude Code is the test's own stand-in, which answers in Claude Code's streamed form.
 process.env.BOTS_CLAUDE = JSON.stringify([process.execPath, join(import.meta.dirname, '..', 'fakes', 'claude.ts')])
@@ -28,7 +28,7 @@ const say = async (
   try {
     return String(Object(await app.as(who).call(agent, { message, thread })).text)
   } catch (error) {
-    if (Object(error).code !== 'T0008') throw error
+    if (Object(error).code !== 'F0008') throw error
     await app.settled()
     return String((await app.as(who).call('runList', { bot: thread }))[0].answer)
   }

@@ -6,7 +6,7 @@ Lets the model hand a sequence of tool calls, written in the words of a body.
 
 `true`. Left out, the model calls its tools one at a time. The `sequence` tool is offered on an engine that was handed a reader of source (`readBody` of `createEngine`) alone. In a run that offers it, the first answer of a tool that is a list of more than `limits.sequenceAfter` of the project (10) entries is followed by the line `To act on each of these, write one sequence.`, once.
 
-A sequence is read and checked once, in the step `sequence N.P`, before anything of it runs: what it may not hold, and a call that is sure to fail, are `code.T7121`. Each call it makes is a step of its own, `tool N.P.K name`, and counts on `limits.toolCalls`. Where a call asks a person, the person is asked once for every call whose input is known by then. `all(list, (x) => ..., { goOn: true })` runs one arrow for each entry side by side and goes on past an entry that fails. The model is handed what the sequence returned, or, where it returned nothing or failed, what was done.
+A sequence is read and checked once, in the step `sequence N.P`, before anything of it runs: what it may not hold, and a call that is sure to fail, are `code.F7121`. Each call it makes is a step of its own, `tool N.P.K name`, and counts on `limits.toolCalls`. Where a call asks a person, the person is asked once for every call whose input is known by then. `all(list, (x) => ..., { goOn: true })` runs one arrow for each entry side by side and goes on past an entry that fails. The model is handed what the sequence returned, or, where it returned nothing or failed, what was done.
 
 ## Example
 

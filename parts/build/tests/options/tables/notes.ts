@@ -1,4 +1,4 @@
-import { count, link, list, number, role, table, text, vector, where } from 'tentjs'
+import { count, link, list, number, role, table, text, vector, where } from 'forjr'
 import { embedder } from '../models/writer'
 
 export const users = table('users', { columns: { roles: list(text()) }, access: { read: 'owner' } })

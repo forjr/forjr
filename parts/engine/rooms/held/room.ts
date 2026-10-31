@@ -1,5 +1,5 @@
 import { dirname, join } from 'node:path'
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import { intoOf, outOf } from '../callables.ts'
 import { askerOf, boundsOf, callsOf, keeperOf } from '../calls.ts'
 import { placedVersion, placeOfVersion } from '../inProgram/loader.ts'
@@ -29,7 +29,7 @@ const actionsAlone = (one: RoomVersion['modules'][number]): boolean => one.kinds
  * The held room, what `hold` of a project is: every kind of code runs in the program, as in the room of the
  * program, and an action, with every package it imports, in a held program of its version under the runtime's
  * permission model, started with its first action. The held program reaches the engine by the same crossing as
- * any room: a refusal of the permission model becomes T0035, naming the packages that reach that way.
+ * any room: a refusal of the permission model becomes F0035, naming the packages that reach that way.
  */
 export function heldRoom(o: RoomInput): Room {
   const inner = inProgramRoom(o)
@@ -38,7 +38,7 @@ export function heldRoom(o: RoomInput): Room {
   const programs = new Map<number, HeldProgram>()
   let room: Room | undefined
   const roomOf = (): Room => {
-    if (!room) throw new TentError('T0009', 'The held room was used before it was made.')
+    if (!room) throw new ForjrError('F0009', 'The held room was used before it was made.')
     return room
   }
   /** The held program of a version, started where it is not, with the modules of its actions loaded in it. */
@@ -66,7 +66,7 @@ export function heldRoom(o: RoomInput): Room {
       if (what === 'db') return o.ways.db(call, Number(b.db), memberOf(b.member), args)
       if (what === 'back') return o.ways.back(call, Number(b.fn), args)
       if (what === 'fetch') return o.ways.fetch(call, b.request)
-      throw new TentError('T0009', `The held program asked for what the engine does not give: ${what}.`)
+      throw new ForjrError('F0009', `The held program asked for what the engine does not give: ${what}.`)
     }
     // Each answer to the program is told the clock of the engine first, so that `now()` of the call follows it.
     const ticked = (): void => {
@@ -95,7 +95,7 @@ export function heldRoom(o: RoomInput): Room {
   const action = (version: string, entry: Entry): Called => {
     return async (handed, c) => {
       const held = versions.get(version)
-      if (!held) throw new TentError('T0011', `The held room holds no version ${version}.`)
+      if (!held) throw new ForjrError('F0011', `The held room holds no version ${version}.`)
       const program = programOf(held)
       await held.loaded
       const key = [entry.module, ...entry.path].join('\u0000')
@@ -144,7 +144,7 @@ export function heldRoom(o: RoomInput): Room {
     draw: (version) => inner.draw(version),
     back(call, fn, args, c) {
       const program = programs.get(call)
-      if (!program) throw new TentError('T0013', 'The held program of that call is not under way.')
+      if (!program) throw new ForjrError('F0013', 'The held program of that call is not under way.')
       const bounds = boundsOf(callsOf(roomOf()).find(c.call).cx)
       return program.channel.ask('back', { call, fn, args, as: c.call, bounds })
     },
@@ -172,11 +172,11 @@ export function heldRoom(o: RoomInput): Room {
 /** A word of the runtime slot that the held program names. */
 function wordOf(word: unknown): 'call' | 'handle' | 'start' | 'emit' | 'draw' {
   if (word === 'call' || word === 'handle' || word === 'start' || word === 'emit' || word === 'draw') return word
-  throw new TentError('T0013', 'The held program asked for a word the runtime does not give.')
+  throw new ForjrError('F0013', 'The held program asked for a word the runtime does not give.')
 }
 
 /** A member of `db` that the held program names. */
 function memberOf(member: unknown): 'read' | 'write' | 'sql' {
   if (member === 'read' || member === 'write' || member === 'sql') return member
-  throw new TentError('T0013', 'The held program asked for a member of `db` that it does not have.')
+  throw new ForjrError('F0013', 'The held program asked for a member of `db` that it does not have.')
 }

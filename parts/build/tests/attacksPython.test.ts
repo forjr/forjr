@@ -17,7 +17,7 @@ function changed(app: string, file: string, from: string, to: string): void {
 const codes = (findings: Finding[], code: string): string[] =>
   findings.filter((one) => one.code === code).map((one) => `${one.where?.file}:${one.where?.line}`)
 
-test('[05-14.11] an entry of packages that holds an option or an address, also behind the end of a line, is T1014 at its definition', async () => {
+test('[05-14.11] an entry of packages that holds an option or an address, also behind the end of a line, is F1014 at its definition', async () => {
   for (const entry of [
     '--extra-index-url=https://packages.example.net/simple',
     '-r other.txt',
@@ -31,7 +31,7 @@ test('[05-14.11] an entry of packages that holds an option or an address, also b
     changed(app, 'functions/churn.ts', "'natone']", `'natone', ${JSON.stringify(entry)}]`)
     const made = await describeProject(app)
     const line = lineWith(readFileSync(join(app, 'functions', 'churn.ts'), 'utf8'), "python('churnScore'")
-    assert.ok(placesOf(made.findings, 'T1014').includes(`functions/churn.ts:${line}`), JSON.stringify(entry))
+    assert.ok(placesOf(made.findings, 'F1014').includes(`functions/churn.ts:${line}`), JSON.stringify(entry))
   }
 })
 
@@ -57,7 +57,7 @@ test('[05-14.12] a .py file that is a link out of the project is not copied, nor
   )
 })
 
-test('[05-14.14] a line of the lock that is an option, an address or another file, also where it follows a package and a semicolon, is T7020 at its line', async () => {
+test('[05-14.14] a line of the lock that is an option, an address or another file, also where it follows a package and a semicolon, is F7020 at its line', async () => {
   for (const line of [
     '--index-url https://packages.example.net/simple',
     '-r other.txt',
@@ -68,21 +68,21 @@ test('[05-14.14] a line of the lock that is an option, an address or another fil
   ]) {
     const app = copyOf('pythoned/app', 'python-attack-lock')
     changed(app, 'python.lock', 'tinyone==2.0', `${line}\ntinyone==2.0`)
-    const found = codes((await describeProject(app)).findings, 'T7020')
+    const found = codes((await describeProject(app)).findings, 'F7020')
     assert.deepEqual(found, ['python.lock:6'], line)
   }
 })
 
-test('[05-14.15] an entry of python.index that holds a name and a password in its address is T1014, in either form of an entry, and no finding prints the password', async () => {
+test('[05-14.15] an entry of python.index that holds a name and a password in its address is F1014, in either form of an entry, and no finding prints the password', async () => {
   for (const to of [
     "url: 'https://reader:s3cret@packages.example.com/simple'",
     "url: 'https://reader:s3cret@packages.example.com/simple', user: secret('INDEX_USER')",
   ]) {
     const app = copyOf('pythoned/app', 'python-attack-index')
-    changed(app, 'tent.ts', "url: 'https://packages.example.com/simple'", to)
+    changed(app, 'forjr.ts', "url: 'https://packages.example.com/simple'", to)
     const made = await describeProject(app)
-    const line = lineWith(readFileSync(join(app, 'tent.ts'), 'utf8'), "project('churny'")
-    assert.ok(placesOf(made.findings, 'T1014').includes(`tent.ts:${line}`), to)
+    const line = lineWith(readFileSync(join(app, 'forjr.ts'), 'utf8'), "project('churny'")
+    assert.ok(placesOf(made.findings, 'F1014').includes(`forjr.ts:${line}`), to)
     assert.equal(
       made.findings.some((one) => `${one.message} ${one.fix ?? ''}`.includes('s3cret')),
       false,
@@ -91,11 +91,11 @@ test('[05-14.15] an entry of python.index that holds a name and a password in it
   const plain = copyOf('pythoned/app', 'python-attack-index-plain')
   changed(
     plain,
-    'tent.ts',
+    'forjr.ts',
     "index: [{ url: 'https://packages.example.com/simple', user: secret('INDEX_USER'), password: secret('INDEX_PASSWORD') }]",
     "index: ['https://reader:s3cret@packages.example.com/simple']",
   )
-  assert.equal(codes((await describeProject(plain)).findings, 'T1014').length, 1)
+  assert.equal(codes((await describeProject(plain)).findings, 'F1014').length, 1)
 })
 
 test('[05-14.12] a lock that a definition names by a name that leads out of the project is refused, and nothing is read or written outside the project and its bundle', async () => {

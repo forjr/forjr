@@ -1,4 +1,4 @@
-import { boolean, day, table, text } from 'tentjs'
+import { boolean, day, table, text } from 'forjr'
 
 export const tasks = table('tasks', {
   columns: {

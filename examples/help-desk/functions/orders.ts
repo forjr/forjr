@@ -1,4 +1,4 @@
-import { action, number, object, role, text } from 'tentjs'
+import { action, number, object, role, text } from 'forjr'
 import { payments } from '../services/services'
 
 export const lookUpOrder = action('lookUpOrder', {

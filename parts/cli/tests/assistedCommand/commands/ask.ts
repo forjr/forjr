@@ -1,4 +1,4 @@
-import { command } from 'tentjs/cli'
+import { command } from 'forjr/cli'
 import { helper } from '../agents'
 
 // A command that starts the agent and follows its run, printing its text as it is written.

@@ -1,4 +1,4 @@
-import { anyone, change, choice, date, flow, input, text } from 'tentjs'
+import { anyone, change, choice, date, flow, input, text } from 'forjr'
 import { events, gone, lines, notes, pins, teams, visits } from '../tables/tables'
 
 const open = anyone('a test calls it')

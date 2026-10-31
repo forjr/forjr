@@ -1,4 +1,4 @@
-import { number, query, table } from 'tentjs'
+import { number, query, table } from 'forjr'
 
 export const orders = table('orders', { columns: { total: number() }, access: { read: 'signedIn' } })
 

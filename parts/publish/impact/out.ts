@@ -1,7 +1,8 @@
 import type { Description } from '../../core/internal.ts'
 import { isStored, providerAddresses, sendsOut } from '../../core/internal.ts'
 import type { ImpactLine } from './face.ts'
-import { fileOf, kindOf, recordsOf } from './read.ts'
+import { placedIn } from './placed.ts'
+import { recordsOf } from './read.ts'
 
 /** The host of an address, or of a name of the web written alone, or nothing where it is neither. */
 function hostOf(url: unknown): string | undefined {
@@ -47,7 +48,7 @@ export function outOf(live: Description, next: Description): ImpactLine[] {
   for (const part of ['functions', 'flows'])
     for (const name of Object.keys(recordsOf(next, part)))
       if (sendsOut(next, name) && !sendsOut(live, name))
-        found.push({ name, kind: kindOf(next, name), file: fileOf(next, name), change: 'now sends data out' })
+        found.push({ name, ...placedIn(next, name), change: 'now sends data out' })
   for (const [agent, record] of Object.entries(recordsOf(next, 'flows'))) {
     if (!isStored(record.agent) || !recordsOf(live, 'flows')[agent]) continue
     const before = trustedOf(live, agent)
@@ -56,12 +57,13 @@ export function outOf(live: Description, next: Description): ImpactLine[] {
         found.push({
           name: `${agent}.${tool}`,
           kind: 'tool',
-          file: fileOf(next, agent),
+          file: placedIn(next, agent).file,
           change: 'no longer asks a person first',
         })
   }
   const reached = hostsOf(live)
   for (const [host, { name, kind }] of hostsOf(next))
-    if (!reached.has(host)) found.push({ name, kind, file: fileOf(next, name), change: `a new outside host, ${host}` })
+    if (!reached.has(host))
+      found.push({ name, kind, file: placedIn(next, name).file, change: `a new outside host, ${host}` })
   return found
 }

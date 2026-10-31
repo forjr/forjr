@@ -71,7 +71,7 @@ export const step: Step = {
       }
       found(
         work,
-        'T1014',
+        'F1014',
         loaded?.file ?? '',
         loaded?.line,
         `${name}: ${option} names ${file}, which lies outside the folder of the project.`,

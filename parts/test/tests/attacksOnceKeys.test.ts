@@ -14,7 +14,7 @@ test("[45-19.12] at /api/ an Idempotency-Key of another caller is unknown: sent 
   // Bob sends Ada's key with her very call: nothing kept is answered him, and the call runs as his.
   const same = await api(app, 'POST', 'addOrder', { key: bob, input: lamp, headers: once })
   assert.equal(same.status, 204, JSON.stringify(same.body))
-  // Carol sends it with another call: no T0002 tells her that the key was used, and it runs as hers.
+  // Carol sends it with another call: no F0002 tells her that the key was used, and it runs as hers.
   const other = await api(app, 'POST', 'addOrder', { key: carol, input: { title: 'Chair' }, headers: once })
   assert.equal(other.status, 204, JSON.stringify(other.body))
   const titlesOf = async (key: string): Promise<unknown> => Object((await api(app, 'GET', 'myOrders', { key })).body)

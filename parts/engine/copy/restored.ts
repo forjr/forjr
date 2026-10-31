@@ -27,8 +27,8 @@ export const beforeRestore = (o: Opened): Before => ({ mine: here(o.store), epoc
 
 /**
  * Takes a writer whose data file was just put back, and what it held of itself before. The file brought its own
- * `_t_here` and its epoch: the writer sets `_t_here` to its own again, keeping its id and its role, empties
- * `_t_rate` and `_t_changes`, and begins a new epoch in a write that is its first change, one more than the higher
+ * `_f_here` and its epoch: the writer sets `_f_here` to its own again, keeping its id and its role, empties
+ * `_f_rate` and `_f_changes`, and begins a new epoch in a write that is its first change, one more than the higher
  * of the number the file held and the number it held itself. No reader's place fits then: each fetches the data anew.
  */
 export function afterRestore(o: Opened, before: Before): void {

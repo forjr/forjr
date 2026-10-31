@@ -18,9 +18,9 @@ function mergedChildren(into: Node, from: Node, isKept: (element: Element) => bo
       continue
     }
     // The place of a living child stays the element it is: only its mark is told anew.
-    if (there instanceof Element && isKept(there) && one instanceof Element && one.hasAttribute('data-t-child')) {
-      const named = (one.getAttribute('data-t-child') ?? '').split(':')[1] ?? 'children'
-      there.setAttribute('data-t-child', `${mark}:${named}`)
+    if (there instanceof Element && isKept(there) && one instanceof Element && one.hasAttribute('data-f-child')) {
+      const named = (one.getAttribute('data-f-child') ?? '').split(':')[1] ?? 'children'
+      there.setAttribute('data-f-child', `${mark}:${named}`)
       continue
     }
     if (

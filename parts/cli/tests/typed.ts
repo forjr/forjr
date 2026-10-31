@@ -3,7 +3,7 @@ import { chmodSync, cpSync, mkdirSync, rmSync } from 'node:fs'
 import { userInfo } from 'node:os'
 import { basename, isAbsolute, join } from 'node:path'
 import type { TestContext } from 'node:test'
-import { tent } from '../shell.ts'
+import { forjr } from '../shell.ts'
 
 /** The root of the repository. */
 export const root = join(import.meta.dirname, '..', '..', '..')
@@ -58,7 +58,7 @@ export interface Typed {
 /** Carries a command out in a folder, in this program, and answers what it printed and the number it ended with. */
 export async function typed(folder: string, ...words: string[]): Promise<Typed> {
   const lines: string[] = []
-  const ended = await tent(words, { folder, out: (line) => lines.push(line) })
+  const ended = await forjr(words, { folder, out: (line) => lines.push(line) })
   const printed = lines.join('\n')
   let answer: Typed['answer'] = {}
   try {

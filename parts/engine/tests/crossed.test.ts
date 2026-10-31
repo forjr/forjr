@@ -1,13 +1,13 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { crossed, revived } from '../rooms/crossing.ts'
 import { logRows, running, send } from './apps.ts'
 
 test('[20-8] a failure that crosses between two threads keeps what it carries: its code, its words, its fix, where it was raised, its fields, its place, what a service answered, and what it rests on', () => {
-  const rests = new TentError('T0013', 'What it rests on.', { where: { file: 'tables.ts', line: 3 } })
+  const rests = new ForjrError('F0013', 'What it rests on.', { where: { file: 'tables.ts', line: 3 } })
   rests.cause = new RangeError('The first cause of all.')
-  const failed = new TentError('not-there', 'The shelf holds no such thing.', {
+  const failed = new ForjrError('not-there', 'The shelf holds no such thing.', {
     fix: 'Name a thing that the shelf holds.',
     where: { file: 'functions.ts', line: 7, definition: 'heavyFails' },
     fields: { thing: 'missing' },
@@ -17,7 +17,7 @@ test('[20-8] a failure that crosses between two threads keeps what it carries: i
   failed.cause = rests
   // What crosses is copied as a message between two threads is.
   const back = revived(structuredClone(crossed(failed, 'ref12345')))
-  assert.ok(back instanceof TentError)
+  assert.ok(back instanceof ForjrError)
   const { code, message, fix, where, fields, place, service } = back
   assert.deepEqual(
     { code, message, fix, where, fields, place, service },
@@ -33,19 +33,19 @@ test('[20-8] a failure that crosses between two threads keeps what it carries: i
   )
   assert.equal(back.stack, failed.stack)
   const cause: unknown = back.cause
-  assert.ok(cause instanceof TentError)
-  assert.deepEqual([cause.code, cause.message, cause.where], ['T0013', 'What it rests on.', rests.where])
+  assert.ok(cause instanceof ForjrError)
+  assert.deepEqual([cause.code, cause.message, cause.where], ['F0013', 'What it rests on.', rests.where])
   assert.ok(cause.cause instanceof Error)
   assert.equal(cause.cause.message, 'The first cause of all.')
   // An error that is none of ours crosses as one, with what it rests on.
   const plain = new Error('The code of the app failed.', { cause: 'a text' })
   const other = revived(structuredClone(crossed(plain)))
-  assert.deepEqual([other instanceof TentError, other.message, other.cause], [false, plain.message, 'a text'])
+  assert.deepEqual([other instanceof ForjrError, other.message, other.cause], [false, plain.message, 'a text'])
 })
 
 test('[20-8] a query answers the same failure whether it is carried out on a query thread or on the main thread: the code, the words, the fix, where, and the fields', async (t) => {
   const run = await running(t)
-  const asked = (name: string) => send(run.app, `${run.origin}/_t/call/${name}`, { method: 'POST' })
+  const asked = (name: string) => send(run.app, `${run.origin}/_f/call/${name}`, { method: 'POST' })
   // The heavy query is carried out on a thread, and the query that calls it has it carried out where it runs itself.
   const [onThread, onMain] = [await asked('heavyFails'), await asked('callsFails')]
   assert.deepEqual(onMain.error.where, { file: 'functions.ts', line: 7, definition: 'heavyFails' })
@@ -56,9 +56,9 @@ test('[20-8] a query answers the same failure whether it is carried out on a que
   assert.deepEqual(
     rows.map((row) => [row.name, row.code]),
     [
-      ['heavyFails', 'T0002'],
-      ['heavyFails', 'T0002'],
-      ['callsFails', 'T0002'],
+      ['heavyFails', 'F0002'],
+      ['heavyFails', 'F0002'],
+      ['callsFails', 'F0002'],
     ],
   )
 })

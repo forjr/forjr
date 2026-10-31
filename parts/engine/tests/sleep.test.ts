@@ -78,7 +78,7 @@ function sleepyEngine(t: TestContext, o: EngineOptions & { clock?: ReturnType<ty
 
 /** A call of the app over the network, as a browser makes it, and its answer read. */
 async function called(port: number, name: string, input: object = {}): Promise<{ status: number; body: unknown }> {
-  const answer = await fetch(`http://localhost:${port}/_t/call/${name}`, {
+  const answer = await fetch(`http://localhost:${port}/_f/call/${name}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ input }),
@@ -113,10 +113,10 @@ test('[21-24] an app opened with sleepAfter falls asleep when nothing used it, a
   // What was kept answers; a member that needs the open app says how to wake it.
   assert.equal(app.description.app.name, 'sleepy')
   const at = await refusal(Promise.resolve().then(() => app.at()))
-  assert.equal(at.code, 'T0013')
+  assert.equal(at.code, 'F0013')
   assert.match(String(at.fix), /await app\.ready\(\)/)
   // Health neither wakes it nor counts as a use, and is answered as ready.
-  const health = await fetch(`http://localhost:${port}/_t/health`)
+  const health = await fetch(`http://localhost:${port}/_f/health`)
   assert.equal(health.status, 200)
   assert.equal(Reflect.get(Object(Reflect.get(Object(await health.json()), 'value')), 'app'), 'sleepy')
   assert.equal(stores.opened, 1)
@@ -124,7 +124,7 @@ test('[21-24] an app opened with sleepAfter falls asleep when nothing used it, a
   const [first, second] = await Promise.all([called(port, 'allMarks'), called(port, 'allMarks')])
   assert.deepEqual([first.status, second.status], [200, 200])
   assert.equal(Reflect.get(Object(first.body), 'value').length, 1)
-  assert.deepEqual(handed.filter((one) => one === '/_t/call/allMarks').length, 2)
+  assert.deepEqual(handed.filter((one) => one === '/_f/call/allMarks').length, 2)
   assert.deepEqual([stores.opened, heard], [2, [`asleep until ${daily}`, 'woke']])
   assert.equal(existsSync(asleepFile(dataFolder)), false, 'the file is removed as the first act of a waking')
 })
@@ -176,12 +176,12 @@ test('[21-24] app.ready wakes an app that sleeps; without sleepAfter an app neve
   await untilWithin(() => heard.length === 3, 'the app fell asleep again')
   await app.close()
   const port = portOf(awake)
-  const answer = await fetch(`http://localhost:${port}/_t/call/allMarks`, {
+  const answer = await fetch(`http://localhost:${port}/_f/call/allMarks`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: '{"input":{}}',
   })
-  // The name is answered as one that no app holds, T0017.
+  // The name is answered as one that no app holds, F0017.
   assert.equal(answer.status, 421, 'no request opens an app that was closed')
   assert.equal(stores.opened, 3, 'the closed app was not opened again')
   assert.equal(existsSync(asleepFile(sleeping)), false)

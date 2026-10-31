@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Change, Clash, History } from '../history/index.ts'
 import { lineOf } from '../history/index.ts'
 import { pull } from '../publish/index.ts'
@@ -13,11 +13,11 @@ export const writes = (args: object): boolean => {
   )
 }
 
-/** A text word of a command, which must hold something. Throws T0002 where it does not. */
+/** A text word of a command, which must hold something. Throws F0002 where it does not. */
 function nameOf(args: object, name: string): string {
   const word: unknown = Reflect.get(args, name)
   if (typeof word !== 'string' || word === '')
-    throw new TentError('T0002', `The command takes a text as \`${name}\`.`, { fields: { [name]: 'type' } })
+    throw new ForjrError('F0002', `The command takes a text as \`${name}\`.`, { fields: { [name]: 'type' } })
   return word
 }
 
@@ -40,7 +40,7 @@ const mergeShown = (merged: { changes: Change[]; clashes: Clash[] }): object => 
 })
 
 /**
- * Takes an open history and the words of `tent history branch` or of a dry merge. Lists the branches, makes one at
+ * Takes an open history and the words of `forjr history branch` or of a dry merge. Lists the branches, makes one at
  * `now`, or answers what a merge would do with nothing changed. Throws what the history throws.
  */
 export function branchWork(history: History, folder: string, args: object): unknown {
@@ -69,8 +69,8 @@ export async function historyWritten(history: History, folder: string, args: obj
     // A head that did not pass the check here is not merged into, unless it is shared on purpose.
     const head = history.find('now')
     if (head?.checked === false && Reflect.get(args, 'unchecked') !== true)
-      throw new TentError(
-        'T9101',
+      throw new ForjrError(
+        'F9101',
         `The point ${head.id} did not pass the check on this computer, and is not pulled into.`,
         {
           fields: { point: head.id },
@@ -89,7 +89,7 @@ export async function historyWritten(history: History, folder: string, args: obj
       ...(merged.point ? { point: shown(merged.point) } : {}),
       ...mergeShown(merged),
       from: target.name,
-      ...(merged.clashes.length ? { clashFile: 'tent.clash.ts' } : {}),
+      ...(merged.clashes.length ? { clashFile: 'forjr.clash.ts' } : {}),
     }
   }
   const from = nameOf(args, 'from')
@@ -98,8 +98,8 @@ export async function historyWritten(history: History, folder: string, args: obj
     ['theirs', history.find(from)],
   ] as const)
     if (point?.checked === false && Reflect.get(args, 'unchecked') !== true)
-      throw new TentError(
-        'T9101',
+      throw new ForjrError(
+        'F9101',
         `The point ${point.id}, ${side}, did not pass the check on this computer, and is not merged.`,
         {
           fields: { point: point.id },
@@ -111,6 +111,6 @@ export async function historyWritten(history: History, folder: string, args: obj
     ...(merged.point ? { point: shown(merged.point) } : {}),
     ...mergeShown(merged),
     merged: true,
-    ...(merged.clashes.length ? { clashFile: 'tent.clash.ts' } : {}),
+    ...(merged.clashes.length ? { clashFile: 'forjr.clash.ts' } : {}),
   }
 }

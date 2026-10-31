@@ -1,6 +1,6 @@
 import { Worker } from 'node:worker_threads'
 import { MessageChannel } from 'node:worker_threads'
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import { intoOf, outOf } from '../callables.ts'
 import { askerOf, boundsOf, callsOf, keeperOf } from '../calls.ts'
 import { placeOfVersion } from '../inProgram/loader.ts'
@@ -13,7 +13,7 @@ import { otherEnded, timedOut, wireOf } from './wire.ts'
 // The program of the thread, which loads the room runtime into a heap of its own.
 const threadFile = new URL('./thread.ts', import.meta.url)
 
-// The memory of the thread, in MB: a call past it is T0037, and the thread is made anew.
+// The memory of the thread, in MB: a call past it is F0037, and the thread is made anew.
 const memory = 512
 
 /** A version as the thread is told it: the modules it loads, its page code, and where its files lie. */
@@ -37,20 +37,20 @@ interface Thread {
   later: Map<object, number>
 }
 
-const roomEnded = (why: string): TentError =>
-  new TentError('T0037', `The room of the app ended the call: ${why}.`, {
+const roomEnded = (why: string): ForjrError =>
+  new ForjrError('F0037', `The room of the app ended the call: ${why}.`, {
     fix: 'Hold less in memory in one call, or end the work that does not end.',
   })
 
-const tookTooLong = (): TentError =>
-  new TentError('T0008', 'The code worked past the time of its call, and its room ended it.', {
+const tookTooLong = (): ForjrError =>
+  new ForjrError('F0008', 'The code worked past the time of its call, and its room ended it.', {
     fix: 'Do less in one call, or raise the limit in `project.limits`.',
   })
 
 /**
  * The framework's test room: the app's code runs in a thread of its own, which shares nothing with the engine. Every
  * value crosses by copy, every function as a callable, and a call that answers at once crosses at once. A call past
- * the time it still has ends the thread, and so does code past the memory of the thread, T0037: a thread is made
+ * the time it still has ends the thread, and so does code past the memory of the thread, F0037: a thread is made
  * anew at once, with every version loaded again, ready for the next call.
  */
 export function apartRoom(o: RoomInput): Room {
@@ -59,7 +59,7 @@ export function apartRoom(o: RoomInput): Room {
   let room: Room | undefined
   let closed = false
   const roomOf = (): Room => {
-    if (!room) throw new TentError('T0009', 'The test room was used before it was made.')
+    if (!room) throw new ForjrError('F0009', 'The test room was used before it was made.')
     return room
   }
   // The calls the engine waits on at once, the innermost last: the thread asks its ways inside them.
@@ -74,10 +74,10 @@ export function apartRoom(o: RoomInput): Room {
       if (what === 'db') return o.ways.db(call, Number(b.db), memberOf(b.member), args)
       if (what === 'back') return o.ways.back(call, Number(b.fn), args)
       if (what === 'fetch') return o.ways.fetch(call, b.request)
-      // What the code of a call read and reached, which a test of `tent test` stands on.
+      // What the code of a call read and reached, which a test of `forjr test` stands on.
       if (what === 'word') return noteWord(String(b.word), typeof b.value === 'string' ? b.value : null)
       if (what === 'outside') return noteOutside(String(b.what))
-      throw new TentError('T0009', `The thread of the test room asked for what the engine does not give: ${what}.`)
+      throw new ForjrError('F0009', `The thread of the test room asked for what the engine does not give: ${what}.`)
     }
     // Asked by the code of the call the engine waits on now, the way is carried out where the engine is now.
     const now = waiting.at(-1)
@@ -263,11 +263,11 @@ function quietly(asked: unknown): void {
 /** A word of the runtime slot that the thread names. */
 function wordOf(word: unknown): 'call' | 'handle' | 'start' | 'emit' | 'draw' {
   if (word === 'call' || word === 'handle' || word === 'start' || word === 'emit' || word === 'draw') return word
-  throw new TentError('T0013', 'The thread of the test room asked for a word the runtime does not give.')
+  throw new ForjrError('F0013', 'The thread of the test room asked for a word the runtime does not give.')
 }
 
 /** A member of `db` that the thread names. */
 function memberOf(member: unknown): 'read' | 'write' | 'sql' {
   if (member === 'read' || member === 'write' || member === 'sql') return member
-  throw new TentError('T0013', 'The thread of the test room asked for a member of `db` that it does not have.')
+  throw new ForjrError('F0013', 'The thread of the test room asked for a member of `db` that it does not have.')
 }

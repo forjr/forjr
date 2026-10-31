@@ -14,7 +14,7 @@ import { notDropped } from './started.ts'
 
 const system = { as: 'system' } as const
 
-// What the commands of `tent runs` over many runs print with `--json`, as their value.
+// What the commands of `forjr runs` over many runs print with `--json`, as their value.
 const many = object({ count: number(), runs: list(text()), done: boolean(), started: list(text(), { optional: true }) })
 const paused = object({ flow: text(), paused: boolean() })
 const timed = object({ flow: text(), times: list(text()), runs: list(text()), done: boolean() })
@@ -28,7 +28,7 @@ async function untilState(app: App, run: string, state: string): Promise<void> {
   }
 }
 
-/** The project of these tests, built and opened by an engine of the test, with the commands of `tent runs` typed against it. */
+/** The project of these tests, built and opened by an engine of the test, with the commands of `forjr runs` typed against it. */
 async function opened(t: TestContext, name: string) {
   // The engine is closed before the folder of the copy is removed: the hooks of a test run in their order.
   const engine = createEngine({ port: 0 })
@@ -44,7 +44,7 @@ async function opened(t: TestContext, name: string) {
   const runs = async (shape: Type | undefined, ...words: string[]): Promise<Record<string, unknown>> => {
     const asked: Typed = await typed(project, 'runs', ...words, '--data', data, '--json')
     assert.equal(asked.ended, 0, asked.printed)
-    if (shape) assert.deepEqual(checkValue(shape, asked.answer.value), [], `the shape of tent runs ${words.join(' ')}`)
+    if (shape) assert.deepEqual(checkValue(shape, asked.answer.value), [], `the shape of forjr runs ${words.join(' ')}`)
     return Object(asked.answer.value)
   }
   return { app, project, data, runs }
@@ -52,7 +52,7 @@ async function opened(t: TestContext, name: string) {
 
 const sorted = (ids: unknown): string[] => (Array.isArray(ids) ? ids.map(String).sort() : [])
 
-test('[46-2] `tent runs stop` and `tent runs replay` of the runs of a flow since a moment act on exactly those, say the count first, and do nothing without --yes', async (t) => {
+test('[46-2] `forjr runs stop` and `forjr runs replay` of the runs of a flow since a moment act on exactly those, say the count first, and do nothing without --yes', async (t) => {
   const { app, runs } = await opened(t, 'runs-many')
   const start = async (name: string, breaks: boolean): Promise<string> => {
     const { run } = notDropped(await app.start('job', { name, breaks }, system))
@@ -76,7 +76,7 @@ test('[46-2] `tent runs stop` and `tent runs replay` of the runs of a flow since
   for (const run of waits) assert.equal(app.runs.read(run)?.state, 'stopped')
   assert.equal(app.runs.read(waitsBefore)?.state, 'waiting', 'a run of before the moment is left')
 
-  // The failed runs since the moment are replayed, each as `tent runs replay` replays one.
+  // The failed runs since the moment are replayed, each as `forjr runs replay` replays one.
   const shown = await runs(many, 'replay', '--flow', 'job', '--state', 'failed', '--since', since, '--from', 'work')
   assert.deepEqual([shown.count, sorted(shown.runs), shown.done], [2, [...broke].sort(), false])
   assert.equal(app.runs.find({ flow: 'job' }).length, 6, 'nothing was started without --yes')
@@ -111,7 +111,7 @@ test('[46-2] `tent runs stop` and `tent runs replay` of the runs of a flow since
   assert.deepEqual([before.count, before.done], [0, false], 'the run of before has ended now')
 })
 
-test('[46-2] `tent runs pause` keeps the starts of a flow, `tent runs` shows the paused flow first, and `tent runs resume` lets them go', async (t) => {
+test('[46-2] `forjr runs pause` keeps the starts of a flow, `forjr runs` shows the paused flow first, and `forjr runs resume` lets them go', async (t) => {
   const { app, project, data, runs } = await opened(t, 'runs-pause')
   assert.deepEqual(await runs(paused, 'pause', 'tick'), { flow: 'tick', paused: true })
   const { run } = notDropped(await app.start('tick', { name: 'kept' }, system))
@@ -128,12 +128,12 @@ test('[46-2] `tent runs pause` keeps the starts of a flow, `tent runs` shows the
   assert.deepEqual(Object.keys(await runs(undefined)), ['runs'], 'no flow is paused')
 })
 
-test('[46-7] `tent run <flow> --times <from> <to>` over a week of a daily flow starts seven runs with their `event.at`, in order, and `--dry` starts none', async (t) => {
+test('[46-7] `forjr run <flow> --times <from> <to>` over a week of a daily flow starts seven runs with their `event.at`, in order, and `--dry` starts none', async (t) => {
   const { app, project, data } = await opened(t, 'runs-times')
   const runs = async (shape: Type, ...words: string[]): Promise<Record<string, unknown>> => {
     const asked: Typed = await typed(project, 'run', ...words, '--data', data, '--json')
     assert.equal(asked.ended, 0, asked.printed)
-    assert.deepEqual(checkValue(shape, asked.answer.value), [], `the shape of tent run ${words.join(' ')}`)
+    assert.deepEqual(checkValue(shape, asked.answer.value), [], `the shape of forjr run ${words.join(' ')}`)
     return Object(asked.answer.value)
   }
   const week = ['2031-01-01T00:00:00.000Z', '2031-01-08T00:00:00.000Z']

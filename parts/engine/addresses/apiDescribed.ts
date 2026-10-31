@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { problemAnswer } from '../api/problem.ts'
 import type { CallContext, Work } from '../context.ts'
 import type { Address } from '../door/address.ts'
@@ -21,7 +21,7 @@ const files: Record<string, { field: 'openapi' | 'docs'; kind: string }> = {
 
 /**
  * `describeTo` of the project: who may read what the app offers to programs. Signed-in callers when it is left
- * out, a key among them. Throws T0006 for nobody, and T3101 for another caller it keeps out.
+ * out, a key among them. Throws F0006 for nobody, and F3101 for another caller it keeps out.
  */
 export function mayDescribe(o: Opened, caller: Caller): void {
   const access: Record<string, unknown> = Object(o.description.project.describeTo ?? { rule: 'signedIn' })
@@ -67,7 +67,7 @@ export const address: Address = {
     try {
       mayDescribe(o, caller)
       const file: unknown = Reflect.get(Object(o.description.api), field)
-      if (typeof file !== 'string') throw new TentError('T0001', 'The bundle names no description of the API.')
+      if (typeof file !== 'string') throw new ForjrError('F0001', 'The bundle names no description of the API.')
       const bytes = bytesAt(o.bundle, file)
       logCall(o, { name: pathname, caller, began })
       return new Response(bytes, {

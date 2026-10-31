@@ -90,7 +90,7 @@ const same = (a: TagPlace[], b: TagPlace[]): boolean =>
 /** Every element of the drawing of the page that a tag of a file of the project drew, each once: the outermost that its tag drew. */
 function drawnBy(document: Document, screen: string): { element: Element; told: ToldElement }[] {
   const found: { element: Element; told: ToldElement }[] = []
-  for (const element of document.querySelectorAll('#tent *')) {
+  for (const element of document.querySelectorAll('#forjr *')) {
     const told = toldOf(element, screen)
     if (!told) continue
     const parent = element.parentElement ? toldOf(element.parentElement, screen) : undefined

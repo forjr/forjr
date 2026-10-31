@@ -14,10 +14,15 @@ function piece(kind: number, ...bodies: Uint8Array[]): Buffer {
   return Buffer.concat([Buffer.from([kind]), lengthOf(body.length), body])
 }
 
+/** Takes the pieces of a list, in their order. Answers the list as one piece. */
 export const list = (...bodies: Uint8Array[]): Buffer => piece(0x30, ...bodies)
+/** Takes the pieces of a set. Answers the set as one piece. */
 export const set = (...bodies: Uint8Array[]): Buffer => piece(0x31, ...bodies)
+/** Takes bytes. Answers them as one piece of bytes. */
 export const bytes = (body: Uint8Array): Buffer => piece(0x04, body)
+/** Answers the piece that says yes. */
 export const yes = (): Buffer => piece(0x01, Buffer.from([0xff]))
+/** Takes words. Answers them as one piece of text in UTF-8. */
 export const text = (words: string): Buffer => piece(0x0c, Buffer.from(words, 'utf8'))
 
 /** A whole number that is not below zero, from its bytes or from a small number. A set high bit gets a zero in front. */

@@ -1,4 +1,4 @@
-import { action, flow, json, model, post, service, start, text } from 'tentjs'
+import { action, flow, json, model, post, service, start, text } from 'forjr'
 
 export const pay = service('pay', {
   url: 'https://pay.example',

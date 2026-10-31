@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { checkOfJob, isStored, matches, ProviderFailure } from '../../core/internal.ts'
 import type { AiEnv, Base, Provider, Result, Units } from '../face.ts'
@@ -13,7 +13,7 @@ const isFilter = (value: unknown): value is Filter => isStored(value)
 export function callName(stored: unknown, model: string): string {
   const call = isStored(stored) ? stored : {}
   if (typeof call.service !== 'string' || typeof call.call !== 'string')
-    throw new TentError('T0013', `The model ${model} of the provider service names no call of a service.`, {
+    throw new ForjrError('F0013', `The model ${model} of the provider service names no call of a service.`, {
       fix: 'Name the call in `call`, as `call: decisions.decide`.',
     })
   return `${call.service}.${call.call}`
@@ -71,7 +71,7 @@ async function called(
     ])
   } catch (error) {
     // How the call failed is read from its status, by the table of the providers.
-    if (!(error instanceof TentError) || error.code !== 'T7115') throw error
+    if (!(error instanceof ForjrError) || error.code !== 'F7115') throw error
     const status = error.service?.status
     throw new ProviderFailure(status === undefined ? 'unreachable' : kindOfStatus(status), error.message)
   }
@@ -82,7 +82,7 @@ async function called(
  * Takes what the engine hands `ai`, the version that is called, and a model of the provider `service`. Answers its
  * provider: one call of a service, as a model. A model that states `job` starts its work with `begin`, whose job is
  * the input of its check, and `check` makes the second call until `done` or `failed` fits what it answered:
- * `failed` is T7104.
+ * `failed` is F7104.
  */
 export function serviceProvider(env: AiEnv, version: string, model: Record<string, unknown>): Provider {
   const name = String(model.name)
@@ -111,7 +111,7 @@ export function serviceProvider(env: AiEnv, version: string, model: Record<strin
       const named = isStored(held) ? held : {}
       const { output, units, raw, whole } = await called(env, o, String(named.check), named.input, true)
       if (isFilter(job.failed) && matches(job.failed, whole))
-        throw new TentError('T7104', `The job of the model ${name} failed, as its \`failed\` says.`, {
+        throw new ForjrError('F7104', `The job of the model ${name} failed, as its \`failed\` says.`, {
           fix: 'Read what its check answered in the log of the model calls.',
         })
       if (isFilter(job.done) && matches(job.done, whole)) return { output, ...(units ? { units } : {}), raw }

@@ -13,7 +13,7 @@ function withinOf(args: object): Within {
 }
 
 /**
- * `tent filled`: every column that work fills, with the counts of its values. `--look` marks each row whose work would
+ * `forjr filled`: every column that work fills, with the counts of its values. `--look` marks each row whose work would
  * be handed other values than it was, and `failed` lists the values of one `<table>.<column>` that failed, with
  * their errors. For a tenant table both look in the file of the tenant that `--of` names, or with
  * `--all` in every file, and else in the files that are open.

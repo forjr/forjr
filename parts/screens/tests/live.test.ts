@@ -155,7 +155,7 @@ test('[31-11] a page that shows a live query opens one connection that names its
   assert.deepEqual(page.ask('openOrders', { limit: 2 }, live)?.value, rows)
   assert.deepEqual(
     far.wires.map((wire) => wire.address),
-    ['/_t/live?as=u1'],
+    ['/_f/live?as=u1'],
   )
   // A watch waits for the opening, and names the query, its input, the version of the page and the mark it holds.
   assert.equal(far.wires[0].sent.length, 0)
@@ -188,7 +188,7 @@ test('[31-11] a page that shows a live query opens one connection that names its
   await settled()
   assert.deepEqual(
     far.sent.map((one) => one.address),
-    ['/_t/read/quietOrders', '/_t/read/rates'],
+    ['/_f/read/quietOrders', '/_f/read/rates'],
   )
   assert.equal(far.wires[0].sent.length, 2)
 
@@ -200,7 +200,7 @@ test('[31-11] a page that shows a live query opens one connection that names its
   visitor.ask('openOrders', { limit: 2 }, live)
   assert.deepEqual(
     other.wires.map((wire) => wire.address),
-    ['/_t/live'],
+    ['/_f/live'],
   )
   // In the mode `development` every page opens one, to hear of saves.
   const dev = world()
@@ -288,11 +288,11 @@ test('[31-11] a result replaces the value of its name, and a rows message change
   assert.equal(far.sent.length, 0)
 })
 
-test('[31-11] a watch that failed: of an entry of the screen the page asks for the screen again and shows what it is given, of a useQuery it is its error, of an entry of a component its name is nothing with the error, and with T0005 the page waits and watches again', async () => {
-  const gone = { code: 'T3101', name: 'denied', message: 'The rule does not let the caller in.' }
-  const given: Page = screenOf({ screen: 'tent.notFound', status: 404, user: { id: 'u1', roles: [] } })
+test('[31-11] a watch that failed: of an entry of the screen the page asks for the screen again and shows what it is given, of a useQuery it is its error, of an entry of a component its name is nothing with the error, and with F0005 the page waits and watches again', async () => {
+  const gone = { code: 'F3101', name: 'denied', message: 'The rule does not let the caller in.' }
+  const given: Page = screenOf({ screen: 'forjr.notFound', status: 404, user: { id: 'u1', roles: [] } })
   const { far, page, id, wire, drawn } = await watching((address) =>
-    address.startsWith('/_t/screen') ? { ok: true, value: given } : { ok: true, value: [] },
+    address.startsWith('/_f/screen') ? { ok: true, value: given } : { ok: true, value: [] },
   )
   // Of a `useQuery`, which is no entry: the error is its own, and the page asks for nothing.
   page.ask('getOrder', { id: 'a' }, { live: true })
@@ -307,8 +307,8 @@ test('[31-11] a watch that failed: of an entry of the screen the page asks for t
   await settled()
   assert.equal(far.sent.length, 0)
 
-  // With T0005 the page waits, watches again, and asks for nothing else.
-  const tooMany = { code: 'T0005', name: 'rate-limited', message: 'Too many.' }
+  // With F0005 the page waits, watches again, and asks for nothing else.
+  const tooMany = { code: 'F0005', name: 'rate-limited', message: 'Too many.' }
   wire.tell({ t: 'failed', id, error: tooMany })
   await settled()
   assert.equal(far.sent.length, 0)
@@ -330,17 +330,17 @@ test('[31-11] a watch that failed: of an entry of the screen the page asks for t
   const turn = drawn()
   wire.tell({ t: 'failed', id, error: gone })
   await settled()
-  assert.deepEqual(far.sent, [{ address: '/_t/screen?path=%2Fs%3Ftab%3Dopen&version=v1' }])
-  assert.equal(page.page.screen, 'tent.notFound')
+  assert.deepEqual(far.sent, [{ address: '/_f/screen?path=%2Fs%3Ftab%3Dopen&version=v1' }])
+  assert.equal(page.page.screen, 'forjr.notFound')
   assert.equal(page.page.status, 404)
   assert.ok(drawn() > turn, 'the page is drawn again')
-  assert.equal(page.screen()?.name, 'tent.notFound')
+  assert.equal(page.screen()?.name, 'forjr.notFound')
 
   // Where the screen now needs a sign-in, the engine names the address to go to, and the page goes there.
   const signIn = await watching((address) =>
-    address.startsWith('/_t/screen') ? { ok: true, value: { goTo: '/sign-in?back=%2Fs' } } : { ok: true, value: [] },
+    address.startsWith('/_f/screen') ? { ok: true, value: { goTo: '/sign-in?back=%2Fs' } } : { ok: true, value: [] },
   )
-  signIn.wire.tell({ t: 'failed', id: signIn.id, error: { code: 'T0006', name: 'sign-in', message: 'Sign in.' } })
+  signIn.wire.tell({ t: 'failed', id: signIn.id, error: { code: 'F0006', name: 'sign-in', message: 'Sign in.' } })
   await settled()
   assert.deepEqual(signIn.far.gone, ['/sign-in?back=%2Fs'])
 })
@@ -391,7 +391,7 @@ test('[31-11] the page answers each sign of life, takes a connection as lost whe
   // Meanwhile the page asked its live queries through the door every 30 seconds. No request was answered, and the
   // page holds what it held.
   const asked = [...new Set(far.sent.map((one) => one.address))].sort()
-  assert.deepEqual(asked, ['/_t/read/getOrder', '/_t/read/openOrders'])
+  assert.deepEqual(asked, ['/_f/read/getOrder', '/_f/read/openOrders'])
   assert.deepEqual(page.ask('openOrders', { limit: 2 }, live)?.value, [{ id: 'r29' }])
   far.stopped(false)
   // Once connected it sends every watch again, each with the mark it holds, and the wait starts short again.
@@ -424,11 +424,11 @@ test('[31-11] the page answers each sign of life, takes a connection as lost whe
 test('[31-11] while no connection can be opened the page asks its live queries again through the door, after each of its own calls that worked and every 30 seconds, so it still shows its own change', async () => {
   let orders = [{ id: 'a' }]
   const far = world((address) => {
-    if (address === '/_t/call/addOrder') {
+    if (address === '/_f/call/addOrder') {
       orders = [...orders, { id: 'n' }]
       return { ok: true, value: { id: 'n' } }
     }
-    return address === '/_t/read/openOrders' ? { ok: true, value: orders } : { ok: true, value: 1 }
+    return address === '/_f/read/openOrders' ? { ok: true, value: orders } : { ok: true, value: 1 }
   })
   far.block(true)
   const page = livingPage(
@@ -445,12 +445,12 @@ test('[31-11] while no connection can be opened the page asks its live queries a
   await settled()
   assert.deepEqual(
     far.sent.map((one) => one.address),
-    ['/_t/call/addOrder', '/_t/read/openOrders'],
+    ['/_f/call/addOrder', '/_f/read/openOrders'],
   )
   assert.deepEqual(page.ask('openOrders', { limit: 2 }, live)?.value, [{ id: 'a' }, { id: 'n' }])
   // And every 30 seconds, for the change of somebody else.
   orders = [{ id: 'other' }]
-  const read = (): number => far.sent.filter((one) => one.address === '/_t/read/openOrders').length
+  const read = (): number => far.sent.filter((one) => one.address === '/_f/read/openOrders').length
   await far.advance(29_000)
   assert.equal(read(), 1)
   await far.advance(1000)
@@ -480,7 +480,7 @@ test('[31-11] while no connection can be opened the page asks its live queries a
   // A query that is not live is asked again after a call that worked, connected or not.
   page.ask('quietOrders', {}, { entry: 'quiet', live: false })
   await settled()
-  const quiet = (): number => far.sent.filter((one) => one.address === '/_t/read/quietOrders').length
+  const quiet = (): number => far.sent.filter((one) => one.address === '/_f/read/quietOrders').length
   assert.equal(quiet(), 1)
   await page.call('addOrder', { name: 'Newest' })
   await settled()
@@ -494,24 +494,24 @@ test('[31-11] a reload makes the page load its address anew, and a changed calle
 
   const asOther: Page = screenOf({ user: { id: 'u2', roles: [] }, answers: [{ ...came, value: [{ id: 'theirs' }] }] })
   const next = await watching((address) =>
-    address.startsWith('/_t/screen') ? { ok: true, value: asOther } : { ok: true, value: [] },
+    address.startsWith('/_f/screen') ? { ok: true, value: asOther } : { ok: true, value: [] },
   )
   next.wire.tell({ t: 'changed' })
   await settled()
   assert.equal(next.wire.open, false)
-  assert.deepEqual(next.far.sent, [{ address: '/_t/screen?path=%2Fs%3Ftab%3Dopen&version=v1' }])
+  assert.deepEqual(next.far.sent, [{ address: '/_f/screen?path=%2Fs%3Ftab%3Dopen&version=v1' }])
   // The page is the new caller's: its answers are those of the new record, and its connection names the new user.
   assert.deepEqual(next.page.page.user, { id: 'u2', roles: [] })
   assert.deepEqual(next.page.ask('openOrders', { limit: 2 }, live)?.value, [{ id: 'theirs' }])
   assert.deepEqual(
     next.far.wires.map((one) => one.address),
-    ['/_t/live?as=u1', '/_t/live?as=u2'],
+    ['/_f/live?as=u1', '/_f/live?as=u2'],
   )
   assert.deepEqual(next.far.gone, [])
 
   // A call that changed who is calling does the same.
   const signed = await watching((address) =>
-    address.startsWith('/_t/screen') ? { ok: true, value: asOther } : { ok: true, value: 1, caller: 'changed' },
+    address.startsWith('/_f/screen') ? { ok: true, value: asOther } : { ok: true, value: 1, caller: 'changed' },
   )
   await signed.page.call('signIn', {})
   await settled()
@@ -523,9 +523,9 @@ test('[31-11] a reload makes the page load its address anew, and a changed calle
 test('[31-11] an optimistic result of what a call will change is shown at once for every use of its query, is dropped when the call fails, when a result of the query arrives after the call was answered, and two seconds after the answer', async () => {
   let fails = false
   const { far, page, id, wire } = await watching((address) =>
-    address === '/_t/call/markPaid'
+    address === '/_f/call/markPaid'
       ? fails
-        ? { ok: false, error: { code: 'T0002', name: 'bad-input', message: 'No.' } }
+        ? { ok: false, error: { code: 'F0002', name: 'bad-input', message: 'No.' } }
         : { ok: true, value: 1 }
       : { ok: true, value: [] },
   )

@@ -22,7 +22,7 @@ export const member =
     const record = isPlan(held) ? held : isPlan(plan) ? plan : undefined
     if (!record) throw notTaken('read', 'a plan')
     const caller = callerNamed(how?.as)
-    // Under `tent test`, what the test itself read, as `app.rows` reads it.
+    // Under `forjr test`, what the test itself read, as `app.rows` reads it.
     noteTouched('read', record.from)
     // The counts of the engine are read as the system alone, straight from the store, and never written.
     if (record.from === countsLayout.name) {

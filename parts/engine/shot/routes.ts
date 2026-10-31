@@ -15,7 +15,7 @@ export interface ShotRouteAsked {
 const ofTheConnection = new Set(['host', 'connection', 'keep-alive', 'transfer-encoding', 'upgrade', 'content-length'])
 
 /** Where a document of a driven page asks its number among the documents of the page. */
-const documentPath = '/_t/document'
+const documentPath = '/_f/document'
 
 /** What becomes of a request of a driven browser: it goes on as it is, or the engine answers it. */
 export type Routed = 'through' | Promise<Response>

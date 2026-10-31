@@ -69,7 +69,7 @@ async function bundleOf(here: Computer, out: string): Promise<{ version: string;
 
 /**
  * Sends what a publish sends, by hand: the blobs of a bundle, a point of the kind `published` named by a version
- * whose parent is what is live, and asks `/_t/publish` with a list of files as written. Answers the answer.
+ * whose parent is what is live, and asks `/_f/publish` with a list of files as written. Answers the answer.
  */
 async function sentByHand(
   server: Server,
@@ -78,7 +78,7 @@ async function sentByHand(
   blobs: Uint8Array[],
   files: string,
 ): Promise<Record<string, unknown>> {
-  await sent(server, '/_t/sync/blobs?for=bundle', blobsBody(blobs.map((one) => [print(one), one])), key, blobsType)
+  await sent(server, '/_f/sync/blobs?for=bundle', blobsBody(blobs.map((one) => [print(one), one])), key, blobsType)
   const live = String(server.history.pointer('live'))
   const held: Omit<Point, 'id'> = {
     parents: [live],
@@ -89,8 +89,8 @@ async function sentByHand(
     files: {},
   }
   const point = { id: idOf(held), ...held }
-  await sent(server, '/_t/sync/points', { points: [point] }, key)
-  const answer = await fetch(`${server.address}/_t/publish`, {
+  await sent(server, '/_f/sync/points', { points: [point] }, key)
+  const answer = await fetch(`${server.address}/_f/publish`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
     body: `{"point":${JSON.stringify(point.id)},"version":${JSON.stringify(version)},"files":${files}}`,
@@ -98,7 +98,7 @@ async function sentByHand(
   return Object(await answer.json())
 }
 
-test('[05-15.7] a publish of a version that was never sent, and one whose listed files do not give that version id, is T9107', async (t) => {
+test('[05-15.7] a publish of a version that was never sent, and one whose listed files do not give that version id, is F9107', async (t) => {
   const { server, here, to } = await published(t)
   const before = running(server)
   here.edit(functions, ".limit(input('limit'))", '.limit(50)')
@@ -109,7 +109,7 @@ test('[05-15.7] a publish of a version that was never sent, and one whose listed
     JSON.stringify(Object.fromEntries([...files].map(([path, bytes]) => [path, print(bytes)])))
   // Never sent: the version names files whose bytes the server lacks.
   const never = await sentByHand(server, to.key, next.version, [], listed(next.files))
-  assert.equal(Object(never.error).code, 'T9107', JSON.stringify(never))
+  assert.equal(Object(never.error).code, 'F9107', JSON.stringify(never))
   // The description of another version under this version's id.
   const otherDescription = Object.fromEntries(next.files)
   otherDescription['description.json'] = other.files.get('description.json') ?? new Uint8Array()
@@ -120,7 +120,7 @@ test('[05-15.7] a publish of a version that was never sent, and one whose listed
     [...next.files.values(), ...other.files.values()],
     listed(new Map(Object.entries(otherDescription))),
   )
-  assert.equal(Object(another.error).code, 'T9107', JSON.stringify(another))
+  assert.equal(Object(another.error).code, 'F9107', JSON.stringify(another))
   // The description of this version, with the bytes of a module of another version under the name of its own.
   const swapped = new Map(next.files)
   const module = [...next.files.keys()].find((path) => path.startsWith('server/') && path.endsWith('.js'))
@@ -130,30 +130,30 @@ test('[05-15.7] a publish of a version that was never sent, and one whose listed
   const lying = await sentByHand(server, to.key, next.version, [...swapped.values()], listed(swapped))
   assert.equal(
     Object(lying.error).code,
-    'T9107',
+    'F9107',
     `a module whose bytes are not those its name gives: ${JSON.stringify(lying)}`,
   )
   assert.equal(running(server), before)
 })
 
-test('[05-15.10] a secret set through /_t/publish/values is in no answer, in no row of the log, also one not yet in the file of the log, and in no later point', async (t) => {
+test('[05-15.10] a secret set through /_f/publish/values is in no answer, in no row of the log, also one not yet in the file of the log, and in no later point', async (t) => {
   const { server, here, to } = await published(t)
   makeSecretKey(server.data)
   const value = 'smtp://a-value-nobody-reads.example.com:25'
   const answers = [
-    await sent(server, '/_t/publish/values', { kind: 'secret', name: 'SMTP_URL', value }, to.key),
-    await sent(server, '/_t/publish/values', { list: true }, to.key),
-    await sent(server, '/_t/publish/values', { kind: 'secret', name: 'SMTP_URL', value, remove: 'no' }, to.key),
+    await sent(server, '/_f/publish/values', { kind: 'secret', name: 'SMTP_URL', value }, to.key),
+    await sent(server, '/_f/publish/values', { list: true }, to.key),
+    await sent(server, '/_f/publish/values', { kind: 'secret', name: 'SMTP_URL', value, remove: 'no' }, to.key),
   ]
   here.edit(
-    'tent.ts',
+    'forjr.ts',
     "title: 'Shop' }",
     "title: 'Shop', mail: { from: 'shop@example.com', send: secret('SMTP_URL') } }",
   )
-  here.edit('tent.ts', "import { project } from 'tentjs'", "import { project, secret } from 'tentjs'")
+  here.edit('forjr.ts', "import { project } from 'forjr'", "import { project, secret } from 'forjr'")
   await here.save()
   await publish({ project: here.project, history: here.history, to, fetch: fetched })
-  answers.push(await sent(server, '/_t/sync/have', { points: [], blobs: [], pointers: true }, to.key))
+  answers.push(await sent(server, '/_f/sync/have', { points: [], blobs: [], pointers: true }, to.key))
   assert.equal(JSON.stringify(answers).includes(value), false, 'no answer holds it')
   for (const name of readdirSync(server.data).filter((one) => one.startsWith('logs.db')))
     assert.equal(readFileSync(join(server.data, name)).includes(value), false, `${name} holds no value`)
@@ -184,7 +184,7 @@ test('[05-15.11] the addresses of publishing over a connection that is not secur
         {
           host: '127.0.0.1',
           port,
-          path: '/_t/sync/have',
+          path: '/_f/sync/have',
           method: 'POST',
           headers: { host: `localhost:${port}`, 'content-type': 'application/json', ...headers },
         },
@@ -207,8 +207,8 @@ test('[05-15.14] a server that follows, whose own server hands it a version with
   const fp = print(bytes)
   const outside = join(folder, 'climbed.txt')
   const answering = createServer((asked, answer) => {
-    answer.setHeader('content-type', asked.url === '/_t/sync/blobs' ? blobsType : 'application/json')
-    if (asked.url === '/_t/sync/blobs') return answer.end(blobsBody([[fp, bytes]]))
+    answer.setHeader('content-type', asked.url === '/_f/sync/blobs' ? blobsType : 'application/json')
+    if (asked.url === '/_f/sync/blobs') return answer.end(blobsBody([[fp, bytes]]))
     const live = {
       version: 'f'.repeat(32),
       point: 'p'.repeat(32),
@@ -224,7 +224,7 @@ test('[05-15.14] a server that follows, whose own server hands it a version with
   const followed = await refusal(
     followServer({ engine, from: { address, key: 'k'.repeat(48) }, fetch: fetched, dataFolder: join(folder, 'data') }),
   )
-  assert.deepEqual([followed?.code, Object(followed?.fields).path], ['T9107', '../../climbed.txt'])
+  assert.deepEqual([followed?.code, Object(followed?.fields).path], ['F9107', '../../climbed.txt'])
   assert.equal(existsSync(outside), false, 'no file is written outside a version folder')
 })
 
@@ -239,8 +239,8 @@ test('[40-15] a server that follows holds what it fetched to the version that wa
     }
   const named = 'f'.repeat(32)
   const answering = createServer((asked, answer) => {
-    answer.setHeader('content-type', asked.url === '/_t/sync/blobs' ? blobsType : 'application/json')
-    if (asked.url === '/_t/sync/blobs')
+    answer.setHeader('content-type', asked.url === '/_f/sync/blobs' ? blobsType : 'application/json')
+    if (asked.url === '/_f/sync/blobs')
       return answer.end(blobsBody([...files.values()].map((one) => [print(one), one])))
     const live = {
       version: named,
@@ -267,10 +267,10 @@ test('[40-15] a server that follows holds what it fetched to the version that wa
         .find((v) => v.running)?.id,
     (error: { code?: string }) => error.code,
   )
-  assert.equal(followed, 'T9107', `the follower runs ${followed}, which is not the version ${named} it was told`)
+  assert.equal(followed, 'F9107', `the follower runs ${followed}, which is not the version ${named} it was told`)
 })
 
-test('[05-15.15] a holder of push who sends a point that says checked over files that fail the check, which the next person pulls and publishes, is T9101', async (t) => {
+test('[05-15.15] a holder of push who sends a point that says checked over files that fail the check, which the next person pulls and publishes, is F9101', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder)
   const to = server.key(['read', 'push', 'publish'])
@@ -286,26 +286,26 @@ test('[05-15.15] a holder of push who sends a point that says checked over files
   await pull({ project: two.project, history: two.history, from: to, fetch: fetched, by: ada })
   const before = running(server)
   const refused = await refusal(publish({ project: two.project, history: two.history, to, fetch: fetched }))
-  assert.deepEqual([refused?.code, refused?.fields?.reason], ['T9101', 'check'])
+  assert.deepEqual([refused?.code, refused?.fields?.reason], ['F9101', 'check'])
   assert.equal(running(server), before)
 })
 
-test('[05-15.21] /_t/publish/values with a key of read and of push is T9104, and a value of 20 MB is T0003', async (t) => {
+test('[05-15.21] /_f/publish/values with a key of read and of push is F9104, and a value of 20 MB is F0003', async (t) => {
   const { server, to } = await published(t)
   for (const rights of [['read'], ['push'], ['read', 'push'], ['bundle']]) {
     const { key } = server.key(rights)
     for (const body of [{ kind: 'secret', name: 'SMTP_URL', value: 'v' }, { list: true }]) {
-      const answered = await sent(server, '/_t/publish/values', body, key)
-      assert.equal(Object(answered.answer.error).code, 'T9104', `${rights}: ${JSON.stringify(answered.answer)}`)
+      const answered = await sent(server, '/_f/publish/values', body, key)
+      assert.equal(Object(answered.answer.error).code, 'F9104', `${rights}: ${JSON.stringify(answered.answer)}`)
     }
   }
-  const large = await stated(server, '/_t/publish/values', to.key, 20 * 1_048_576)
-  assert.equal(JSON.parse(large).error.code, 'T0003', large)
-  const listed = await sent(server, '/_t/publish/values', { list: true }, to.key)
+  const large = await stated(server, '/_f/publish/values', to.key, 20 * 1_048_576)
+  assert.equal(JSON.parse(large).error.code, 'F0003', large)
+  const listed = await sent(server, '/_f/publish/values', { list: true }, to.key)
   assert.deepEqual(Object(listed.answer.value).secrets, [], 'nothing was set')
 })
 
-test('[05-15.22] /_t/publish with a list of files in which a path climbs out, or that names one path twice, is refused', async (t) => {
+test('[05-15.22] /_f/publish with a list of files in which a path climbs out, or that names one path twice, is refused', async (t) => {
   const { server, here, to } = await published(t)
   const before = running(server)
   here.edit(functions, ".limit(input('limit'))", '.limit(50)')
@@ -334,7 +334,7 @@ test('[05-15.22] /_t/publish with a list of files in which a path climbs out, or
   assert.equal(running(server), before)
 })
 
-test('[05-15.24] --back sent twice goes to the version of the second parent each time, and by a key of push is T9104', async (t) => {
+test('[05-15.24] --back sent twice goes to the version of the second parent each time, and by a key of push is F9104', async (t) => {
   const { server, here, to } = await published(t)
   const first = String(running(server))
   here.edit(tables, '    title: text({ min: 1, max: 80 }),', '    title: text({ min: 1, max: 90 }),')
@@ -344,8 +344,8 @@ test('[05-15.24] --back sent twice goes to the version of the second parent each
   await here.save()
   await publish({ project: here.project, history: here.history, to, fetch: fetched })
   const pusher = server.key(['read', 'push'])
-  const pushed = await sent(server, '/_t/publish', { back: true }, pusher.key)
-  assert.equal(Object(pushed.answer.error).code, 'T9104')
+  const pushed = await sent(server, '/_f/publish', { back: true }, pusher.key)
+  assert.equal(Object(pushed.answer.error).code, 'F9104')
   const once = await publish({ project: here.project, history: here.history, to, fetch: fetched, back: true })
   assert.equal(once.version, second.version)
   assert.equal(running(server), second.version)

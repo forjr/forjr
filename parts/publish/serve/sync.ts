@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { App, ServedRequest } from '../../engine/index.ts'
 import type { History, Point } from '../../history/index.ts'
 import { blobsBody, blobsOf, blobsType } from '../blobsBody.ts'
@@ -12,32 +12,32 @@ import { comesFrom, leadingTo } from './walk.ts'
 const ok = (value: unknown): Response =>
   new Response(JSON.stringify({ ok: true, value }), { headers: { 'content-type': 'application/json' } })
 
-/** The failure of a key that holds none of the rights a part of an address asks for: T9104. */
-const noRight = (what: string, rights: string[]): TentError =>
-  new TentError('T9104', `${what} needs a key with the right ${rights.map((one) => `\`${one}\``).join(' or ')}.`, {
+/** The failure of a key that holds none of the rights a part of an address asks for: F9104. */
+const noRight = (what: string, rights: string[]): ForjrError =>
+  new ForjrError('F9104', `${what} needs a key with the right ${rights.map((one) => `\`${one}\``).join(' or ')}.`, {
     fields: { right: rights.join(',') },
-    fix: 'Make a key with that right on the server, with `tent access key add <name> --right <right>`.',
+    fix: 'Make a key with that right on the server, with `forjr access key add <name> --right <right>`.',
   })
 
-/** Holds a key to the rights a part of an address asks for. Throws T9104 where it holds none of them. */
+/** Holds a key to the rights a part of an address asks for. Throws F9104 where it holds none of them. */
 function needs(key: ServedRequest['key'], what: string, rights: string[]): void {
   if (!rights.some((one) => key.rights.includes(one))) throw noRight(what, rights)
 }
 
-/** A list of ids of a body, a thousand at most. Throws T0002 for more, and for one that is no list of texts. */
+/** A list of ids of a body, a thousand at most. Throws F0002 for more, and for one that is no list of texts. */
 function idsOf(body: object, name: string): string[] {
   const ids: unknown = Reflect.get(body, name)
   if (ids === undefined) return []
   if (!Array.isArray(ids) || ids.some((one) => typeof one !== 'string'))
-    throw new TentError('T0002', `\`${name}\` is a list of ids.`, { fields: { [name]: 'type' } })
+    throw new ForjrError('F0002', `\`${name}\` is a list of ids.`, { fields: { [name]: 'type' } })
   if (ids.length > idsAtOnce)
-    throw new TentError('T0002', `\`${name}\` names ${ids.length} ids, and one request names ${idsAtOnce} at most.`, {
+    throw new ForjrError('F0002', `\`${name}\` names ${ids.length} ids, and one request names ${idsAtOnce} at most.`, {
       fields: { [name]: 'max' },
     })
   return ids
 }
 
-/** The JSON body of a request. Throws T0002 for a body that is no record. */
+/** The JSON body of a request. Throws F0002 for a body that is no record. */
 async function jsonOf(request: Request): Promise<Record<string, unknown>> {
   let read: unknown
   try {
@@ -46,11 +46,11 @@ async function jsonOf(request: Request): Promise<Record<string, unknown>> {
     read = undefined
   }
   if (typeof read !== 'object' || read === null || Array.isArray(read))
-    throw new TentError('T0002', 'The body is a record in the wire form.', { fields: { body: 'type' } })
+    throw new ForjrError('F0002', 'The body is a record in the wire form.', { fields: { body: 'type' } })
   return Object(read)
 }
 
-/** What a server answers of its history and its app, for the addresses of `/_t/sync`. */
+/** What a server answers of its history and its app, for the addresses of `/_f/sync`. */
 export interface SyncServer {
   app: App
   history: History
@@ -94,7 +94,7 @@ function inTurn<Answer>(history: History, pointer: string, work: () => Promise<A
 
 /**
  * Moves a branch of the server where it still stands where the pusher last saw it, and where the pushed point
- * comes from it; merges where it does not. Answers the point it stands on now. Throws T9103 for a name the history
+ * comes from it; merges where it does not. Answers the point it stands on now. Throws F9103 for a name the history
  * keeps for itself, and what the merge refuses with.
  */
 async function moved(history: History, move: Record<string, unknown>): Promise<string> {
@@ -105,7 +105,7 @@ async function moved(history: History, move: Record<string, unknown>): Promise<s
       { reason: 'pointer' },
       'Push a branch.',
     )
-  if (!history.read(to)) throw new TentError('T9107', `The server holds no point ${to}.`, { fields: { point: to } })
+  if (!history.read(to)) throw new ForjrError('F9107', `The server holds no point ${to}.`, { fields: { point: to } })
   return inTurn(history, pointer, async () => {
     const standing = history.pointer(pointer)
     const saw = typeof was === 'string' ? was : undefined
@@ -120,14 +120,14 @@ async function moved(history: History, move: Record<string, unknown>): Promise<s
 }
 
 /**
- * Answers a request to an address of `/_t/sync`: `have` names which points and blobs the server holds, `blobs`
+ * Answers a request to an address of `/_f/sync`: `have` names which points and blobs the server holds, `blobs`
  * takes and answers bytes, and `points` takes and answers points, moving a branch with `move`.
  */
 export async function syncAnswer(server: SyncServer, asked: ServedRequest): Promise<Response> {
   const { request, key } = asked
   const { history, app } = server
   const path = new URL(request.url).pathname
-  if (path === '/_t/sync/have') {
+  if (path === '/_f/sync/have') {
     const body = await jsonOf(request)
     const held = history.have({ points: idsOf(body, 'points'), blobs: idsOf(body, 'blobs') })
     return ok(
@@ -136,7 +136,7 @@ export async function syncAnswer(server: SyncServer, asked: ServedRequest): Prom
         : held,
     )
   }
-  if (path === '/_t/sync/blobs' && (request.headers.get('content-type') ?? '').startsWith(blobsType)) {
+  if (path === '/_f/sync/blobs' && (request.headers.get('content-type') ?? '').startsWith(blobsType)) {
     // The files of a bundle are sent by a key of `publish`, as large as `syncFileSize`, and are no loose blobs.
     const bundled = new URL(request.url).searchParams.get('for') === 'bundle'
     needs(key, 'Sending blobs', bundled ? ['publish'] : ['push', 'publish'])
@@ -144,16 +144,16 @@ export async function syncAnswer(server: SyncServer, asked: ServedRequest): Prom
     const blobs = blobsOf(bytes)
     const most = syncLimit(app.description, 'syncSize')
     if (blobs.length > 1 && bytes.length > most)
-      throw new TentError('T0003', `Blobs that together pass ${most} bytes travel one to a request.`)
+      throw new ForjrError('F0003', `Blobs that together pass ${most} bytes travel one to a request.`)
     const limit = syncLimit(app.description, bundled ? 'syncFileSize' : 'historyFileSize')
     for (const [print, one] of blobs)
       if (one.length > limit)
-        throw new TentError('T0003', `The blob ${print} is larger than ${limit} bytes, the most it may be.`)
+        throw new ForjrError('F0003', `The blob ${print} is larger than ${limit} bytes, the most it may be.`)
     if (!bundled) server.loose.add(app, blobs)
     history.take({ blobs: Object.fromEntries(blobs) })
     return ok({ taken: blobs.length })
   }
-  if (path === '/_t/sync/blobs') {
+  if (path === '/_f/sync/blobs') {
     const want = idsOf(await jsonOf(request), 'want')
     // `bundle` fetches the files of what is live and nothing else, and `publish` the description that is live too.
     if (!['read', 'copy', 'far'].some((one) => key.rights.includes(one))) {
@@ -176,7 +176,7 @@ export async function syncAnswer(server: SyncServer, asked: ServedRequest): Prom
     }
     return new Response(blobsBody(sent), { headers: { 'content-type': blobsType } })
   }
-  if (path === '/_t/sync/points') {
+  if (path === '/_f/sync/points') {
     const body = await jsonOf(request)
     if (Array.isArray(body.points)) {
       needs(key, 'Sending points', ['push', 'publish'])
@@ -216,5 +216,5 @@ export async function syncAnswer(server: SyncServer, asked: ServedRequest): Prom
     const more = last !== undefined && all.indexOf(last) < all.length - 1
     return ok({ head, points: page, ...(more ? { next: last.id } : {}) })
   }
-  throw new TentError('T0001', `Nothing answers ${path}.`)
+  throw new ForjrError('F0001', `Nothing answers ${path}.`)
 }

@@ -59,7 +59,7 @@ const filesNamed = (description: Described): string[] =>
  * app: the two descriptions that were kept with the points are compared, definition by definition, and the files
  * that hold no definition file by file. A point that did not build has no description, and the two are then
  * compared file by file, as text. What a point changed against its first parent is read as it was kept when the
- * point was recorded. Throws T9107 for a point that is not there, and for one that was dropped.
+ * point was recorded. Throws F9107 for a point that is not there, and for one that was dropped.
  */
 export function compare(file: SqliteFile, a: string, b: string): Change[] {
   const [from, to] = [found(file, a), found(file, b)]

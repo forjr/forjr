@@ -1,5 +1,5 @@
 import { existsSync, readFileSync } from 'node:fs'
-import { TentError, text } from '../../core/index.ts'
+import { ForjrError, text } from '../../core/index.ts'
 import { pathIn, pathOf } from '../paths.ts'
 import { writeHeld } from '../written.ts'
 import type { ProjectTool } from './face.ts'
@@ -28,7 +28,7 @@ export const editTool: ProjectTool = {
     const find = String(input.find)
     const times = timesIn(whole, find)
     if (times !== 1)
-      throw new TentError('T9106', `The text to replace stands ${times} times in ${path}, and not exactly once.`, {
+      throw new ForjrError('F9106', `The text to replace stands ${times} times in ${path}, and not exactly once.`, {
         fields: { count: String(times) },
         fix:
           times === 0

@@ -37,10 +37,10 @@ export interface Opening {
   signs?: true
 }
 
-/** The request that opens `/_t/live` of an app, as a page of that origin sends it. */
+/** The request that opens `/_f/live` of an app, as a page of that origin sends it. */
 export function opening(origin: string, o: Opening = {}): Request {
   const site = o.site === undefined ? origin : o.site
-  return new Request(`${origin}/_t/live${o.as === undefined ? '' : `?as=${encodeURIComponent(o.as)}`}`, {
+  return new Request(`${origin}/_f/live${o.as === undefined ? '' : `?as=${encodeURIComponent(o.as)}`}`, {
     headers: { ...(site === null ? {} : { origin: site }), ...(o.cookie === undefined ? {} : { cookie: o.cookie }) },
   })
 }

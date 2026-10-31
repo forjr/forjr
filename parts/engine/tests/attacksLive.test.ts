@@ -25,49 +25,49 @@ const failedWith = (message: Message | undefined): unknown => Object(message?.er
 /** The id of a caller that is a user. */
 const idOf = (caller: { user?: { id: string } }): string => String(caller.user?.id)
 
-test('[05-5.1] an opening of /_t/live from a page of another site, from a site that only looks like the app, and with no Origin is T0004 with a valid cookie in the request, and holds no place', async (t) => {
-  const listed = 'https://partner.tent.test'
+test('[05-5.1] an opening of /_f/live from a page of another site, from a site that only looks like the app, and with no Origin is F0004 with a valid cookie in the request, and holds no place', async (t) => {
+  const listed = 'https://partner.forjr.test'
   const { app, origin, port } = await board(t, {
     change: limited({ liveConnections: 3 }, (d) => void Object.assign(d.project, { api: { origins: [listed] } })),
   })
   const ada = await addBoardUser(app, 'Ada', ['staff'])
   const cookie = cookieOf(app, ada)
   const others = [
-    'https://evil.tent.test',
+    'https://evil.forjr.test',
     'null',
     null,
     // The same name on another port and under another scheme is another site.
     `http://localhost:${port + 1}`,
     `https://localhost:${port}`,
     // A name that only begins or ends as the app's does, and one that begins as a listed site does.
-    `http://localhost:${port}.evil.tent.test`,
+    `http://localhost:${port}.evil.forjr.test`,
     `http://evil-localhost:${port}`,
     `http://sub.localhost:${port}`,
-    `${listed}.evil.tent.test`,
+    `${listed}.evil.forjr.test`,
     `${listed}:8443`,
-    'http://partner.tent.test',
+    'http://partner.forjr.test',
     // Another name of this computer than the one the request was sent to.
     `http://127.0.0.1:${port}`,
   ]
   for (const site of others) {
-    assert.throws(() => app.live(opening(origin, { cookie, as: ada, site })), { code: 'T0004' }, `from ${site}`)
-    assert.throws(() => app.live(opening(origin, { site })), { code: 'T0004' }, `from ${site}, with no cookie`)
+    assert.throws(() => app.live(opening(origin, { cookie, as: ada, site })), { code: 'F0004' }, `from ${site}`)
+    assert.throws(() => app.live(opening(origin, { site })), { code: 'F0004' }, `from ${site}, with no cookie`)
   }
   // Over a real connection, with what a program may add to its request: each is refused before a socket is made.
   const added: Record<string, string>[] = [
-    { origin: 'https://evil.tent.test' },
+    { origin: 'https://evil.forjr.test' },
     {},
-    { origin: 'https://evil.tent.test', 'x-forwarded-host': `localhost:${port}`, forwarded: `host=localhost:${port}` },
+    { origin: 'https://evil.forjr.test', 'x-forwarded-host': `localhost:${port}`, forwarded: `host=localhost:${port}` },
     { authorization: 'Bearer tk_made_up_by_the_attacker' },
-    { 'x-api-key': 'made-up', 'tent-admin': 'made-up' },
-    { origin: `http://localhost:${port}, https://evil.tent.test` },
+    { 'x-api-key': 'made-up', 'forjr-admin': 'made-up' },
+    { origin: `http://localhost:${port}, https://evil.forjr.test` },
   ]
   for (const more of added) {
     const refused = await rawLive(port, { cookie, ...more })
     assert.equal(refused.status, 403, JSON.stringify(more))
   }
   // A name that is none of the app's, with an `Origin` that agrees with it, is another app's request.
-  const rebound = await rawLive(port, { cookie, host: 'evil.tent.test', origin: 'http://evil.tent.test' })
+  const rebound = await rawLive(port, { cookie, host: 'evil.forjr.test', origin: 'http://evil.forjr.test' })
   assert.equal(rebound.status, 421)
 
   // No refusal held a place among the connections of the address: all three are still to be had.
@@ -75,7 +75,7 @@ test('[05-5.1] an opening of /_t/live from a page of another site, from a site t
   for (const page of pages) assert.equal((await page.watch('cards', 'allCards')).t, 'result')
 })
 
-test('[05-5.2] one connection more than an address may hold is T0005, whatever address the request says it came from, and one watch more than a connection may hold is failed with T0005 and runs nothing', async (t) => {
+test('[05-5.2] one connection more than an address may hold is F0005, whatever address the request says it came from, and one watch more than a connection may hold is failed with F0005 and runs nothing', async (t) => {
   const { app, origin, port, dataFolder } = await board(t, { change: limited({ liveConnections: 3, watches: 3 }) })
   await addCard(app, 'first', 1)
   const ada = await addBoardUser(app, 'Ada')
@@ -114,8 +114,8 @@ test('[05-5.2] one connection more than an address may hold is T0005, whatever a
     assert.equal((await page.watch(id, 'cardsAt', { rank: id.charCodeAt(0) })).t, 'result')
   const [counted, ranked] = [runsOf(dataFolder, 'countCards'), runsOf(dataFolder, 'cardsAt')]
   for (let n = 0; n < 50; n++) {
-    assert.equal(failedWith(await page.watch(`more ${n}`, 'countCards')), 'T0005')
-    assert.equal(failedWith(await page.watch(`again ${n}`, 'cardsAt', { rank: n })), 'T0005')
+    assert.equal(failedWith(await page.watch(`more ${n}`, 'countCards')), 'F0005')
+    assert.equal(failedWith(await page.watch(`again ${n}`, 'cardsAt', { rank: n })), 'F0005')
   }
   assert.deepEqual([runsOf(dataFolder, 'countCards'), runsOf(dataFolder, 'cardsAt')], [counted, ranked])
   assert.equal(page.closed(), false)
@@ -123,7 +123,7 @@ test('[05-5.2] one connection more than an address may hold is T0005, whatever a
   await untilTried('the watch that stands was sent the card', () => page.of('result', 'a').length === 2)
 })
 
-test('[05-5.3] a watch of a query the caller may not call, of a name that starts _t_, of a change, of an action and with an input that does not fit is failed, and nothing is run or written', async (t) => {
+test('[05-5.3] a watch of a query the caller may not call, of a name that starts _f_, of a change, of an action and with an input that does not fit is failed, and nothing is run or written', async (t) => {
   const { app, origin, dataFolder } = await board(t)
   await addCard(app, 'first', 1)
   const page = watcher(app, origin)
@@ -137,9 +137,9 @@ test('[05-5.3] a watch of a query the caller may not call, of a name that starts
     ['a role', 'staffCards', {}],
     ['a sign-in', 'myCards', {}],
     // The engine's own tables, and names that every object of the runtime holds.
-    ['rate', '_t_rate', {}],
-    ['meta', '_t_meta', {}],
-    ['users', '_t_users', {}],
+    ['rate', '_f_rate', {}],
+    ['meta', '_f_meta', {}],
+    ['users', '_f_users', {}],
     ['proto', '__proto__', {}],
     ['constructor', 'constructor', {}],
     ['toString', 'toString', {}],
@@ -167,7 +167,7 @@ test('[05-5.3] a watch of a query the caller may not call, of a name that starts
     const answer = await page.watch(id, String(id), input, { query })
     assert.equal(answer.t, 'failed', `${id}: ${JSON.stringify(answer)}`)
     assert.equal('value' in answer, false, id)
-    assert.match(String(failedWith(answer)), /^T\d{4}$/, id)
+    assert.match(String(failedWith(answer)), /^F\d{4}$/, id)
   }
   // Each was answered once, the connection stands, and a watch that may be is still taken.
   await liveMoment(40)
@@ -217,13 +217,13 @@ test('[05-5.6@6] a user who loses a role while they watch is sent failed at the 
   const since = [...one.got.slice(onesBefore), ...two.got.slice(twosBefore)]
   assert.deepEqual(
     since.map((message) => [message.t, failedWith(message)]),
-    Array(3).fill(['failed', 'T3101']),
+    Array(3).fill(['failed', 'F3101']),
   )
   assert.equal(JSON.stringify(since).includes(secret), false)
   assert.deepEqual([one.closed(), two.closed()], [false, false])
   // The watches are over, and one that is sent anew is refused: a later card reaches her by no watch.
-  assert.equal(failedWith(await one.watch('staff again', 'staffCards')), 'T3101')
-  assert.equal(failedWith(await one.watch('heavy again', 'heavyCards')), 'T3101')
+  assert.equal(failedWith(await one.watch('staff again', 'staffCards')), 'F3101')
+  assert.equal(failedWith(await one.watch('heavy again', 'heavyCards')), 'F3101')
   const later = await addCard(app, 'a later card', 3)
   await untilTried('he was sent the later card', () => JSON.stringify(his.got).includes(later))
   await liveMoment(60)
@@ -263,7 +263,7 @@ test('[05-5.8] a watch that names in have the mark of an answer its caller was n
   // which would tell him that the mark he guessed is the one that stands.
   for (const have of [tags.mark, 'ffffffffffffffff']) {
     const refused = await his.watch(`tags ${have}`, 'staffTags', {}, { have })
-    assert.deepEqual([refused.t, failedWith(refused)], ['failed', 'T3101'])
+    assert.deepEqual([refused.t, failedWith(refused)], ['failed', 'F3101'])
   }
   // A visitor with her mark, and with her id in the place of a cookie.
   const visitor = watcher(app, origin)
@@ -299,7 +299,7 @@ test('[05-5.8] a watch that names in have the mark of an answer its caller was n
   )
 })
 
-test('[05-5.12] a watch whose version holds .. and slashes is failed with T0007 and names the running version, also where a bundle lies at the place that it names', async (t) => {
+test('[05-5.12] a watch whose version holds .. and slashes is failed with F0007 and names the running version, also where a bundle lies at the place that it names', async (t) => {
   const { app, origin, bundle, dataFolder } = await board(t)
   await addCard(app, 'first', 1)
   // A second bundle, which holds one query more, lies where such a name would lead: beside `versions/`, and in it
@@ -347,11 +347,11 @@ test('[05-5.12] a watch whose version holds .. and slashes is failed with T0007 
     for (const query of ['allCards', 'plantedCards']) {
       const answer = await page.watch(`${query} ${version}`, query, {}, { version })
       const error = Object(answer.error)
-      assert.deepEqual([answer.t, error.code, error.running], ['failed', 'T0007', bundle.versionId], version)
+      assert.deepEqual([answer.t, error.code, error.running], ['failed', 'F0007', bundle.versionId], version)
     }
   // The version that runs is served under its own name, and the query of the other bundle is none of the app's.
   assert.equal((await page.watch('cards', 'allCards', {}, { version: bundle.versionId })).t, 'result')
-  assert.equal(failedWith(await page.watch('planted', 'plantedCards', {}, { version: bundle.versionId })), 'T0001')
+  assert.equal(failedWith(await page.watch('planted', 'plantedCards', {}, { version: bundle.versionId })), 'F0001')
   assert.deepEqual(
     app.versions().map((one) => one.id),
     [bundle.versionId],

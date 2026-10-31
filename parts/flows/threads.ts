@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { TableLayout, Tx } from '../data/index.ts'
 import type { Held } from './held.ts'
 import { storeOf } from './places.ts'
@@ -6,11 +6,11 @@ import type { RunRow, Source } from './rows.ts'
 import { readOf, readRunRows, system } from './rows.ts'
 
 /**
- * `_t_threads`: for each conversation that has an unfinished run, the run that holds it; and for one that was
+ * `_f_threads`: for each conversation that has an unfinished run, the run that holds it; and for one that was
  * handed over, the agent that holds it, and those that handed it on, whose starts go to that agent.
  */
 export const threadsTable: TableLayout = {
-  name: '_t_threads',
+  name: '_f_threads',
   columns: {
     thread: { kind: 'text' },
     run: { kind: 'text' },
@@ -64,7 +64,7 @@ const queuedOn = (tx: Tx, thread: string, but: string): RunRow[] =>
 /**
  * Takes a runner, the write a run is added in, the run with its conversation, and what happens to a start over
  * it. Settles inside that one write who holds the conversation, so that two starts at once cannot both work on it:
- * with no holder the run holds it; with `'refuse'` the start fails with T7103; with `'wait'` the run stands in the
+ * with no holder the run holds it; with `'refuse'` the start fails with F7103; with `'wait'` the run stands in the
  * queue behind the holder, `queued` at most, as `limits.queued` of the project says; with `'stop'` it holds the
  * conversation, and the holder is stopped. Answers whether the run may be taken up now, and the run that is to be
  * stopped.
@@ -90,7 +90,7 @@ export function holdThread(
   // The run that holds the conversation may not have been taken up yet: it stands in no queue.
   const behind = queuedOn(tx, run.thread, run.id).filter((one) => one.id !== holder)
   if (then === 'refuse' || behind.length >= queued)
-    throw new TentError('T7103', `The conversation ${run.thread} has a run that works on it now.`, {
+    throw new ForjrError('F7103', `The conversation ${run.thread} has a run that works on it now.`, {
       fix:
         then === 'refuse'
           ? "Start again when it has ended, or state `then: 'wait'` in `together`."

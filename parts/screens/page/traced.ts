@@ -11,5 +11,5 @@ function idOf(bytes: number): string {
  * all it set off as one trace.
  */
 export function moveHeaders(move: 'press' | 'move' | 'load'): Record<string, string> {
-  return { traceparent: `00-${idOf(16)}-${idOf(8)}-01`, tracestate: `tent=${move}` }
+  return { traceparent: `00-${idOf(16)}-${idOf(8)}-01`, tracestate: `forjr=${move}` }
 }

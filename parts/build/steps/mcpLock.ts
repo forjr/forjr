@@ -6,8 +6,8 @@ import type { Step } from '../work.ts'
 
 /**
  * Fills the calls of each outside MCP server from `mcp.lock.json` at the root of the project, which
- * `tent mcp approve` writes: each approved tool is one call, with its description, its input and its fingerprint,
- * and the host that signs people in at the server is its `host`. A file that is no JSON of that form is T1014.
+ * `forjr mcp approve` writes: each approved tool is one call, with its description, its input and its fingerprint,
+ * and the host that signs people in at the server is its `host`. A file that is no JSON of that form is F1014.
  */
 export const step: Step = {
   order: 4.25,
@@ -25,8 +25,8 @@ export const step: Step = {
     }
     if (!isStored(lock)) {
       work.findings.push(
-        finding('T1014', 'mcp.lock.json is no JSON of the approved tools.', {
-          fix: 'Write it anew with `tent mcp approve <service>`.',
+        finding('F1014', 'mcp.lock.json is no JSON of the approved tools.', {
+          fix: 'Write it anew with `forjr mcp approve <service>`.',
           where: { file: 'mcp.lock.json', line: 1 },
         }),
       )

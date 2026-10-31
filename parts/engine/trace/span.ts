@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Opened } from '../opened.ts'
 import type { Parent } from './ids.ts'
 import { newSpanId, newTraceId } from './ids.ts'
@@ -74,8 +74,8 @@ export function addTo(span: Span, facts: Record<string, Fact | undefined>): void
   for (const [name, fact] of Object.entries(facts)) if (fact !== undefined) span.facts[name] = fact
 }
 
-/** The code that a failure is written under in a span: its own code, or T0009 for anything that is not ours. */
-const codeOf = (error: unknown): string => (error instanceof TentError ? error.code : 'T0009')
+/** The code that a failure is written under in a span: its own code, or F0009 for anything that is not ours. */
+const codeOf = (error: unknown): string => (error instanceof ForjrError ? error.code : 'F0009')
 
 /**
  * Takes an app and what a span is opened with. Opens the span: under the span that is under way, or in the trace

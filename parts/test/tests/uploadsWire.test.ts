@@ -7,7 +7,7 @@ const pause = (ms: number): Promise<void> => new Promise((done) => setTimeout(do
 
 /** The head of an upload of some length, of which no byte is sent yet. */
 const headOf = (siege: Siege, name: string, length: number): string =>
-  `POST /_t/files?name=${name} HTTP/1.1\r\nHost: localhost:${siege.port}\r\nContent-Type: text/plain\r\nContent-Length: ${length}\r\n\r\n`
+  `POST /_f/files?name=${name} HTTP/1.1\r\nHost: localhost:${siege.port}\r\nContent-Type: text/plain\r\nContent-Length: ${length}\r\n\r\n`
 
 /** An app in which a visitor may upload, with the times of the engine set short, so that a test ends in seconds. */
 const opened = (t: Parameters<typeof besieged>[0]): Promise<Siege> =>
@@ -49,7 +49,7 @@ test('[22-17] an upload that sends nothing for as long as a connection may send 
   assert.equal(closed.text.includes('"ok":true'), false)
   // The app answers others, and what arrived of the upload is no file.
   const next = await wire(siege, {
-    path: '/_t/files?name=next.txt',
+    path: '/_f/files?name=next.txt',
     body: 'whole',
     headers: { 'content-type': 'text/plain' },
   })

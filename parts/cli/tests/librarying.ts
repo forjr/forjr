@@ -74,19 +74,19 @@ export async function servedLibraries(): Promise<{ address: string; app: App }> 
   )
   const engine: Engine = createEngine({ port: 0 })
   ends.push({ what: 'the engine of the release', end: () => engine.close() })
-  const dataFolder = join(folder, '.tent', 'served')
+  const dataFolder = join(folder, '.forjr', 'served')
   const app = await engine.open(made.bundleFolder, { dataFolder, mode: 'test' })
   await app.seed()
   const { port } = JSON.parse(readFileSync(join(dataFolder, 'engine.json'), 'utf8'))
   return { address: `http://localhost:${port}`, app }
 }
 
-/** The project of the four libraries in `tent dev`, on a port that the system gives: its address, and the session. */
+/** The project of the four libraries in `forjr dev`, on a port that the system gives: its address, and the session. */
 export async function developedLibraries(): Promise<{ address: string; dev: Awaited<ReturnType<typeof startDev>> }> {
   const folder = laidLibraries('dev')
   const lines: string[] = []
   const dev = await startDev(folder, { port: 0, out: (line) => lines.push(line) })
-  ends.push({ what: 'tent dev', end: () => dev.close() })
+  ends.push({ what: 'forjr dev', end: () => dev.close() })
   return { address: `http://localhost:${dev.port}`, dev }
 }
 
@@ -162,7 +162,7 @@ export async function movesOf(page: Page): Promise<() => Promise<{ moved: number
             if (look(element) !== was.look) changed.add(id)
           }
         }
-        const alive = document.querySelector('#tent[data-t-alive]')
+        const alive = document.querySelector('#forjr[data-f-alive]')
         const since = Number(document.documentElement.getAttribute('data-test-alive-at') ?? 0)
         if (alive && !since) document.documentElement.setAttribute('data-test-alive-at', String(performance.now()))
         if (alive && since && performance.now() - since > 1000) {

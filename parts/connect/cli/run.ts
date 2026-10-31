@@ -31,15 +31,15 @@ export interface CommandLine {
   signIn?: SignIn
 }
 
-/** The key that is sent to a server: `TENT_KEY` for the address that `TENT_AT` names, or the one `login` kept. */
+/** The key that is sent to a server: `FORJR_KEY` for the address that `FORJR_AT` names, or the one `login` kept. */
 function keyFor(o: CommandLine): string | undefined {
   const address = o.target.address ?? ''
-  const { TENT_KEY: key, TENT_AT: at } = o.env
+  const { FORJR_KEY: key, FORJR_AT: at } = o.env
   if (key && at) {
     try {
       if (serverOf(at) === serverOf(address)) return key
     } catch {
-      // A `TENT_AT` that is no address names no server.
+      // A `FORJR_AT` that is no address names no server.
     }
   }
   return keptKey(o.home, address)
@@ -58,7 +58,7 @@ function keyed(reach: Reach, key: string | undefined): Reach {
 }
 
 /**
- * The commands of the app, as `/_t/cli` answers them. Of a server the record is kept by its version, and asked for
+ * The commands of the app, as `/_f/cli` answers them. Of a server the record is kept by its version, and asked for
  * again with `?have=`: so after a new version the runner asks for the commands again. Prints the refusal, and
  * answers nothing, where the app answers none.
  */
@@ -70,11 +70,11 @@ async function listOf(reach: Reach, o: CommandLine): Promise<CommandList | undef
   } catch {
     kept = undefined
   }
-  const listed = await asked(reach, `/_t/cli${kept?.version ? `?have=${encodeURIComponent(kept.version)}` : ''}`)
+  const listed = await asked(reach, `/_f/cli${kept?.version ? `?have=${encodeURIComponent(kept.version)}` : ''}`)
   if (!listed.ok || !isStored(listed.value)) {
-    o.terminal.error(errorText(listed.error ?? { code: 'T0009', name: 'internal', message: 'No list of commands.' }))
-    if (listed.error?.code === 'T0006' && o.target.address)
-      o.terminal.error(`Log in first: tent cli ${o.target.address} login --key\n`)
+    o.terminal.error(errorText(listed.error ?? { code: 'F0009', name: 'internal', message: 'No list of commands.' }))
+    if (listed.error?.code === 'F0006' && o.target.address)
+      o.terminal.error(`Log in first: forjr cli ${o.target.address} login --key\n`)
     return undefined
   }
   if (listed.value.same === true && kept) return heldList(kept)
@@ -261,7 +261,7 @@ export async function runCommandLine(o: CommandLine): Promise<number> {
     const read = readFlags(entry.input, words)
     const input = withFlags(own.input === undefined ? undefined : await inputText(own.input, terminal), read)
     for (const file of read.files) input[file.field] = await uploaded(reach, entry, file.field, file.path)
-    const path = `/_t/${entry.at === 'read' ? 'read' : 'call'}/${encodeURIComponent(entry.definition)}`
+    const path = `/_f/${entry.at === 'read' ? 'read' : 'call'}/${encodeURIComponent(entry.definition)}`
     const stop = o.signal
     let run: string | undefined
     /**
@@ -273,7 +273,7 @@ export async function runCommandLine(o: CommandLine): Promise<number> {
         let answer = await asked(reach, path, { body: { input }, headers, ...(stop ? { signal: stop } : {}) })
         for (
           let named: unknown = Reflect.get(Object(answer.error?.fields), 'run');
-          !answer.ok && answer.error?.code === 'T0008' && typeof named === 'string';
+          !answer.ok && answer.error?.code === 'F0008' && typeof named === 'string';
           named = Reflect.get(Object(answer.error?.fields), 'run')
         ) {
           run = named
@@ -287,7 +287,7 @@ export async function runCommandLine(o: CommandLine): Promise<number> {
       }
     }
     let answer = await carried({})
-    if (answer && !answer.ok && answer.error?.code === 'T7120') {
+    if (answer && !answer.ok && answer.error?.code === 'F7120') {
       const agreed = String(Reflect.get(Object(answer.error.fields), 'ask'))
       if (!own.yes) {
         terminal.error(`${question(list, word, entry, input)}\n`)
@@ -299,7 +299,7 @@ export async function runCommandLine(o: CommandLine): Promise<number> {
         const said = (await terminal.line())?.trim() ?? ''
         if (!/^(y|yes)$/i.test(said)) return 1
       }
-      answer = await carried({ 'tent-agreed': agreed })
+      answer = await carried({ 'forjr-agreed': agreed })
     }
     if (!answer) {
       terminal.error('Stopped.\n')

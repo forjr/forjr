@@ -38,6 +38,6 @@ export const colorHeld = (value: unknown): string | undefined =>
 
 /** A path of the app, which leads to no other site and to no address of the engine. */
 export const pathHeld = (value: unknown): string | undefined =>
-  typeof value === 'string' && value.length <= 2000 && isPath(value) && !/^\/_t(\/|$|\?|#)/.test(value)
+  typeof value === 'string' && value.length <= 2000 && isPath(value) && !/^\/_f(\/|$|\?|#)/.test(value)
     ? value
     : undefined

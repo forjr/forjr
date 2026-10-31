@@ -1,4 +1,4 @@
-import { change, input, link } from 'tentjs'
+import { change, input, link } from 'forjr'
 import { orders } from '../tables/shop'
 
 export const markPaid = change('markPaid', {

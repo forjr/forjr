@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { msOf } from '../words.ts'
 import type { CountBy } from './by.ts'
 
@@ -21,13 +21,13 @@ export interface CountingOptions {
 }
 
 /**
- * Reads what `engine.open` was handed for the counts, and nothing where it was handed none. Throws T0013 for a way of
+ * Reads what `engine.open` was handed for the counts, and nothing where it was handed none. Throws F0013 for a way of
  * counting that is none of the three, and for a length of time that does not read.
  */
 export function countingOf(o: CountingOptions): OpenCounting | undefined {
   if (o.countBy !== undefined && !['limits', 'app', 'caller'].includes(o.countBy))
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `\`countBy\` of \`engine.open\` is 'limits', 'app' or 'caller', and not ${String(o.countBy)}.`,
     )
   const length = (name: keyof CountingOptions): Record<string, number> => {

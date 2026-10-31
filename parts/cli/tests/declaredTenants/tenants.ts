@@ -1,4 +1,4 @@
-import { agent, link, model, secret, table, text } from 'tentjs'
+import { agent, link, model, secret, table, text } from 'forjr'
 import { openNow } from './functions'
 
 export const teams = table('teams', {

@@ -3,7 +3,7 @@ import { metaTable } from '../data/index.ts'
 import type { Source } from './rows.ts'
 import { inWrite, readOf, system } from './rows.ts'
 
-// The key of `_t_meta` under which the shared file keeps the flows that are paused, so every machine reads them.
+// The key of `_f_meta` under which the shared file keeps the flows that are paused, so every machine reads them.
 const pausedKey = 'pausedFlows'
 
 /** Answers the flows that a data file keeps as paused, in the order of their names. None where it keeps none. */

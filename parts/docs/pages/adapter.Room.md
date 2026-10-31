@@ -5,8 +5,8 @@ Where an app's code runs. Every call into the code of an app - a function, a rul
 ## Interface
 
 ```ts
-import type { Room, RoomInput } from 'tentjs/engine'
-import { apartRoom, inProgramRoom } from 'tentjs/engine'
+import type { Room, RoomInput } from 'forjr/engine'
+import { apartRoom, inProgramRoom } from 'forjr/engine'
 
 interface Makers { room?: (o: RoomInput) => Room }   // of a program alone: never of the bundle's engine.ts
 
@@ -30,23 +30,23 @@ interface Room {
 }
 ```
 
-A room that crosses is handed `ways`: the runtime slot, a `db` a call was handed, a function the engine handed in a call, and the guarded fetch, each carried out as the same call reaches it in the program. Values cross by the runtime's structured clone, with a function, a promise, a stream, a `db`, an error, a request and a response each carried by a mark; a value deeper than 64 or larger than `limits.valueSize` is `code.T0009`, and a callable used after its call `code.T0013`. Code past the time of its call ends with `code.T0008`, and code past the memory the room gives it with `code.T0037`; the room is made anew for the next call.
+A room that crosses is handed `ways`: the runtime slot, a `db` a call was handed, a function the engine handed in a call, and the guarded fetch, each carried out as the same call reaches it in the program. Values cross by the runtime's structured clone, with a function, a promise, a stream, a `db`, an error, a request and a response each carried by a mark; a value deeper than 64 or larger than `limits.valueSize` is `code.F0009`, and a callable used after its call `code.F0013`. Code past the time of its call ends with `code.F0008`, and code past the memory the room gives it with `code.F0037`; the room is made anew for the next call.
 
 **Three rooms ship.** `inProgramRoom`, the default: the engine's own program, where nothing is copied and no call is numbered. The held room, what `hold` is: every kind of code in the program, and actions in a program of their own under the runtime's permission model. `apartRoom`, the test room: the code runs in a thread of its own, which shares nothing with the engine, and every call crosses, so a test shows what a room of a host would see. A host's own room - isolates, boxes around its programs, grouping by owner - is the host's.
 
 ## Example
 
 ```ts
-import type { Room, RoomInput } from 'tentjs/engine'
-import { apartRoom, createEngine } from 'tentjs/engine'
+import type { Room, RoomInput } from 'forjr/engine'
+import { apartRoom, createEngine } from 'forjr/engine'
 
 // Every app of this engine runs its code in the test room.
 const room = (o: RoomInput): Room => apartRoom(o)
 const engine = createEngine({ makers: { room } })
 ```
 
-`tent test --room apart` runs an app's tests in the test room, and so does `TENT_ROOM=apart` for a run of tests.
+`forjr test --room apart` runs an app's tests in the test room, and so does `FORJR_ROOM=apart` for a run of tests.
 
 ## See also
 
-`adapter.Sandbox`, `option.project.hold`, `command.test`, `code.T0037`
+`adapter.Sandbox`, `option.project.hold`, `command.test`, `code.F0037`

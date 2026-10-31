@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Row, Tx, Wrote } from '../../data/index.ts'
 import type { Opened } from '../opened.ts'
 import { table as filesTable } from '../tables/files.ts'
@@ -101,8 +101,8 @@ export function dropTenantHolds(o: Opened, tx: Tx, tenant: string): void {
 }
 
 /** The error of a file id that names no file, or one that the caller may not download: the two are told alike. */
-export const noFile = (id: string): TentError =>
-  new TentError('T2104', `No file has the id ${JSON.stringify(id).slice(0, 60)}.`, {
+export const noFile = (id: string): ForjrError =>
+  new ForjrError('F2104', `No file has the id ${JSON.stringify(id).slice(0, 60)}.`, {
     fix: 'Name the id of a file that was uploaded, and that this caller may download.',
   })
 
@@ -136,7 +136,7 @@ function tenantOf(stored: unknown, row: Row | undefined): string | undefined {
   return typeof tenant === 'string' ? tenant : undefined
 }
 
-/** The rows that hold a file, as `_t_holds` keeps them. */
+/** The rows that hold a file, as `_f_holds` keeps them. */
 export function holdsOf(
   o: Opened,
   file: string,
@@ -173,8 +173,8 @@ export interface HoldingWrite {
  * that it stores in a `file` column, or in a `file` inside a `list` or an `object` column, in the same write, and
  * lets go of each that it stores no more: a file that no row holds any longer is loose again from that moment.
  * Where the table keeps earlier versions of its rows, the version that a change or a removal leaves holds its
- * files, with its time. Throws T2104 for an id that names no file, a removed one, and one that the caller may not
- * put into a row, unless the code has full access, and T2107 for a file that the type of its column does not take:
+ * files, with its time. Throws F2104 for an id that names no file, a removed one, and one that the caller may not
+ * put into a row, unless the code has full access, and F2107 for a file that the type of its column does not take:
  * thrown inside the write, each undoes it.
  */
 export function holdFiles(h: HoldingWrite, w: Wrote): void {
@@ -205,8 +205,8 @@ export function holdFiles(h: HoldingWrite, w: Wrote): void {
     if (!file || file.removedAt !== undefined || !(h.full || h.mayPut(file))) throw noFile(held.id)
     const fails = misfit(file, held.type)
     if (fails)
-      throw new TentError(
-        'T2107',
+      throw new ForjrError(
+        'F2107',
         `The file ${held.id} does not fit \`${held.field}\` of \`${w.table}\`: ${fails === 'values' ? `its kind is ${file.kind}` : `it holds ${file.size} bytes`}.`,
         { fix: 'Store a file of a kind and a size that the type of the column takes.' },
       )

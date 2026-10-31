@@ -1,13 +1,13 @@
 import type { Caller } from '../../core/index.ts'
-import { json, TentError, text } from '../../core/index.ts'
+import { json, ForjrError, text } from '../../core/index.ts'
 import { sendsOut } from '../../core/internal.ts'
 import { runWorkspace } from '../opening.ts'
 import { noteSent } from '../sent.ts'
 import type { ProjectTool } from './face.ts'
 
 /** The error of an `as` that names no caller a tool may act as. */
-const notAs = (why: string): TentError =>
-  new TentError('T0002', `\`as\` of \`run\` ${why}.`, {
+const notAs = (why: string): ForjrError =>
+  new ForjrError('F0002', `\`as\` of \`run\` ${why}.`, {
     fields: { as: 'type' },
     fix: 'Name the id of a user of this workspace, or leave `as` out to call as nobody.',
   })
@@ -29,7 +29,7 @@ export const runTool: ProjectTool = {
     const { functions, flows } = app.description
     const isFunction = Object.hasOwn(functions, name)
     if (!isFunction && !Object.hasOwn(flows, name))
-      throw new TentError('T0001', `No function and no flow ${JSON.stringify(name).slice(0, 80)} is in the app.`)
+      throw new ForjrError('F0001', `No function and no flow ${JSON.stringify(name).slice(0, 80)} is in the app.`)
     let as: Caller = { kind: 'nobody' }
     if (input.as === 'system') {
       if (!at.policy.also.includes('runAsSystem')) throw notAs('names the system, which the policy does not let it')

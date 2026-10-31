@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored } from '../../core/internal.ts'
 
 /** A picture or a sound that an answer of an outside tool holds: its bytes, and the kind it says it is. */
@@ -25,12 +25,12 @@ function textOf(parts: unknown[]): string {
 /**
  * Takes the result of a call of an outside tool. Answers what reaches the model: the tool's typed answer where it
  * gives one, and its text otherwise; with every picture and sound it holds. A result marked as an error is the
- * tool's own words, meant for the model, as T7115.
+ * tool's own words, meant for the model, as F7115.
  */
 export function outsideAnswer(result: Record<string, unknown>): { value: unknown; held: Held[] } {
   const parts = Array.isArray(result.content) ? result.content : []
   if (result.isError === true)
-    throw new TentError('T7115', textOf(parts) || 'The tool failed, and said nothing of why.', {
+    throw new ForjrError('F7115', textOf(parts) || 'The tool failed, and said nothing of why.', {
       service: { body: result },
     })
   const held: Held[] = []

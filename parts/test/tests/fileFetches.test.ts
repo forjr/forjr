@@ -3,7 +3,7 @@ import test from 'node:test'
 import { addOrder, addTeam, command, dataPlace, deskBundle, logLines, pairOf, titlesOf } from './desks.ts'
 import { until } from './many.ts'
 
-test('[29-7] tent take-over names how many files of tenants the machine is still fetching, among what it may lack, also for a reader that was stopped while it fetched', async (t) => {
+test('[29-7] forjr take-over names how many files of tenants the machine is still fetching, among what it may lack, also for a reader that was stopped while it fetched', async (t) => {
   // The test holds back each request by which the reader fetches the file of one tenant.
   const fetches: string[] = []
   let held: Promise<void> | undefined
@@ -17,7 +17,7 @@ test('[29-7] tent take-over names how many files of tenants the machine is still
   }
   const pair = await pairOf(t, await deskBundle(t), dataPlace(t), async (request) => {
     const { pathname, searchParams } = new URL(request.url)
-    if (pathname !== '/_t/copy/data' || !searchParams.has('id')) return
+    if (pathname !== '/_f/copy/data' || !searchParams.has('id')) return
     const mine = fetches.push(String(searchParams.get('id')))
     await held
     if (broken.has(mine)) throw new Error('the connection of the fetch broke')
@@ -30,7 +30,7 @@ test('[29-7] tent take-over names how many files of tenants the machine is still
     }
     assert.fail(`never: ${what}`)
   }
-  /** What `tent take-over` says with no `--yes`, on the reader. */
+  /** What `forjr take-over` says with no `--yes`, on the reader. */
   const looked = async (): Promise<Record<string, unknown>> =>
     Object(await command(pair.reader.app, reader.dataFolder, 'take-over', { look: true }))
   const fetchedBy = (): number => logLines(reader.dataFolder, 'data file of a tenant was fetched').length

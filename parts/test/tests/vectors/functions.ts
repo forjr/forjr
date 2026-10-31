@@ -1,4 +1,4 @@
-import { action, model, text } from 'tentjs'
+import { action, model, text } from 'forjr'
 
 export const thinker = model('thinker', { provider: 'mine', name: 'm-1', abilities: ['reply'] })
 

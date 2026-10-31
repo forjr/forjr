@@ -1,4 +1,4 @@
-import { action, anyone, number, query, secrets, text } from 'tentjs'
+import { action, anyone, number, query, secrets, text } from 'forjr'
 import { orders } from '../tables/orders.ts'
 
 const open = anyone('the shop is open to anyone')

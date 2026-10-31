@@ -54,8 +54,8 @@ test('[52-10] [40-20] [22-20] with a test Sandbox a workspace of an owner who is
   assert.deepEqual(Object.keys(sandbox.started[0] ?? {}).sort(), ['folder', 'id', 'owner', 'work'])
   // The box ran the build and the check alone: nothing of the box serves.
   assert.equal(sandbox.commands.length, 2)
-  assert.match(sandbox.commands[0] ?? '', /^tent build --dev --out "[^"]+" --json$/)
-  assert.equal(sandbox.commands[1], 'tent check --json')
+  assert.match(sandbox.commands[0] ?? '', /^forjr build --dev --out "[^"]+" --json$/)
+  assert.equal(sandbox.commands[1], 'forjr check --json')
   assert.ok((sandbox.commands[0] ?? '').includes(join(made.folder, 'box', 'builds')))
   // The app was opened in the product's engine, in the room of the workspaces, with its data in the workspace.
   assert.deepEqual(rooms, [app.description.app.name])
@@ -73,7 +73,7 @@ test('[52-10] [40-20] [22-20] with a test Sandbox a workspace of an owner who is
   assert.equal(again, app)
 })
 
-test('[52-10] [40-20] a request of a user whom the product identify named arrives as that user, and a Tent-Caller that a visitor sent is nobody', async (t) => {
+test('[52-10] [40-20] a request of a user whom the product identify named arrives as that user, and a Forjr-Caller that a visitor sent is nobody', async (t) => {
   const { workspaces, made, port } = await boxed(t)
   const app = await workspaces.run(made.id)
   const name = nameOf(made.id)
@@ -92,9 +92,9 @@ test('[52-10] [40-20] a request of a user whom the product identify named arrive
   const key = String(Object(await app.call('makeKey', { user: Object(bob).id }, { as: system })).key)
   const asBob = await calledAt(port, name, 'whoAmI', {}, { authorization: `Bearer ${key}` }, Object(bob).id)
   assert.equal(Object(asBob.value).email, 'bob@example.com', JSON.stringify(asBob))
-  // A Tent-Caller that a visitor sent is read from this computer's commands alone, and they are nobody.
-  const planted = await calledAt(port, name, 'whoAmI', {}, { 'tent-caller': String(Object(bob).id) })
-  assert.equal(planted.error?.code, 'T0006')
+  // A Forjr-Caller that a visitor sent is read from this computer's commands alone, and they are nobody.
+  const planted = await calledAt(port, name, 'whoAmI', {}, { 'forjr-caller': String(Object(bob).id) })
+  assert.equal(planted.error?.code, 'F0006')
 })
 
 test('[52-10] [40-20] a file that changed is in the next build in the box, which the product engine makes the running version, and no build writes into the folder of the project', async (t) => {
@@ -111,7 +111,7 @@ test('[52-10] [40-20] a file that changed is in the next build in the box, which
   assert.equal(app.versions().find((one) => one.running)?.id, rebuilt.version)
   const page = await asked(port, nameOf(made.id), '/')
   assert.match(page.body, /Changed notes/)
-  assert.equal(sandbox.commands.filter((one) => one.startsWith('tent build')).length, 2)
+  assert.equal(sandbox.commands.filter((one) => one.startsWith('forjr build')).length, 2)
   // Nothing was written into the project's folder: the build writes into the box's work alone.
   const after = readdirSync(join(made.folder, 'project'), { recursive: true }).map(String).sort()
   assert.deepEqual(after, before)
@@ -134,7 +134,7 @@ test('[52-10] [40-20] values of the test side work on the app of the workspace, 
   assert.equal(await workspaces.run(made.id), app)
 })
 
-test('[52-10] [40-20] [16-2@10a] code of an owner who is not trusted is published to a Target, and into the product engine with the same room; with no room it is T9105, and a trusted owner builds and runs it in the program', async (t) => {
+test('[52-10] [40-20] [16-2@10a] code of an owner who is not trusted is published to a Target, and into the product engine with the same room; with no room it is F9105, and a trusted owner builds and runs it in the program', async (t) => {
   // A server that runs the app, which a publish of the workspace goes to.
   const folder = folderOf(t)
   const served = await buildProject(templates.coded, { for: 'release', out: join(folder, 'served-bundle') })
@@ -157,7 +157,7 @@ test('[52-10] [40-20] [16-2@10a] code of an owner who is not trusted is publishe
   const published = await at.workspaces.publish(made.id)
   assert.equal(there.versions().find((one) => one.running)?.id, published.version)
   // The bundle that went out is the one the box built.
-  assert.ok(sandbox.commands.some((one) => one.startsWith('tent build')))
+  assert.ok(sandbox.commands.some((one) => one.startsWith('forjr build')))
 
   // Into the product's own engine, with the same room.
   const own = await held(t, {
@@ -177,17 +177,17 @@ test('[52-10] [40-20] [16-2@10a] code of an owner who is not trusted is publishe
   const fay = await userOf(roomless, 'fay@example.com', [])
   const hers0 = await roomless.workspaces.create({ owner: fay, from: 'coded' })
   const builds = sandbox.commands.length
-  await assert.rejects(roomless.workspaces.run(hers0.id), { code: 'T9105' })
+  await assert.rejects(roomless.workspaces.run(hers0.id), { code: 'F9105' })
   assert.equal(sandbox.commands.length, builds, 'nothing was built')
 
   // With neither `trusted` nor a Sandbox, code is neither built nor run.
   const bare = await held(t, {}, await product(t, join(folder, 'bare')))
   const dan = await userOf(bare, 'dan@example.com', [])
   const coded = await bare.workspaces.create({ owner: dan, from: 'coded' })
-  await assert.rejects(bare.workspaces.run(coded.id), { code: 'T9105' })
+  await assert.rejects(bare.workspaces.run(coded.id), { code: 'F9105' })
   // So is a workspace with no code of its own beside its screens: a screen is code.
   const plain = await bare.workspaces.create({ owner: dan, from: 'blank' })
-  await assert.rejects(bare.workspaces.run(plain.id), { code: 'T9105' })
+  await assert.rejects(bare.workspaces.run(plain.id), { code: 'F9105' })
 
   // An owner with a role that `trusted` names builds and runs code in the program itself, in no room of the workspaces.
   const staff = await held(t, { trusted: ['staff'], room }, await product(t, join(folder, 'staff')))

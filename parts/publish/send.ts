@@ -14,7 +14,7 @@ async function heldThere(
     const all = ids[kind] ?? []
     for (let at = 0; at < all.length; at += idsAtOnce) {
       const answer = Object(
-        await asked(o, '/_t/sync/have', {
+        await asked(o, '/_f/sync/have', {
           [kind]: all.slice(at, at + idsAtOnce),
           [kind === 'points' ? 'blobs' : 'points']: [],
         }),
@@ -104,7 +104,7 @@ export const printsOf = (point: Point): string[] => [
  * Sends blobs to a target in bodies of at most `syncSize`: a blob larger than that travels alone, in a request of
  * its own length. Answers how many were sent.
  */
-async function sendBlobs(o: Reaching, blobs: [string, Uint8Array][], path = '/_t/sync/blobs'): Promise<number> {
+async function sendBlobs(o: Reaching, blobs: [string, Uint8Array][], path = '/_f/sync/blobs'): Promise<number> {
   const most = syncLimit(undefined, 'syncSize')
   let group: [string, Uint8Array][] = []
   let size = 0
@@ -140,7 +140,7 @@ export async function sendBundle(
   const lacking = prints
     .filter((print) => !held.blobs.has(print))
     .map((print): [string, Uint8Array] => [print, bytes.get(print) ?? new Uint8Array()])
-  return sendBlobs(o, lacking, '/_t/sync/blobs?for=bundle')
+  return sendBlobs(o, lacking, '/_f/sync/blobs?for=bundle')
 }
 
 /**
@@ -169,7 +169,7 @@ export async function sendPoints(
       })
     blobs += await sendBlobs(o, lacking, more.blobsPath)
     const last = at + page >= points.length
-    answer = await asked(o, more.path ?? '/_t/sync/points', {
+    answer = await asked(o, more.path ?? '/_f/sync/points', {
       points: part,
       ...(last && more.move ? { move: more.move } : {}),
     })

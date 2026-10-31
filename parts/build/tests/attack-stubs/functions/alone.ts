@@ -1,4 +1,4 @@
-import { action, text } from 'tentjs'
+import { action, text } from 'forjr'
 
 // MARKER-COMMENT-OF-THE-LONE-FILE-0123456789
 const lonePassword = ['MARKER-SECRET-OF-THE-LONE-FILE', '0123456789']

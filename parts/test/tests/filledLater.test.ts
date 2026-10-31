@@ -16,7 +16,7 @@ const moment = (ms = 20): Promise<void> => new Promise((done) => setTimeout(done
 /** What the work of the project did, made anew for each test: the test hears each call, and holds it at a gate. */
 function seenAnew(t: TestContext): Seen {
   const made: Seen = { calls: [] }
-  listened(t, 'tentjs.test.filling', async (told) => {
+  listened(t, 'forjr.test.filling', async (told) => {
     const call = { work: String(Reflect.get(Object(told), 'work')), input: Reflect.get(Object(told), 'input') }
     made.calls.push(call)
     if (made.gate?.work === call.work) await made.gate.held
@@ -62,7 +62,7 @@ async function until(app: TestApp, what: string, holds: () => boolean | Promise<
 }
 
 const filledRows = (dataFolder: string): Record<string, unknown>[] =>
-  readFile(join(dataFolder, 'data.db'), 'SELECT * FROM "_t_filled"')
+  readFile(join(dataFolder, 'data.db'), 'SELECT * FROM "_f_filled"')
 
 async function addOrders(app: TestApp, count: number, values: Record<string, unknown> = {}): Promise<string[]> {
   const ids: string[] = []
@@ -120,7 +120,7 @@ test('[51-12] after its work changed the values are old and stay readable, a fil
   await switched(
     'functions.ts',
     "await noted('summarize', input)",
-    "await noted('summarize', input)\n    Reflect.set(globalThis, Symbol.for('tentjs.test.mark'), 'a change of the work')",
+    "await noted('summarize', input)\n    Reflect.set(globalThis, Symbol.for('forjr.test.mark'), 'a change of the work')",
   )
   assert.equal(countOf(app, 'summary').old, 3)
   assert.ok(
@@ -170,7 +170,7 @@ test('[51-12] with order oldest in by, the values are made by the moment each be
   await switched(
     'functions.ts',
     "await noted('summarize', input)",
-    "await noted('summarize', input)\n    Reflect.set(globalThis, Symbol.for('tentjs.test.mark'), 'a change of the work')",
+    "await noted('summarize', input)\n    Reflect.set(globalThis, Symbol.for('forjr.test.mark'), 'a change of the work')",
   )
   assert.equal(countOf(app, 'summary').old, 3)
   assert.ok(
@@ -216,14 +216,14 @@ test('[51-12] a new debounce makes none old; with old keep none is made anew, tw
   await switched(
     'functions.ts',
     "await noted('summarize', input)",
-    "await noted('summarize', input)\n    Reflect.set(globalThis, Symbol.for('tentjs.test.mark'), 'kept the same, once')",
+    "await noted('summarize', input)\n    Reflect.set(globalThis, Symbol.for('forjr.test.mark'), 'kept the same, once')",
   )
   await moment(100)
   assert.equal(countOf(app, 'summary').old, 0)
   await switched(
     'functions.ts',
-    "Reflect.set(globalThis, Symbol.for('tentjs.test.mark'), 'kept the same, once')",
-    "Reflect.set(globalThis, Symbol.for('tentjs.test.mark'), 'kept the same, twice')",
+    "Reflect.set(globalThis, Symbol.for('forjr.test.mark'), 'kept the same, once')",
+    "Reflect.set(globalThis, Symbol.for('forjr.test.mark'), 'kept the same, twice')",
   )
   await moment(100)
   assert.equal(countOf(app, 'summary').old, 0, 'keep twice in a row')
@@ -237,8 +237,8 @@ test('[51-12] a new debounce makes none old; with old keep none is made anew, tw
   seen.gate = { work: 'summarize', held: new Promise<void>((done) => (open = done)) }
   await switched(
     'functions.ts',
-    "Reflect.set(globalThis, Symbol.for('tentjs.test.mark'), 'kept the same, twice')",
-    "Reflect.set(globalThis, Symbol.for('tentjs.test.mark'), 'and now changed')",
+    "Reflect.set(globalThis, Symbol.for('forjr.test.mark'), 'kept the same, twice')",
+    "Reflect.set(globalThis, Symbol.for('forjr.test.mark'), 'and now changed')",
   )
   await moment(100)
   assert.equal(
@@ -257,8 +257,8 @@ test('[51-12] a new debounce makes none old; with old keep none is made anew, tw
   )
   await switched(
     'functions.ts',
-    "Reflect.set(globalThis, Symbol.for('tentjs.test.mark'), 'and now changed')",
-    "Reflect.set(globalThis, Symbol.for('tentjs.test.mark'), 'dropped')",
+    "Reflect.set(globalThis, Symbol.for('forjr.test.mark'), 'and now changed')",
+    "Reflect.set(globalThis, Symbol.for('forjr.test.mark'), 'dropped')",
   )
   assert.ok(
     (await summaries(app)).every((one) => one === undefined || one === null),
@@ -271,7 +271,7 @@ test('[51-12] a new debounce makes none old; with old keep none is made anew, tw
   )
 })
 
-test('[51-12] a row written in raw SQL is found by tent filled --look', async (t) => {
+test('[51-12] a row written in raw SQL is found by forjr filled --look', async (t) => {
   const { app, dataFolder } = await filling(t)
   // The walk of the columns that the opening saw for the first time has ended before the raw write.
   for (let i = 0; i < 3; i++) {

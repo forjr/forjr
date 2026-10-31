@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import { copyFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Files, SinkChange, Store } from '../../data/index.ts'
 import { applyChanges, openFiles, sqliteStore } from '../../data/index.ts'
 import { takeBackup } from '../backups.ts'
@@ -21,7 +21,7 @@ export interface RestoredAt {
 
 /** The number of the last write that a data file holds. */
 function numberOf(store: Store): number {
-  const held: unknown = store.read({ from: '_t_meta', one: 'get', id: 'n' }, system).value
+  const held: unknown = store.read({ from: '_f_meta', one: 'get', id: 'n' }, system).value
   return Number(Reflect.get(Object(held), 'value') ?? 0)
 }
 
@@ -52,7 +52,7 @@ function laidOut(backup: string, into: string): void {
     const from = join(dirname(backup), entry.backup)
     const place = placeIn(from, entry.id)
     if (place === undefined)
-      throw new TentError('T0009', `The backup \`${entry.backup}\` does not hold the data file of ${entry.id}.`)
+      throw new ForjrError('F0009', `The backup \`${entry.backup}\` does not hold the data file of ${entry.id}.`)
     mkdirSync(dirname(join(into, place)), { recursive: true })
     copyFileSync(join(from, place), join(into, place))
   }
@@ -61,8 +61,8 @@ function laidOut(backup: string, into: string): void {
 /** A change that the archive cannot put into a file: one whose file was fetched whole, which no record holds. */
 function heldTo(change: SinkChange): void {
   if (change.fetch && change.file)
-    throw new TentError(
-      'T0009',
+    throw new ForjrError(
+      'F0009',
       `The archive cannot reach that moment: the data file of ${change.file.table} ${change.file.id} was put back whole at the write ${change.n}, and no record holds it.`,
       { fix: 'Restore to a moment after the backup that was taken once that file was put back.' },
     )
@@ -98,8 +98,8 @@ async function filesApplied(o: Opened, folder: string, changes: SinkChange[]): P
 /**
  * The backup that the data of a moment rests on, and the moment from which the changes after it are of the same
  * history: the newest backup before the moment, where the data was not put back between; and where it was, a
- * backup taken since, or the backup that was put back with the changes since it was. Throws T0002 where no backup
- * was taken before the moment, and T0009 where the data was put back from a file that is no kept backup and none
+ * backup taken since, or the backup that was put back with the changes since it was. Throws F0002 where no backup
+ * was taken before the moment, and F0009 where the data was put back from a file that is no kept backup and none
  * was taken since.
  */
 function baseOf(held: { backups: Rested[]; restores: PutBack[] }, at: number): { base: Rested; from: number } {
@@ -109,14 +109,14 @@ function baseOf(held: { backups: Rested[]; restores: PutBack[] }, at: number): {
   const back = put?.from === undefined ? undefined : held.backups.find((one) => one.name === put.from)
   if (put && back) return { base: back, from: put.at }
   if (put)
-    throw new TentError(
-      'T0009',
+    throw new ForjrError(
+      'F0009',
       put.of
         ? `The archive cannot reach that moment: the data file of ${put.of.table} ${put.of.id} was put back alone at ${new Date(put.at).toISOString()}, and no backup was taken between that and the moment.`
         : `The archive cannot reach that moment: the data was put back at ${new Date(put.at).toISOString()} from a file that is no backup it keeps, and no backup was taken between that and the moment.`,
       { fix: 'Restore to a moment after the next backup.' },
     )
-  throw new TentError('T0002', `No backup that the archive rests on was taken before ${new Date(at).toISOString()}.`, {
+  throw new ForjrError('F0002', `No backup that the archive rests on was taken before ${new Date(at).toISOString()}.`, {
     fields: { at: 'before the oldest backup' },
   })
 }
@@ -126,14 +126,14 @@ function baseOf(held: { backups: Rested[]; restores: PutBack[] }, at: number): {
  * Brings every data file of the app to that moment: the newest backup before it, and the archived changes up to
  * it applied one by one, a tenant's file by its own backup and its own changes. The data that stood is kept as a
  * backup of its own first, and what was put back is a backup too, which a moment after it rests on. Answers the
- * backup, the number of changes, and the moment the data reaches. Throws T2028 for an app whose archive is off,
- * T0002 for a moment before the oldest backup that the archive rests on, and T0009 where the archive cannot reach
+ * backup, the number of changes, and the moment the data reaches. Throws F2028 for an app whose archive is off,
+ * F0002 for a moment before the oldest backup that the archive rests on, and F0009 where the archive cannot reach
  * the moment.
  */
 export async function restoreAt(o: Opened, at: number, how: { dry?: boolean } = {}): Promise<RestoredAt> {
   const archive = archiveOf(o)
   if (!archive)
-    throw new TentError('T2028', 'This app keeps no archive of its changes: nothing can be restored to a moment.', {
+    throw new ForjrError('F2028', 'This app keeps no archive of its changes: nothing can be restored to a moment.', {
       fix: 'Take `archive: false` out of `backups` in the project; a restore reaches back to the first backup after that.',
     })
   const { base, from } = baseOf(await archive.backups(), at)

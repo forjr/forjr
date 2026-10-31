@@ -4,7 +4,7 @@ import { boolean, list, number, object, text } from '../../core/index.ts'
 import { checkValue } from '../../core/internal.ts'
 import { copied, typed } from './typed.ts'
 
-/** The stored shape of a model as `tent models` prints it with `--json`. */
+/** The stored shape of a model as `forjr models` prints it with `--json`. */
 const listed = object({
   name: text(),
   provider: text(),
@@ -17,7 +17,7 @@ const listed = object({
   fallback: list(text()),
 })
 
-/** The stored shape of what `tent models test` prints of one model with `--json`. */
+/** The stored shape of what `forjr models test` prints of one model with `--json`. */
 const tried = object({
   name: text(),
   calls: object({
@@ -30,7 +30,7 @@ const tried = object({
   reasoning: boolean({ optional: true }),
 })
 
-test('[15-6@9a] tent models lists every model of the project with what it can do, and tent models test tries each fixed call of a model against its server, each with its stored shape', async (t) => {
+test('[15-6@9a] forjr models lists every model of the project with what it can do, and forjr models test tries each fixed call of a model against its server, each with its stored shape', async (t) => {
   const project = copied(t, 'models-listed', 'modeled')
   const all = await typed(project, 'models', '--json')
   assert.equal(all.ended, 0, all.printed)
@@ -50,5 +50,5 @@ test('[15-6@9a] tent models lists every model of the project with what it can do
   const broken = await typed(project, 'models', 'test', 'broken', '--json')
   const [down] = Object(broken.answer.value)
   assert.deepEqual(checkValue(tried, down), [], JSON.stringify(down))
-  assert.deepEqual([down.calls.reply.ok, down.calls.reply.code], [false, 'T7104'])
+  assert.deepEqual([down.calls.reply.ok, down.calls.reply.code], [false, 'F7104'])
 })

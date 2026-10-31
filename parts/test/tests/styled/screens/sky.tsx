@@ -1,4 +1,4 @@
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 import { Note } from '../components/Note'
 import { Shine } from '../components/Shine'
 import { Stars } from '../components/Stars'

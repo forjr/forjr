@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { createHash } from 'node:crypto'
 import { test } from 'node:test'
-import { chunks, TentError } from '../index.ts'
+import { chunks, ForjrError } from '../index.ts'
 
 /** A text that is the same on every run: paragraphs of sentences of words, drawn from a fixed seed. */
 function madeText(paragraphs: number, seed: number): string {
@@ -12,7 +12,7 @@ function madeText(paragraphs: number, seed: number): string {
   }
   const words = [
     'order',
-    'tent',
+    'house',
     'İzmir',
     'değil',
     'sales',
@@ -65,10 +65,10 @@ test('[22-21] chunks: the same chunks on every system, each the slice it names, 
 
   // The same text and options give the same chunks: the fingerprints are those of the first run, on every system.
   const stored: [string, { size?: number; overlap?: number; cut?: 'paragraph' | 'sentence' | 'length' }, string][] = [
-    [text, {}, '6fd3a517630aa660'],
-    [text, { size: 300, overlap: 60 }, '1f809d1a22ce2bf9'],
-    [text, { size: 200, overlap: 40, cut: 'sentence' }, '2f29b28e17a53ad5'],
-    [text, { size: 97, overlap: 20, cut: 'length' }, '57378cd892808395'],
+    [text, {}, '2cfa92f212e86de4'],
+    [text, { size: 300, overlap: 60 }, '844e5fc71de71d26'],
+    [text, { size: 200, overlap: 40, cut: 'sentence' }, '3f63d850ac6377d4'],
+    [text, { size: 97, overlap: 20, cut: 'length' }, '343de75e54dff65f'],
     [paged, { size: 250, overlap: 50 }, '1e3024639f269f1a'],
     [paged, { size: 40, overlap: 10, cut: 'sentence' }, 'e181a1736f22c348'],
   ]
@@ -137,7 +137,7 @@ test('[22-21] chunks: the same chunks on every system, each the slice it names, 
   ] as const) {
     assert.throws(
       () => Reflect.apply(chunks, undefined, ['some text', o]),
-      (thrown) => thrown instanceof TentError && thrown.code === 'T0002' && thrown.fields?.[field] !== undefined,
+      (thrown) => thrown instanceof ForjrError && thrown.code === 'F0002' && thrown.fields?.[field] !== undefined,
       `the option ${field}`,
     )
   }

@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { isStored } from '../core/internal.ts'
 import type { Provider, ReplyPart, ReplyRequest, Units } from '../engine/index.ts'
 import { ProviderFailure } from '../engine/index.ts'
@@ -92,14 +92,14 @@ export function fakeModel(model: string, answers: ModelAnswers): { provider: Pro
   const others = Array.isArray(answers) || typeof answers === 'function' ? {} : answers
   const answerOf = async (request: ReplyRequest): Promise<FakeAnswer> => {
     if (typeof replies === 'function') return replies(request)
-    if (!replies) throw new TentError('T0013', `The fake of the model ${model} gives no answer to write.`)
+    if (!replies) throw new ForjrError('F0013', `The fake of the model ${model} gives no answer to write.`)
     const at = request.at ? `${request.at.run}\n${request.at.step}\n${request.at.repeat}` : undefined
     const held = at === undefined ? undefined : given.get(at)
     const index = held ?? next++
     if (at !== undefined && held === undefined) given.set(at, index)
     const answer = replies[index]
     if (!answer)
-      throw new TentError('T0013', `The fake of the model ${model} has no answer left: it holds ${replies.length}.`, {
+      throw new ForjrError('F0013', `The fake of the model ${model} has no answer left: it holds ${replies.length}.`, {
         fix: `Give \`app.fake(${model}, [...])\` one more answer.`,
       })
     return answer
@@ -115,14 +115,14 @@ export function fakeModel(model: string, answers: ModelAnswers): { provider: Pro
     },
     async embed(o) {
       faked.sent.push({ call: 'embed', input: shown(o) })
-      if (!others.embed) throw new TentError('T0013', `The fake of the model ${model} gives no vectors.`)
+      if (!others.embed) throw new ForjrError('F0013', `The fake of the model ${model} gives no vectors.`)
       const vectors: number[][] = []
       for (const text of o.texts) vectors.push(await others.embed(text))
       return { vectors }
     },
     async hear(o) {
       faked.sent.push({ call: 'hear', input: shown(o) })
-      if (!others.hear) throw new TentError('T0013', `The fake of the model ${model} hears nothing.`)
+      if (!others.hear) throw new ForjrError('F0013', `The fake of the model ${model} hears nothing.`)
       const heard = others.hear({
         kind: o.kind,
         ...(o.language === undefined ? {} : { language: o.language }),
@@ -132,17 +132,17 @@ export function fakeModel(model: string, answers: ModelAnswers): { provider: Pro
     },
     async speak(o) {
       faked.sent.push({ call: 'speak', input: shown(o) })
-      if (!others.speak) throw new TentError('T0013', `The fake of the model ${model} speaks nothing.`)
+      if (!others.speak) throw new ForjrError('F0013', `The fake of the model ${model} speaks nothing.`)
       return { audio: await others.speak(o.text) }
     },
     async rank(o) {
       faked.sent.push({ call: 'rank', input: shown(o) })
-      if (!others.rank) throw new TentError('T0013', `The fake of the model ${model} ranks nothing.`)
+      if (!others.rank) throw new ForjrError('F0013', `The fake of the model ${model} ranks nothing.`)
       return { scores: await others.rank(o.words, o.texts) }
     },
     async call(o) {
       faked.sent.push({ call: 'call', input: o.input })
-      if (!others.call) throw new TentError('T0013', `The fake of the model ${model} answers no call.`)
+      if (!others.call) throw new ForjrError('F0013', `The fake of the model ${model} answers no call.`)
       const answered: unknown = await others.call(o.input)
       // A fake answers `{ output, units }`, as a provider does, or its output alone, which used no unit.
       const whole =

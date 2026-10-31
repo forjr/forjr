@@ -39,7 +39,7 @@ The engine's own tables are not handed on, unless `start` answers `{ n, all: tru
 ## Example
 
 ```ts
-import type { ChangeSink } from 'tentjs/data'
+import type { ChangeSink } from 'forjr/data'
 
 let held = 0
 export const sink: ChangeSink = {

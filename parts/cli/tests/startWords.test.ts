@@ -5,7 +5,7 @@ import { startWords } from './startWords.ts'
 
 const words = ['start', 'bundle', '--data', 'data', '--port', '0', '--mode']
 
-test('[41-14] the words of tent start that a test types are unchanged where its program does not run with the rights of an administrator', () => {
+test('[41-14] the words of forjr start that a test types are unchanged where its program does not run with the rights of an administrator', () => {
   assert.deepEqual(startWords(words, false), words)
   assert.deepEqual(startWords(['--data', 'data', ...words], false), ['--data', 'data', ...words])
 })

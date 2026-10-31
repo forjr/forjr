@@ -39,14 +39,14 @@ export function sent(app: TestApp, method: string, path: string, o: Sent = {}): 
   )
 }
 
-/** Calls a function at `/_t/call/` as a program would, with a key and JSON. Answers the wire form. */
+/** Calls a function at `/_f/call/` as a program would, with a key and JSON. Answers the wire form. */
 export async function called(
   app: TestApp,
   name: string,
   input: unknown,
   key?: string,
 ): Promise<Record<string, unknown>> {
-  const answer = await sent(app, 'POST', `/_t/call/${name}`, {
+  const answer = await sent(app, 'POST', `/_f/call/${name}`, {
     ...(key ? { key } : {}),
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ input }),

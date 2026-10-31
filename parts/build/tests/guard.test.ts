@@ -5,7 +5,7 @@ import { test } from 'node:test'
 import { buildProject } from '../index.ts'
 import { copyOf } from './projects.ts'
 
-const head = "import { screen } from 'tentjs/ui'\n"
+const head = "import { screen } from 'forjr/ui'\n"
 const tail = (uses: string): string =>
   `\nexport const wayScreen = screen('wayScreen', { path: '/way', access: 'anyone', view: () => <span>{String(${uses})}</span> })\n`
 
@@ -48,7 +48,7 @@ test('[14-3] the guard finds a secret value however the builder writes it into a
       const screenFile = `${head}import { held } from '../helpers/held'\n${tail('held.length')}`
       const as = `${mode}-${name.replaceAll(' ', '-')}`
       const { made, codes } = await built(as, helper, screenFile, [value], mode)
-      assert.deepEqual([...new Set(codes)], ['T3007'], `${name}, for ${mode}`)
+      assert.deepEqual([...new Set(codes)], ['F3007'], `${name}, for ${mode}`)
       assert.equal(made.bundleFolder, '', `${name}, for ${mode}: no bundle is written`)
       // The same project with another value to search for builds: the guard finds what is there, and nothing else.
       const other = await built(`${as}-other`, helper, screenFile, ['sk_live_ANOTHER-VALUE-0123456789'], mode)
@@ -63,7 +63,7 @@ test('[14-3] the guard finds a secret value inside an address that holds its byt
     // The helper is asked for as an address: a small file is written into the code as its bytes in base 64.
     const screenFile = `${head}import at from '../helpers/held.ts?url'\n${tail('at')}`
     const { made, codes } = await built(`${mode}-as-an-address`, helper, screenFile, [value], mode)
-    assert.deepEqual([...new Set(codes)], ['T3007'], mode)
+    assert.deepEqual([...new Set(codes)], ['F3007'], mode)
     assert.equal(made.bundleFolder, '', mode)
   }
 })
@@ -92,7 +92,7 @@ test('[14-3] the guard finds a key of several lines whichever line end the value
           [lines.join(valueEnd)],
           mode,
         )
-        assert.deepEqual([...new Set(codes)], ['T3007'], said)
+        assert.deepEqual([...new Set(codes)], ['F3007'], said)
         assert.equal(made.bundleFolder, '', said)
       }
   // The same key in a helper of plain code, whose file holds the line ends of Windows: the builder reads it as it is.
@@ -108,7 +108,7 @@ test('[14-3] the guard finds a key of several lines whichever line end the value
       const { codes } = await built(`ends-plain-${mode}-${ofValue}`, '', screenFile, [value], mode, {
         'helpers/plain.js': plain,
       })
-      assert.deepEqual([...new Set(codes)], ['T3007'], said)
+      assert.deepEqual([...new Set(codes)], ['F3007'], said)
       // And in a text file with those line ends, which a screen takes as its text.
       const asText = `${head}import held from './key.txt?raw'\n${tail('held.length')}`
       const taken = await built(`ends-text-${mode}-${ofValue}`, '', asText, [value], mode, {
@@ -116,7 +116,7 @@ test('[14-3] the guard finds a key of several lines whichever line end the value
       })
       assert.deepEqual(
         [...new Set(taken.codes)],
-        ['T3007'],
+        ['F3007'],
         `a text file with rn, the value with ${ofValue}, for ${mode}`,
       )
     }

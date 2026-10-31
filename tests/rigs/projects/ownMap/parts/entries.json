@@ -1,0 +1,4 @@
+{
+  "forjr/core": "parts/core/index.ts",
+  "forjr/data": "parts/data/index.ts"
+}

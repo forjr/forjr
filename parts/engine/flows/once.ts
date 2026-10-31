@@ -12,7 +12,7 @@ const system = { kind: 'system' } as const
 
 /**
  * Takes an app, the once-only key of a call inside a step, its run, and what it answered. Answers the row of
- * `_t_once` that keeps it: under the caller `''`, with the answer as plain data, and no places counted yet.
+ * `_f_once` that keeps it: under the caller `''`, with the answer as plain data, and no places counted yet.
  */
 export function stepRowOf(o: Opened, key: string, run: string, answer: unknown): Record<string, unknown> {
   const result = answer === undefined ? undefined : JSON.parse(JSON.stringify(answer))
@@ -28,7 +28,7 @@ export function stepRowOf(o: Opened, key: string, run: string, answer: unknown):
 
 /**
  * A change that is called inside a step is carried out once for its once-only key: its write holds one row of
- * `_t_once` with the key and what the change answered, and a repeat of the same call with the same input is
+ * `_f_once` with the key and what the change answered, and a repeat of the same call with the same input is
  * answered with that first answer, and writes nothing. Answers what the change answers, or nothing where the call
  * stands in no step, or is part of a write that is open already.
  */

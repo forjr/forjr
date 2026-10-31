@@ -1,4 +1,4 @@
-import { screen, read, Form } from 'tentjs/ui'
+import { screen, read, Form } from 'forjr/ui'
 import { addLater, addOrder, never, openOrders } from './functions'
 
 export const ordersScreen = screen('ordersScreen', {

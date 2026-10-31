@@ -15,7 +15,7 @@ import {
   releaseKey,
 } from './releasing.ts'
 
-// The attacks of the reviewer on an update: what a copy of the releases, or a line between, can do to an install.
+// Attacks on an update: what a copy of the releases, or a line between, can do to an install.
 
 const system = `${process.platform}-${process.arch}`
 
@@ -24,7 +24,7 @@ const stateOf = (home: string): string =>
   `${readFileSync(join(home, 'current'), 'utf8').trim()} ${readdirSync(join(home, 'versions')).sort().join(',')}`
 
 test('[41-12.25] a layer that is larger than release.json says, and one that arrives one byte a second, is cut, and the install is as it was', async (t) => {
-  const folder = releaseFolderOf(t, 'review-cut')
+  const folder = releaseFolderOf(t, 'update-cut')
   const key = releaseKey()
   const served = join(folder, 'served')
   const home = join(folder, 'home')
@@ -33,7 +33,7 @@ test('[41-12.25] a layer that is larger than release.json says, and one that arr
   madeReleases(served, ['1.0.1', '1.0.0'], [key])
   // The player layer is larger than its line says: the line is signed rightly, over a size that is too small.
   const file = `player-${system}.tar.br`
-  const large = Buffer.concat([layerOf({ 'player/tent.mjs': 'x'.repeat(200_000) })])
+  const large = Buffer.concat([layerOf({ 'player/forjr.mjs': 'x'.repeat(200_000) })])
   writeFileSync(join(served, '1.0.1', file), large)
   const release = JSON.parse(readFileSync(join(served, '1.0.1', 'release.json'), 'utf8'))
   release.layers[system].player = {
@@ -57,7 +57,7 @@ test('[41-12.25] a layer that is larger than release.json says, and one that arr
 })
 
 test('[41-12.38] a trust.json in a release that no present key signed is not taken', async (t) => {
-  const folder = releaseFolderOf(t, 'review-trust-stranger')
+  const folder = releaseFolderOf(t, 'update-trust-stranger')
   const key = releaseKey()
   const stranger = releaseKey()
   const served = join(folder, 'served')
@@ -68,7 +68,7 @@ test('[41-12.38] a trust.json in a release that no present key signed is not tak
   // The release is ours; its trust.json names a key of a stranger, and is signed by that key and no other.
   signedFile(
     join(served, '1.0.1', 'trust.json'),
-    { format: 'tent.trust/1', made: Date.now(), keys: [stranger.public] },
+    { format: 'forjr.trust/1', made: Date.now(), keys: [stranger.public] },
     [stranger],
   )
   const releases = await releasesServer(t, served)
@@ -77,7 +77,7 @@ test('[41-12.38] a trust.json in a release that no present key signed is not tak
 })
 
 test('[41-12.45] an older, rightly signed trust.json, served again, is not taken', async (t) => {
-  const folder = releaseFolderOf(t, 'review-trust-older')
+  const folder = releaseFolderOf(t, 'update-trust-older')
   const key = releaseKey()
   const next = releaseKey()
   const served = join(folder, 'served')

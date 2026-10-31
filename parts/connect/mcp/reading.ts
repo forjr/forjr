@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored } from '../../core/internal.ts'
 import { headers, meta, methods, older } from './standard.ts'
 
@@ -12,11 +12,11 @@ export interface McpRequest {
 }
 
 /** The failure of a request that is no message of the standard, or one whose lines and body do not agree. */
-const unread = (message: string, fix: string): TentError => new TentError('T0002', message, { fix })
+const unread = (message: string, fix: string): ForjrError => new ForjrError('F0002', message, { fix })
 
 /**
  * Reads the body of a request of `/mcp`: one message of the standard, of the newest form or an older one. Throws
- * T0002 for a body that is no JSON, for a list of messages, for one that is no message, for a request whose lines
+ * F0002 for a body that is no JSON, for a list of messages, for one that is no message, for a request whose lines
  * of its method and of what a call or a reading names say another than its body, and for one of the newest form
  * whose line of its version does.
  */

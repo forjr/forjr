@@ -5,7 +5,7 @@ The accounts that users connected at a service whose auth is `oauth`: "connect y
 ## Example
 
 ```ts
-import { action, connections, query, json, text } from 'tentjs'
+import { action, connections, query, json, text } from 'forjr'
 import { github } from '../services/github'
 
 // A button of a screen calls this, and its `then` goes to the address it answers with `href`.
@@ -38,7 +38,7 @@ export const github = service('github', {
 })
 ```
 
-Register `https://<your app>/_t/connect/github` with the provider, under each name the app answers on.
+Register `https://<your app>/_f/connect/github` with the provider, under each name the app answers on.
 
 ## Members
 
@@ -54,7 +54,7 @@ Register `https://<your app>/_t/connect/github` with the provider, under each na
 
 ## Errors
 
-`code.T7117` for a call for no user, or for a user with no connection. `code.T0006` for `start` by a caller who is nobody, and `code.T0013` for one that is no user, and for `for` or another user in code without full access. `code.T0002` for a `back` that is no path of the app. `code.T7115` where a renewal gets no answer.
+`code.F7117` for a call for no user, or for a user with no connection. `code.F0006` for `start` by a caller who is nobody, and `code.F0013` for one that is no user, and for `for` or another user in code without full access. `code.F0002` for a `back` that is no path of the app. `code.F7115` where a renewal gets no answer.
 
 ## See also
 

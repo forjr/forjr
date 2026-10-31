@@ -21,6 +21,6 @@ test('[50-12.5] a backup of one tenant put back under a tenant that is gone, whe
   const teams = async (): Promise<unknown[]> => (await app.rows('teams')).map((row) => row.name)
   assert.deepEqual(await teams(), ['North'])
   // Putting South back would first put its row back from the backup: the file is held to its tenant before that.
-  assert.equal(await codeOf(command(app, dataFolder, 'data', { what: 'restore', file: folder, of: south })), 'T0009')
+  assert.equal(await codeOf(command(app, dataFolder, 'data', { what: 'restore', file: folder, of: south })), 'F0009')
   assert.deepEqual(await teams(), ['North'], 'the row of the tenant was put back for a restore that was refused')
 })

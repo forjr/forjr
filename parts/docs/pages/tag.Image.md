@@ -5,7 +5,7 @@ A picture through the image door: an asset of the project, a file of the app tha
 ## Example
 
 ```tsx
-import { screen, asset, read, Image } from 'tentjs/ui'
+import { screen, asset, read, Image } from 'forjr/ui'
 import { allProducts } from '../functions/products'
 
 export const shopScreen = screen('shopScreen', {
@@ -39,15 +39,15 @@ export const shopScreen = screen('shopScreen', {
 
 Every other property of an `<img>` reaches it: `className`, `style`, `title`. How it fills its box is `object-fit` and `object-position` of the project's CSS.
 
-**What it draws.** A picture of the app is asked for through the image door, `/_t/img/`, in each of its widths - the six that ship, or the project's own `images.widths` - and the door answers a smaller format where the browser takes one. Until a picture from a file or an asset has loaded, its tiny blurred copy is its background, where the engine has one. In a page that `tent export` wrote, it is a `<picture>` of the files that were written.
+**What it draws.** A picture of the app is asked for through the image door, `/_f/img/`, in each of its widths - the six that ship, or the project's own `images.widths` - and the door answers a smaller format where the browser takes one. Until a picture from a file or an asset has loaded, its tiny blurred copy is its background, where the engine has one. In a page that `forjr export` wrote, it is a `<picture>` of the files that were written.
 
 **What it does not load.** A picture on a host that `project.hosts` does not list is not loaded: the `<img>` has no address. An asset whose name no file of the bundle has draws nothing.
 
-**Its size should be known before it loads**, so that the page does not jump when it arrives. For an asset the size comes from its file. For a file id and an address it is the builder's to write: an `Image` whose `src`, written in place, is no asset, and that states neither `width` nor `height`, is a warning (`code.T6025`).
+**Its size should be known before it loads**, so that the page does not jump when it arrives. For an asset the size comes from its file. For a file id and an address it is the builder's to write: an `Image` whose `src`, written in place, is no asset, and that states neither `width` nor `height`, is a warning (`code.F6025`).
 
 ## Errors
 
-`code.T6025`: the size of the picture is not known. `code.T6013`: a `src` written in place that is no allowed address.
+`code.F6025`: the size of the picture is not known. `code.F6013`: a `src` written in place that is no allowed address.
 
 ## See also
 

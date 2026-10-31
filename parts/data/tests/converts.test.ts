@@ -123,7 +123,7 @@ test('[20-11] each row of the converts cleanly rule: a fitting set of rows conve
     assert.deepEqual(findMisfits(other, steps), [{ table: 'things', column: 'v', rows: 1 }], what)
     const [found, ...others] = factsOf(other, next).tableFindings
     assert.deepEqual(others, [], what)
-    assert.equal(found.code, 'T2001', what)
+    assert.equal(found.code, 'F2001', what)
     assert.match(found.message, /\b1 row /, what)
   }
 })
@@ -146,7 +146,7 @@ test('[20-11] the number 2 becomes the text 2, and every other change of type is
   ]
   for (const [from, to] of never) {
     const other = holding(t, from, [])
-    assert.deepEqual(foundIn(other, things(to)), ['T2001'], JSON.stringify([from, to]))
+    assert.deepEqual(foundIn(other, things(to)), ['F2001'], JSON.stringify([from, to]))
   }
 })
 
@@ -204,7 +204,7 @@ test('[20-11] a retired column and a retired table that a later layout holds aga
   const found = factsOf(store, first).tableFindings
   assert.deepEqual(
     found.map((one) => one.code),
-    ['T2001', 'T2001'],
+    ['F2001', 'F2001'],
   )
   assert.ok(found.some((one) => /\b3 rows /.test(one.message) && /`orders\.customer`/.test(one.message)))
 
@@ -228,10 +228,10 @@ test('[20-11] a retired column and a retired table that a later layout holds aga
   const write = writing(store, again, system)
   assert.equal(
     codeOf(() => write((db) => at(db, 'orders').add({ customer: bolt, net: 1 }))),
-    'T2104',
+    'F2104',
   )
   assert.equal(
     codeOf(() => write((db) => at(db, 'customers').remove(acme))),
-    'T2102',
+    'F2102',
   )
 })

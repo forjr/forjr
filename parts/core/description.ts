@@ -1,7 +1,7 @@
 import { arrowsIn } from './arrows.ts'
 import { checkInto } from './checked.ts'
 import type { Finding } from './errors.ts'
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 import { finding } from './finding.ts'
 import { faultOf } from './itself.ts'
 import { limitKind, limitNames } from './limits.ts'
@@ -20,7 +20,7 @@ import { oneOf } from './types/oneOf.ts'
 import { nameShape, ref, shapeOf } from './types/ref.ts'
 import { text } from './types/text.ts'
 
-/** The description: the plain-data picture of the whole app, in the format `tent.description/1`. */
+/** The description: the plain-data picture of the whole app, in the format `forjr.description/2`. */
 export interface Description {
   format: string
   app: { name: string; needsEngine: string; dev?: true }
@@ -538,7 +538,7 @@ const table = some({
   removed: names,
   reaches: names,
   tenant: T,
-  // A word other than 'counts' or 'scores' is stored as it is written, for the check to name (T2016).
+  // A word other than 'counts' or 'scores' is stored as it is written, for the check to name (F2016).
   shows: T,
   plain: B,
   was: names,
@@ -902,7 +902,7 @@ export function checkDescription(description: unknown): Finding[] {
   // Every walk over a description follows this one, the walk of the arrows below among them.
   // A record that was written is stored as three things inside each other, so a description is held to 1,000.
   const fault = faultOf(description, undefined, 1, 1000)
-  if (fault) return [finding('T0002', `\`${fault.at}\` ${fault.words}.`, { fields: { [fault.at]: 'type' } })]
+  if (fault) return [finding('F0002', `\`${fault.at}\` ${fault.words}.`, { fields: { [fault.at]: 'type' } })]
   const found = checkInto(descriptionShape, description)
   arrowsIn(description, found)
   return found
@@ -910,7 +910,7 @@ export function checkDescription(description: unknown): Finding[] {
 
 /**
  * Takes the names on the way to a part of the description, with `*` for any key of a map. Answers the names of the
- * fields of that part, as the shape holds them. Throws T0009 where the way leads to no record.
+ * fields of that part, as the shape holds them. Throws F0009 where the way leads to no record.
  */
 export function fieldsOf(...path: string[]): string[] {
   let at: Type | undefined = descriptionShape
@@ -919,7 +919,7 @@ export function fieldsOf(...path: string[]): string[] {
     else at = at?.kind === 'object' ? at.shape[name] : undefined
   }
   if (at?.kind !== 'object')
-    throw new TentError('T0009', `The shape of the description holds no record at ${path.join('.')}.`)
+    throw new ForjrError('F0009', `The shape of the description holds no record at ${path.join('.')}.`)
   return Object.keys(at.shape)
 }
 

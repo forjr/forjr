@@ -15,7 +15,7 @@ const day = '1 day'
 
 // The flows that these tests add to the project of the desk. A step that matters adds a line or an order, so a
 // test counts in the files how often it was carried out.
-const flows = `import { emit, change, event, flow, input, text } from 'tentjs'
+const flows = `import { emit, change, event, flow, input, text } from 'forjr'
 import { addLine, addOrder } from '../functions/functions'
 import { orders } from '../tables/tables'
 
@@ -161,7 +161,7 @@ const linesIn = (desk: Desk, team: string): Record<string, unknown>[] =>
 const isOpen = async (desk: Desk, team: string): Promise<boolean | undefined> =>
   (await listed(desk.app, desk.dataFolder)).files.find((one) => one.id === team)?.open
 
-test('[50-9] [50-6@7b] a trigger on a table of a tenant adds its run in that write and in that file, a run that waits in a closed file is woken at its time and once, and tent data files says what is due', async (t) => {
+test('[50-9] [50-6@7b] a trigger on a table of a tenant adds its run in that write and in that file, a run that waits in a closed file is woken at its time and once, and forjr data files says what is due', async (t) => {
   const desk = await deskWithFlows(t)
   const { app } = desk
   const north = await addTeam(app, 'North')
@@ -171,7 +171,7 @@ test('[50-9] [50-6@7b] a trigger on a table of a tenant adds its run in that wri
   assert.equal(run.split('.').slice(1).join('.'), `teams.${north}`)
   assert.deepEqual(app.runs.find({ flow: 'onOrder' }), [])
   assert.deepEqual(
-    readFile(fileOf(desk.dataFolder, north), 'SELECT "id" FROM "_t_runs"').map((row) => row.id),
+    readFile(fileOf(desk.dataFolder, north), 'SELECT "id" FROM "_f_runs"').map((row) => row.id),
     [run],
   )
   assert.equal(app.runs.read(run)?.state, 'waiting')
@@ -336,13 +336,13 @@ test('[50-9] [16-4@7b] a run that waits for an event is woken by an emit in the 
   await until('the run heard it after the kill', () => ready(() => app.runs.read(second)?.state === 'done'), 2000)
   assert.equal(await app.runs.wait(second), 'paid')
   assert.equal(
-    readFile(fileOf(desk.dataFolder, south), 'SELECT count(*) AS n FROM "_t_sent"')[0].n,
+    readFile(fileOf(desk.dataFolder, south), 'SELECT count(*) AS n FROM "_f_sent"')[0].n,
     0,
     'what was kept is gone once it was handed on',
   )
   // The table that keeps such an event holds exactly its columns.
   assert.deepEqual(
-    readFile(fileOf(desk.dataFolder, south), "SELECT name FROM pragma_table_info('_t_sent')").map((row) => row.name),
+    readFile(fileOf(desk.dataFolder, south), "SELECT name FROM pragma_table_info('_f_sent')").map((row) => row.name),
     ['id', 'event', 'data', 'at'],
   )
 })
@@ -418,7 +418,7 @@ test('[50-11@7b] a reader that took over wakes a run that waited in a closed fil
   assert.equal(Array.isArray(lines) ? lines.length : -1, 1)
 })
 
-test('[15-6@7b] [50-9] tent runs lists the runs of the shared file, of one tenant with --of, and of every file with --all, a closed one too', async (t) => {
+test('[15-6@7b] [50-9] forjr runs lists the runs of the shared file, of one tenant with --of, and of every file with --all, a closed one too', async (t) => {
   const desk = await deskWithFlows(t)
   const { app, dataFolder } = desk
   const [north, south] = [await addTeam(app, 'North'), await addTeam(app, 'South')]
@@ -440,7 +440,7 @@ test('[15-6@7b] [50-9] tent runs lists the runs of the shared file, of one tenan
   // A tenant with no file holds no run.
   assert.deepEqual(await ids({ of: await addTeam(app, 'Nobody') }), [])
   // An empty word names no tenant.
-  await assert.rejects(command(app, dataFolder, 'runs', { what: 'list', of: '' }), { code: 'T0002' })
+  await assert.rejects(command(app, dataFolder, 'runs', { what: 'list', of: '' }), { code: 'F0002' })
 })
 
 test('[50-9] at a switch a waiting run in a closed file of a flow that states moveRuns is moved to the new version', async (t) => {

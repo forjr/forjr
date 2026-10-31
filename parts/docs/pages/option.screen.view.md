@@ -9,7 +9,7 @@ One arrow, which is required. It is handed one record: each name of `data` with 
 ## Example
 
 ```tsx
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 import styles from './orders.module.css'
 
 export const ordersScreen = screen('ordersScreen', {
@@ -26,9 +26,9 @@ export const ordersScreen = screen('ordersScreen', {
 
 ## Errors
 
-`code.T1008`: it is left out.
+`code.F1008`: it is left out.
 
-`code.T1014`: what is written there is no arrow.
+`code.F1014`: what is written there is no arrow.
 
 ## See also
 

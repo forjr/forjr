@@ -61,19 +61,19 @@ test("[21-22] a peak is never added: a reader's livePeak that was sent in ten ba
   assert.ok(units.includes('bytesIn '), JSON.stringify(units))
 })
 
-test('[21-22] a program reads the counts with counts as the system, from an app that shows no such table, and with another as T0013', async (t) => {
+test('[21-22] a program reads the counts with counts as the system, from an app that shows no such table, and with another as F0013', async (t) => {
   const { app, counted } = await counting(t)
   await app.call('listNotes', {}, { as: { kind: 'system' } })
   assert.ok((await counted()).some((one) => one.name === 'listNotes'))
-  assert.equal(await codeOf(app.read(counts.where({}), { as: userOf('ada') })), 'T0013')
-  assert.equal(await codeOf(app.read(counts.where({}), { as: 'nobody' })), 'T0013')
+  assert.equal(await codeOf(app.read(counts.where({}), { as: userOf('ada') })), 'F0013')
+  assert.equal(await codeOf(app.read(counts.where({}), { as: 'nobody' })), 'F0013')
 })
 
 test('[21-22] engine.program() answers what the program used: its processor time and what of it was booked to apps, its memory, the bytes of its connections and the disk of its data', async (t) => {
   const { engine, app, origin, port } = await counting(t)
   const before = engine.program()
   // A request over the network of this computer, which the connections of the program carry.
-  const answer = await fetch(`http://127.0.0.1:${port}/_t/call/listNotes`, {
+  const answer = await fetch(`http://127.0.0.1:${port}/_f/call/listNotes`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', host: new URL(origin).host },
     body: '{"input":{}}',

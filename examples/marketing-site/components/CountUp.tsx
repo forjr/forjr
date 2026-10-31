@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { component, number, useTranslations } from 'tentjs/ui'
+import { component, number, useTranslations } from 'forjr/ui'
 
 const length = 1600
 

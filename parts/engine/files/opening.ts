@@ -1,5 +1,5 @@
 import { isDeepStrictEqual } from 'node:util'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import type { Connections, Store, TableLayout, TableStep } from '../../data/index.ts'
 import { applySteps, factsOf, layoutOf, NotReady, planTableChanges, setRunningVersion } from '../../data/index.ts'
@@ -74,7 +74,7 @@ export interface PlannedShared {
 /**
  * Takes what the engine holds of an app whose files stand open, and a description. Checks every file against the
  * description, the shared file and each tenant's, to read alone, and answers the steps that bring the shared
- * file to it. Changes nothing. Where a step would be refused in any file, it throws the finding, T2001 to T2004:
+ * file to it. Changes nothing. Where a step would be refused in any file, it throws the finding, F2001 to F2004:
  * a misfit of a tenant's file names the tenant and the count. With `sharedOnly` no file of a tenant is read: a
  * switch holds each of them against its steps by itself.
  */
@@ -92,8 +92,9 @@ export async function planTenantFiles(
   const facts = same || sharedOnly ? factsOf(o.store, description) : await factsOf(tenantFiles.files, description)
   // With a move, the finding that names the move as the way is no refusal: the rows are being moved.
   const [refused] = facts.tableFindings.filter((one) => !(moving && String(one.fix).includes('--move')))
-  if (refused) throw new TentError(refused.code, refused.message, refused.fix === undefined ? {} : { fix: refused.fix })
-  const held = o.store.layout().filter((table) => !table.name.startsWith('_t_'))
+  if (refused)
+    throw new ForjrError(refused.code, refused.message, refused.fix === undefined ? {} : { fix: refused.fix })
+  const held = o.store.layout().filter((table) => !table.name.startsWith('_f_'))
   const names = new Set(held.map((one) => one.name))
   // A tenant table stands in no shared file, but in one that it is not moved out of yet.
   const asked = layoutOf(description).filter(

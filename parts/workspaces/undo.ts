@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Change, TurnRow, Writer } from '../history/index.ts'
 import { runWorkspace } from './opening.ts'
 import { sentSince } from './sent.ts'
@@ -45,8 +45,8 @@ async function keptOf(one: One, from: number): Promise<string[]> {
  * Takes what the workspaces hold, the workspace, the turn and who asks. Goes back to before that turn, and every
  * later turn goes with it: a turn that still works is stopped first. The files of the turn's first point are
  * written back, as going back does. The test data is put back to the turn's snapshot where it is still kept and no
- * hand changed the data since, or with `data: 'back'` where it is kept. Throws T0001 for a turn that is not there,
- * and T0002 for one that was undone. Answers what it changed, whether the data went back, and what it cannot undo.
+ * hand changed the data since, or with `data: 'back'` where it is kept. Throws F0001 for a turn that is not there,
+ * and F0002 for one that was undone. Answers what it changed, whether the data went back, and what it cannot undo.
  */
 export async function undoTurn(
   held: Held,
@@ -61,12 +61,12 @@ export async function undoTurn(
     return { all, at: all.findIndex((row) => row.id === turn) }
   }
   if (find().at < 0)
-    throw new TentError('T0001', `No turn ${JSON.stringify(turn).slice(0, 60)} is in the workspace ${id}.`)
+    throw new ForjrError('F0001', `No turn ${JSON.stringify(turn).slice(0, 60)} is in the workspace ${id}.`)
   if (one.turning) await one.turning.stop()
   const { all, at } = find()
   const target = all[at]
   if (target.state === 'undone')
-    throw new TentError('T0002', `The turn ${turn} was undone already.`, {
+    throw new ForjrError('F0002', `The turn ${turn} was undone already.`, {
       fix: 'Undo a turn that is not undone; the turns that went with an undo read `undone`.',
     })
   const going = all

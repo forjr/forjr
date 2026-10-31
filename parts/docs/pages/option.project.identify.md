@@ -20,7 +20,7 @@ It is held to `limits.actionTime`. The requests of one address that reach it are
 ## Example
 
 ```ts
-import { project } from 'tentjs'
+import { project } from 'forjr'
 
 export const shop = project('shop', {
   identify: async ({ request, db }) => {
@@ -34,11 +34,11 @@ export const shop = project('shop', {
 
 ## Errors
 
-`code.T0009` for that request when the function throws.
+`code.F0009` for that request when the function throws.
 
-`code.T0008` when it works past `limits.actionTime`.
+`code.F0008` when it works past `limits.actionTime`.
 
-`code.T0005` for one request more than `limits.identifyPerMinute` in a minute from one address, before the function is called.
+`code.F0005` for one request more than `limits.identifyPerMinute` in a minute from one address, before the function is called.
 
 ## See also
 

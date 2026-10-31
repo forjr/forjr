@@ -26,11 +26,11 @@ function pictureBytes(size: number): Uint8Array<ArrayBuffer> {
 /** The app of the uploads, with its files in a store of the test where one is handed, and its own limits. */
 async function uploaded(t: TestContext, o: { store?: S3StandIn; limits?: string } = {}): Promise<TestApp> {
   const project = copyOf(t, 'uploaded')
-  const file = join(project, 'tent.ts')
+  const file = join(project, 'forjr.ts')
   let text = readFileSync(file, 'utf8')
   if (o.store)
     text = text
-      .replace("import { anyone, project } from 'tentjs'", "import { anyone, project, s3, secret } from 'tentjs'")
+      .replace("import { anyone, project } from 'forjr'", "import { anyone, project, s3, secret } from 'forjr'")
       .replace(
         'backups: { every: false },',
         `backups: { every: false },\n  files: { store: s3({ url: '${o.store.url}', bucket: 'files', key: secret('storeKey') }) },`,
@@ -44,7 +44,7 @@ async function uploaded(t: TestContext, o: { store?: S3StandIn; limits?: string 
 
 const begin = async (browser: Browser, size: number, more = '', kind = 'image/png'): Promise<Answer> =>
   valueOf(
-    await browser.request('POST', `/_t/files?name=scan.png${more}`, {
+    await browser.request('POST', `/_f/files?name=scan.png${more}`, {
       headers: { 'upload-length': String(size), 'content-type': kind, 'content-length': '0' },
     }),
   )
@@ -54,10 +54,10 @@ test('[45-19.6] a resumed upload is refused to another caller and another visito
   const maya = app.browser({ as: await app.user({ name: 'Maya', roles: [] }) })
   const bytes = pictureBytes(20_000)
   const begun = await begin(maya, bytes.length)
-  const at = `/_t/files?upload=${String(begun.upload)}`
+  const at = `/_f/files?upload=${String(begun.upload)}`
   const strangers = [app.browser({ as: await app.user({ name: 'Bob', roles: [] }) }), app.browser(), app.browser()]
   const nothing = await codeOf(
-    await maya.request('POST', `/_t/files?upload=${'0'.repeat(32)}`, { headers: { 'content-length': '0' } }),
+    await maya.request('POST', `/_f/files?upload=${'0'.repeat(32)}`, { headers: { 'content-length': '0' } }),
   )
   for (const stranger of strangers) {
     assert.equal(await codeOf(await stranger.request('POST', at, { headers: { 'content-length': '0' } })), nothing)
@@ -91,9 +91,9 @@ test('[45-19.6] an upload straight to a store is taken in by its own caller alon
     headers: { 'content-length': String(bytes.length), 'content-type': 'image/png' },
     body: bytes,
   })
-  const at = `/_t/files?upload=${String(begun.upload)}`
+  const at = `/_f/files?upload=${String(begun.upload)}`
   const bob = app.browser({ as: await app.user({ name: 'Bob', roles: [] }) })
-  assert.equal(await codeOf(await bob.request('POST', at, { headers: { 'content-length': '0' } })), 'T0001')
+  assert.equal(await codeOf(await bob.request('POST', at, { headers: { 'content-length': '0' } })), 'F0001')
   const done = await valueOf(await maya.request('POST', at, { headers: { 'content-length': '0' } }))
   assert.equal(done.size, bytes.length)
 })
@@ -109,22 +109,22 @@ test('[45-19.7] an upload straight to a store that states a picture and sends a 
     headers: { 'content-length': String(text.length), 'content-type': 'image/png' },
     body: text,
   })
-  const answer = await maya.request('POST', `/_t/files?upload=${String(begun.upload)}`, {
+  const answer = await maya.request('POST', `/_f/files?upload=${String(begun.upload)}`, {
     headers: { 'content-length': '0' },
   })
-  assert.equal(await codeOf(answer), 'T0002')
+  assert.equal(await codeOf(answer), 'F0002')
 })
 
 test('[45-19.7] an upload sent in parts is held to the most bytes an upload takes, as one sent whole is', async (t) => {
   const app = await uploaded(t, { limits: "{ uploadSize: '4 KB' }" })
   const maya = app.browser({ as: await app.user({ name: 'Maya', roles: [] }) })
   const bytes = pictureBytes(12_000)
-  const whole = await maya.request('POST', '/_t/files?name=big.png', {
+  const whole = await maya.request('POST', '/_f/files?name=big.png', {
     headers: { 'content-length': String(bytes.length), 'content-type': 'image/png' },
     body: bytes,
   })
   assert.notEqual(whole.status, 200, 'sent whole it is refused')
-  const begun = await maya.request('POST', '/_t/files?name=big.png', {
+  const begun = await maya.request('POST', '/_f/files?name=big.png', {
     headers: { 'upload-length': String(bytes.length), 'content-type': 'image/png', 'content-length': '0' },
   })
   const id = String(Object(Object(await begun.json()).value).upload)
@@ -134,7 +134,7 @@ test('[45-19.7] an upload sent in parts is held to the most bytes an upload take
       const part = bytes.slice(offset, offset + 3_000)
       last = Object(
         await (
-          await maya.request('POST', `/_t/files?upload=${id}`, {
+          await maya.request('POST', `/_f/files?upload=${id}`, {
             headers: { 'upload-offset': String(offset), 'content-length': String(part.length) },
             body: part,
           })

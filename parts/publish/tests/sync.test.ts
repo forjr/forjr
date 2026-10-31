@@ -48,7 +48,7 @@ test('[40-15a] only what the target lacks is sent, a blob larger than syncSize t
   assert.equal(server.history.list({ pointer: 'main' }).length, here.history.list().length)
 })
 
-test('[40-15a] [16-2@8c] a key with read cannot push, a key of the API and a request with no key are T9104 at every address of sync', async (t) => {
+test('[40-15a] [16-2@8c] a key with read cannot push, a key of the API and a request with no key are F9104 at every address of sync', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder)
   const here = computer(t, folder, 'here')
@@ -58,29 +58,29 @@ test('[40-15a] [16-2@8c] a key with read cannot push, a key of the API and a req
     () => 'pushed',
     (error: { code?: string }) => error.code,
   )
-  assert.equal(refused, 'T9104')
+  assert.equal(refused, 'F9104')
   assert.equal(server.history.pointer('main'), undefined)
 
   const api = writeKey(server.app, { name: 'an API key', scopes: ['openOrders'] }).key
   const bytes = new TextEncoder().encode('x')
   const asks: [string, unknown, string?][] = [
-    ['/_t/sync/have', { points: [head], blobs: [] }],
-    ['/_t/sync/blobs', { want: [print(bytes)] }],
-    ['/_t/sync/blobs', blobsBody([[print(bytes), bytes]]), blobsType],
-    ['/_t/sync/points', { from: 'main', have: [] }],
-    ['/_t/sync/points', { points: [] }],
+    ['/_f/sync/have', { points: [head], blobs: [] }],
+    ['/_f/sync/blobs', { want: [print(bytes)] }],
+    ['/_f/sync/blobs', blobsBody([[print(bytes), bytes]]), blobsType],
+    ['/_f/sync/points', { from: 'main', have: [] }],
+    ['/_f/sync/points', { points: [] }],
   ]
   for (const [path, body, type] of asks)
     for (const key of [undefined, api]) {
       const answered = await sent(server, path, body, key, type)
       assert.equal(answered.status, 403, `${path} with ${key ? 'a key of the API' : 'no key'}`)
-      assert.equal(Object(answered.answer.error).code, 'T9104')
+      assert.equal(Object(answered.answer.error).code, 'F9104')
     }
   // A key with read reads, and is refused what sends.
-  const read = await sent(server, '/_t/sync/have', { points: [head], blobs: [] }, reader.key)
+  const read = await sent(server, '/_f/sync/have', { points: [head], blobs: [] }, reader.key)
   assert.equal(read.status, 200)
-  const sending = await sent(server, '/_t/sync/blobs', blobsBody([[print(bytes), bytes]]), reader.key, blobsType)
-  assert.equal(Object(sending.answer.error).code, 'T9104')
+  const sending = await sent(server, '/_f/sync/blobs', blobsBody([[print(bytes), bytes]]), reader.key, blobsType)
+  assert.equal(Object(sending.answer.error).code, 'F9104')
   assert.deepEqual(Object(sending.answer.error).fields, { right: 'push,publish' })
 })
 
@@ -92,7 +92,7 @@ test('[40-15a] a key with push pushes, and a key with a right is nobody at a cal
   const pusher = server.key(['push'])
   await push({ history: here.history, to: pusher, fetch: fetched })
   assert.equal(server.history.pointer('main'), here.history.pointer('now'))
-  const call = await fetch(`${server.address}/_t/call/openOrders`, {
+  const call = await fetch(`${server.address}/_f/call/openOrders`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${pusher.key}` },
     body: JSON.stringify({ input: { limit: 5 } }),
@@ -100,7 +100,7 @@ test('[40-15a] a key with push pushes, and a key with a right is nobody at a cal
   assert.equal(call.status, 401, 'a key of publishing calls no function: it is nobody there')
 })
 
-test('[40-15a] [16-2@8c] a blob whose bytes differ, a point whose id does not fit, and one whose parent the server lacks are T9107, and nothing is kept', async (t) => {
+test('[40-15a] [16-2@8c] a blob whose bytes differ, a point whose id does not fit, and one whose parent the server lacks are F9107, and nothing is kept', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder)
   const here = computer(t, folder, 'here')
@@ -110,8 +110,8 @@ test('[40-15a] [16-2@8c] a blob whose bytes differ, a point whose id does not fi
   const { key } = server.key(['push'])
 
   const bytes = new TextEncoder().encode('the bytes')
-  const wrong = await sent(server, '/_t/sync/blobs', blobsBody([['0'.repeat(64), bytes]]), key, blobsType)
-  assert.equal(Object(wrong.answer.error).code, 'T9107')
+  const wrong = await sent(server, '/_f/sync/blobs', blobsBody([['0'.repeat(64), bytes]]), key, blobsType)
+  assert.equal(Object(wrong.answer.error).code, 'F9107')
   assert.equal(server.history.blob('0'.repeat(64)), undefined)
 
   const point = here.history.read(second)
@@ -119,12 +119,12 @@ test('[40-15a] [16-2@8c] a blob whose bytes differ, a point whose id does not fi
   // Its blobs are sent, so that only the parent is missing.
   const prints = [...Object.values(point.files ?? {}), ...(point.description ? [point.description] : [])]
   const blobs = prints.map((one): [string, Uint8Array] => [one, here.history.blob(one) ?? new Uint8Array()])
-  assert.equal((await sent(server, '/_t/sync/blobs', blobsBody(blobs), key, blobsType)).status, 200)
-  const orphan = await sent(server, '/_t/sync/points', { points: [point] }, key)
-  assert.equal(Object(orphan.answer.error).code, 'T9107')
+  assert.equal((await sent(server, '/_f/sync/blobs', blobsBody(blobs), key, blobsType)).status, 200)
+  const orphan = await sent(server, '/_f/sync/points', { points: [point] }, key)
+  assert.equal(Object(orphan.answer.error).code, 'F9107')
   assert.equal(server.history.read(second), undefined)
 
-  const made = await sent(server, '/_t/sync/points', { points: [{ ...point, parents: [], at: point.at + 1 }] }, key)
-  assert.equal(Object(made.answer.error).code, 'T9107', 'an id that does not fit what the point holds')
+  const made = await sent(server, '/_f/sync/points', { points: [{ ...point, parents: [], at: point.at + 1 }] }, key)
+  assert.equal(Object(made.answer.error).code, 'F9107', 'an id that does not fit what the point holds')
   assert.equal(Object(made.answer.error).fields?.point, point.id)
 })

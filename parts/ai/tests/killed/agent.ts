@@ -51,7 +51,7 @@ const [run] = app.runs.find({ flow: 'helper' })
 let id = run?.id
 if (!id) {
   const chat = String(Object(await app.call('newChat', {}, { as: system })).id)
-  const order = String(Object(await app.call('addOrder', { item: 'tent', total: 120 }, { as: system })).id)
+  const order = String(Object(await app.call('addOrder', { item: 'forjr', total: 120 }, { as: system })).id)
   writeFileSync(join(told, 'chat.txt'), chat)
   writeFileSync(join(told, 'order.txt'), order)
   id = (await app.start('helper', { message: 'Which orders are open?', thread: chat }, { as: system })).run

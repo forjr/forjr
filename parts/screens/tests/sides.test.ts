@@ -5,28 +5,28 @@ import { markedLines, typeCheck } from './typed.ts'
 test('[14-9@5] the type checker refuses a screen file that takes its words from the backend side, and a backend file that takes its words from the screen side', () => {
   const files = {
     'screens/orders.tsx': [
-      "import { screen } from 'tentjs' // refused",
-      "import { component, read } from 'tentjs' // refused",
-      "import { text } from 'tentjs/ui'",
+      "import { screen } from 'forjr' // refused",
+      "import { component, read } from 'forjr' // refused",
+      "import { text } from 'forjr/ui'",
       '',
       "export const ordersScreen = screen('ordersScreen', { path: '/', access: 'anyone', view: () => 'Orders' })",
       'export const others = [component, read, text]',
       '',
     ].join('\n'),
     'functions/orders.ts': [
-      "import { query } from 'tentjs/ui' // refused",
-      "import { change, action, table } from 'tentjs/ui' // refused",
+      "import { query } from 'forjr/ui' // refused",
+      "import { change, action, table } from 'forjr/ui' // refused",
       // No screen file can ask for a secret: the screen side does not give the word.
-      "import { secret, secrets, settings, mail, files } from 'tentjs/ui' // refused",
-      "import { number, role, anyone } from 'tentjs/ui'",
+      "import { secret, secrets, settings, mail, files } from 'forjr/ui' // refused",
+      "import { number, role, anyone } from 'forjr/ui'",
       '',
       'export const all = [query, change, action, table, secret, secrets, settings, mail, files, number, role, anyone]',
       '',
     ].join('\n'),
     // Each side gives its own words, and the types and the rule helpers are given by both.
     'screens/fine.tsx': [
-      "import { anyone, number, read, role, screen, text } from 'tentjs/ui'",
-      "import type { Finding } from 'tentjs'",
+      "import { anyone, number, read, role, screen, text } from 'forjr/ui'",
+      "import type { Finding } from 'forjr'",
       '',
       "export const fineScreen = screen('fineScreen', { path: '/fine', access: role('staff'), view: () => 'Fine' })",
       'export const all = [anyone, number, read, text]',
@@ -34,7 +34,7 @@ test('[14-9@5] the type checker refuses a screen file that takes its words from 
       '',
     ].join('\n'),
     'functions/fine.ts': [
-      "import { number, query, role, text } from 'tentjs'",
+      "import { number, query, role, text } from 'forjr'",
       '',
       "export const fine = query('fine', { access: role('staff'), input: { n: number(), t: text() }, run: () => 1 })",
       '',

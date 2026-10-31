@@ -1,4 +1,4 @@
-import { agent } from 'tentjs'
+import { agent } from 'forjr'
 import { sendInvite } from '../flows/invite'
 import { thinker } from '../models/models'
 import { calendar, mailbox } from '../services/tools'

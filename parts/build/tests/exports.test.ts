@@ -79,7 +79,7 @@ test('[12-3a] the module of a file exports each rule and each option of its defi
     assert.ok(Array.isArray(at(description, 'flows', 'ship', 'body')), 'the run of the flow was read')
     const onFail = await code('ship_onFail', 'flows', 'ship', 'onFail')
     // The file of the flow imports the file of the table, so the builder makes modules that name each other.
-    assert.equal(onFail({ failure: { step: 'pack', code: 'T0009', message: '' } }), 'orders failed with T0009')
+    assert.equal(onFail({ failure: { step: 'pack', code: 'F0009', message: '' } }), 'orders failed with F0009')
     const shipped = await code('ship_access', 'flows', 'ship', 'access')
     assert.deepEqual([shipped(user), shipped(other)], [false, true])
     const followed = await code('ship_follow', 'flows', 'ship', 'follow')
@@ -149,7 +149,7 @@ test('[12-3a] an export that the build cannot write into its module is a finding
       .map((one) => [one.code, one.level, one.where?.file, one.where?.definition, one.message])
       .sort((a, b) => (String(a[4]) < String(b[4]) ? -1 : 1)),
     ['add', 'change', 'read', 'remove'].map((what) => [
-      'T1014',
+      'F1014',
       'error',
       'tables/orders.ts',
       'orders',

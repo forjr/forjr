@@ -18,12 +18,12 @@ function manyQueries(folder: string): void {
   mkdirSync(join(folder, 'functions'), { recursive: true })
   mkdirSync(join(folder, 'tables'), { recursive: true })
   writeFileSync(
-    join(folder, 'tent.ts'),
-    "import { project } from 'tentjs'\n\nexport const many = project('many', { title: 'Many' })\n",
+    join(folder, 'forjr.ts'),
+    "import { project } from 'forjr'\n\nexport const many = project('many', { title: 'Many' })\n",
   )
   writeFileSync(
     join(folder, 'tables', 'items.ts'),
-    "import { anyone, table, text } from 'tentjs'\n\nexport const items = table('items', {\n  columns: { name: text() },\n  access: { read: anyone('the items of a test') },\n})\n",
+    "import { anyone, table, text } from 'forjr'\n\nexport const items = table('items', {\n  columns: { name: text() },\n  access: { read: anyone('the items of a test') },\n})\n",
   )
   const each = definitions / files
   for (let f = 0; f < files; f++) {
@@ -34,7 +34,7 @@ function manyQueries(folder: string): void {
     )
     writeFileSync(
       join(folder, 'functions', `f${f}.ts`),
-      `import { anyone, query } from 'tentjs'\nimport { items } from '../tables/items'\n\n${queries.join('\n')}`,
+      `import { anyone, query } from 'forjr'\nimport { items } from '../tables/items'\n\n${queries.join('\n')}`,
     )
   }
 }

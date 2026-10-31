@@ -1,4 +1,4 @@
-import { anyone, input, link, number, query } from 'tentjs'
+import { anyone, input, link, number, query } from 'forjr'
 import { features } from '../tables/features'
 
 export const featureList = query('featureList', {

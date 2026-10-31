@@ -1,5 +1,5 @@
 import { randomBytes, randomInt } from 'node:crypto'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Runtime } from '../core/internal.ts'
 import type { CallContext } from './context.ts'
 import { underWay } from './context.ts'
@@ -15,19 +15,19 @@ import { callService, serviceCallOf } from './services/call.ts'
 import { callModel, modelCallOf } from './ai/call.ts'
 import { projectZone } from '../core/internal.ts'
 
-/** Answers the call that is under way. Throws T0013 where none is: a maker, and code that runs beside every call. */
+/** Answers the call that is under way. Throws F0013 where none is: a maker, and code that runs beside every call. */
 function calling(used: string): CallContext {
   const cx = underWay()
   if (!cx)
-    throw new TentError('T0013', `${used} was used with no call under way.`, {
+    throw new ForjrError('F0013', `${used} was used with no call under way.`, {
       fix: 'A definition and a handle work inside a call: in the `run` of a function, and never in a maker of `engine.ts`.',
     })
   return cx
 }
 
 /** The error of a word that reaches a part of the engine which this engine does not have. */
-const notThere = (what: string): TentError =>
-  new TentError('T0013', `${what} cannot be used here: this engine has nothing behind it.`)
+const notThere = (what: string): ForjrError =>
+  new ForjrError('F0013', `${what} cannot be used here: this engine has nothing behind it.`)
 
 /**
  * A new secret text from the random source of the runtime, or that many digits, each drawn evenly; from the source
@@ -88,7 +88,7 @@ export const slot: Runtime = {
     if (cx.remote)
       return cx.remote.start(typeof flow === 'string' ? flow : String(Reflect.get(Object(flow), 'definition')), input)
     if (!cx.app.flows)
-      throw new TentError('T0001', `No flow named ${JSON.stringify(flow).slice(0, 80)} can be started.`, {
+      throw new ForjrError('F0001', `No flow named ${JSON.stringify(flow).slice(0, 80)} can be started.`, {
         fix: 'Hand `start` a flow of the app.',
       })
     return cx.app.flows.start(cx, flow, input)
@@ -96,8 +96,8 @@ export const slot: Runtime = {
   emit(event, data) {
     const cx = calling(`emit of ${event}`)
     if (cx.work.kind !== 'change' || !(cx.tx ?? cx.writing))
-      throw new TentError(
-        'T0013',
+      throw new ForjrError(
+        'F0013',
         `\`emit\` was used in the ${cx.work.kind} ${cx.work.name}, and an event is part of the write of a change.`,
         {
           fix: 'Emit an event from a change.',

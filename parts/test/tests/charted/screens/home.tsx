@@ -1,4 +1,4 @@
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 import { BarLine } from 'tiny-bars'
 
 // A screen of a file of its own that draws with a package which imports React, as a library of charts does.

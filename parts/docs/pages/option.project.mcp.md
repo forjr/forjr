@@ -9,7 +9,7 @@ What the app states for the MCP door, at `/mcp`.
 | Option | Takes, and what holds where it is left out |
 |---|---|
 | `toolsListed` | How many tools a caller is listed at most; above it the pair `findFunction` and `callFunction` stands in their place. 20 |
-| `asks` | `'engine'`: a function that states `danger: 'ask'` is refused with `code.T7120` until a person agreed. `'client'` trusts every client's own asking, and a list trusts the clients it names by the host of their document, by an id, or by a key. `'engine'` |
+| `asks` | `'engine'`: a function that states `danger: 'ask'` is refused with `code.F7120` until a person agreed. `'client'` trusts every client's own asking, and a list trusts the clients it names by the host of their document, by an id, or by a key. `'engine'` |
 | `only` | `'queries'`, or a list of function names: narrows every caller at `/mcp` to them. Every offered function |
 | `on` | A function of the app by the method of the standard that it answers, as `{ 'resources/list': listResources }`. None |
 | `anyone` | True offers the functions whose rule is `anyone` to a request with no caller. False |
@@ -29,4 +29,4 @@ export const shop = project('shop', {
 
 ## See also
 
-`word.project`, `topic.mcp`, `code.T7004`
+`word.project`, `topic.mcp`, `code.F7004`

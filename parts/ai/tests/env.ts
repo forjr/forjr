@@ -1,6 +1,6 @@
 import { guardedFetch } from '../../connect/index.ts'
 import type { Caller } from '../../core/index.ts'
-import { project, TentError } from '../../core/index.ts'
+import { project, ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { describe } from '../../core/internal.ts'
 import type { AiEnv, Method, Provider, Used } from '../index.ts'
@@ -40,7 +40,7 @@ export interface LayerOptions {
   providers?: Record<string, Provider>
   standIns?: Record<string, Provider>
   files?: Record<string, HeldFile>
-  // What `allow` does before each call to a provider: it may throw T7102.
+  // What `allow` does before each call to a provider: it may throw F7102.
   allow?: (o: { model: string; caller: Caller }) => void
   // The answer of `call` of the env: the service calls of a model over one, by their names.
   calls?: Record<string, (input: unknown, how: unknown) => unknown>
@@ -71,7 +71,7 @@ export function layerOf(definitions: object[], o: LayerOptions = {}): Layer {
     const one = files.get(id)
     const user = caller.user?.id ?? caller.kind
     if (!one || (one.of !== undefined && one.of !== user && caller.kind !== 'system'))
-      throw new TentError('T2104', `No file ${id} can be read by this caller.`)
+      throw new ForjrError('F2104', `No file ${id} can be read by this caller.`)
     return one
   }
   const env: AiEnv = {
@@ -79,14 +79,14 @@ export function layerOf(definitions: object[], o: LayerOptions = {}): Layer {
     fetch: guardedFetch({ mode: 'development', bodyTravels: true }),
     secret(name) {
       const value = o.secrets?.[name]
-      if (value === undefined) throw new TentError('T0019', `The secret ${name} has no value.`)
+      if (value === undefined) throw new ForjrError('F0019', `The secret ${name} has no value.`)
       return value
     },
     allow: (asked) => o.allow?.(asked),
     used: (one) => void used.push(one),
     call(name, args) {
       const call = o.calls?.[name]
-      if (!call) throw new TentError('T0001', `The test answers no call ${name}.`)
+      if (!call) throw new ForjrError('F0001', `The test answers no call ${name}.`)
       return call(args[0], args[1])
     },
     tell: () => undefined,

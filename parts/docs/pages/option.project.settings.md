@@ -16,7 +16,7 @@ export const shop = project('shop', {
 
 ## Errors
 
-`code.T1009`: a setting named `then`.
+`code.F1009`: a setting named `then`.
 
 ## See also
 

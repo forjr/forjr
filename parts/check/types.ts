@@ -12,30 +12,30 @@ const entry = (file: string): string[] => [fileURLToPath(new URL(`../${file}`, i
 // The type checker reads every import of the framework as the very entry file that this part uses, a program's
 // too, and the tags of a screen file by the types of React that the framework itself is checked with.
 const paths = {
-  tentjs: entry('core/index.ts'),
-  'tentjs/ai': entry('ai/index.ts'),
-  'tentjs/build': entry('build/index.ts'),
-  'tentjs/check': entry('check/index.ts'),
-  'tentjs/cli': entry('connect/cliEntry.ts'),
-  'tentjs/connect': entry('connect/index.ts'),
-  'tentjs/core': entry('core/internal.ts'),
-  'tentjs/data': entry('data/index.ts'),
-  'tentjs/docs': entry('docs/index.ts'),
-  'tentjs/engine': entry('engine/index.ts'),
-  'tentjs/engine/inside': entry('engine/rooms/inside/inside.ts'),
-  'tentjs/flows': entry('flows/index.ts'),
-  'tentjs/history': entry('history/index.ts'),
-  'tentjs/publish': entry('publish/index.ts'),
-  'tentjs/test': entry('test/index.ts'),
-  'tentjs/ui': entry('screens/index.ts'),
-  'tentjs/ui/draw': entry('screens/draw.ts'),
-  'tentjs/workspaces': entry('workspaces/index.ts'),
+  forjr: entry('core/index.ts'),
+  'forjr/ai': entry('ai/index.ts'),
+  'forjr/build': entry('build/index.ts'),
+  'forjr/check': entry('check/index.ts'),
+  'forjr/cli': entry('connect/cliEntry.ts'),
+  'forjr/connect': entry('connect/index.ts'),
+  'forjr/core': entry('core/internal.ts'),
+  'forjr/data': entry('data/index.ts'),
+  'forjr/docs': entry('docs/index.ts'),
+  'forjr/engine': entry('engine/index.ts'),
+  'forjr/engine/inside': entry('engine/rooms/inside/inside.ts'),
+  'forjr/flows': entry('flows/index.ts'),
+  'forjr/history': entry('history/index.ts'),
+  'forjr/publish': entry('publish/index.ts'),
+  'forjr/test': entry('test/index.ts'),
+  'forjr/ui': entry('screens/index.ts'),
+  'forjr/ui/draw': entry('screens/draw.ts'),
+  'forjr/workspaces': entry('workspaces/index.ts'),
   ...reactPaths(),
 }
 
 // What the type checker leaves out of the root of a project: a file of a clash, and the assets. `engine.ts` and
 // `seed.ts`, which the build reads apart, are read as every other file is.
-const leftInRoot = ['tent.clash.ts', 'assets']
+const leftInRoot = ['forjr.clash.ts', 'assets']
 
 // A screen file, a component and a package may import a style file. The declarations lie in a file of no module of
 // their own beside the settings: in a file that imports, as the type list does, they would add to a module.
@@ -53,7 +53,7 @@ declare module '*.css'
  * declarations of style modules, which lie beside the settings.
  */
 function settingsOf(folder: string, source: Source): string {
-  const list = join(folder, 'tent.d.ts')
+  const list = join(folder, 'forjr.d.ts')
   const types = runtimeTypes()
   const root = folder.replaceAll('\\', '/')
   const settings = {
@@ -78,11 +78,11 @@ function settingsOf(folder: string, source: Source): string {
     include: [`${root}/**/*.ts`, `${root}/**/*.tsx`],
     exclude: [...leftInRoot.map((one) => `${root}/${one}`), `${root}/**/node_modules`, `${root}/**/*.d.ts`],
   }
-  let kept = join(folder, '.tent', 'cache', 'types')
+  let kept = join(folder, '.forjr', 'cache', 'types')
   try {
     mkdirSync(kept, { recursive: true })
   } catch {
-    kept = join(tmpdir(), 'tent-types')
+    kept = join(tmpdir(), 'forjr-types')
     mkdirSync(kept, { recursive: true })
   }
   const styles = join(kept, 'styles.d.ts')
@@ -100,7 +100,7 @@ function fixOf(number: string, said: string, line: string): string {
   const field = /^Property '(\w+)' does not exist on type 'string'/.exec(said)?.[1]
   const link = field === undefined ? undefined : new RegExp(`(\\w+)\\??\\.${field}\\b`).exec(line)?.[1]
   if (number !== 'TS2339' || link === undefined) return 'Mend what the type checker names.'
-  return `Where \`${link}\` is a link, its row is read by the query with \`.with('${link}')\`: see \`tent docs topic.plans\`. Else mend what the type checker names.`
+  return `Where \`${link}\` is a link, its row is read by the query with \`.with('${link}')\`: see \`forjr docs topic.plans\`. Else mend what the type checker names.`
 }
 
 /** The line of a file as it stands now, counted from 1, or nothing where it cannot be read. */
@@ -123,11 +123,11 @@ function findingsOf(folder: string, printed: string): Finding[] {
     const read = /^(.+?)\((\d+),\d+\): error (TS\d+): (.*)$/.exec(line.trim())
     const unplaced = read ? undefined : /^error (TS\d+): (.*)$/.exec(line.trim())
     if (unplaced)
-      found.push(finding('T8000', `${unplaced[1]}: ${unplaced[2]}`, { fix: 'Mend what the type checker names.' }))
+      found.push(finding('F8000', `${unplaced[1]}: ${unplaced[2]}`, { fix: 'Mend what the type checker names.' }))
     if (!read) continue
     const lies = isAbsolute(read[1]) ? read[1] : resolve(folder, read[1])
     found.push(
-      finding('T8000', `${read[3]}: ${read[4]}`, {
+      finding('F8000', `${read[3]}: ${read[4]}`, {
         fix: fixOf(read[3], read[4], lineOf(lies, Number(read[2]))),
         where: { file: relative(folder, lies).replaceAll('\\', '/'), line: Number(read[2]) },
       }),
@@ -138,7 +138,7 @@ function findingsOf(folder: string, printed: string): Finding[] {
 
 /**
  * Takes the folder of a project and its source. Starts the type checker over the whole project, with the type
- * list of the project first, and answers what it reported, each as a finding T8000. Throws where the type
+ * list of the project first, and answers what it reported, each as a finding F8000. Throws where the type
  * checker cannot be started, and where it ends with a failure that it reported no error for.
  */
 export function checkTypes(folder: string, source: Source): Promise<Finding[]> {

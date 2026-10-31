@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored } from '../../core/internal.ts'
 import type { Address } from '../door/address.ts'
 import { countedFor } from '../door/rate.ts'
@@ -12,7 +12,7 @@ import { countedAs } from '../web/names.ts'
 import { errorAnswer } from '../wire.ts'
 
 /**
- * `POST /_t/oauth/register`: where a client registers itself, in a project whose `mcp.clients` holds
+ * `POST /_f/oauth/register`: where a client registers itself, in a project whose `mcp.clients` holds
  * `anyone(...)`, and is found in no other. It takes a name and return addresses held to the rule of a return, and
  * answers an id that is itself the name, the return addresses and the time, sealed with the key of the secrets: so
  * nothing is kept. One address registers `registerPerMinute` clients a minute. It passes steps 1, 2 and 4 of the door.
@@ -23,7 +23,7 @@ export const address: Address = {
     const o = visit()?.app
     return (
       request.method === 'POST' &&
-      programsAt(request, '/_t/oauth/register') &&
+      programsAt(request, '/_f/oauth/register') &&
       o !== undefined &&
       registers(o) && { name: 'oauth-register' }
     )
@@ -33,9 +33,13 @@ export const address: Address = {
     try {
       const limit = storedLimit(o.description, 'registerPerMinute')
       if (!countedFor(o, `register:${countedAs(about.from)}`, limit))
-        throw new TentError('T0005', `More than ${limit} clients registered themselves in a minute from one address.`, {
-          fix: 'Register fewer clients, or raise `registerPerMinute` in `project.limits`.',
-        })
+        throw new ForjrError(
+          'F0005',
+          `More than ${limit} clients registered themselves in a minute from one address.`,
+          {
+            fix: 'Register fewer clients, or raise `registerPerMinute` in `project.limits`.',
+          },
+        )
       const asked = readJson(await bodyOf(request, limitOf(o.description, 'callSize')))
       const name = isStored(asked) && typeof asked.client_name === 'string' ? asked.client_name.slice(0, 200) : ''
       const redirects =

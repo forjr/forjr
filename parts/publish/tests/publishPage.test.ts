@@ -22,7 +22,7 @@ test('[40-6] a page kept open across five publishes, one of them a column remova
   const to = server.key(['read', 'push', 'publish'])
   writeFileSync(
     join(here.project, 'functions', 'listed.ts'),
-    "import { anyone, query } from 'tentjs'\nimport { orders } from '../tables/orders'\n\nexport const listed = query('listed', { access: anyone('a page of the tests'), rows: orders.limit(10) })\n",
+    "import { anyone, query } from 'forjr'\nimport { orders } from '../tables/orders'\n\nexport const listed = query('listed', { access: anyone('a page of the tests'), rows: orders.limit(10) })\n",
   )
   await here.save()
   const first = await publish({ project: here.project, history: here.history, to, fetch: fetched })
@@ -30,7 +30,7 @@ test('[40-6] a page kept open across five publishes, one of them a column remova
 
   // A page drawn of the first version, which holds its live connection open.
   const origin = `http://localhost:${new URL(server.address).port}`
-  const end = server.app.live(new Request(`${origin}/_t/live`, { headers: { origin } }))
+  const end = server.app.live(new Request(`${origin}/_f/live`, { headers: { origin } }))
   const got: Message[] = []
   end.each(
     (message) => {

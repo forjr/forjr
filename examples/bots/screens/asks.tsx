@@ -1,4 +1,4 @@
-import { read, screen, useCall } from 'tentjs/ui'
+import { read, screen, useCall } from 'forjr/ui'
 import { Face } from '../components/Face'
 import { Frame } from '../components/Frame'
 import { askTitle, DraftCard, QuestionCard } from '../components/Talk'

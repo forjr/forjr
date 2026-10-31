@@ -3,7 +3,7 @@ import { basename, dirname, join } from 'node:path'
 import type { Session, StatementSync } from 'node:sqlite'
 import { backup, constants, DatabaseSync } from 'node:sqlite'
 import { openSqlite, sqlitePath } from '../sqliteFile.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { IdMaker } from '../ids.ts'
 import { isId, rowIds } from '../ids.ts'
 import { keptIn } from '../kept.ts'
@@ -81,8 +81,8 @@ interface Writing extends Recorded {
   wrote: boolean
 }
 
-const readOnlyError = (): TentError =>
-  new TentError('T0012', 'A write was tried through a store that only reads.', {
+const readOnlyError = (): ForjrError =>
+  new ForjrError('F0012', 'A write was tried through a store that only reads.', {
     fix: 'Write inside a change, through the store that was opened for writing.',
   })
 
@@ -149,7 +149,7 @@ function recorded(o: Recording): {
     },
     record() {
       const now = o.writing()
-      if (!now) throw new TentError('T0013', 'A record is asked for outside a write.')
+      if (!now) throw new ForjrError('F0013', 'A record is asked for outside a write.')
       const parts = [...now.taken, ...inOrder(now).map((session) => session.changeset())]
       const bytes = new Uint8Array(parts.reduce((sum, part) => sum + part.length, 0))
       let at = 0
@@ -162,7 +162,7 @@ function recorded(o: Recording): {
     apply(bytes, rows = []) {
       const at = o.opened()
       const now = o.writing()
-      if (!now) throw new TentError('T0013', 'A record is applied outside a write.')
+      if (!now) throw new ForjrError('F0013', 'A record is applied outside a write.')
       // The copy of the vectors is kept by the inside number of a row, which is read before a removed row is gone.
       const vectored = rows.flatMap((one) => {
         const layout = at.layouts.get(one.table)
@@ -174,8 +174,8 @@ function recorded(o: Recording): {
       )
       const tables = new Set(covered())
       const clash = () =>
-        new TentError(
-          'T0033',
+        new ForjrError(
+          'F0033',
           'A change does not fit the store it is applied to: a row is held otherwise than its record expects.',
           {
             fix: 'Move the data file aside and fetch the data anew from the writer.',
@@ -240,7 +240,7 @@ export function sqliteStore(ids: IdMaker = rowIds): Store {
   let writing: Writing | undefined
 
   const opened = (): Open => {
-    if (!open) throw new TentError('T0009', 'The store is not open.')
+    if (!open) throw new ForjrError('F0009', 'The store is not open.')
     return open
   }
   const held: Held = {
@@ -268,14 +268,14 @@ export function sqliteStore(ids: IdMaker = rowIds): Store {
     indexed(table) {
       const at = opened()
       if (at.noSearch)
-        throw new TentError('T0009', `The store keeps no search index of \`${table}\` while a searcher is connected.`)
+        throw new ForjrError('F0009', `The store keeps no search index of \`${table}\` while a searcher is connected.`)
       if (at.indexed.has(table)) return
       const layout = at.layouts.get(table)
       if (!layout) throw noTable(table)
       if (!hasIndex(at, table)) {
         if (at.readOnly)
-          throw new TentError(
-            'T0009',
+          throw new ForjrError(
+            'F0009',
             `The data file holds no search index of \`${table}\`, and this store only reads.`,
           )
         aside(at, searchSql(layout))
@@ -418,7 +418,7 @@ export function sqliteStore(ids: IdMaker = rowIds): Store {
   const begin = (o: { steps?: boolean; toDisk?: boolean } = {}): OpenWrite => {
     const at = opened()
     if (at.readOnly) throw readOnlyError()
-    if (writing) throw new TentError('T0013', 'A write was begun inside a write: a store has one write at a time.')
+    if (writing) throw new ForjrError('F0013', 'A write was begun inside a write: a store has one write at a time.')
     const steps = o.steps === true
     const toDisk = o.toDisk === true
     // A rebuild drops a table that others link to, and SQLite takes the switch of its link check only outside a write.
@@ -465,7 +465,7 @@ export function sqliteStore(ids: IdMaker = rowIds): Store {
       commit() {
         try {
           if (steps && at.db.prepare('PRAGMA foreign_key_check').get())
-            throw new TentError('T2104', 'A table change would leave a link without its row.')
+            throw new ForjrError('F2104', 'A table change would leave a link without its row.')
           held.statement('COMMIT').run()
           // What a table change made of the vector tables is read anew. Otherwise each copy that is built is told
           // the vectors this write set and removed.
@@ -488,12 +488,12 @@ export function sqliteStore(ids: IdMaker = rowIds): Store {
 
   const store: Store = {
     open(folder, o = {}) {
-      if (open) throw new TentError('T0009', 'The store is already open.')
+      if (open) throw new ForjrError('F0009', 'The store is already open.')
       // A store opens the one file it is handed: a tenant's file by its path, and `data.db` in a folder.
       const alone = folder === inMemory || isFile(folder)
       const file = alone ? folder : join(folder, 'data.db')
       const readOnly = o.readOnly === true
-      if (readOnly && !existsSync(file)) throw new TentError('T0009', `No data file stands at ${file}.`)
+      if (readOnly && !existsSync(file)) throw new ForjrError('F0009', `No data file stands at ${file}.`)
       mkdirSync(dirname(file), { recursive: true })
       let db: DatabaseSync
       try {
@@ -590,12 +590,12 @@ export function sqliteStore(ids: IdMaker = rowIds): Store {
 
     applyTableChanges(steps) {
       const at = opened()
-      if (!writing) throw new TentError('T0013', 'A table step stands outside a write.')
+      if (!writing) throw new ForjrError('F0013', 'A table step stands outside a write.')
       // In a write that said it holds table steps they are the first act. What a file makes with a first row may follow a row.
       const late = steps.find((step) => !withARow.includes(step.do))
       if (writing.wrote && late)
-        throw new TentError(
-          'T0013',
+        throw new ForjrError(
+          'F0013',
           `The table step \`${late.do}\` of \`${late.table}\` stands after a row that the write wrote: the steps of a write are its first act.`,
         )
       writing.changedLayout = true

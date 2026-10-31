@@ -11,7 +11,7 @@ import { seededSource } from '../engine/index.ts'
  * function is sent to the browser as its text: it names nothing outside itself.
  */
 function preloaded(ahead: number, seed?: string, source?: (seed: string) => () => number): void {
-  const name = Symbol.for('tent.test')
+  const name = Symbol.for('forjr.test')
   if (Reflect.get(globalThis, name) !== undefined) return
   const Real = Date
   let moved = ahead
@@ -29,7 +29,7 @@ function preloaded(ahead: number, seed?: string, source?: (seed: string) => () =
   let nth = 0
   try {
     const asked = new XMLHttpRequest()
-    asked.open('GET', '/_t/document', false)
+    asked.open('GET', '/_f/document', false)
     asked.send()
     nth = Number(asked.responseText) || 0
   } catch {
@@ -59,12 +59,12 @@ function preloaded(ahead: number, seed?: string, source?: (seed: string) => () =
     },
     move(to) {
       moved = to
-      dispatchEvent(new Event('tent-clock'))
+      dispatchEvent(new Event('forjr-clock'))
     },
   }
   Reflect.set(globalThis, name, hook)
   addEventListener('load', () => {
-    if (!document.querySelector('body > script#tent-page')) give(null)
+    if (!document.querySelector('body > script#forjr-page')) give(null)
   })
 }
 

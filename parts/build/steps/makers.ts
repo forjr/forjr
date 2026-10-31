@@ -28,14 +28,14 @@ export const step: Step = {
         folder: work.folder,
         tsconfig: ownSettings(work.folder, cacheFolder(work)),
         inputs: { engine: lies },
-        external: ['tentjs', 'tentjs/ui', 'tentjs/cli', 'tentjs/engine', 'tentjs/data'],
+        external: ['forjr', 'forjr/ui', 'forjr/cli', 'forjr/engine', 'forjr/data'],
         read: (file) => texts.get(file),
         small: work.options.for === 'release',
       })
     } catch (error) {
       found(
         work,
-        'T1014',
+        'F1014',
         'engine.ts',
         1,
         `The file engine.ts cannot be loaded: ${error instanceof Error ? error.message : String(error)}`,

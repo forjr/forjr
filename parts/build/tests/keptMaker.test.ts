@@ -20,7 +20,7 @@ test('[31-19] the modules that a development build keeps are kept under its make
     for (const source of map.sources) assert.ok(!source.startsWith('../'), `named from the project: ${source}`)
   // What was kept is made as a build of other code would have made it: its maps name each source from `dist/`,
   // and its key is that of another maker.
-  const kept = join(folder, '.tent', 'cache', 'modules.dev.json')
+  const kept = join(folder, '.forjr', 'cache', 'modules.dev.json')
   const held = JSON.parse(readFileSync(kept, 'utf8'))
   const key = JSON.parse(held.key)
   assert.equal(typeof key.maker, 'string', 'the key names the maker')

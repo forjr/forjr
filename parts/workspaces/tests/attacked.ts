@@ -31,7 +31,7 @@ export async function attacked(t: TestContext, o: Partial<WorkspacesOptions> = {
   }
 }
 
-/** Every file of the project of a workspace with its bytes, by its path, but `tent.d.ts`, which the build writes. */
+/** Every file of the project of a workspace with its bytes, by its path, but `forjr.d.ts`, which the build writes. */
 export function projectFiles(workspace: string): Record<string, string> {
   const folder = join(workspace, 'project')
   const found: Record<string, string> = {}
@@ -39,7 +39,7 @@ export function projectFiles(workspace: string): Record<string, string> {
     for (const name of readdirSync(at).sort()) {
       const place = join(at, name)
       const path = `${shown}${name}`
-      if (path === 'tent.d.ts' || path === '.tent') continue
+      if (path === 'forjr.d.ts' || path === '.forjr') continue
       if (statSync(place).isDirectory()) walk(place, `${path}/`)
       else found[path] = readFileSync(place).toString('base64')
     }
@@ -51,7 +51,7 @@ export function projectFiles(workspace: string): Record<string, string> {
 /** A plain query file over the notes, with one more option stated on the query. */
 export const queryWith = (name: string, more = ''): string =>
   [
-    "import { anyone, query } from 'tentjs'",
+    "import { anyone, query } from 'forjr'",
     "import { notes } from '../tables/users'",
     '',
     `export const ${name} = query('${name}', {`,

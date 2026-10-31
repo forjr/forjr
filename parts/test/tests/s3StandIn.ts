@@ -19,7 +19,7 @@ export interface S3StandIn {
   fails?: (bytes: Uint8Array) => boolean
 }
 
-const keyId = 'TENTTESTKEY'
+const keyId = 'FORJRTESTKEY'
 const keySecret = 'the-secret-of-the-test-store'
 const region = 'us-east-1'
 

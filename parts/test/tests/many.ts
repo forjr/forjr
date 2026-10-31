@@ -96,7 +96,7 @@ export async function writerOf(t: TestContext, changed?: (folder: string) => voi
  */
 export function folderOf(t: TestContext, name: string): string {
   const temp = temps.get(t) ?? ''
-  const [home] = readdirSync(temp).filter((one) => one.startsWith('tent-test-'))
+  const [home] = readdirSync(temp).filter((one) => one.startsWith('forjr-test-'))
   return join(temp, home ?? '', name)
 }
 
@@ -143,7 +143,7 @@ export async function send(
 ): Promise<MachineAnswer> {
   const from = `10.9.${Math.floor(++senders / 250)}.${senders % 250}`
   const method = o.method ?? 'POST'
-  const request = new Request(`https://many.test${o.path ?? `/_t/call/${name}`}`, {
+  const request = new Request(`https://many.test${o.path ?? `/_f/call/${name}`}`, {
     method,
     headers: { 'content-type': 'application/json', ...o.headers },
     ...(method === 'GET'

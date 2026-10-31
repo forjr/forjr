@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { screen, read, Link, Form } from 'tentjs/ui'
+import { screen, read, Link, Form } from 'forjr/ui'
 import { rowScreen } from './browser'
 import { addOrder, failing, openOrders, rates } from './functions'
 

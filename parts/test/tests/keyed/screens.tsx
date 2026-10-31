@@ -1,4 +1,4 @@
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 // A screen that tells who it was drawn for: a key is no caller of it.
 export const whoScreen = screen('whoScreen', {

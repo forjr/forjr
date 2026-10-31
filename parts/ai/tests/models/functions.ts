@@ -1,4 +1,4 @@
-import { action, files, list, table, text } from 'tentjs'
+import { action, files, list, table, text } from 'forjr'
 import { painter, writer } from './models'
 
 export const users = table('users', {

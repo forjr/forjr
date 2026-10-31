@@ -42,7 +42,7 @@ const system = `${process.platform}-${process.arch}`
  * fingerprint, unpacked under another name, and renamed into `versions/<version>/`; then `previous` is written,
  * and after it `current`, each by a rename. A version older than `previous` is removed, unless `keep` was asked, or
  * a program still runs from it, which the next update removes. A newer `trust.json` that a present key signed is
- * taken. Answers the version that is current now, and the one that was. Throws T0026 where a signature, a
+ * taken. Answers the version that is current now, and the one that was. Throws F0026 where a signature, a
  * fingerprint, the age of a list or the version a `release.json` names does not fit, and nothing changes then.
  */
 export async function updateInstall(
@@ -76,7 +76,7 @@ export async function updateInstall(
       keys: o.keys,
       fetch: o.fetch,
       time,
-      format: 'tent.releases/1',
+      format: 'forjr.releases/1',
       home,
       seen: 'releases',
     })
@@ -102,14 +102,14 @@ export async function updateInstall(
       keys: o.keys,
       fetch: o.fetch,
       time,
-      format: 'tent.release/1',
+      format: 'forjr.release/1',
     })
     if (one.list.version !== picked)
       throw refusedUpdate(
         `${picked}/release.json names the version ${String(one.list.version)}, and ${picked} was asked for.`,
       )
     const lines: unknown = Reflect.get(Object(one.list.layers), system)
-    if (lines === undefined || lines === null) throw refusedUpdate(`Tent.js ${picked} has no release for ${system}.`)
+    if (lines === undefined || lines === null) throw refusedUpdate(`Forjr ${picked} has no release for ${system}.`)
     const base = o.from.endsWith('/') ? o.from : `${o.from}/`
     const files: Uint8Array[] = []
     // A layer that lies in `versions/` already was laid whole, by a rename: only what is missing is fetched, and a
@@ -200,7 +200,7 @@ async function trusted(
       keys: o.keys,
       fetch: o.fetch,
       time,
-      format: 'tent.trust/1',
+      format: 'forjr.trust/1',
       home,
       seen: 'trust',
     })

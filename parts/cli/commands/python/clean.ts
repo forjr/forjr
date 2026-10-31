@@ -3,7 +3,7 @@ import type { Command } from '../../command.ts'
 import { cleanPython } from '../../../engine/index.ts'
 
 /**
- * `tent python clean --older <time>` removes each Python environment of the install that was not used for that long,
+ * `forjr python clean --older <time>` removes each Python environment of the install that was not used for that long,
  * 30 days where `--older` names no time, and keeps the others. None is left half.
  */
 export const command: Command = {

@@ -1,4 +1,4 @@
-import { action, allow, anyone, change, input, list, query, role, route, sessions, table, text } from 'tentjs'
+import { action, allow, anyone, change, input, list, query, role, route, sessions, table, text } from 'forjr'
 
 const open = anyone('a test asks the routes')
 

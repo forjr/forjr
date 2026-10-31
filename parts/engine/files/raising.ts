@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Change, FileName, Files, Misfit, Store, TableLayout, TableStep, Tx } from '../../data/index.ts'
 import { applyChange, bringUp as broughtUp, checkAndHold, dropHolds } from '../../data/index.ts'
 import type { Failed, RowFields } from './directory.ts'
@@ -11,11 +11,11 @@ import type { FileThreads } from './threads.ts'
 import { fileThreads } from './threads.ts'
 
 /** The error of a request for a file that could not be brought up. */
-export const failedFile = (file: FileName, failed: Failed): TentError =>
-  new TentError(
-    'T0009',
+export const failedFile = (file: FileName, failed: Failed): ForjrError =>
+  new ForjrError(
+    'F0009',
     `The data file of ${file.table} ${file.id} could not be brought up, and answers nothing: ${failed.message}`,
-    { fix: `Mend what it names, and try the file again: \`tent data files --retry ${file.id}\`.` },
+    { fix: `Mend what it names, and try the file again: \`forjr data files --retry ${file.id}\`.` },
   )
 
 /** What the work on single files asks of what the engine holds of the files of an app. */
@@ -217,7 +217,7 @@ export function raisingOf(c: Raised): Raising {
     } catch (error) {
       const failed: Failed = {
         message: error instanceof Error ? error.message : String(error),
-        ...(error instanceof TentError ? { code: error.code } : {}),
+        ...(error instanceof ForjrError ? { code: error.code } : {}),
       }
       if (!c.closed()) {
         // A file that could not be brought up answers nothing until it is tried again. One that a check or the

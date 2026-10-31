@@ -31,7 +31,7 @@ function holdsNoPay(text: string, what: string): void {
   assert.equal(/"pay"|leaked/.test(text), false, `${what} names the column`)
 }
 
-test('[05-2.8] a function that answers a row with a private column: the column is in no answer, a copy of the row is T0009, and the change of a handed row fails', async (t) => {
+test('[05-2.8] a function that answers a row with a private column: the column is in no answer, a copy of the row is F0009, and the change of a handed row fails', async (t) => {
   const siege = await besieged(t)
   await staffed(siege.app)
   // Through a stated output, and through a query in code that states none.
@@ -45,7 +45,7 @@ test('[05-2.8] a function that answers a row with a private column: the column i
   )
   // A copy of the row is no row that `db` handed out.
   const copy = await wire(siege, { path: callOf('paidCopy') })
-  assert.deepEqual([copy.status, copy.error.code], [500, 'T0009'])
+  assert.deepEqual([copy.status, copy.error.code], [500, 'F0009'])
   // A handed row that the code tries to change: the change fails, and the answer holds nothing of it.
   const changed = await wire(siege, { path: callOf('paidChanged') })
   assert.equal(changed.text.includes('changed'), false)
@@ -78,41 +78,41 @@ test('[05-2.20] raw SQL of a function that states system: a text that names a ta
   const readWords = () => siege.app.read({ from: 'words' }, { as: 'system' })
   const before = JSON.stringify(await readWords())
   const refused: [string, string, string, string][] = [
-    ['a text that names _t_sessions', 'rawRead', 'SELECT * FROM "_t_sessions"', 'T0013'],
-    ['a text that names _t_sessions, in a change', 'rawWrite', 'DELETE FROM "_t_sessions"', 'T0013'],
-    ['a text that names _t_here', 'rawRead', 'SELECT * FROM _t_here', 'T0013'],
-    ['a text that names _t_meta in capitals', 'rawRead', 'SELECT * FROM _T_META', 'T0013'],
-    ['a text that names _t_rate in brackets', 'rawRead', 'SELECT * FROM [_t_rate]', 'T0013'],
-    ['a text that names _t_meta under the name of the file', 'rawRead', 'SELECT * FROM main."_t_meta"', 'T0013'],
-    ['a write to a table of the engine', 'rawWrite', `UPDATE "_t_meta" SET "value" = 'x'`, 'T0013'],
-    ['two statements', 'rawWrite', `INSERT INTO "words" ("text") VALUES ('a'); DELETE FROM "words"`, 'T0013'],
-    ['two statements, the second a read', 'rawRead', 'SELECT 1; SELECT * FROM "users"', 'T0013'],
-    ['COMMIT', 'rawWrite', 'COMMIT', 'T0013'],
-    ['COMMIT after a write', 'rawWrite', 'DELETE FROM "words"; COMMIT', 'T0013'],
-    ['COMMIT in small letters, and ROLLBACK, and BEGIN', 'rawWrite', 'commit', 'T0013'],
-    ['END', 'rawWrite', 'END TRANSACTION', 'T0013'],
-    ['ROLLBACK', 'rawWrite', 'ROLLBACK', 'T0013'],
-    ['SAVEPOINT', 'rawWrite', 'SAVEPOINT attack', 'T0013'],
+    ['a text that names _f_sessions', 'rawRead', 'SELECT * FROM "_f_sessions"', 'F0013'],
+    ['a text that names _f_sessions, in a change', 'rawWrite', 'DELETE FROM "_f_sessions"', 'F0013'],
+    ['a text that names _f_here', 'rawRead', 'SELECT * FROM _f_here', 'F0013'],
+    ['a text that names _f_meta in capitals', 'rawRead', 'SELECT * FROM _F_META', 'F0013'],
+    ['a text that names _f_rate in brackets', 'rawRead', 'SELECT * FROM [_f_rate]', 'F0013'],
+    ['a text that names _f_meta under the name of the file', 'rawRead', 'SELECT * FROM main."_f_meta"', 'F0013'],
+    ['a write to a table of the engine', 'rawWrite', `UPDATE "_f_meta" SET "value" = 'x'`, 'F0013'],
+    ['two statements', 'rawWrite', `INSERT INTO "words" ("text") VALUES ('a'); DELETE FROM "words"`, 'F0013'],
+    ['two statements, the second a read', 'rawRead', 'SELECT 1; SELECT * FROM "users"', 'F0013'],
+    ['COMMIT', 'rawWrite', 'COMMIT', 'F0013'],
+    ['COMMIT after a write', 'rawWrite', 'DELETE FROM "words"; COMMIT', 'F0013'],
+    ['COMMIT in small letters, and ROLLBACK, and BEGIN', 'rawWrite', 'commit', 'F0013'],
+    ['END', 'rawWrite', 'END TRANSACTION', 'F0013'],
+    ['ROLLBACK', 'rawWrite', 'ROLLBACK', 'F0013'],
+    ['SAVEPOINT', 'rawWrite', 'SAVEPOINT attack', 'F0013'],
     [
       'a trigger',
       'rawWrite',
       'CREATE TRIGGER "attack" AFTER INSERT ON "words" BEGIN DELETE FROM "words"; END',
-      'T0013',
+      'F0013',
     ],
     [
       'a trigger that outlasts its write',
       'rawWrite',
       'CREATE TEMP TRIGGER "attack" AFTER INSERT ON "words" BEGIN DELETE FROM "words"; END',
-      'T0013',
+      'F0013',
     ],
     [
       'a text that writes, in a query',
       'rawRead',
       `INSERT INTO "words" ("text") VALUES ('written by a query')`,
-      'T0012',
+      'F0012',
     ],
-    ['a text that removes, in a query', 'rawRead', 'DELETE FROM "words"', 'T0012'],
-    ['a text that changes, in a query', 'rawRead', `UPDATE "words" SET "text" = 'changed by a query'`, 'T0012'],
+    ['a text that removes, in a query', 'rawRead', 'DELETE FROM "words"', 'F0012'],
+    ['a text that changes, in a query', 'rawRead', `UPDATE "words" SET "text" = 'changed by a query'`, 'F0012'],
   ]
   for (const [what, name, sql, code] of refused) {
     assert.equal(await refusedWith(siege.app.call(name, { sql }, asNobody)), code, what)
@@ -120,7 +120,7 @@ test('[05-2.20] raw SQL of a function that states system: a text that names a ta
     const answer = await wire(siege, { path: callOf(name), input: { sql } })
     assert.deepEqual(
       [answer.status, answer.error.code, Object.keys(answer.body).sort()],
-      [500, 'T0009', ['error', 'ok']],
+      [500, 'F0009', ['error', 'ok']],
       what,
     )
     assert.equal(JSON.stringify(await readWords()), before, what)
@@ -196,10 +196,10 @@ test('[05-2.23] a plain run that walks a million entries, that asks for a range 
   for (const name of ['walks', 'widens', 'doubles', 'ping', 'pong'])
     assert.ok(Array.isArray(siege.app.description.functions[name].body), `${name} is plain`)
   for (const [name, code] of [
-    ['walks', 'T0008'],
-    ['widens', 'T0027'],
-    ['doubles', 'T0027'],
-    ['ping', 'T0028'],
+    ['walks', 'F0008'],
+    ['widens', 'F0027'],
+    ['doubles', 'F0027'],
+    ['ping', 'F0028'],
   ] as const) {
     const began = performance.now()
     assert.equal(await refusedWith(siege.app.call(name, name === 'ping' ? { n: 1 } : {}, asNobody)), code, name)
@@ -207,21 +207,21 @@ test('[05-2.23] a plain run that walks a million entries, that asks for a range 
     await answers()
   }
   // Over the web: the time is told as itself, and the other two as an error that is not the caller's to see.
-  assert.deepEqual((await wire(siege, { path: callOf('walks') })).error.code, 'T0008')
+  assert.deepEqual((await wire(siege, { path: callOf('walks') })).error.code, 'F0008')
   for (const [name, code] of [
-    ['widens', 'T0027'],
-    ['doubles', 'T0027'],
-    ['ping', 'T0028'],
+    ['widens', 'F0027'],
+    ['doubles', 'F0027'],
+    ['ping', 'F0028'],
   ] as const) {
     const answer = await wire(siege, { path: callOf(name), input: name === 'ping' ? { n: 1 } : {} })
-    assert.deepEqual([answer.status, answer.error.code], [500, 'T0009'], name)
+    assert.deepEqual([answer.status, answer.error.code], [500, 'F0009'], name)
     const row = logOf(siege.dataFolder, 'calls').findLast((one) => one.name === name && one.ref === answer.error.ref)
     assert.equal(row?.code, code, name)
   }
   await answers()
 })
 
-test('[05-2.23] a plain run that doubles a text with the sign +, as a stored body holds it, makes no text past valueSize: T0027', async (t) => {
+test('[05-2.23] a plain run that doubles a text with the sign +, as a stored body holds it, makes no text past valueSize: F0027', async (t) => {
   // Twenty-one doublings of ten characters are twenty million, twenty times `valueSize`. A build stores the sign
   // as it stores a word, and no build is needed: the body stands in a description that is changed by hand.
   const siege = await besieged(t, {
@@ -230,10 +230,10 @@ test('[05-2.23] a plain run that doubles a text with the sign +, as a stored bod
     },
   })
   const made = await siege.app.call('widens', {}, asNobody).catch((error: unknown) => Object(error).code)
-  assert.equal(made, 'T0027', `the body made a text of ${made} characters, and valueSize is 1,000,000`)
+  assert.equal(made, 'F0027', `the body made a text of ${made} characters, and valueSize is 1,000,000`)
 })
 
-test('[05-2.23] a member called on a name that holds a text is code, and in a definition that states plain: true T1010', async (t) => {
+test('[05-2.23] a member called on a name that holds a text is code, and in a definition that states plain: true F1010', async (t) => {
   const siege = await besieged(t)
   const { shouts, whispers } = siege.app.description.functions
   assert.deepEqual([shouts.form, Array.isArray(shouts.body)], ['code', false])
@@ -246,19 +246,19 @@ test('[05-2.23] a member called on a name that holds a text is code, and in a de
     `export const ${name} = query('${name}', {\n  ${about},\n  plain: true,\n  ${run(last)},\n})\n`
   mkdirSync(join(project, 'functions'), { recursive: true })
   const build = async (text: string): Promise<string[]> => {
-    writeFileSync(join(project, 'functions', 'said.ts'), `import { anyone, query, text } from 'tentjs'\n\n${text}`)
+    writeFileSync(join(project, 'functions', 'said.ts'), `import { anyone, query, text } from 'forjr'\n\n${text}`)
     const built = await buildProject(project, { for: 'dev', out: join(project, 'bundle') })
     return built.findings.filter((one) => one.level === 'error').map((one) => one.code)
   }
   assert.deepEqual(await build(source('whispers', 'said')), [])
-  assert.deepEqual(await build(source('shouts', 'said.toUpperCase()')), ['T1010'])
+  assert.deepEqual(await build(source('shouts', 'said.toUpperCase()')), ['F1010'])
 })
 
-test('[05-2.23] a stored body, written by hand, that names a value it read as the thing to call: the stored forms hold none that calls a value, T0011', async (t) => {
-  const marked = (): boolean => process.env.TENT_SIEGE_MARK !== undefined
-  t.after(() => void delete process.env.TENT_SIEGE_MARK)
+test('[05-2.23] a stored body, written by hand, that names a value it read as the thing to call: the stored forms hold none that calls a value, F0011', async (t) => {
+  const marked = (): boolean => process.env.FORJR_SIEGE_MARK !== undefined
+  t.after(() => void delete process.env.FORJR_SIEGE_MARK)
   const read = { name: ['input', 'text'] }
-  const mark = 'process.env.TENT_SIEGE_MARK = "ran"'
+  const mark = 'process.env.FORJR_SIEGE_MARK = "ran"'
   // Each body, and where it is refused: a form that calls a value does not pass when the app opens, and a name
   // that is no word of ours, or no member of a chain that `db` handed out, fails when it is reached.
   const bodies: [string, 'opening' | 'call', object[]][] = [
@@ -292,10 +292,10 @@ test('[05-2.23] a stored body, written by hand, that names a value it read as th
     })
     const opened: Siege[] = []
     const refusedAt = await refusedWith(besieged(t, { bundle }).then((siege) => void opened.push(siege)))
-    if (where === 'opening') assert.equal(refusedAt, 'T0011', what)
+    if (where === 'opening') assert.equal(refusedAt, 'F0011', what)
     for (const siege of opened) {
       const called = await refusedWith(siege.app.call('whispers', { text: 'toUpperCase' }, asNobody))
-      assert.ok(called === 'T0011' || called === 'T0009', `${what}: the call was answered ${called}`)
+      assert.ok(called === 'F0011' || called === 'F0009', `${what}: the call was answered ${called}`)
       assert.equal((await wire(siege, { path: callOf('whispers'), input: { text: 'x' } })).status, 500, what)
       await siege.engine.close()
     }

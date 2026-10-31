@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import type { TestContext } from 'node:test'
 import { test } from 'node:test'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { FlowBody, Waiting } from '../index.ts'
 import { replayTo } from '../index.ts'
 import type { Made } from './bench.ts'
@@ -84,11 +84,11 @@ test('[51-3] a step that states a kind of worker is queued, handed out with what
   assert.deepEqual(await b.runner.wait(run), { before: 'saved', made: 'a video', input: { video: 'a' } })
   assert.equal(encode()?.result, 'a video')
   // The task has ended: what names it is the end of no current try.
-  assert.equal(await codeOf(b.runner.ended(task, [{ done: 'again' }])), 'T5108')
-  assert.equal(await codeOf(b.runner.progress(task, { value: 1, files: [] })), 'T5108')
+  assert.equal(await codeOf(b.runner.ended(task, [{ done: 'again' }])), 'F5108')
+  assert.equal(await codeOf(b.runner.progress(task, { value: 1, files: [] })), 'F5108')
 })
 
-test('[51-3] a try that was lost is given again under the next number, counted against lost of the kind, and fails with T5107 or goes to next after lost tries', async (t) => {
+test('[51-3] a try that was lost is given again under the next number, counted against lost of the kind, and fails with F5107 or goes to next after lost tries', async (t) => {
   const b = withWorkers(t, flows, { gpu: { lost: 2, next: { kind: 'gpuBig', after: ['lost'] } }, gpuBig: { lost: 1 } })
   const run = b.start('heavy')
   const first = await b.handOut(await b.untilQueued(run, 1))
@@ -96,7 +96,7 @@ test('[51-3] a try that was lost is given again under the next number, counted a
   const second = await b.handOut(await b.untilQueued(run, 2))
   assert.equal(second.carried?.try, 2)
   // The first try is not believed any more.
-  assert.equal(await codeOf(b.runner.ended(first.task, [{ done: 'late' }])), 'T5108')
+  assert.equal(await codeOf(b.runner.ended(first.task, [{ done: 'late' }])), 'F5108')
   await b.runner.ended(second.task, [{ lost: 'said' }])
   // Two tries were lost to the machines of gpu: the step goes to the kind that `next` names.
   const third = await b.untilQueued(run, 3)
@@ -104,7 +104,7 @@ test('[51-3] a try that was lost is given again under the next number, counted a
   const onBig = await b.handOut(third)
   assert.equal(onBig.carried?.try, 3)
   await b.runner.ended(onBig.task, [{ lost: 'said' }])
-  assert.equal(await codeOf(b.runner.wait(run)), 'T5107')
+  assert.equal(await codeOf(b.runner.wait(run)), 'F5107')
 })
 
 test('[51-3] a try lost in silence alone counts against tries, one lost beside others is marked alone, and the work of a step that fails is tried again', async (t) => {
@@ -121,11 +121,11 @@ test('[51-3] a try lost in silence alone counts against tries, one lost beside o
   // Lost in silence alone, on a kind that does not state mayStop: that counts against the two tries of the step.
   const third = await b.untilQueued(run, 3)
   const last = await b.handOut(third)
-  await b.runner.ended(last.task, [{ failed: new TentError('T0009', 'the work threw') }])
-  assert.equal(await codeOf(b.runner.wait(run)), 'T0009')
+  await b.runner.ended(last.task, [{ failed: new ForjrError('F0009', 'the work threw') }])
+  assert.equal(await codeOf(b.runner.wait(run)), 'F0009')
 })
 
-test('[51-2] [51-3] no worker within wait fails with T5107 or goes to next, a try past its time is taken back with T0008, and a stopped run ends its work', async (t) => {
+test('[51-2] [51-3] no worker within wait fails with F5107 or goes to next, a try past its time is taken back with F0008, and a stopped run ends its work', async (t) => {
   const b = withWorkers(t, flows, { gpu: { next: { kind: 'cpu', after: ['wait'] } }, cpu: {} })
   const run = b.start('heavy')
   const waiting = await b.untilQueued(run)
@@ -138,7 +138,7 @@ test('[51-2] [51-3] no worker within wait fails with T5107 or goes to next, a tr
   b.clock.advance(2 * minute)
   await b.settle()
   assert.deepEqual(b.taken, [task], 'the task was taken back when its time ended')
-  // The try failed with T0008, which is tried again after its wait.
+  // The try failed with F0008, which is tried again after its wait.
   b.clock.advance(5000)
   const retry = await b.untilQueued(run, 3)
   assert.deepEqual(retry.step, waiting.step)
@@ -148,7 +148,7 @@ test('[51-2] [51-3] no worker within wait fails with T5107 or goes to next, a tr
   const other = withWorkers(t, flows, { gpu: {} })
   const lone = other.start('heavy')
   other.runner.none(lone, (await other.untilQueued(lone)).step)
-  assert.equal(await codeOf(other.runner.wait(lone)), 'T5107')
+  assert.equal(await codeOf(other.runner.wait(lone)), 'F5107')
 })
 
 test('[51-3] a run that is stopped while its task is out has the task taken back, and progress is kept in the row of its step', async (t) => {
@@ -163,7 +163,7 @@ test('[51-3] a run that is stopped while its task is out has the task taken back
   assert.equal(b.runner.waited(run), true, 'a caller waits for the run')
   b.runner.stop(run)
   assert.deepEqual(b.taken, [task])
-  assert.equal(await codeOf(waiting), 'T5106')
+  assert.equal(await codeOf(waiting), 'F5106')
 })
 
 test('[51-3] a batch that is handed out and started holds one timer of its time, which its end takes away', async (t) => {

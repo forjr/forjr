@@ -4,7 +4,7 @@
 // woken by, and whether each side has ended, which a side that waits at once could learn by no event.
 import type { MessagePort } from 'node:worker_threads'
 import { receiveMessageOnPort } from 'node:worker_threads'
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import type { Crossed } from '../crossing.ts'
 import { errorIn, errorOut } from '../callables.ts'
 
@@ -28,10 +28,10 @@ export interface Wire {
 const lookFor = 0.05
 
 /** What a question that waited past its time is refused with. */
-export const timedOut = new TentError('T0008', 'The room did not answer within the time of the call.')
+export const timedOut = new ForjrError('F0008', 'The room did not answer within the time of the call.')
 
 /** What a question is refused with whose other side ended while it was waited for at once. */
-export const otherEnded = new TentError('T0037', 'The other side of the room ended while it was asked.')
+export const otherEnded = new ForjrError('F0037', 'The other side of the room ended while it was asked.')
 
 const isMessage = (value: unknown): value is Message =>
   typeof value === 'object' && value !== null && typeof Reflect.get(value, 'id') === 'number'

@@ -31,7 +31,7 @@ const stateOf = (held: FollowedRun | undefined): AgentShown['state'] =>
   states.find((one) => one === held?.state) ?? 'idle'
 
 /** The key under which the page keeps the latest run of an agent with no conversation, for a reload. */
-const keptAs = (agent: string): string => `tent.run.${agent}`
+const keptAs = (agent: string): string => `forjr.run.${agent}`
 
 /** The session storage of the browser, where there is one. */
 function session(): Storage | undefined {
@@ -104,7 +104,7 @@ export function useAgent(agent: Stub, o: { thread?: string; speak?: boolean } = 
     const now = played.current
     const next = held.sounds.find((file) => !now.done.has(file))
     if (now.playing || now.ended || next === undefined) return
-    const sound = new Audio(named(store.page, `/_t/files/${next}`))
+    const sound = new Audio(named(store.page, `/_f/files/${next}`))
     now.done.add(next)
     now.playing = sound
     sound.onended = () => {

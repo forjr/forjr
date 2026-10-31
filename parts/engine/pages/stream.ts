@@ -23,7 +23,7 @@ export const lastPiece = (): string => end
  * that draw - what stands inside the template that names it - and nothing where it waits still.
  */
 export function partIn(html: string, name: string): string | undefined {
-  const opened = `<template data-t-done="${name}">`
+  const opened = `<template data-f-done="${name}">`
   const from = html.indexOf(opened)
   if (from < 0) return undefined
   // A template among what the use drew is passed over whole: the one that closes this one is the end of the part.
@@ -49,22 +49,22 @@ const asBlock = (value: unknown): string =>
  * emptied, as it is sent whole: the page draws those parts once it has come alive.
  */
 export const withoutPlaces = (html: string): string =>
-  html.replace(/<template data-t-wait="([^"]+)"><\/template>[\s\S]*?<template data-t-end="\1"><\/template>/g, '')
+  html.replace(/<template data-f-wait="([^"]+)"><\/template>[\s\S]*?<template data-f-end="\1"><\/template>/g, '')
 
 // What puts a part in its place, once for a page: it takes what came with the part into the page record - the
 // answers, which the page code reads as those of the first HTML, and what the record says of the page - takes out
 // what stood in the place of each use it names, and puts the part there. A use that it names with no part of its
 // own is left empty, for the page to draw.
 const putter = [
-  "self.tentPut=function(k,g){var d=document,s=d.querySelector('body>div[data-t-part=\"'+k+'\"]'),",
-  "j=s&&s.querySelector('script[data-t-answers]'),m=s&&s.querySelector('script[data-t-page]'),",
-  'p=d.querySelector(\'body>script[type="application/json"]#tent-page\');',
+  "self.forjrPut=function(k,g){var d=document,s=d.querySelector('body>div[data-f-part=\"'+k+'\"]'),",
+  "j=s&&s.querySelector('script[data-f-answers]'),m=s&&s.querySelector('script[data-f-page]'),",
+  'p=d.querySelector(\'body>script[type="application/json"]#forjr-page\');',
   'if(p&&(j||m)){var r=JSON.parse(p.textContent);if(m)Object.assign(r,JSON.parse(m.textContent));',
   'if(j){var a=JSON.parse(j.textContent),q=function(e){return JSON.stringify([e.what,e.input])};',
   'r.answers=r.answers.filter(function(e){return!a.some(function(b){return q(b)==q(e)})}).concat(a)}',
   'p.textContent=JSON.stringify(r)}if(j)j.remove();if(m)m.remove();',
-  "(g||[k]).forEach(function(n){var w=d.querySelector('template[data-t-wait=\"'+n+'\"]');if(!w)return;",
-  'for(var x=w.nextSibling;x&&!(x.nodeName=="TEMPLATE"&&x.getAttribute("data-t-end")==n);)',
+  "(g||[k]).forEach(function(n){var w=d.querySelector('template[data-f-wait=\"'+n+'\"]');if(!w)return;",
+  'for(var x=w.nextSibling;x&&!(x.nodeName=="TEMPLATE"&&x.getAttribute("data-f-end")==n);)',
   '{var y=x.nextSibling;x.remove();x=y}if(x)x.remove();',
   'if(n==k&&s)w.replaceWith.apply(w,[].slice.call(s.childNodes));else w.remove()});if(s)s.remove()};',
 ].join('')
@@ -78,13 +78,13 @@ function piece(
   first: boolean,
 ): string {
   const answers = o.answers.length
-    ? `<script type="application/json" data-t-answers>${asBlock(o.answers)}</script>`
+    ? `<script type="application/json" data-f-answers>${asBlock(o.answers)}</script>`
     : ''
-  const page = o.page ? `<script type="application/json" data-t-page>${asBlock(o.page)}</script>` : ''
+  const page = o.page ? `<script type="application/json" data-f-page>${asBlock(o.page)}</script>` : ''
   const empties = o.empties ? `,${JSON.stringify(o.empties)}` : ''
   return [
-    `<div data-t-part="${name}"${o.hidden ? ' hidden' : ''}>${html}${answers}${page}</div>`,
-    `<script${nonce === undefined ? '' : ` nonce="${nonce}"`}>${first ? putter : ''}tentPut(${JSON.stringify(name)}${empties})</script>`,
+    `<div data-f-part="${name}"${o.hidden ? ' hidden' : ''}>${html}${answers}${page}</div>`,
+    `<script${nonce === undefined ? '' : ` nonce="${nonce}"`}>${first ? putter : ''}forjrPut(${JSON.stringify(name)}${empties})</script>`,
     '',
   ].join('\n')
 }

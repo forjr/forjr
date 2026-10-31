@@ -6,8 +6,8 @@ import type { SequenceDoors } from './sequence/doors.ts'
  * before every statement and every entry of a repeat, and for a
  * sequence of an agent its three doors. Carries the body out and answers what it answers: at once where the
  * body holds no `await`, and as a promise where it holds one. It reaches a definition, a handle and a word through
- * the very functions that code calls. Throws T0009 for a chain that starts at a value which `db` did not hand out,
- * T0011 for a form that no body holds, and what the body itself throws.
+ * the very functions that code calls. Throws F0009 for a chain that starts at a value which `db` did not hand out,
+ * F0011 for a form that no body holds, and what the body itself throws.
  */
 export function runBody(
   body: object[],

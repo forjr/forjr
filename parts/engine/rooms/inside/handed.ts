@@ -1,4 +1,4 @@
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import { dbFace } from '../../../data/dbFace.ts'
 import type { Asker, Bounds, Keeper } from '../callables.ts'
 import { intoLater, intoOf, outOf } from '../callables.ts'
@@ -44,7 +44,7 @@ export function keeperIn(call: number): Keeper {
 export function keptIn(call: number, fn: number): (...args: unknown[]) => unknown {
   const one = kept.get(call)?.get(Math.abs(fn))
   if (!one)
-    throw new TentError('T0013', 'The engine asked the room for a function of a call that it does not hold.', {
+    throw new ForjrError('F0013', 'The engine asked the room for a function of a call that it does not hold.', {
       fix: 'A callable works while its call lasts.',
     })
   return one

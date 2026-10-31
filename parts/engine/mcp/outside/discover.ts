@@ -1,4 +1,4 @@
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import { setNote } from '../../fill/notes.ts'
 import { metaOf } from '../../held.ts'
 import type { Opened } from '../../opened.ts'
@@ -17,7 +17,7 @@ interface Described {
   resource: string
   // The host that signs people in, and why no person may be sent there, where the guard refuses it.
   host: string
-  refused?: TentError
+  refused?: ForjrError
 }
 
 const read = new WeakMap<Opened, Map<string, Described>>()
@@ -43,13 +43,13 @@ async function documentAt(o: Opened, address: string): Promise<Record<string, un
 }
 
 /** Why the guard refuses a person's browser to be sent to an address, or nothing where it may be. */
-async function refusalOf(o: Opened, address: string): Promise<TentError | undefined> {
+async function refusalOf(o: Opened, address: string): Promise<ForjrError | undefined> {
   const { guardedAddress } = await import('../../../connect/index.ts')
   try {
     await guardedAddress(new URL(address).hostname, { privateHosts: privateHostsOf(o.description), mode: o.mode })
     return undefined
   } catch (error) {
-    return error instanceof TentError ? error : new TentError('T0022', `The address ${address} is refused.`)
+    return error instanceof ForjrError ? error : new ForjrError('F0022', `The address ${address} is refused.`)
   }
 }
 
@@ -85,7 +85,7 @@ async function described(o: Opened, service: string): Promise<Described | undefi
 }
 
 /** The address of the document by which the app names itself to a server, under the name it was reached by. */
-export const clientDocument = (origin: string, service: string): string => `${origin}/_t/connect/${service}/client`
+export const clientDocument = (origin: string, service: string): string => `${origin}/_f/connect/${service}/client`
 
 /** Whether an origin is one of this computer, where no server can fetch a document of the app. */
 const onThisComputer = (origin: string): boolean => /^https?:\/\/(localhost|127\.0\.0\.1|\[::1\])(:|$)/.test(origin)
@@ -109,7 +109,7 @@ async function registered(o: Opened, service: string, origin: string, found: Des
       headers: { 'content-type': 'application/json', accept: 'application/json' },
       body: JSON.stringify({
         client_name: String(o.description.project.title ?? o.name),
-        redirect_uris: [`${origin}/_t/connect/${service}`],
+        redirect_uris: [`${origin}/_f/connect/${service}`],
         grant_types: ['authorization_code', 'refresh_token'],
         response_types: ['code'],
         token_endpoint_auth_method: 'none',
@@ -142,13 +142,13 @@ export async function discoverAll(o: Opened, origins: string[] = []): Promise<vo
   }
 }
 
-/** The host that signs people in at a server, as `tent mcp approve` wrote it into the lock and the build into the description, or nothing. */
+/** The host that signs people in at a server, as `forjr mcp approve` wrote it into the lock and the build into the description, or nothing. */
 function approvedHost(o: Opened, service: string): string | undefined {
   const host: unknown = Reflect.get(Object(o.description.services[service]), 'host')
   return typeof host === 'string' ? host : undefined
 }
 
-/** What the engine read of the sign-in of a server, for `tent mcp approve`: the host that signs people in. */
+/** What the engine read of the sign-in of a server, for `forjr mcp approve`: the host that signs people in. */
 export const signInHost = (o: Opened, service: string): string | undefined => read.get(o)?.get(service)?.host
 
 const originKey = (service: string): string => `mcp.origin.${service}`
@@ -174,8 +174,8 @@ function originHeld(o: Opened, service: string, origin: string): string {
  * What a connect of a server that discovers its sign-in is made with, for the name the app was reached by: the
  * addresses its documents named, and the client: the address of the app's own document, or the id the app was
  * given where it registered, as it must where the server takes no document and on a developer's computer. Where
- * that id is not kept yet, the registering starts and the connect is T7115. A sign-in address that the guard
- * refuses is T0022, and a server whose documents name another host than the approved one is held back, T7112.
+ * that id is not kept yet, the registering starts and the connect is F7115. A sign-in address that the guard
+ * refuses is F0022, and a server whose documents name another host than the approved one is held back, F7112.
  */
 export function foundFor(
   o: Opened,
@@ -187,17 +187,17 @@ export function foundFor(
   if (found.refused) throw found.refused
   const approved = approvedHost(o, service)
   if (approved !== undefined && approved !== found.host)
-    throw new TentError(
-      'T7112',
+    throw new ForjrError(
+      'F7112',
       `The server ${service} now sends people to ${found.host} to sign in, and ${approved} was approved.`,
-      { fix: `Look at it again with \`tent mcp approve ${service}\`, and build and run the version that holds it.` },
+      { fix: `Look at it again with \`forjr mcp approve ${service}\`, and build and run the version that holds it.` },
     )
   const origin = originHeld(o, service, given)
   const asks = registers(found, origin)
   const kept = asks ? metaOf(o.store, metaKey(service, origin)) : undefined
   if (asks && typeof kept !== 'string') {
     void registered(o, service, origin, found).catch(() => undefined)
-    throw new TentError('T7115', `The app is registering with ${service} for ${origin}: try again in a moment.`, {
+    throw new ForjrError('F7115', `The app is registering with ${service} for ${origin}: try again in a moment.`, {
       fix: 'Start the connect again once the registering is done.',
     })
   }

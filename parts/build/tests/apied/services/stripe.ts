@@ -1,4 +1,4 @@
-import { object, post, secret, service, text } from 'tentjs'
+import { object, post, secret, service, text } from 'forjr'
 
 export const stripe = service('stripe', {
   url: 'https://api.stripe.com',

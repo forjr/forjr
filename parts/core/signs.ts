@@ -26,7 +26,7 @@ export const isSign = (op: unknown): op is string => typeof op === 'string' && O
 
 /**
  * Takes a sign and its two sides. Answers what JavaScript works out for them. What `+` makes of a text is a text
- * of `valueSize` characters at the most, as a word makes one: T0027 beyond it. The runtime joins two texts without
+ * of `valueSize` characters at the most, as a word makes one: F0027 beyond it. The runtime joins two texts without
  * laying them out, so the text that is held to the limit takes no room yet.
  */
 export function signed(op: string, left: unknown, right: unknown): unknown {

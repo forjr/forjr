@@ -13,7 +13,7 @@ import { listedFolder } from './listed.ts'
 const screenFile = (name: string, imports: string, said: string): string =>
   [
     "import { useState } from 'react'",
-    "import { screen } from 'tentjs/ui'",
+    "import { screen } from 'forjr/ui'",
     imports,
     '',
     `export const ${name}Screen = screen('${name}Screen', {`,
@@ -28,7 +28,7 @@ const screenFile = (name: string, imports: string, said: string): string =>
   ].join('\n')
 
 const files: Record<string, string> = {
-  'tent.ts': "import { project } from 'tentjs'\nexport const shop = project('shop', { title: 'Shop' })\n",
+  'forjr.ts': "import { project } from 'forjr'\nexport const shop = project('shop', { title: 'Shop' })\n",
   'shared.ts': "export const greeting = (who: string): string => 'Hello, ' + who\n",
   'screens/one.tsx': screenFile('one', "import { greeting } from '../shared'", "greeting('one')"),
   'screens/two.tsx': screenFile('two', "import { greeting } from '../shared'", "greeting('two')"),

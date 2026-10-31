@@ -7,7 +7,7 @@ import { notDropped } from './started.ts'
 
 const shared = sharedPython('say')
 
-test('[27-16] a value that a python says with tent.say, in the step of a run, reaches the page that follows the run', async (t) => {
+test('[27-16] a value that a python says with forjr.say, in the step of a run, reaches the page that follows the run', async (t) => {
   const { app, dataFolder, user } = await opened(t, shared)
   const maya = await user()
   const { port } = JSON.parse(readFileSync(join(dataFolder, 'engine.json'), 'utf8'))
@@ -15,7 +15,7 @@ test('[27-16] a value that a python says with tent.say, in the step of a run, re
   const cookie = app.session(String(maya.user?.id))
   // The page says who it holds itself to be: a caller other than that is told to load the page again.
   const as = encodeURIComponent(String(maya.user?.id))
-  const live = app.live(new Request(`${origin}/_t/live?as=${as}`, { headers: { origin, cookie } }))
+  const live = app.live(new Request(`${origin}/_f/live?as=${as}`, { headers: { origin, cookie } }))
   const got: Record<string, unknown>[] = []
   live.each((message) => {
     if (message.t === 'alive') live.send({ t: 'alive' })

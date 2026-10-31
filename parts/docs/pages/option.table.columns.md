@@ -16,11 +16,11 @@ export const orders = table('orders', {
 
 ## Errors
 
-`code.T1013`: a column whose name is not camelCase letters and digits.
+`code.F1013`: a column whose name is not camelCase letters and digits.
 
-`code.T1009`: a column under a reserved name.
+`code.F1009`: a column under a reserved name.
 
-`code.T1014`: a `from` that the store cannot work out or keep.
+`code.F1014`: a `from` that the store cannot work out or keep.
 
 ## See also
 

@@ -93,7 +93,7 @@ function done(o: Opened, what: string, work: () => unknown): void {
 /**
  * Takes what the engine holds of an app that has just opened, and whether it is a reader. Does the whole upkeep of
  * the app for as long as it is open, as the one home of its timers. On a short beat, at once and then every
- * minute: the ended windows of the rate and of `attempts`, the ids of `_t_once` past their keep, and the loose and
+ * minute: the ended windows of the rate and of `attempts`, the ids of `_f_once` past their keep, and the loose and
  * removed files; and every hour the sessions and the grants that ended. At once and every `limits.upkeepEvery`: the
  * holds, the spans, the remembered answers, the finished runs, the rows past their time, the counts, the files of
  * tenants and the store's optimiser. And a backup, as `backups` of the project says. A reader does the share of a

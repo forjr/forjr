@@ -66,7 +66,7 @@ export function textsOf(layout: TableLayout, row: Row): Record<string, string> {
   return texts
 }
 
-/** The number of the last write that a data file holds, by what reads its `_t_meta`. */
+/** The number of the last write that a data file holds, by what reads its `_f_meta`. */
 export function numberIn(read: (plan: { from: string; one: 'get'; id: string }) => unknown): number {
   const held = read({ from: metaTable.name, one: 'get', id: 'n' })
   return typeof held === 'object' && held !== null && 'value' in held ? Number(held.value) : 0

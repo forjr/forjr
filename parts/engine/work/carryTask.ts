@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { runBody } from '../../core/internal.ts'
 import type { StepEnded, Working } from '../../flows/index.ts'
 import { replayTo } from '../../flows/index.ts'
@@ -86,11 +86,11 @@ export async function carryTask(
       return within(cx, () => runBody(stored, handed))
     }
     const run = served.runs.get(flow)
-    if (!run) throw new TentError('T0011', `The version ${served.version} holds no \`run\` of ${flow}.`)
+    if (!run) throw new ForjrError('F0011', `The version ${served.version} holds no \`run\` of ${flow}.`)
     return within(cx, () => callIn(cx, served.room, run, [handed], false, false))
   }
   const body = flowBodyOf(served, flow)
-  if (!body) throw new TentError('T0011', `The version ${served.version} holds no flow ${flow} to carry out.`)
+  if (!body) throw new ForjrError('F0011', `The version ${served.version} holds no flow ${flow} to carry out.`)
   return within(cx, () =>
     replayTo(body, {
       event: task.event,

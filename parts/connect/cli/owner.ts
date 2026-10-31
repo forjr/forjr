@@ -29,9 +29,9 @@ export function ownedHere(path: string): boolean {
         '-NoProfile',
         '-NonInteractive',
         '-Command',
-        '(Get-Acl -LiteralPath $env:TENT_OWNED).GetOwner([System.Security.Principal.SecurityIdentifier]).Value',
+        '(Get-Acl -LiteralPath $env:FORJR_OWNED).GetOwner([System.Security.Principal.SecurityIdentifier]).Value',
       ],
-      { encoding: 'utf8', windowsHide: true, env: { ...process.env, TENT_OWNED: path } },
+      { encoding: 'utf8', windowsHide: true, env: { ...process.env, FORJR_OWNED: path } },
     ).trim()
     const owned = owner !== '' && owner === currentSid()
     owners.set(same, owned)

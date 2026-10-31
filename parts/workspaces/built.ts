@@ -19,7 +19,7 @@ export interface Built {
 function filesOf(folder: string): string[] {
   if (!existsSync(folder)) return []
   return projectFiles(folder)
-    .filter((place) => basename(place) !== 'tent.d.ts')
+    .filter((place) => basename(place) !== 'forjr.d.ts')
     .map((place) => `${relative(folder, place).split(sep).join('/')} ${fingerprintOf(readFileSync(place))}`)
 }
 

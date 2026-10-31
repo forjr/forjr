@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Tx } from '../data/index.ts'
 import type { Carried, Ended, OutNow, StepAt } from './face.ts'
 import { askedForTask } from './asking.ts'
@@ -52,9 +52,9 @@ function kindOf(held: Held, version: string, kind: string): KindOf {
 }
 
 /** The error of a task that is not out, or not to the worker that names it. */
-const oldTry = (task: string): TentError =>
-  new TentError(
-    'T5108',
+const oldTry = (task: string): ForjrError =>
+  new ForjrError(
+    'F5108',
     `The task ${JSON.stringify(task).slice(0, 60)} is not out: it ended, or was handed out again.`,
     {
       fix: 'Drop what was kept of it: its work is the current try of another task.',
@@ -62,8 +62,8 @@ const oldTry = (task: string): TentError =>
   )
 
 /** The error of work that no worker of its kind could carry out. */
-const noWorker = (kind: string, why: string): TentError =>
-  new TentError('T5107', `No worker of the kind ${JSON.stringify(kind)} carried the work out: ${why}.`, {
+const noWorker = (kind: string, why: string): ForjrError =>
+  new ForjrError('F5107', `No worker of the kind ${JSON.stringify(kind)} carried the work out: ${why}.`, {
     fix: 'Join a worker of that kind, or name a `next` kind for the cause.',
   })
 
@@ -199,7 +199,7 @@ export function startedTask(held: Held, task: string): void {
     env.take?.(task)
     void endedTask(held, task, [
       {
-        failed: new TentError('T0008', `A try of the step ${JSON.stringify(name)} took longer than its time.`, {
+        failed: new ForjrError('F0008', `A try of the step ${JSON.stringify(name)} took longer than its time.`, {
           fix: 'Raise `time` of the step, or keep progress and hand the work back.',
         }),
       },
@@ -300,7 +300,7 @@ function lostOf(
   }
 }
 
-/** Saves the end of each step of a task in one write for each file, and wakes their runs. T5108 for a task that is not out. */
+/** Saves the end of each step of a task in one write for each file, and wakes their runs. F5108 for a task that is not out. */
 export async function endedTask(held: Held, task: string, ends: Ended[]): Promise<void> {
   const { env } = held
   const steps = stepsOfTask(held, task)
@@ -378,7 +378,7 @@ export function noneFor(held: Held, run: string, step: StepAt): void {
  * A limit of use stopped a step that waits before it was handed out. Its try fails with the error, and it is tried
  * again after its wait as any failed try is, or with `final` its step fails at once: a limit that it can never fit.
  */
-export function limitedFor(held: Held, run: string, step: StepAt, error: TentError, final: boolean): void {
+export function limitedFor(held: Held, run: string, step: StepAt, error: ForjrError, final: boolean): void {
   const { env } = held
   const key = stepKey(run, step)
   const queued = held.queued.get(key)
@@ -402,7 +402,7 @@ export function limitedFor(held: Held, run: string, step: StepAt, error: TentErr
   })
 }
 
-/** Keeps what the work of a task kept of where it is. T5108 for a task that is not out. */
+/** Keeps what the work of a task kept of where it is. F5108 for a task that is not out. */
 export async function progressOfTask(
   held: Held,
   task: string,

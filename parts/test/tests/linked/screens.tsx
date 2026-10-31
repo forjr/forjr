@@ -1,4 +1,4 @@
-import { screen, read, text, useCall, useGoTo, Form, Link } from 'tentjs/ui'
+import { screen, read, text, useCall, useGoTo, Form, Link } from 'forjr/ui'
 import { addNote, allNotes, later, noteOf, refused } from './functions'
 
 // Addresses that lead out of the app, worked out while running, so that only the page can refuse them.

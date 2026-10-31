@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { CallContext } from '../context.ts'
 import { called } from '../door/call.ts'
 import { callService, serviceCallOf } from '../services/call.ts'
@@ -25,17 +25,17 @@ export interface PythonHanding {
 
 /** What a call answers Python with: its value, or its error with the number of the asking. */
 function wireOf(error: unknown, ask: number): Record<string, unknown> {
-  if (error instanceof TentError)
+  if (error instanceof ForjrError)
     return { code: error.code, message: error.message, ...(error.fields ? { fields: error.fields } : {}), ask }
-  return { code: 'T0009', message: 'The call failed.', ask }
+  return { code: 'F0009', message: 'The call failed.', ask }
 }
 
 /**
  * Takes an app, the call context of a call of a `python`, and what the call hands its program. Hands the call over
- * and answers what `run` answered: a call back through `tent.call` of a name that `uses` holds, as the caller of the
- * call and inside it; a copy of a file for `tent.file`; a kept progress. A line that `tent.log` sends is a line of
- * the log under the name of the definition, and what `tent.say` sends goes to whoever follows the run. Refused
- * with the error the caller is to see, and with T7119 where the program ended in the middle of the call.
+ * and answers what `run` answered: a call back through `forjr.call` of a name that `uses` holds, as the caller of the
+ * call and inside it; a copy of a file for `forjr.file`; a kept progress. A line that `forjr.log` sends is a line of
+ * the log under the name of the definition, and what `forjr.say` sends goes to whoever follows the run. Refused
+ * with the error the caller is to see, and with F7119 where the program ended in the middle of the call.
  */
 export function pythonAnswered(o: Opened, cx: CallContext, h: PythonHanding): Promise<unknown> {
   const { name, record, handed, program, frame } = h
@@ -69,7 +69,7 @@ export function pythonAnswered(o: Opened, cx: CallContext, h: PythonHanding): Pr
       return async () => {
         const target = String(told.name)
         if (!uses.includes(target))
-          throw new TentError('T0013', `${name} called ${target} through tent.call, and \`uses\` does not name it.`, {
+          throw new ForjrError('F0013', `${name} called ${target} through forjr.call, and \`uses\` does not name it.`, {
             fix: `Name ${target} in \`uses\` of ${name}.`,
           })
         // A service call is made as code makes it: by the engine, or on a worker where its kind lets it.
@@ -88,7 +88,7 @@ export function pythonAnswered(o: Opened, cx: CallContext, h: PythonHanding): Pr
         await h.progress?.keep(told.value, frame.folder)
         return null
       }
-    return () => Promise.reject(new TentError('T0013', `Python asked for ${String(told.what)}, which is nothing.`))
+    return () => Promise.reject(new ForjrError('F0013', `Python asked for ${String(told.what)}, which is nothing.`))
   }
   return new Promise((done, failed) => {
     let stopTold = false

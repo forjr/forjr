@@ -19,7 +19,7 @@ import {
   rootsIn,
   securely,
   served,
-  startTent,
+  startForjr,
   untilMinute,
   workOf,
 } from './secured.ts'
@@ -34,7 +34,7 @@ async function standing(
   return { port, plain, authority, roots: rootsIn(folder, authority.root) }
 }
 
-/** The words of `tent start` that serve names with certificates of the test authority. */
+/** The words of `forjr start` that serve names with certificates of the test authority. */
 const secureWords = (s: { port: number; plain: number; authority: Authority; roots: string }): string[] => [
   // This computer alone: a server reached by its names would listen on every address.
   '--host',
@@ -82,12 +82,12 @@ function logLines(dataFolder: string, level: string): string[] {
   }
 }
 
-test('[41-9] tent start with a domain serves over a secure connection, by the proof on the plain port, with a test authority whose root --secure roots= names', async (t) => {
+test('[41-9] forjr start with a domain serves over a secure connection, by the proof on the plain port, with a test authority whose root --secure roots= names', async (t) => {
   const folder = workOf(t, 'plain-proof')
   const { project, bundle } = await builtShop(folder)
   const s = await standing(t, folder)
   const data = join(folder, 'data')
-  const run = startTent(t, [bundle, '--data', data, '--domain', 'shop.test,www.shop.test', ...secureWords(s)], {
+  const run = startForjr(t, [bundle, '--data', data, '--domain', 'shop.test,www.shop.test', ...secureWords(s)], {
     cwd: project,
   })
   const first = await served(s.port, 'shop.test', s.authority.root)
@@ -109,13 +109,13 @@ test('[41-9] tent start with a domain serves over a secure connection, by the pr
   for (const file of readdirSync(certs).filter((one) => one.endsWith('.key') || one.endsWith('.pem')))
     assert.equal(keptAlone(join(certs, file)).why, undefined, file)
   assert.ok(existsSync(join(certs, 'shop.test.pem')))
-  // The plain port sends a listed name to its secure address, and answers T0017 to any other name.
+  // The plain port sends a listed name to its secure address, and answers F0017 to any other name.
   const moved = await plainly(s.plain, 'shop.test', '/hello?x=1')
   assert.equal(moved.status, 308)
   assert.equal(moved.headers.location, `https://shop.test:${s.port}/hello?x=1`)
   const other = await plainly(s.plain, 'elsewhere.test', '/hello')
   assert.equal(other.status, 421)
-  assert.equal(JSON.parse(other.body).error.code, 'T0017')
+  assert.equal(JSON.parse(other.body).error.code, 'F0017')
   assert.equal(other.headers.location, undefined)
   // A secure connection that names no listed name is closed at its start, and no certificate is asked for it.
   await assert.rejects(securely(s.port, 'elsewhere.test', '/hello', s.authority.root))
@@ -131,24 +131,24 @@ test('[41-9] tent start with a domain serves over a secure connection, by the pr
   await run.stop()
 })
 
-test('[41-9] tent start with a domain and --seed applies the seed to empty data, and serves its names', async (t) => {
+test('[41-9] forjr start with a domain and --seed applies the seed to empty data, and serves its names', async (t) => {
   const folder = workOf(t, 'seeded-domain')
   const { project, bundle } = await builtShop(folder, {
-    'tables/notes.ts': `import { anyone, table, text } from 'tentjs'\n\nexport const notes = table('notes', {\n  columns: { words: text() },\n  access: { read: anyone('the notes are open') },\n})\n`,
-    'seed.ts': `import { seed } from 'tentjs'\nimport { notes } from './tables/notes'\n\nexport default seed([notes.add({ words: 'first' })])\n`,
+    'tables/notes.ts': `import { anyone, table, text } from 'forjr'\n\nexport const notes = table('notes', {\n  columns: { words: text() },\n  access: { read: anyone('the notes are open') },\n})\n`,
+    'seed.ts': `import { seed } from 'forjr'\nimport { notes } from './tables/notes'\n\nexport default seed([notes.add({ words: 'first' })])\n`,
   })
   const s = await standing(t, folder)
   const data = join(folder, 'data')
   // The command asks the app it opened whether the data is empty, by a name the app serves.
-  const run = startTent(t, [bundle, '--data', data, '--seed', '--domain', 'shop.test', ...secureWords(s)], {
+  const run = startForjr(t, [bundle, '--data', data, '--seed', '--domain', 'shop.test', ...secureWords(s)], {
     cwd: project,
   })
   assert.equal((await served(s.port, 'shop.test', s.authority.root)).status, 200, run.err.join(''))
   const said = run.err.join('')
-  assert.doesNotMatch(said, /T0017|the seed was not applied/)
+  assert.doesNotMatch(said, /F0017|the seed was not applied/)
   await run.stop()
   // Started again on that data, the seed is not applied twice, and the command says so.
-  const again = startTent(t, [bundle, '--data', data, '--seed', '--domain', 'shop.test', ...secureWords(s)], {
+  const again = startForjr(t, [bundle, '--data', data, '--seed', '--domain', 'shop.test', ...secureWords(s)], {
     cwd: project,
   })
   await untilMinute(() => again.err.join('').includes('the seed was not applied'), 'the seed left alone')
@@ -164,7 +164,7 @@ test('[41-9] where the plain port cannot be listened on, the name is proven insi
   await new Promise<void>((done) => holder.listen(s.plain, '127.0.0.1', done))
   t.after(() => new Promise<void>((done) => holder.close(() => done())))
   const data = join(folder, 'data')
-  startTent(t, [bundle, '--data', data, '--domain', 'shop.test', ...secureWords(s)], { cwd: project })
+  startForjr(t, [bundle, '--data', data, '--domain', 'shop.test', ...secureWords(s)], { cwd: project })
   const first = await served(s.port, 'shop.test', s.authority.root)
   assert.equal(first.status, 200)
   assert.deepEqual(
@@ -259,7 +259,7 @@ test('[41-9] --secure hsts=off leaves the header out; secure.names as a function
   const folder = workOf(t, 'names')
   const { project, bundle } = await builtShop(folder)
   const s = await standing(t, folder)
-  const run = startTent(
+  const run = startForjr(
     t,
     [bundle, '--data', join(folder, 'data'), '--domain', 'shop.test', ...secureWords(s), '--secure', 'hsts=off'],
     { cwd: project },
@@ -391,7 +391,7 @@ test('[41-12.32] a sender that opens requests and drops each once it is sent is 
   assert.deepEqual(seen, ['cancel: closed', 'no error: closed', 'refused stream: closed', 'internal error: closed'])
 })
 
-test('[41-12.13] a thousand requests for a name that --domain does not list, over the secure port and over the plain one, ask for no certificate: closed, and T0017 with no 308', async (t) => {
+test('[41-12.13] a thousand requests for a name that --domain does not list, over the secure port and over the plain one, ask for no certificate: closed, and F0017 with no 308', async (t) => {
   const folder = workOf(t, 'unlisted')
   const { bundle } = await builtShop(folder)
   const s = await standing(t, folder)

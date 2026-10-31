@@ -40,12 +40,12 @@ function framed(o: { connected: boolean; answer: (method: string, params: object
 
 test('[25-9] the answer of a tool in the wire form: a record, a value that the layer wrapped, and a failure with its fields', () => {
   assert.deepEqual(wireOf({ content: [], structuredContent: { id: 'o1' } }), { ok: true, value: { id: 'o1' } })
-  assert.deepEqual(wireOf({ content: [], structuredContent: { value: [1, 2] }, _meta: { 'tent.wrapped': true } }), {
+  assert.deepEqual(wireOf({ content: [], structuredContent: { value: [1, 2] }, _meta: { 'forjr.wrapped': true } }), {
     ok: true,
     value: [1, 2],
   })
   const error = { code: 'taken', message: 'That title is taken.', fields: { title: 'That title is taken.' } }
-  assert.deepEqual(wireOf({ content: [], isError: true, _meta: { 'tent.error': error } }), { ok: false, error })
+  assert.deepEqual(wireOf({ content: [], isError: true, _meta: { 'forjr.error': error } }), { ok: false, error })
   assert.equal(wireOf(undefined), undefined)
 })
 
@@ -54,35 +54,36 @@ test('[25-9] in a frame a call and a read are calls of the tool through the chat
     connected: false,
     answer: (method) => (method === 'tools/call' ? { content: [], structuredContent: { id: 'o1' } } : {}),
   })
-  assert.deepEqual(await reach.post('/_t/call/addOrder', { input: { title: 'Tea' }, version: 'v1' }), {
+  assert.deepEqual(await reach.post('/_f/call/addOrder', { input: { title: 'Tea' }, version: 'v1' }), {
     ok: true,
     value: { id: 'o1' },
   })
   assert.deepEqual(asked[0], { method: 'tools/call', params: { name: 'addOrder', arguments: { title: 'Tea' } } })
   assert.deepEqual(worked, [1])
-  await reach.post('/_t/read/openOrders', { input: {} })
+  await reach.post('/_f/read/openOrders', { input: {} })
   assert.deepEqual(worked, [1], 'a read asks for nothing again')
-  assert.deepEqual(await reach.get?.('/_t/screen?path=%2Forders%3Fpage%3D2&version=v1'), {
+  assert.deepEqual(await reach.get?.('/_f/screen?path=%2Forders%3Fpage%3D2&version=v1'), {
     ok: true,
     value: { screen: 'ordersScreen' },
   })
   assert.deepEqual(screens, [{ page: 2 }])
-  assert.equal(await reach.get?.('/_t/screen?path=%2Fabout&version=v1'), undefined)
+  assert.equal(await reach.get?.('/_f/screen?path=%2Fabout&version=v1'), undefined)
   reach.go('/about')
   assert.deepEqual(asked.at(-1), { method: 'ui/open-link', params: { url: 'https://shop.example.com/about' } })
-  const posted = Object(await reach.post('/_t/form/addOrder', {}))
-  assert.equal(Object(posted.error).code, 'T0001')
+  const posted = Object(await reach.post('/_f/form/addOrder', {}))
+  assert.equal(Object(posted.error).code, 'F0001')
   assert.equal(reach.socket, undefined, 'a frame that may connect nowhere opens no live connection')
 })
 
 test('[25-9] a press in a frame on a function that asks a person first has the chat app open the page where the person says yes', async () => {
-  const page = 'https://shop.example.com/_t/ask?a=text'
-  const error = { code: 'T7120', message: 'A person is asked first.', fields: { ask: 'text', page } }
+  const page = 'https://shop.example.com/_f/ask?a=text'
+  const error = { code: 'F7120', message: 'A person is asked first.', fields: { ask: 'text', page } }
   const { reach, asked, worked } = framed({
     connected: true,
-    answer: (method) => (method === 'tools/call' ? { content: [], isError: true, _meta: { 'tent.error': error } } : {}),
+    answer: (method) =>
+      method === 'tools/call' ? { content: [], isError: true, _meta: { 'forjr.error': error } } : {},
   })
-  assert.deepEqual(await reach.post('/_t/call/removeOrder', { input: { id: 'o1' } }), { ok: false, error })
+  assert.deepEqual(await reach.post('/_f/call/removeOrder', { input: { id: 'o1' } }), { ok: false, error })
   assert.deepEqual(asked.at(-1), { method: 'ui/open-link', params: { url: page } })
   assert.deepEqual(worked, [])
 })
@@ -98,11 +99,11 @@ test('[25-9] in a frame a member of an agent is no tool: it is called at the app
     return Response.json({ ok: true, value: [] })
   }
   const connected = framed({ connected: true, answer: () => ({}) })
-  assert.deepEqual(await connected.reach.post('/_t/call/helper.stop', { input: {} }), { ok: true, value: [] })
-  assert.deepEqual(heard, [{ url: 'https://shop.example.com/_t/call/helper.stop', authorization: 'Bearer a-pass' }])
+  assert.deepEqual(await connected.reach.post('/_f/call/helper.stop', { input: {} }), { ok: true, value: [] })
+  assert.deepEqual(heard, [{ url: 'https://shop.example.com/_f/call/helper.stop', authorization: 'Bearer a-pass' }])
   assert.deepEqual(connected.asked, [], 'the chat app is asked for no tool of it')
   const alone = framed({ connected: false, answer: () => ({}) })
-  assert.equal(Object(Object(await alone.reach.post('/_t/call/helper.stop', { input: {} })).error).code, 'T0001')
+  assert.equal(Object(Object(await alone.reach.post('/_f/call/helper.stop', { input: {} })).error).code, 'F0001')
   assert.deepEqual(alone.asked, [])
 })
 

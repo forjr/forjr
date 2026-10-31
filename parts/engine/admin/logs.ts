@@ -1,4 +1,4 @@
-import { later, TentError } from '../../core/index.ts'
+import { later, ForjrError } from '../../core/index.ts'
 import type { Admin } from '../admin.ts'
 import { badWord } from '../admin.ts'
 import { sentMail } from '../mail/mailbox.ts'
@@ -10,7 +10,7 @@ import { slowestOf, treeOf } from '../trace/tree.ts'
 // How many rows of each table a command is answered at most: the newest ones.
 const newest = 200
 
-/** The moment that a length of time lies back from now, by the clock of the app. Throws T0002 for words that do not read. */
+/** The moment that a length of time lies back from now, by the clock of the app. Throws F0002 for words that do not read. */
 function since(o: Opened, words: unknown): number {
   if (words === undefined) return 0
   try {
@@ -22,9 +22,9 @@ function since(o: Opened, words: unknown): number {
 }
 
 /**
- * `tent logs`: the newest calls, errors and slow queries of the log of the app, each in the order they were
+ * `forjr logs`: the newest calls, errors and slow queries of the log of the app, each in the order they were
  * written. `errors` answers the errors alone, and `since` only what was written within that length of time.
- * `mail` answers the messages the app sent in the mode `development`, the newest first, as `/_t/mail` shows them,
+ * `mail` answers the messages the app sent in the mode `development`, the newest first, as `/_f/mail` shows them,
  * under `mails`. `trace` answers the tree of one trace, and `slow` the slow queries and the slowest traces that
  * began within `since`, the slowest first. `callers` answers how many callers called each function within
  * `since`, each counted once.
@@ -40,8 +40,8 @@ export const admin: Admin = {
       if (!isTraceId(trace)) throw badWord('trace', 'the id of a trace, 32 hex characters')
       const tree = treeOf(o, trace)
       if (!tree)
-        throw new TentError('T0001', `No trace ${trace} is kept in the log.`, {
-          fix: 'Name a trace that an error answer or `tent logs --slow` gave: a trace that was not kept has no tree.',
+        throw new ForjrError('F0001', `No trace ${trace} is kept in the log.`, {
+          fix: 'Name a trace that an error answer or `forjr logs --slow` gave: a trace that was not kept has no tree.',
         })
       return tree
     }

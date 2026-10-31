@@ -1,4 +1,4 @@
-import { boolean, later, TentError, text } from '../../core/index.ts'
+import { boolean, later, ForjrError, text } from '../../core/index.ts'
 import { guardedFetch, typedHosts } from '../../connect/index.ts'
 import { updateInstall } from '../install/updateInstall.ts'
 import { releasesOf, runnerFolder, shippedRelease, trustedKeys } from '../../engine/index.ts'
@@ -23,17 +23,17 @@ export const command: Command = {
   run: async ({ args }) => {
     const shipped = shippedRelease()
     if (!shipped)
-      throw new TentError('T0013', 'This framework runs from its own sources, and is no install to update.', {
-        fix: 'Install Tent.js, and update that.',
+      throw new ForjrError('F0013', 'This framework runs from its own sources, and is no install to update.', {
+        fix: 'Install Forjr, and update that.',
       })
     if (shipped.player.split(/[\\/]/).includes('node_modules'))
-      throw new TentError('T0013', 'Tent.js was installed with npm, which updates it itself.', {
-        fix: 'Type npm install -g tentjs@latest, or in a project npm install tentjs@latest.',
+      throw new ForjrError('F0013', 'Forjr was installed with npm, which updates it itself.', {
+        fix: 'Type npm install -g forjr@latest, or in a project npm install forjr@latest.',
       })
     const at = releasesOf()
     if (!at)
-      throw new TentError('T0013', 'No address of releases ships with this install.', {
-        fix: 'Name the place releases are served from with TENT_RELEASES=<address>.',
+      throw new ForjrError('F0013', 'No address of releases ships with this install.', {
+        fix: 'Name the place releases are served from with FORJR_RELEASES=<address>.',
       })
     const home = runnerFolder()
     const done = await updateInstall(home, {

@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Plan } from '../core/internal.ts'
 import type { DbContext } from './context.ts'
 import { begin } from './context.ts'
@@ -58,8 +58,8 @@ function ending(cx: DbContext, model: TableModel, name: string): { model: TableM
 }
 
 /**
- * Holds the columns that a plan filters and sorts by: a sealed one is T2011, and one that its read rule keeps from
- * the caller T0013, a private one among them. What a plan inside a filter picks is what that filter is told, so it
+ * Holds the columns that a plan filters and sorts by: a sealed one is F2011, and one that its read rule keeps from
+ * the caller F0013, a private one among them. What a plan inside a filter picks is what that filter is told, so it
  * is held as a filter is.
  */
 function guard(cx: DbContext, model: TableModel, plan: Plan, inside: boolean): void {
@@ -83,8 +83,8 @@ function guard(cx: DbContext, model: TableModel, plan: Plan, inside: boolean): v
     if (findable && sorted.includes(name)) throw misused(at.model, at.column, 'a sort')
     if (findable && !inGroup.includes(name) && filtered.includes(name) && !name.includes('.')) continue
     if (at.model.sealed.includes(at.column))
-      throw new TentError(
-        'T2011',
+      throw new ForjrError(
+        'F2011',
         `\`${name}\` of \`${model.name}\` is sealed: it cannot be filtered, sorted or grouped by.`,
         {
           fix: 'To find a row by a sealed value, keep its fingerprint in a second column and filter by that.',
@@ -93,8 +93,8 @@ function guard(cx: DbContext, model: TableModel, plan: Plan, inside: boolean): v
     // A column that its read rule keeps from the caller, a private one among them, is not filtered, sorted or grouped by.
     const byGroup = (plan.group?.by ?? []).includes(name)
     if ((asked.includes(name) || byGroup) && cx.hidden && unnamed(cx.hidden(at.model)).includes(at.column))
-      throw new TentError(
-        'T0013',
+      throw new ForjrError(
+        'F0013',
         `\`${name}\` of \`${model.name}\` is read by those its read rule names alone: this caller may not filter, sort or group by it.`,
         { fix: 'Read the column as a caller that its rule lets in, or state `system` and read through `db.system`.' },
       )
@@ -104,8 +104,8 @@ function guard(cx: DbContext, model: TableModel, plan: Plan, inside: boolean): v
   const kept = inside && cx.hidden ? unnamed(cx.hidden(model)) : []
   const hiddenSearched = searchesWords(plan) ? model.search.find((column) => kept.includes(column)) : undefined
   if (hiddenSearched !== undefined || (plan.near && kept.includes(plan.near.col)))
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `\`${hiddenSearched ?? plan.near?.col}\` of \`${model.name}\` is read by those its read rule names alone, and a search by it would tell of it.`,
       { fix: 'Search as a caller that the rule of the column lets in, or search a table that does not name it.' },
     )
@@ -172,7 +172,7 @@ function underLinks(cx: DbContext, model: TableModel, plan: Plan): StorePlan {
 }
 
 /**
- * Works the values of a stored plan out. A plan inside its filter is made ready to be read with it. Throws T1014
+ * Works the values of a stored plan out. A plan inside its filter is made ready to be read with it. Throws F1014
  * for a `limit` or a `skip` that is no whole number of zero or more, and for a `pick` that names what is no column
  * of the table itself, a path through a link among it, and for a value of a group that is worked out of a link.
  */
@@ -190,9 +190,13 @@ function workedPlan(cx: DbContext, stored: Plan, resolve: Resolve, guarded: bool
   for (const name of ['limit', 'skip'] as const) {
     const held = plan[name]
     if (held !== undefined && !(typeof held === 'number' && Number.isInteger(held) && held >= 0))
-      throw new TentError('T1014', `The \`${name}\` of a plan of \`${stored.from}\` is no whole number of 0 or more.`, {
-        fix: `Hand \`${name}\` a whole number that is not under zero.`,
-      })
+      throw new ForjrError(
+        'F1014',
+        `The \`${name}\` of a plan of \`${stored.from}\` is no whole number of 0 or more.`,
+        {
+          fix: `Hand \`${name}\` a whole number that is not under zero.`,
+        },
+      )
   }
   const model = tableOf(cx.description, stored.from)
   if (guarded) guard(cx, model, plan, inside)
@@ -210,8 +214,8 @@ function workedPlan(cx: DbContext, stored: Plan, resolve: Resolve, guarded: bool
       !typeIn(model, name) && !(plan.near && (name === 'distance' || (plan.search !== undefined && name === 'rank'))),
   )
   if (strange !== undefined)
-    throw new TentError(
-      'T1014',
+    throw new ForjrError(
+      'F1014',
       `The \`pick\` of a plan of \`${stored.from}\` names \`${strange}\`, which is no column of the table.`,
       { fix: 'Pick columns of the table itself, and read what a linked row holds with `with`.' },
     )
@@ -220,8 +224,8 @@ function workedPlan(cx: DbContext, stored: Plan, resolve: Resolve, guarded: bool
     for (const name of measures.map((word) => Reflect.get(value, word))) {
       const at = typeof name === 'string' ? ending(cx, model, name) : undefined
       if (at && typeIn(at.model, at.column)?.kind === 'link')
-        throw new TentError(
-          'T1014',
+        throw new ForjrError(
+          'F1014',
           `A group of \`${stored.from}\` works a value out of \`${name}\`, which is a link and no measure.`,
           { fix: 'Count the rows, group by the link, or work the value out of a column of the linked row.' },
         )
@@ -252,9 +256,9 @@ function innerPlan(
   inRule: boolean,
 ): StorePlan | unknown[] {
   if (cx.depth >= deepest)
-    throw new TentError('T0009', `The rules of \`${stored.from}\` name each other and never end.`)
+    throw new ForjrError('F0009', `The rules of \`${stored.from}\` name each other and never end.`)
   if (stored.near)
-    throw new TentError('T2106', `A plan of \`${stored.from}\` with \`near\` stands inside \`in\`.`, {
+    throw new ForjrError('F2106', `A plan of \`${stored.from}\` with \`near\` stands inside \`in\`.`, {
       fix: 'Read the nearest rows first, and hand their ids to `in` as a list.',
     })
   const model = tableOf(cx.description, stored.from)
@@ -319,7 +323,7 @@ function withLinks(cx: DbContext, model: TableModel, rows: Row[], names: string[
   for (const [column, deeper] of byColumn) {
     const type = typeIn(model, column)
     if (type?.kind !== 'link')
-      throw new TentError('T0013', `\`with\` names \`${column}\` of \`${model.name}\`, which is no link.`)
+      throw new ForjrError('F0013', `\`with\` names \`${column}\` of \`${model.name}\`, which is no link.`)
     const ids = [...new Set(rows.map((row) => row[column]).filter((id) => typeof id === 'string'))]
     if (!ids.length) continue
     const linked = tableOf(cx.description, type.table)
@@ -407,8 +411,8 @@ function searched(cx: DbContext, plan: Plan, words: string): Row[] {
   return ordered.slice(from, enough)
 }
 
-const tooMany = (table: string, bound: number): TentError =>
-  new TentError('T2108', `A read of \`${table}\` answered more than ${bound} rows.`, {
+const tooMany = (table: string, bound: number): ForjrError =>
+  new ForjrError('F2108', `A read of \`${table}\` answered more than ${bound} rows.`, {
     fix: 'State a `limit` on the plan, or `live: false` on the query.',
   })
 
@@ -435,7 +439,7 @@ function fetched(cx: DbContext, model: TableModel, plan: Plan): Row[] {
 function page(cx: DbContext, model: TableModel, plan: Plan): object {
   const sort = (plan.sort ?? []).map((one) => one.by)
   if (sort.some((name) => name.includes('.')))
-    throw new TentError('T0013', `A page of \`${model.name}\` is sorted through a link, which a cursor cannot name.`, {
+    throw new ForjrError('F0013', `A page of \`${model.name}\` is sorted through a link, which a cursor cannot name.`, {
       fix: 'Sort the page by a column of the table itself.',
     })
   const limit = typeof plan.limit === 'number' ? plan.limit : undefined
@@ -496,9 +500,9 @@ function nothingOf(cx: DbContext, plan: Plan): unknown {
 /**
  * Takes the context of a `db`, a stored plan, and what answers the values in it that are no literal. Carries the
  * plan out under the table rules of the caller, and answers rows, one row or nothing, a number, the records of a
- * group, the entries of a history, or a page. A row the caller may not read is never fetched. Throws T0008 past
- * the time of the `db`, T2108 for one row more than its bound, T2011 for a sealed column in a filter or a sort, and
- * T0013 for a private one where the `db` is limited.
+ * group, the entries of a history, or a page. A row the caller may not read is never fetched. Throws F0008 past
+ * the time of the `db`, F2108 for one row more than its bound, F2011 for a sealed column in a filter or a sort, and
+ * F0013 for a private one where the `db` is limited.
  */
 export function carried(cx: DbContext, stored: Plan, resolve: Resolve = ruleResolve(cx.caller)): unknown {
   const model = tableOf(cx.description, stored.from)

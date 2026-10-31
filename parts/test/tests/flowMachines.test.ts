@@ -12,7 +12,7 @@ const system = { as: 'system' } as const
 
 // The flows that these tests add to the project of the machines. Each step of theirs adds a customer, so a test
 // counts on every machine how often a step was carried out.
-const flows = `import { flow, text } from 'tentjs'
+const flows = `import { flow, text } from 'forjr'
 import { addCustomer } from '../functions/functions'
 import { orders } from '../tables/tables'
 
@@ -197,7 +197,7 @@ test('[29-10] on a reader the runs are read from its own data, and on test data 
     )
   }
   assert.equal(far.runs.read('nothere'), undefined)
-  assert.equal(await codeOf(near.runs.wait('nothere')), 'T0001')
+  assert.equal(await codeOf(near.runs.wait('nothere')), 'F0001')
   // A reader that waits for a run is answered when its own data holds how the run ended.
   const waited = [near.runs.wait(asked[0]), far.runs.wait(asked[1]), codeOf(far.runs.wait(asked[2]))]
   near.runs.approve(asked[0], 'ok')
@@ -206,7 +206,7 @@ test('[29-10] on a reader the runs are read from its own data, and on test data 
   await until('the writer carried each out', () =>
     ['done', 'done', 'stopped'].every((state, i) => app.runs.read(asked[i])?.state === state),
   )
-  assert.deepEqual(await Promise.all(waited), ['yes', 'no', 'T5106'])
+  assert.deepEqual(await Promise.all(waited), ['yes', 'no', 'F5106'])
   await level(app, near, far)
   assert.deepEqual(
     asked.map((run) => far.runs.read(run)?.state),
@@ -226,7 +226,7 @@ test('[29-7@7b] an old writer that still runs when its near reader takes over st
     'the old writer was told',
     async () => {
       await beat(app)
-      return (await send(app, 'addOrder', { title: 'refused' })).code === 'T0030'
+      return (await send(app, 'addOrder', { title: 'refused' })).code === 'F0030'
     },
     20,
   )

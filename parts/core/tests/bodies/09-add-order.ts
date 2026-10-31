@@ -1,4 +1,4 @@
-import { change, emit, fail, random, start, token } from 'tentjs'
+import { change, emit, fail, random, start, token } from 'forjr'
 import { invoiceApproval, markPaid, orderTotal, ordersPage } from '../app/shop.ts'
 
 export const addOrder = change('addOrder', {

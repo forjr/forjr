@@ -10,7 +10,7 @@ await app.as(maya).call('addOrder', { title: 'A shelf' })
 await app.back(mark)
 ```
 
-`app.clock.advance('3 days')` moves the time of the app forward, and calls each timer of the app that falls due on the way, in the order of their moments. The time of a test app goes on by itself as the time of the system does, and `advance` moves it beside that. A length that does not read, and one that moves the time back or not at all, is `code.T0027`.
+`app.clock.advance('3 days')` moves the time of the app forward, and calls each timer of the app that falls due on the way, in the order of their moments. The time of a test app goes on by itself as the time of the system does, and `advance` moves it beside that. A length that does not read, and one that moves the time back or not at all, is `code.F0027`.
 
 `app.runs` reads, waits for, answers and stops the runs of the flows, as `app.runs` of the engine does. `await app.settled()` answers once no run is queued or working: each is done, failed or stopped, or waits for a time, an event or a person. So a test starts or sets off its runs, moves the clock, and settles before it looks:
 
@@ -58,7 +58,7 @@ test('a reader holds what its writer wrote', async () => {
 })
 ```
 
-`app.kill()` ends a machine as a killed program would: nothing more is committed, answered or sent. A call that is under way is refused to its caller with `code.T0029`, and the data folder is left as a kill leaves it. `app.restart()` opens the folder again, after `kill()` and after `close()` of a reader. `app.restart({ reads: other })` opens it as a reader of that test app, and `app.restart({ at: mark })` first puts the data of that mark in place, as a disk that lost its last writes.
+`app.kill()` ends a machine as a killed program would: nothing more is committed, answered or sent. A call that is under way is refused to its caller with `code.F0029`, and the data folder is left as a kill leaves it. `app.restart()` opens the folder again, after `kill()` and after `close()` of a reader. `app.restart({ reads: other })` opens it as a reader of that test app, and `app.restart({ at: mark })` first puts the data of that mark in place, as a disk that lost its last writes.
 
 ```ts
 test('a reader takes over, and the old writer comes back as its reader', async () => {

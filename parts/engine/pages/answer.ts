@@ -2,7 +2,7 @@ import { plansOf } from './plans.ts'
 import { randomBytes } from 'node:crypto'
 import type { Caller, WireError } from '../../core/index.ts'
 import { isLiveMember } from '../ai/members.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import {
   deviceCookie,
   fingerprintOf,
@@ -184,7 +184,7 @@ async function answerOfPage(
 ): Promise<PageAnswer> {
   const { shaped, above = false, asked, part } = more
   const began = performance.now()
-  // Under `tent test`, the address the test asked, also one that nothing answers: a screen added there is its concern.
+  // Under `forjr test`, the address the test asked, also one that nothing answers: a screen added there is its concern.
   noteTouched('asked', url.pathname)
   // A good token of the inspect mode: the tool's origin may frame this one answer, and the page loads the part.
   let inspected = part === undefined ? inspectAsked(o, url) : undefined
@@ -262,7 +262,7 @@ async function answerOfPage(
     answers: [],
     ...(inspected ? { inspect: { origin: inspected.origin } } : {}),
     // A browser that a test drives says so by a cookie of its own, which only the mode `test` reads.
-    ...(o.mode === 'test' && cookieSent(cookies, 'tent_test') === '1' ? { tested: true as const } : {}),
+    ...(o.mode === 'test' && cookieSent(cookies, 'forjr_test') === '1' ? { tested: true as const } : {}),
     ...(nonce === undefined ? {} : { nonce }),
     ...more,
     ...shaped,
@@ -311,7 +311,7 @@ async function answerOfPage(
   const moduleOf = (name: string): string => String(Object(modules[name])[0] ?? '')
   // The module of the project's own `error` screen, which a page loads only when a view fails in the browser: with
   // none, the one of the page code is drawn.
-  const errorModule = moduleOf('tent.error')
+  const errorModule = moduleOf('forjr.error')
   const components: Record<string, unknown> = Object(browser.components)
   /**
    * What a page loads for a screen, or a component drawn alone: its module; the module of each component it draws,
@@ -390,7 +390,7 @@ async function answerOfPage(
       html: ownPage({ description, language: ownLanguage, status, kind, ...error }),
     }
   }
-  const noScreen = (): unknown => refusal('T0001', `No screen answers ${path.slice(0, 120)}.`)
+  const noScreen = (): unknown => refusal('F0001', `No screen answers ${path.slice(0, 120)}.`)
   const drawnAs = async (
     kind: 'notFound' | 'error',
     builtIn: string,
@@ -415,11 +415,11 @@ async function answerOfPage(
     return sent(page(builtIn, { ...told, ...more }), why)
   }
   const notFound = (why: unknown = noScreen()): Promise<PageAnswer> =>
-    drawnAs('notFound', 'tent.notFound', { status: 404 }, why)
+    drawnAs('notFound', 'forjr.notFound', { status: 404 }, why)
   const failed = async (thrown: unknown): Promise<PageAnswer> => {
     const { status, error } = seen(o, thrown)
     const search = searchWithout(url)
-    return drawnAs('error', 'tent.error', { status, error, ...(search ? { search } : {}) }, thrown)
+    return drawnAs('error', 'forjr.error', { status, error, ...(search ? { search } : {}) }, thrown)
   }
   const moved = (status: number, location: string, why?: unknown): PageAnswer => {
     logged(why)
@@ -479,8 +479,8 @@ async function answerOfPage(
   // The screen at the sign-in path is never sent to itself: a caller who is not signed in is always let in there.
   if ('needs' in said && path !== signInPath && !more.alone)
     return caller.kind === 'nobody'
-      ? signIn(refusal('T0006', `The screen ${found.name} needs a signed-in caller.`))
-      : notFound(refusal('T3101', `The rule of the screen ${found.name} does not let the caller in.`))
+      ? signIn(refusal('F0006', `The screen ${found.name} needs a signed-in caller.`))
+      : notFound(refusal('F3101', `The rule of the screen ${found.name} does not let the caller in.`))
   const { uses, load } = loadOf(found.name, screen, more.alone !== undefined)
   for (const one of uses) noteTouched('components', one)
   // The plans by which the page shows a change of the screen before the engine answers it.
@@ -796,13 +796,13 @@ async function answerOfPage(
     for (const one of made.answers) {
       if (one.entry === undefined || one.of !== undefined) continue
       const thrown = failures.get(keyOf(one.what, one.input)) ?? one.error
-      if (one.error?.code === 'T0006') return signIn(thrown)
+      if (one.error?.code === 'F0006') return signIn(thrown)
       // A needed entry whose query says that what it reads is not there makes the screen one that is not found too.
-      const gone = one.needed === true && ['T0001', 'T2103', 'not-found'].includes(String(one.error?.code))
-      if (one.error?.code === 'T3101' || one.error?.code === 'T0002' || gone) return notFound(thrown)
+      const gone = one.needed === true && ['F0001', 'F2103', 'not-found'].includes(String(one.error?.code))
+      if (one.error?.code === 'F3101' || one.error?.code === 'F0002' || gone) return notFound(thrown)
       if (one.error) return failed(thrown)
       if (one.needed && one.left === undefined && one.later !== true && (one.value === undefined || one.value === null))
-        return notFound(refusal('T0001', `The entry ${one.entry} of ${found.name} is needed, and answered nothing.`))
+        return notFound(refusal('F0001', `The entry ${one.entry} of ${found.name} is needed, and answered nothing.`))
     }
     if (made.html === undefined) return failed(new Error('the page code drew no screen'))
     // A picture for a shared link is its still document, with the mark of the answers it was drawn from.
@@ -822,7 +822,7 @@ async function answerOfPage(
         return told ? [['asset' in one.src ? `a/${one.src.asset}` : one.src.file, told]] : []
       }),
     )
-    // An answer of `/_t/screen` holds the HTML of each part that the draw met, and the mark that names their places.
+    // An answer of `/_f/screen` holds the HTML of each part that the draw met, and the mark that names their places.
     const sentPage = {
       ...drawn,
       ...(Object.keys(pictured).length ? { pictures: pictured } : {}),
@@ -1059,9 +1059,9 @@ function pictureFor(
 }
 
 /** What the row of a request says of an outcome that is no failure of code: its code, and why. */
-const refusal = (code: string, message: string): TentError => new TentError(code, message)
+const refusal = (code: string, message: string): ForjrError => new ForjrError(code, message)
 
-const notRead = (what: string): TentError =>
-  new TentError('T0001', `No query and no action named ${JSON.stringify(what).slice(0, 80)} can be read.`, {
+const notRead = (what: string): ForjrError =>
+  new ForjrError('F0001', `No query and no action named ${JSON.stringify(what).slice(0, 80)} can be read.`, {
     fix: 'An entry of `data` reads a query or an action of the app.',
   })

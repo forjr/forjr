@@ -1,4 +1,4 @@
-import { flow, model, post, secret, service, text } from 'tentjs'
+import { flow, model, post, secret, service, text } from 'forjr'
 import { orders } from '../tables/orders'
 
 export const tellSales = flow('tellSales', {

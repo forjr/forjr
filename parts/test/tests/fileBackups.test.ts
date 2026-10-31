@@ -162,11 +162,11 @@ test('[50-8@4] [16-2@4] one tenant is put back alone, also after its row was rem
   // A file holds its table and its tenant: the copy of North under the name of South is refused, and nothing is put back.
   const [from, to] = [north, south].map((team) => join(folder, fileOf(dataFolder, team).slice(dataFolder.length + 1)))
   cpSync(from, to)
-  assert.equal(await codeOf(command(app, dataFolder, 'data', { what: 'restore', file: folder, of: south })), 'T0009')
+  assert.equal(await codeOf(command(app, dataFolder, 'data', { what: 'restore', file: folder, of: south })), 'F0009')
   assert.deepEqual(await titlesOf(app, south), ['a desk', 'kept'])
   // A tenant that the backup holds no file of, and an id that names no tenant, are refused too.
   const east = await addTeam(app, 'East')
-  assert.equal(await codeOf(command(app, dataFolder, 'data', { what: 'restore', file: folder, of: east })), 'T0009')
+  assert.equal(await codeOf(command(app, dataFolder, 'data', { what: 'restore', file: folder, of: east })), 'F0009')
   assert.equal(
     typeof (await codeOf(command(app, dataFolder, 'data', { what: 'restore', file: folder, of: '../x' }))),
     'string',

@@ -1,6 +1,6 @@
 import { isStored } from '../core/internal.ts'
 
-/** One failure of a test, as `tent test --json` holds it in `failures`: where it failed, what came, its last call, its fix. */
+/** One failure of a test, as `forjr test --json` holds it in `failures`: where it failed, what came, its last call, its fix. */
 export interface Failure {
   test: string
   file: string
@@ -84,7 +84,7 @@ export function failureWords(failure: Failure): string {
       lines.push(
         `  ${String(row.kind)} ${String(row.table)} ${String(row.id)}: ${shown(row.before ?? null)} -> ${shown(row.after ?? null)}`,
       )
-    if (typeof call.trace === 'string') lines.push(`  its trace: tent logs --trace ${call.trace}`)
+    if (typeof call.trace === 'string') lines.push(`  its trace: forjr logs --trace ${call.trace}`)
   }
   if (failure.randomSeed !== undefined) lines.push(`random seed: ${failure.randomSeed}`)
   return lines.join('\n')

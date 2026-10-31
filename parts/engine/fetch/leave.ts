@@ -29,7 +29,7 @@ export async function keptOfResponse(answer: Response): Promise<KeptAnswer> {
 /**
  * Takes the call context of a `fetch` of backend code under a tool call that sends nothing out, and the fetch.
  * Answers its response, made where a person agreed to it at its place: a later making of the step is handed a
- * response made of the status, the headers and the bytes of the body that were kept. Throws T7111 with its place
+ * response made of the status, the headers and the bytes of the body that were kept. Throws F7111 with its place
  * where nobody agreed. On a worker the `may` and the `did` of the fetch carry the yes and what is kept.
  */
 export async function fetchHeld(cx: CallContext, make: (cx: CallContext) => Promise<Response>): Promise<Response> {

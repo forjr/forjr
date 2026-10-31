@@ -1,0 +1,17 @@
+{
+  "cli": {
+    "uses": "every part"
+  },
+  "core": {
+    "uses": []
+  },
+  "data": {
+    "uses": ["core"]
+  },
+  "engine": {
+    "uses": ["core", "data"]
+  },
+  "test": {
+    "uses": ["core", "engine"]
+  }
+}

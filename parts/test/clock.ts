@@ -1,4 +1,4 @@
-import { later, TentError } from '../core/index.ts'
+import { later, ForjrError } from '../core/index.ts'
 import type { Clock } from '../core/internal.ts'
 import { systemNow } from '../core/internal.ts'
 
@@ -6,20 +6,20 @@ import { systemNow } from '../core/internal.ts'
 export interface TestClock {
   /**
    * Takes a length of time in words, as `'3 days'`. Moves the time of the app forward by it, and calls each timer
-   * of the app that falls due on the way, in the order of their moments. Throws T0027 for a length that does not
+   * of the app that falls due on the way, in the order of their moments. Throws F0027 for a length that does not
    * read, and for one that moves the time back or not at all.
    */
   advance(length: string): void
   /**
    * Takes a moment: a `Date`, a number of milliseconds, or a text that a `Date` reads. Sets the time of the app to
    * it, as a clock of the system is set: each timer due by then is called once, at that moment, in the order of their
-   * moments. Throws T0027 for a moment that does not read.
+   * moments. Throws F0027 for a moment that does not read.
    */
   set(moment: Date | number | string): void
 }
 
 // The time of the system, read where no swap of `Date` reaches: a query swaps it for one that fails, and under
-// `tent test` the code of a call reads the clock of its app through it, this clock among them.
+// `forjr test` the code of a call reads the clock of its app through it, this clock among them.
 const realNow = systemNow
 
 // How far each clock of a test stands ahead of the time of the system, in milliseconds, which the pages of a test follow.
@@ -118,8 +118,8 @@ export function testClock(o: { held?: boolean } = {}): { clock: Clock; moves: Te
     advance(length) {
       const ms = later(new Date(0), length).getTime()
       if (!(ms > 0))
-        throw new TentError(
-          'T0027',
+        throw new ForjrError(
+          'F0027',
           `The clock of a test app is moved forward, and ${JSON.stringify(length)} moves it nowhere.`,
           {
             fix: "Hand `advance` a length of time that is more than nothing, as `'3 days'`.",
@@ -130,8 +130,8 @@ export function testClock(o: { held?: boolean } = {}): { clock: Clock; moves: Te
     set(moment) {
       const to = moment instanceof Date ? moment.getTime() : typeof moment === 'number' ? moment : Date.parse(moment)
       if (!Number.isFinite(to))
-        throw new TentError(
-          'T0027',
+        throw new ForjrError(
+          'F0027',
           `The clock of a test app is set to ${JSON.stringify(moment)}, which is no moment.`,
           {
             fix: "Hand `set` a `Date`, a number of milliseconds, or a moment as text, as `'2030-01-01T09:00:00Z'`.",

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { checkValue } from '../../core/internal.ts'
 import type { Type } from '../../core/index.ts'
 import { called } from '../door/call.ts'
@@ -17,7 +17,7 @@ function typeOf(stored: Record<string, unknown>): Type {
  * Takes an app, a fill group, the row's id, what its work is handed and the fingerprint of that, and how often it
  * was tried before. Calls the work as the system through steps 5 to 10 of the door, as work that reads nothing of
  * the store and that nobody waits for. Answers the value of each column of the group: the answer, or the field of
- * it that `take` names. Throws what the work threw, and T0009 for a value that does not fit its column.
+ * it that `take` names. Throws what the work threw, and F0009 for a value that does not fit its column.
  */
 export async function carryFill(
   o: Opened,
@@ -40,8 +40,8 @@ export async function carryFill(
     const value = one.take === undefined ? answer : Reflect.get(Object(answer), one.take)
     const [misfit] = value === undefined || value === null ? [] : checkValue(typeOf(one.type), value)
     if (misfit)
-      throw new TentError(
-        'T0009',
+      throw new ForjrError(
+        'F0009',
         `The work ${group.work} answered a value that does not fit ${one.table}.${one.column}: ${misfit.message}`,
         {
           fix: 'Answer a value of the type of the column, or the field that `take` names.',

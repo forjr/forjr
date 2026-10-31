@@ -14,7 +14,7 @@ data: { rates: read(currencyRates, { base: 'USD' }, { refresh: '10 minutes' }) }
 
 ## Errors
 
-`code.T1011`: `refresh` is no length of time.
+`code.F1011`: `refresh` is no length of time.
 
 ## See also
 

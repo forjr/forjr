@@ -5,14 +5,14 @@ import { appCommand, isStored } from '../core/internal.ts'
 import { runnerFolder } from '../engine/index.ts'
 
 /**
- * Takes the folder of the install. Answers the tent program that a launcher starts, for macOS and Linux and for
+ * Takes the folder of the install. Answers the forjr program that a launcher starts, for macOS and Linux and for
  * Windows: the install's own launcher in `bin/`, which outlives every version. A player that runs from its files
  * with no install, as from the repository, is itself the runtime with its shell, and is named so.
  */
-function tentProgram(home: string): { unix: string; windows: string } {
+function forjrProgram(home: string): { unix: string; windows: string } {
   const own = `"${process.execPath}" "${fileURLToPath(new URL('./shell.ts', import.meta.url))}"`
   const at = (name: string): string => (existsSync(join(home, 'bin', name)) ? `"${join(home, 'bin', name)}"` : own)
-  return { unix: at('tent'), windows: at('tent.exe') }
+  return { unix: at('forjr'), windows: at('forjr.exe') }
 }
 
 /**
@@ -21,7 +21,7 @@ function tentProgram(home: string): { unix: string; windows: string } {
  * as runnable, and one that ends in `.cmd` for Windows. Each is two lines, and holds no key and no code of the app.
  */
 export function writeLauncher(folder: string, name: string, target: string, home: string): void {
-  const program = tentProgram(home)
+  const program = forjrProgram(home)
   mkdirSync(folder, { recursive: true })
   const unix = join(folder, name)
   writeFileSync(unix, `#!/bin/sh\nexec ${program.unix} cli "${target}" "$@"\n`)
@@ -31,7 +31,7 @@ export function writeLauncher(folder: string, name: string, target: string, home
 
 /**
  * Takes the folder of a project and the bundle that was built of it. Writes the launcher of its commands into
- * `.tent/bin/`, named after the app's command: for a project that offers something to `cli` or holds a `command`,
+ * `.forjr/bin/`, named after the app's command: for a project that offers something to `cli` or holds a `command`,
  * and for no other, since an app with no command has no launcher.
  */
 export function launchProject(project: string, bundle: string): void {
@@ -46,5 +46,5 @@ export function launchProject(project: string, bundle: string): void {
     String(Reflect.get(Object(description.app), 'name')),
     Reflect.get(Object(description.project), 'cli'),
   )
-  writeLauncher(join(project, '.tent', 'bin'), name, project, runnerFolder())
+  writeLauncher(join(project, '.forjr', 'bin'), name, project, runnerFolder())
 }

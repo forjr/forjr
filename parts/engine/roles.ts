@@ -5,7 +5,7 @@ import { systemWriteIn } from './systemWrite.ts'
 /**
  * Takes the context of a call, the id of a user, and what makes the new list of roles from the one the row
  * holds. Writes the roles of that user, as a write of `users` like any other, and answers the list that stands.
- * Each role stands once. Throws T0014 with no `users` table, and T2103 for an id that names no row.
+ * Each role stands once. Throws F0014 with no `users` table, and F2103 for an id that names no row.
  */
 export function writeRoles(cx: CallContext, user: unknown, make: (held: string[]) => string[]): string[] {
   const o = cx.app

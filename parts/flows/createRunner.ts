@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { FileName, Tx } from '../data/index.ts'
 import { addRunOf } from './adding.ts'
 import { answerStep, madeOf, yesOf } from './asking.ts'
@@ -158,7 +158,7 @@ export function createRunner(env: RunnerEnv): Runner {
         addRunOf(held, { flow, version: held.live, event, startedBy: system }, tx, stopLater)
       } catch (error) {
         // A turn that `together` refuses starts no run, and the schedule goes on to its next time.
-        if (!(error instanceof TentError && error.code === 'T7103')) throw error
+        if (!(error instanceof ForjrError && error.code === 'F7103')) throw error
       }
     })
   }
@@ -296,7 +296,7 @@ export function createRunner(env: RunnerEnv): Runner {
     made: (at, call, answer) => madeOf(held, at, call, answer, flowOf(held, at.version, at.flow).limits.result),
     wait(id) {
       const run = runOf(env, id)
-      if (!run) return Promise.reject(new TentError('T0001', `No run ${JSON.stringify(id).slice(0, 80)} is there.`))
+      if (!run) return Promise.reject(new ForjrError('F0001', `No run ${JSON.stringify(id).slice(0, 80)} is there.`))
       const end = endOf(run)
       if (end) return 'answer' in end ? Promise.resolve(end.answer) : Promise.reject(end.error)
       const waiting = new Promise<unknown>((done, failed) => {
@@ -342,7 +342,7 @@ export function createRunner(env: RunnerEnv): Runner {
     stopAll: (o, how) => stopAllOf(held, o, how?.dry === true),
     replayAll: (o, how) => replayAllOf(held, o, how?.dry === true),
     pause(flow) {
-      // A name that is no flow of the live version is T0001.
+      // A name that is no flow of the live version is F0001.
       if (held.live !== undefined) flowOf(held, held.live, flow)
       held.paused.add(flow)
       writePaused(env.store, [...held.paused])
@@ -384,7 +384,7 @@ export function createRunner(env: RunnerEnv): Runner {
     paused: () => [...held.paused].sort(),
     catchUp(flow, o) {
       const version = held.live
-      // A name that is no flow of the live version is T0001.
+      // A name that is no flow of the live version is F0001.
       if (version !== undefined) flowOf(held, version, flow)
       const times = timesOf(held, flow, o.from, o.to)
       if (o.dry === true || version === undefined) return { times, runs: [] }
@@ -530,7 +530,7 @@ export function createRunner(env: RunnerEnv): Runner {
       held.turns.clear()
       held.started = false
       // A caller that waits for a run is answered: the run goes on no more in this runner, which no longer tells its end.
-      const closing = new TentError('T0013', 'The app was closed while this call waited for its run.', {
+      const closing = new ForjrError('F0013', 'The app was closed while this call waited for its run.', {
         fix: 'Ask for the run again once the app is open: `{ run }` of its call, or `app.runs.wait`.',
       })
       for (const waiters of held.waiters.values()) for (const waiter of waiters) waiter.failed(closing)

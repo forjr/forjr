@@ -57,7 +57,7 @@ test('[13-6] the description is written with the keys of every map in code-unit 
   )
   assert.equal(written(undefined, undefined), 'null')
   assert.equal(written('text', '  '), '"text"')
-  const description = { app: { name: 'shop', needsEngine: '1.0' }, format: 'tent.description/1', tables: tricky }
+  const description = { app: { name: 'shop', needsEngine: '1.0' }, format: 'forjr.description/2', tables: tricky }
   const once = write(Object(description))
   assert.equal(once.text, `${written(description, '  ')}\n`)
   assert.equal(once.versionId, once.fingerprint.slice(0, 32))
@@ -66,7 +66,7 @@ test('[13-6] the description is written with the keys of every map in code-unit 
 test('[13-6] the version id of a description that this program wrote is taken from its writing, and that of any other text from its content', () => {
   const description: Description = Object({
     app: { name: 'shop', needsEngine: '1.0' },
-    format: 'tent.description/1',
+    format: 'forjr.description/2',
     tables: { '10': { columns: {} }, '9': { columns: {} } },
   })
   const once = write(description)

@@ -1,6 +1,6 @@
-def run(input, tent):
-    kept = tent.progress()
+def run(input, forjr):
+    kept = forjr.progress()
     if kept is None:
-        tent.save_progress([1, 2])
-        raise tent.Back()
+        forjr.save_progress([1, 2])
+        raise forjr.Back()
     return kept + [3]

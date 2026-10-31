@@ -16,7 +16,7 @@ const order = ['$', '{input.order}'].join('')
 async function admin(server: Server, command: string, args: object): Promise<Record<string, unknown>> {
   const { token, port } = JSON.parse(readFileSync(join(server.data, 'engine.json'), 'utf8'))
   const answer = await server.app.request(
-    new Request(`http://localhost:${port}/_t/admin/${command}`, {
+    new Request(`http://localhost:${port}/_f/admin/${command}`, {
       method: 'POST',
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: JSON.stringify({ args }),
@@ -105,7 +105,7 @@ test('[23-23@8c] at a publish, a waiting run of a flow that states moveRuns when
   )
   assert.deepEqual(
     [refused?.code, refused?.fields?.reason],
-    ['T9103', 'waiting'],
+    ['F9103', 'waiting'],
     'a run whose step was renamed is left, and holds the hard publish',
   )
   assert.equal(server.app.runs.read(left)?.state, 'waiting')

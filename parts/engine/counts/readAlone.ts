@@ -2,17 +2,17 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Plan } from '../../core/internal.ts'
 import { countsLayout } from '../../core/internal.ts'
 import type { Store } from '../../data/index.ts'
 import { sqliteStore } from '../../data/index.ts'
 import { isPlan } from '../../core/internal.ts'
 
-/** Throws T0013 where a caller that is not the system reads the counts, which are read as the system alone. */
+/** Throws F0013 where a caller that is not the system reads the counts, which are read as the system alone. */
 export function countsCallerHeld(caller: Caller): void {
   if (caller.kind !== 'system')
-    throw new TentError('T0013', 'The counts are read as the system alone.', {
+    throw new ForjrError('F0013', 'The counts are read as the system alone.', {
       fix: "Read them with `{ as: 'system' }`.",
     })
 }

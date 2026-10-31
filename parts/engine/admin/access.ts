@@ -4,7 +4,7 @@ import type { Admin } from '../admin.ts'
  * A rule as one word, or two: its kind, and the role that a rule of a role names. A rule that is not stated lets
  * nobody in.
  */
-function ruleWords(access: unknown): string {
+function accessWords(access: unknown): string {
   const record: Record<string, unknown> = Object(access)
   const rule = typeof record.rule === 'string' ? record.rule : 'nobody'
   return rule === 'role' ? `role ${String(record.role)}` : rule
@@ -19,7 +19,7 @@ const callWords = (call: unknown): string | undefined => {
 }
 
 /**
- * `tent access`: one table of who can do what. For each table the rule of each of its four doings, and for each
+ * `forjr access`: one table of who can do what. For each table the rule of each of its four doings, and for each
  * function its kind and its rule, with the reason of its full access and whether it uses raw SQL; every model with
  * its provider, and its service call where it is one; the policy of each agent that builds; and what the
  * project opened of the policy of its pages, `unlock`.
@@ -33,16 +33,16 @@ export const admin: Admin = {
       const access: Record<string, unknown> = Object(record.access)
       return {
         table,
-        read: ruleWords(access.read),
-        add: ruleWords(access.add),
-        change: ruleWords(access.change),
-        remove: ruleWords(access.remove),
+        read: accessWords(access.read),
+        add: accessWords(access.add),
+        change: accessWords(access.change),
+        remove: accessWords(access.remove),
       }
     })
     const functions = sorted(o.description.functions).map(([name, record]) => ({
       name,
       kind: record.kind,
-      access: ruleWords(record.access),
+      access: accessWords(record.access),
       ...(typeof record.system === 'string' ? { system: record.system } : {}),
       ...(record.tiedTo === 'sqlite' ? { sql: true } : {}),
     }))

@@ -8,7 +8,7 @@ import { buildProject } from '../../build/index.ts'
 import { createEngine } from '../../engine/index.ts'
 import { copied } from './typed.ts'
 
-test('[05-12.16] an onRequest that hands a request of the local runner on to another server hands it on with neither the admin token nor Tent-Caller', async (t) => {
+test('[05-12.16] an onRequest that hands a request of the local runner on to another server hands it on with neither the admin token nor Forjr-Caller', async (t) => {
   // The other server, which keeps the headers of every request that reaches it.
   const heard: IncomingHttpHeaders[] = []
   const other = createServer((request, response) => {
@@ -28,7 +28,7 @@ test('[05-12.16] an onRequest that hands a request of the local runner on to ano
   const engine = createEngine({ port: 0 })
   t.after(() => engine.close())
   const project = copied(t, `handed-${process.pid}-${Math.random().toString(36).slice(2, 8)}`, 'served')
-  const file = join(project, 'tent.ts')
+  const file = join(project, 'forjr.ts')
   const written = readFileSync(file, 'utf8')
   const from = '    return next(request)\n  },'
   assert.ok(written.includes(from))
@@ -47,19 +47,19 @@ test('[05-12.16] an onRequest that hands a request of the local runner on to ano
     built.findings.filter((one) => one.level === 'error').map((one) => `${one.code} ${one.message}`),
     [],
   )
-  const data = join(project, '.tent')
+  const data = join(project, '.forjr')
   await engine.open(built.bundleFolder, { dataFolder: data, mode: 'test' })
   const { port, token } = JSON.parse(readFileSync(join(data, 'engine.json'), 'utf8'))
   // A request as the runner of this computer sends it: the admin token, and the caller it acts for.
   for (const path of ['/headers', '/whole']) {
     const answer = await fetch(`http://127.0.0.1:${port}${path}`, {
-      headers: { authorization: `Bearer ${token}`, 'tent-caller': 'system' },
+      headers: { authorization: `Bearer ${token}`, 'forjr-caller': 'system' },
     })
     assert.equal(await answer.text(), 'caught', path)
   }
   assert.equal(heard.length, 2)
   for (const headers of heard) {
-    assert.equal(headers['tent-caller'], undefined, JSON.stringify(headers))
+    assert.equal(headers['forjr-caller'], undefined, JSON.stringify(headers))
     assert.equal(JSON.stringify(headers).includes(token), false, JSON.stringify(headers))
   }
 })

@@ -8,7 +8,7 @@ function sizeOf(written: unknown): { width: number; height: number } | undefined
 }
 
 /**
- * `tent shot <address>`: a picture of a screen of the app that runs, as nobody, written into `shots/` where `out`
+ * `forjr shot <address>`: a picture of a screen of the app that runs, as nobody, written into `shots/` where `out`
  * names no file.
  */
 export const admin: Admin = {

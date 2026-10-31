@@ -3,7 +3,8 @@ import { isStored } from '../../core/internal.ts'
 import type { Change } from '../../history/index.ts'
 import type { ImpactLine, ImpactFacts } from './face.ts'
 import type { Stored } from './read.ts'
-import { fileOf, leftOut, listOf, recordsOf } from './read.ts'
+import { placedIn } from './placed.ts'
+import { leftOut, listOf, recordsOf } from './read.ts'
 
 /** How a table change lands: by itself, because the project states it, against the rows, or not at all. */
 type Weight = 'safe' | 'stated' | 'hard' | 'refused'
@@ -69,7 +70,7 @@ export function dataOf(live: Description, next: Description, changes: Change[], 
     const one = {
       name,
       kind,
-      file: fileOf(next, table) || fileOf(live, table),
+      file: placedIn(next, table).file || placedIn(live, table).file,
       change: `${words}, ${weight}${touched(facts, table)}`,
     }
     columns.set(name, one)
@@ -122,7 +123,7 @@ export function dataOf(live: Description, next: Description, changes: Change[], 
       found.push({
         name,
         kind: 'backfill',
-        file: fileOf(next, name),
+        file: placedIn(next, name).file,
         change: `backfill of ${table}${touched(facts, table)}`,
       })
     }
@@ -133,7 +134,7 @@ export function dataOf(live: Description, next: Description, changes: Change[], 
     found.push({
       name,
       kind: 'lasts',
-      file: fileOf(next, name),
+      file: placedIn(next, name).file,
       change: `kept for ${lengthOf(record.lasts.for)} by ${String(record.lasts.by)}${kept === undefined ? '' : `, its first pass removes ${kept} ${kept === 1 ? 'row' : 'rows'}`}`,
     })
   }

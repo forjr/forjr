@@ -26,7 +26,7 @@ function world(answers: Record<string, unknown>) {
     get: async (address) => {
       asked.push(address)
       const path = new URL(address, 'http://x').searchParams.get('path') ?? ''
-      return Object.hasOwn(answers, path) ? { ok: true, value: answers[path] } : { ok: false, error: { code: 'T0001' } }
+      return Object.hasOwn(answers, path) ? { ok: true, value: answers[path] } : { ok: false, error: { code: 'F0001' } }
     },
     load: async (files) => {
       loaded.push(files)
@@ -83,7 +83,7 @@ test('[32-5] a move asks for the next screen in one request, loads the files tha
   })
   page.goTo('/orders/7')
   await settled()
-  assert.deepEqual(at.asked, ['/_t/screen?path=%2Forders%2F7&version=v1'])
+  assert.deepEqual(at.asked, ['/_f/screen?path=%2Forders%2F7&version=v1'])
   assert.deepEqual(at.loaded, [['order.js']])
   assert.deepEqual(at.gone, [])
   assert.deepEqual(at.steps, ['/orders', '/orders/7'])

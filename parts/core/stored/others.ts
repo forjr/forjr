@@ -34,7 +34,7 @@ export function incomingOf(told: Told, o: Stored): Stored {
   known(told, 'incoming', o, otherOptions.incoming)
   required(told, 'incoming', o, ['path', 'then'])
   if (o.verify !== undefined && o.open !== undefined)
-    report(told, 'T1007', 'it states both `verify` and `open`.', 'Keep one of the two.')
+    report(told, 'F1007', 'it states both `verify` and `open`.', 'Keep one of the two.')
   const stored: Stored = {}
   setField(stored, 'path', o.path)
   const signature = handedName(o.verify)
@@ -44,7 +44,7 @@ export function incomingOf(told: Told, o: Stored): Stored {
     if (webhook.scheme === undefined)
       report(
         told,
-        'T1014',
+        'F1014',
         `\`verify\` names the signature of ${service}, which states no \`webhook\`.`,
         'State `webhook` on the service.',
       )

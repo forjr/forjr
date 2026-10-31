@@ -1,4 +1,4 @@
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 import { Button } from '../components/Button'
 
 export const oneLineScreen = screen('oneLineScreen', { path: '/one-line', access: 'anyone', view: () => <div style={{ display: 'flex', flexDirection: 'column', gap: 8 }}><span>One line</span><span style={{ color: '#5f6672' }}>All of it</span></div> })

@@ -11,7 +11,7 @@ It is the screen's that is left: once a move away from it has taken `loadingAfte
 ## Example
 
 ```tsx
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 import { Spinner } from '../components/Spinner'
 
 export const ordersScreen = screen('ordersScreen', {
@@ -24,7 +24,7 @@ export const ordersScreen = screen('ordersScreen', {
 
 ## Errors
 
-`code.T1014`: what is written there is neither a component nor a name.
+`code.F1014`: what is written there is neither a component nor a name.
 
 ## See also
 

@@ -3,11 +3,11 @@ import { keyed } from '../door/keyed.ts'
 import { noLink } from '../noLink.ts'
 import { firstRead } from './file.ts'
 
-const prefix = '/_t/copy/file/'
+const prefix = '/_f/copy/file/'
 
 /**
- * `GET /_t/copy/file/<fingerprint>`: the bytes of one file, as the `FileStore` holds them, with its length. Not found
- * for a fingerprint that no row of `_t_files` names, and for anything that is no fingerprint. A writer that is asked
+ * `GET /_f/copy/file/<fingerprint>`: the bytes of one file, as the `FileStore` holds them, with its length. Not found
+ * for a fingerprint that no row of `_f_files` names, and for anything that is no fingerprint. A writer that is asked
  * for bytes it does not hold, as a far reader that took over is, answers not found, and its log names the file.
  */
 export const address: Address = {

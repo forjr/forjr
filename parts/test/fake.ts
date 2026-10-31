@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { App, Provider } from '../engine/index.ts'
 import type { FakedModel, ModelAnswers } from './fakeModel.ts'
 import { fakeModel } from './fakeModel.ts'
@@ -35,8 +35,8 @@ const callsOf = (call: (name: string) => unknown): object =>
 /** A stand-in of a service that no test faked: each call fails, and reaches nothing outside. */
 const notFaked = (service: string): object =>
   callsOf((call) => () => {
-    throw new TentError(
-      'T7115',
+    throw new ForjrError(
+      'F7115',
       `The service ${service} was called as ${call}, and a test app reaches no outside service: fake it with app.fake.`,
       {
         fix: `Fake it with \`app.fake('${service}', { ${call}: answer })\`, or name it in \`real\` of \`testApp\`.`,
@@ -49,7 +49,7 @@ const fakedBy = (service: string, held: Held): object =>
   callsOf((call) => async (input: unknown, how?: { once?: string }) => {
     held.faked.sent.push({ call, input, ...(how?.once === undefined ? {} : { once: how.once }) })
     if (!Object.hasOwn(held.answers, call))
-      throw new TentError('T7115', `The fake of ${service} gives no answer for ${call}.`, {
+      throw new ForjrError('F7115', `The fake of ${service} gives no answer for ${call}.`, {
         fix: `Give \`${call}\` among the answers of \`app.fake('${service}', ...)\`.`,
       })
     const answer = held.answers[call]
@@ -78,7 +78,7 @@ export function fakesOf(
       if (Object.hasOwn(app().description.models, service)) {
         const kept = models.get(service)
         if (answers === undefined) {
-          if (!kept) throw new TentError('T0013', `The model ${service} was not faked in this test.`)
+          if (!kept) throw new ForjrError('F0013', `The model ${service} was not faked in this test.`)
           return kept.faked
         }
         const one = fakeModel(service, isModelAnswers(answers) ? answers : [])
@@ -87,10 +87,10 @@ export function fakesOf(
         return one.faked
       }
       if (answers !== undefined && !isServiceAnswers(answers))
-        throw new TentError('T0013', `The service ${service} is faked with a record of its calls.`)
+        throw new ForjrError('F0013', `The service ${service} is faked with a record of its calls.`)
       const held = made.get(service)
       if (answers === undefined) {
-        if (!held) throw new TentError('T0013', `The service ${service} was not faked in this test.`)
+        if (!held) throw new ForjrError('F0013', `The service ${service} was not faked in this test.`)
         return held.faked
       }
       const one: Held = { answers, faked: { sent: held?.faked.sent ?? [] } }

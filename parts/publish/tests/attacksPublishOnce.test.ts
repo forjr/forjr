@@ -52,7 +52,7 @@ function columnsOf(server: Server, table: string): string[] {
 }
 
 /**
- * Builds the computer's project as it lies, and sends what a publish of it sends before `/_t/publish`: its blobs,
+ * Builds the computer's project as it lies, and sends what a publish of it sends before `/_f/publish`: its blobs,
  * and a point named by its version whose parent is what is live. Answers the body that asks for its publish.
  */
 async function readied(server: Server, here: Computer, key: string, out: string): Promise<string> {
@@ -65,7 +65,7 @@ async function readied(server: Server, here: Computer, key: string, out: string)
     }
   await sent(
     server,
-    '/_t/sync/blobs?for=bundle',
+    '/_f/sync/blobs?for=bundle',
     blobsBody([...files.values()].map((one) => [print(one), one])),
     key,
     blobsType,
@@ -79,12 +79,12 @@ async function readied(server: Server, here: Computer, key: string, out: string)
     files: {},
   }
   const point = { id: idOf(held), ...held }
-  await sent(server, '/_t/sync/points', { points: [point] }, key)
+  await sent(server, '/_f/sync/points', { points: [point] }, key)
   const listed = Object.fromEntries([...files].map(([path, bytes]) => [path, print(bytes)]))
   return JSON.stringify({ point: point.id, version: built.versionId, files: listed })
 }
 
-test('[05-15.8] two publishes at once: one runs, and the other is T9103', async (t) => {
+test('[05-15.8] two publishes at once: one runs, and the other is F9103', async (t) => {
   const { server, here, to } = await published(t)
   here.edit(functions, ".limit(input('limit'))", '.limit(50)')
   const first = await readied(server, here, to.key, join(here.project, '..', 'first'))
@@ -93,7 +93,7 @@ test('[05-15.8] two publishes at once: one runs, and the other is T9103', async 
   // Both are asked in one moment, each as a publish asks.
   const answers = await Promise.all(
     [first, second].map(async (body) => {
-      const answer = await fetch(`${server.address}/_t/publish`, {
+      const answer = await fetch(`${server.address}/_f/publish`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `Bearer ${to.key}` },
         body,
@@ -102,12 +102,12 @@ test('[05-15.8] two publishes at once: one runs, and the other is T9103', async 
     }),
   )
   const codes = answers.map((one) => (one.ok === true ? 'ok' : String(Object(one.error).code))).sort()
-  assert.deepEqual(codes, ['T9103', 'ok'], JSON.stringify(answers))
+  assert.deepEqual(codes, ['F9103', 'ok'], JSON.stringify(answers))
   const won = answers.findIndex((one) => one.ok === true)
   assert.equal(running(server), JSON.parse([first, second][won]).version, 'the one that ran is live')
 })
 
-test('[05-15.9] a publish whose version fails its health check, and one whose table change a row does not fit, is T9103, with the old version running and its tables as they were', async (t) => {
+test('[05-15.9] a publish whose version fails its health check, and one whose table change a row does not fit, is F9103, with the old version running and its tables as they were', async (t) => {
   const { server, here, to } = await published(t)
   await server.app.write([{ add: 'orders', values: { title: 'one', total: 5, state: 'open' } }], { as: 'system' })
   const before = {
@@ -127,7 +127,7 @@ test('[05-15.9] a publish whose version fails its health check, and one whose ta
     }
   }
   // A health query that fails: once where it reads no table the publish changes, and once where it reads that table.
-  here.edit('tent.ts', "{ title: 'Shop' }", "{ title: 'Shop', publish: { health: 'failing' } }")
+  here.edit('forjr.ts', "{ title: 'Shop' }", "{ title: 'Shop', publish: { health: 'failing' } }")
   here.edit(
     tables,
     '    note: text({ optional: true, max: NOTE_LENGTH }),',
@@ -139,7 +139,7 @@ test('[05-15.9] a publish whose version fails its health check, and one whose ta
     here.edit(functions, anchor, `${failing}${anchor}`)
     await here.save()
     const health = await refusal(publish({ project: here.project, history: here.history, to, fetch: fetched }))
-    assert.deepEqual([health?.code, health?.fields?.reason], ['T9103', 'health'], `a health query of ${read}`)
+    assert.deepEqual([health?.code, health?.fields?.reason], ['F9103', 'health'], `a health query of ${read}`)
     assert.equal(running(server), before.version, `the old version runs, after a health query of ${read}`)
     assert.deepEqual(
       columnsOf(server, 'orders'),
@@ -150,12 +150,12 @@ test('[05-15.9] a publish whose version fails its health check, and one whose ta
     assert.deepEqual(await rows(), ['one'])
     here.edit(functions, failing, '')
   }
-  here.edit('tent.ts', "{ title: 'Shop', publish: { health: 'failing' } }", "{ title: 'Shop' }")
+  here.edit('forjr.ts', "{ title: 'Shop', publish: { health: 'failing' } }", "{ title: 'Shop' }")
   // A table change that the live row does not fit: the note it has none of is made required.
   here.edit(tables, '    note: text({ optional: true, max: NOTE_LENGTH }),', '    note: text({ max: NOTE_LENGTH }),')
   await here.save()
   const refused = await refusal(publish({ project: here.project, history: here.history, to, fetch: fetched }))
-  assert.deepEqual([refused?.code, refused?.fields?.reason], ['T9103', 'rows'])
+  assert.deepEqual([refused?.code, refused?.fields?.reason], ['F9103', 'rows'])
   assert.equal(running(server), before.version)
   assert.deepEqual(columnsOf(server, 'orders'), before.orders)
   assert.deepEqual(await rows(), ['one'])

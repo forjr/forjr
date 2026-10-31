@@ -43,7 +43,7 @@ async function othersAnswered(siege: Siege, wide: boolean): Promise<number> {
 async function onBothAddresses(t: TestContext, web: Record<string, string | number>): Promise<[Siege, boolean]> {
   try {
     const siege = await besieged(t, { engine: { host: '::', web }, open: { address: '*' } })
-    const reached = await wire(siege, { method: 'GET', path: '/_t/health', via: '::1' }).then(
+    const reached = await wire(siege, { method: 'GET', path: '/_f/health', via: '::1' }).then(
       (answer) => answer.status === 200,
       () => false,
     )
@@ -69,7 +69,7 @@ test('[05-2.11] headers that never end, a body that stops, and a thousand connec
   stalled.write(`${headOf(siege, 'echo', 1000)}{"input":{"text":"`)
   // Headers larger than the head may be, all at once.
   const large = await byWire(t, siege)
-  large.write(`GET /_t/health HTTP/1.1\r\nHost: localhost:${siege.port}\r\nX-Large: ${'x'.repeat(20_000)}\r\n\r\n`)
+  large.write(`GET /_f/health HTTP/1.1\r\nHost: localhost:${siege.port}\r\nX-Large: ${'x'.repeat(20_000)}\r\n\r\n`)
   // While they stand, others are answered.
   assert.equal(await othersAnswered(siege, wide), 200)
   for (const [what, sender] of Object.entries({ endless, stalled, large })) {
@@ -143,7 +143,7 @@ test('[05-2.11] [night] by the times of the engine itself: headers that never en
   assert.equal((await wire(siege, { path: callOf('whoAmI') })).status, 200)
 })
 
-test('[05-2.17] a body that states a Content-Encoding is T0003 and nothing is opened, and a request with two lengths is closed by the reader of the runtime', async (t) => {
+test('[05-2.17] a body that states a Content-Encoding is F0003 and nothing is opened, and a request with two lengths is closed by the reader of the runtime', async (t) => {
   const siege = await besieged(t, { limits: { callSize: 100_000 } })
   const ran = (): number => logOf(siege.dataFolder, 'lines').length
   // A packed body that would open to a whole call a thousand times its size.
@@ -154,7 +154,7 @@ test('[05-2.17] a body that states a Content-Encoding is T0003 and nothing is op
     for (const body of [packed, '{"input":{"text":"not packed at all"}}']) {
       const began = performance.now()
       const answer = await wire(siege, { path: callOf('echo'), body, headers: { 'content-encoding': encoding } })
-      assert.deepEqual([answer.status, answer.error.code], [413, 'T0003'], encoding)
+      assert.deepEqual([answer.status, answer.error.code], [413, 'F0003'], encoding)
       assert.ok(performance.now() - began < 2000, encoding)
     }
   }
@@ -191,7 +191,7 @@ test('[05-2.17] a body that states a Content-Encoding is T0003 and nothing is op
 function rates(siege: Siege): number {
   const db = new DatabaseSync(join(siege.dataFolder, 'data.db'), { readOnly: true })
   try {
-    return Number(db.prepare('SELECT count(*) AS n FROM "_t_rate"').get()?.n)
+    return Number(db.prepare('SELECT count(*) AS n FROM "_f_rate"').get()?.n)
   } finally {
     db.close()
   }
@@ -235,10 +235,10 @@ async function manyAddresses(t: TestContext, count: number): Promise<void> {
   assert.equal((await asked(siege.app, siege.origin, visitor)).status, 200)
 }
 
-test('[05-2.19] two thousand made-up addresses behind a named proxy, one call each: the app keeps answering, and a minute later _t_rate holds none of them', async (t) => {
+test('[05-2.19] two thousand made-up addresses behind a named proxy, one call each: the app keeps answering, and a minute later _f_rate holds none of them', async (t) => {
   await manyAddresses(t, 2000)
 })
 
-test('[05-2.19] [night] a hundred thousand made-up addresses behind a named proxy, one call each: the app keeps answering, and a minute later _t_rate holds none of them', async (t) => {
+test('[05-2.19] [night] a hundred thousand made-up addresses behind a named proxy, one call each: the app keeps answering, and a minute later _f_rate holds none of them', async (t) => {
   await manyAddresses(t, 100_000)
 })

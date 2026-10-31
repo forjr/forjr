@@ -2,7 +2,7 @@ import { randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, rmSync, utimesSync, writeFileSync } from 'node:fs'
 import { rename } from 'node:fs/promises'
 import { dirname, join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { runInstaller, startedWith } from './installer.ts'
 import type { AppProgram, ProgramStart } from '../rooms/room.ts'
 import type { OwnPython, PythonParts } from './tools.ts'
@@ -10,7 +10,7 @@ import { installerOf, pythonOf } from './tools.ts'
 import { fingerprintOf } from '../../core/internal.ts'
 
 /** The file that says an environment is whole: it is written last, and touched each time the environment is used. */
-export const wholeMark = '.tent-whole'
+export const wholeMark = '.forjr-whole'
 
 /** What an environment is made from: the text of its lock, what `python` of `project` states, and how a secret is opened. */
 export interface EnvironmentAsked {
@@ -56,12 +56,12 @@ export function touched(folder: string): void {
 }
 
 /** The error of an environment that could not be made, with what the installer said of why. */
-const notMade = (lock: string, said: string): TentError =>
-  new TentError(
-    'T0016',
+const notMade = (lock: string, said: string): ForjrError =>
+  new ForjrError(
+    'F0016',
     `The packages of the lock for Python ${lockedPython(lock) ?? '?'} could not be installed: ${said.replace(/\s+/g, ' ').trim().slice(0, 1000)}`,
     {
-      fix: 'See that this computer reaches the package index, and that each package file is the one its lock names: `tent python lock` makes the lock anew.',
+      fix: 'See that this computer reaches the package index, and that each package file is the one its lock names: `forjr python lock` makes the lock anew.',
     },
   )
 
@@ -107,7 +107,7 @@ async function made(asked: EnvironmentAsked, place: string, version: string): Pr
       { time: asked.time },
     )
     if (venv.code !== 0) throw notMade(asked.lock, venv.err || venv.out)
-    const lock = join(filling, '.tent-lock')
+    const lock = join(filling, '.forjr-lock')
     writeFileSync(lock, asked.lock)
     const laid = await runInstaller(
       asked.program,
@@ -145,7 +145,7 @@ function ownOf(own: unknown): OwnPython | undefined {
  * since a server that may not reach the sites the parts come from does not reach that index either.
  */
 export function usualIndex(parts: PythonParts): string {
-  const own = parts.from ?? process.env.TENT_PARTS
+  const own = parts.from ?? process.env.FORJR_PARTS
   return own ? `${own.replace(/\/+$/, '')}/simple` : 'https://pypi.org/simple'
 }
 
@@ -153,13 +153,13 @@ export function usualIndex(parts: PythonParts): string {
  * Takes the text of a lock and what it is made with. Answers its environment, made where the install holds none
  * yet: from the lock alone and with every fingerprint checked, in `fetched/python-envs/<the first 16 characters of
  * the lock's fingerprint>/`, under another name first and renamed when it is whole. Two callings for one lock share
- * one making. Throws T0016 for a part or a package that could not be fetched, or whose bytes do not fit.
+ * one making. Throws F0016 for a part or a package that could not be fetched, or whose bytes do not fit.
  */
 export async function environmentOf(asked: EnvironmentAsked): Promise<Environment> {
   const version = lockedPython(asked.lock)
   if (version === undefined)
-    throw new TentError('T0016', 'The packages of a lock that names no Python could not be installed.', {
-      fix: 'Run `tent python lock`, and build the project again.',
+    throw new ForjrError('F0016', 'The packages of a lock that names no Python could not be installed.', {
+      fix: 'Run `forjr python lock`, and build the project again.',
     })
   const python = await pythonOf(version, asked.parts, ownOf(asked.stated.own))
   const name = fingerprintOf(asked.lock).slice(0, 16)

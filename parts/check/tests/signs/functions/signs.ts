@@ -1,4 +1,4 @@
-import { boolean, calc, date, input, link, list, number, query, settings, table, text } from 'tentjs'
+import { boolean, calc, date, input, link, list, number, query, settings, table, text } from 'forjr'
 
 const first = input('first')
 const shopName = settings.shopName

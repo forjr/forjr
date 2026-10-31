@@ -31,7 +31,7 @@ import {
   slice,
   startsWith,
   sum,
-  TentError,
+  ForjrError,
   token,
   trim,
   upper,
@@ -147,12 +147,12 @@ const stored: [name: string, word: (...values: never[]) => unknown, values: unkn
   ],
 ]
 
-/** Answers the `TentError` that a piece of work throws, and fails where it throws none. */
-function thrownBy(work: () => unknown): TentError {
+/** Answers the `ForjrError` that a piece of work throws, and fails where it throws none. */
+function thrownBy(work: () => unknown): ForjrError {
   try {
     work()
   } catch (thrown) {
-    assert.ok(thrown instanceof TentError, `it threw what is no TentError: ${thrown}`)
+    assert.ok(thrown instanceof ForjrError, `it threw what is no ForjrError: ${thrown}`)
     return thrown
   }
   assert.fail('it threw nothing')
@@ -216,12 +216,12 @@ test('[12-1] each value word answers its stored value, and its record for a refe
     assert.ok(names.has(name), `no stored input for ${name}`)
   for (const name of ['between', 'dayOf', 'fingerprint', 'sameSecret', 'chunks']) assert.ok(names.has(name), name)
 
-  // `each` answers its list, and handed a reference it throws T1014 and answers no record.
+  // `each` answers its list, and handed a reference it throws F1014 and answers no record.
   assert.deepEqual(
     each([1, 2, 3], (n, i) => n * i),
     [0, 2, 6],
   )
-  assert.equal(thrownBy(() => each(input<number[]>('lines'), (line) => line)).code, 'T1014')
+  assert.equal(thrownBy(() => each(input<number[]>('lines'), (line) => line)).code, 'F1014')
   // Handed one text and nothing else, each of the four is what `group` takes for a column.
   assert.deepEqual(
     [sum('total'), avg('total'), min('total'), max('total')],
@@ -264,15 +264,15 @@ test('[12-1] each value word answers its stored value, and its record for a refe
   ring.push(ring)
   for (const work of [() => concat('a', tied), () => join(ring, ','), () => contains(ring, 1)]) {
     const error = thrownBy(work)
-    assert.equal(error.code, 'T1014')
+    assert.equal(error.code, 'F1014')
     assert.match(error.message, /holds itself/)
   }
   // A value that stands twice holds nothing of itself.
   const pair = [input('last')]
   assert.deepEqual(join([pair, pair], ','), { fn: 'join', args: [[[{ input: 'last' }], [{ input: 'last' }]], ','] })
 
-  // A value of another kind than the word works with is T0027, which names the word.
-  for (const [what, work] of cannot) assert.equal(thrownBy(work).code, 'T0027', what)
+  // A value of another kind than the word works with is F0027, which names the word.
+  for (const [what, work] of cannot) assert.equal(thrownBy(work).code, 'F0027', what)
   assert.match(thrownBy(() => later(noon, 'a while')).message, /^later cannot work with "a while"/)
 
   // Beyond `valueSize`: 1,000,000 with an empty slot, and the limit that a runtime answers where one is in the slot.
@@ -280,11 +280,11 @@ test('[12-1] each value word answers its stored value, and its record for a refe
   setRuntime(testRuntime(() => undefined, true, 5))
   assert.deepEqual(range(0, 5), [0, 1, 2, 3, 4])
   const over = thrownBy(() => range(0, 6))
-  assert.equal(over.code, 'T0027')
+  assert.equal(over.code, 'F0027')
   assert.match(over.message, /valueSize of 5/)
-  assert.equal(thrownBy(() => concat('abc', 'def')).code, 'T0027')
-  assert.equal(thrownBy(() => join([1, 2, 3, 4], '-')).code, 'T0027')
-  assert.equal(thrownBy(() => each([1, 2, 3, 4, 5, 6], (n) => n)).code, 'T0027')
+  assert.equal(thrownBy(() => concat('abc', 'def')).code, 'F0027')
+  assert.equal(thrownBy(() => join([1, 2, 3, 4], '-')).code, 'F0027')
+  assert.equal(thrownBy(() => each([1, 2, 3, 4, 5, 6], (n) => n)).code, 'F0027')
   // Where a definition is being made no call is under way, and a runtime that answers no limit leaves the 1,000,000.
   assert.equal(describing(() => range(0, 6)).length, 6)
   setRuntime(testRuntime(() => undefined, true))
@@ -327,8 +327,8 @@ test('[12-1] the words that ask the engine, and a setting, answer their record w
   })
 })
 
-test('[16-2@1] T0013 and T0027 are each raised by a call built to cause them', async () => {
-  // T0013: an arrow handed to `each` answers a promise where waiting is not allowed, and no second entry is taken.
+test('[16-2@1] F0013 and F0027 are each raised by a call built to cause them', async () => {
+  // F0013: an arrow handed to `each` answers a promise where waiting is not allowed, and no second entry is taken.
   const taken: number[] = []
   const waits = () =>
     each([1, 2, 3], async (n) => {
@@ -339,21 +339,21 @@ test('[16-2@1] T0013 and T0027 are each raised by a call built to cause them', a
     taken.length = 0
     setRuntime(testRuntime(() => undefined, mayWait))
     const error = thrownBy(waits)
-    assert.deepEqual([error.code, error.name], ['T0013', 'not-allowed-here'])
+    assert.deepEqual([error.code, error.name], ['F0013', 'not-allowed-here'])
     assert.ok(error.fix)
     assert.deepEqual(taken, [1])
   }
-  // With no engine waiting is not allowed either: it is T0013, and never T0010.
+  // With no engine waiting is not allowed either: it is F0013, and never F0010.
   setRuntime(null)
-  assert.equal(thrownBy(waits).code, 'T0013')
+  assert.equal(thrownBy(waits).code, 'F0013')
   // Where the call may wait, the entries are taken one after another.
   setRuntime(testRuntime(() => undefined, true))
   assert.deepEqual(await waits(), [1, 2, 3])
 
-  // T0027: each wrong kind of value, with the name of the code.
+  // F0027: each wrong kind of value, with the name of the code.
   for (const [what, work] of cannot) {
     const error = thrownBy(work)
-    assert.deepEqual([error.code, error.name], ['T0027', 'cannot-work-out'], what)
+    assert.deepEqual([error.code, error.name], ['F0027', 'cannot-work-out'], what)
   }
 })
 
@@ -382,7 +382,7 @@ test('[12-1] a day of a year under 100 is a day of the calendar, and a moment of
   assert.equal(max(['0001-01-01', '0099-12-31']), '0099-12-31')
 })
 
-test('[12-1] the calendar runs from 0001-01-01 to 9999-12-31, and a word that would answer a day or a moment outside it is T0027', () => {
+test('[12-1] the calendar runs from 0001-01-01 to 9999-12-31, and a word that would answer a day or a moment outside it is F0027', () => {
   // The year 0000 is no year of it, for a day and for a moment.
   assert.equal(checkValue(day(), '0000-01-01').length, 1)
   assert.equal(checkValue(date(), '0000-06-15T12:00:00Z').length, 1)
@@ -390,8 +390,8 @@ test('[12-1] the calendar runs from 0001-01-01 to 9999-12-31, and a word that wo
   assert.equal(checkValue(date(), '0001-01-01T00:00:00Z').length, 0)
   assert.equal(checkValue(date(), '9999-12-31T23:59:59.999Z').length, 0)
   assert.equal(checkValue(date(), '0001-01-01T00:00:00+01:00').length, 1)
-  assert.equal(thrownBy(() => dayOf('0000-06-15T12:00:00.000Z', 'UTC')).code, 'T0027')
-  assert.equal(thrownBy(() => later('0000-01-01', '1 day')).code, 'T0027')
+  assert.equal(thrownBy(() => dayOf('0000-06-15T12:00:00.000Z', 'UTC')).code, 'F0027')
+  assert.equal(thrownBy(() => later('0000-01-01', '1 day')).code, 'F0027')
   // A day and a moment that are moved stay inside it.
   const outside: [string, () => unknown][] = [
     ['a day after the last', () => later('9999-12-31', '1 day')],
@@ -405,7 +405,7 @@ test('[12-1] the calendar runs from 0001-01-01 to 9999-12-31, and a word that wo
   ]
   for (const [what, work] of outside) {
     const error = thrownBy(work)
-    assert.equal(error.code, 'T0027', what)
+    assert.equal(error.code, 'F0027', what)
   }
   assert.equal(later('9999-12-30', '1 day'), '9999-12-31')
   assert.equal(earlier('0001-01-02', '1 day'), '0001-01-01')

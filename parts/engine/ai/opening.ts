@@ -2,7 +2,7 @@ import type { Provider } from '../../ai/index.ts'
 import type { Description } from '../../core/internal.ts'
 import type { MakerInput, Makers } from '../makers.ts'
 import type { Opened } from '../opened.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { keepDrivers } from './driving.ts'
 import { loadAi } from './loaded.ts'
 
@@ -19,7 +19,7 @@ export function keepProviders(o: Opened, providers: Record<string, Provider>): v
 
 /**
  * Takes an app, its description, and its makers with what they are handed. An app that holds a model loads `ai`,
- * has its makers make its providers, and keeps them. Throws T7113 where a model names a provider that neither
+ * has its makers make its providers, and keeps them. Throws F7113 where a model names a provider that neither
  * ships nor was made: the app does not open. An app that holds no model loads nothing of `ai`.
  */
 export async function keepModels(
@@ -43,8 +43,8 @@ export async function keepModels(
   for (const [name, flow] of Object.entries(description.flows)) {
     const driver: unknown = Reflect.get(Object(flow.agent), 'driver')
     if (typeof driver === 'string' && !Object.hasOwn(drivers, driver))
-      throw new TentError(
-        'T7114',
+      throw new ForjrError(
+        'F7114',
         `The agent ${name} names the driver ${driver}, which nobody made in \`engine.ts\`.`,
         {
           fix: `Make it in \`drivers\` of the makers of \`engine.ts\`, by the name ${driver}, or take \`driver\` away.`,

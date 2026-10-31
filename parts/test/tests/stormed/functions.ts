@@ -24,7 +24,7 @@ import {
   sessions,
   table,
   text,
-} from 'tentjs'
+} from 'forjr'
 
 const open = anyone('an attack tries it')
 

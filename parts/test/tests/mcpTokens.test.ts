@@ -44,7 +44,7 @@ test('[25-7] [25-18] [05-13.3] a token with `read` is listed what only reads, an
   assert.deepEqual((await client.tools()).map((one) => String(one.name)).sort(), ['docOf', 'openOrders'])
   const change = await client.request('tools/call', { name: 'addOrder', arguments: { title: 'refused' } })
   assert.equal(change.status, 403)
-  assert.equal(Object(change.body.error).code, 'T3101')
+  assert.equal(Object(change.body.error).code, 'F3101')
   assert.match(String(change.headers.get('www-authenticate')), /error="insufficient_scope", scope="write"/)
   assert.equal((await app.rows('orders')).length, 0)
 })
@@ -82,13 +82,13 @@ test('[25-7] a token of a finer scope calls the functions of that scope and no o
   assert.equal(other.status, 403)
 })
 
-test('[25-7] [05-13.12] a token sent to /_t/call/ is nobody, a token in the address is not read, and a renewal token is no token of a request', async (t) => {
+test('[25-7] [05-13.12] a token sent to /_f/call/ is nobody, a token in the address is not read, and a renewal token is no token of a request', async (t) => {
   const { app, signed } = await grantedApp(t, 'read write')
-  const called = await sent(app, 'POST', '/_t/call/openOrders', signed.access, {
+  const called = await sent(app, 'POST', '/_f/call/openOrders', signed.access, {
     body: JSON.stringify({ input: {} }),
     type: 'application/json',
   })
-  assert.equal(Object(called.body.error).code, 'T0006', 'a token given for /mcp is nobody at /_t/call/')
+  assert.equal(Object(called.body.error).code, 'F0006', 'a token given for /mcp is nobody at /_f/call/')
   const inAddress = await app.request(
     new Request(`http://localhost/mcp?access_token=${signed.access}`, {
       method: 'POST',
@@ -144,12 +144,12 @@ test("[25-7] under `mcp: { only: 'queries' }` a change is not found for a token 
     { from: "scopes: { billing: ['addOrder'] },", to: "scopes: { billing: ['addOrder'] },\n    only: 'queries'," },
   ])
   const change = await app.mcp({ as: { token: signed.access } }).call('addOrder', { title: 'x' })
-  assert.equal(errorOf(change).code, 'T0001')
+  assert.equal(errorOf(change).code, 'F0001')
 })
 
 test('[25-7] a token uploads a file with `write`, puts it into a row, and downloads the file that an answer named', async (t) => {
   const { app, signed } = await grantedApp(t, 'read write')
-  const uploaded = await sent(app, 'POST', '/_t/files?name=note.txt', signed.access, {
+  const uploaded = await sent(app, 'POST', '/_f/files?name=note.txt', signed.access, {
     body: 'the words of the note',
     type: 'text/plain',
   })
@@ -160,16 +160,16 @@ test('[25-7] a token uploads a file with `write`, puts it into a row, and downlo
   const named = await client.call('docOf', {})
   assert.deepEqual(named.structuredContent, { value: id })
   const download = await app.request(
-    new Request(`http://localhost/_t/files/${id}`, { headers: { authorization: `Bearer ${signed.access}` } }),
+    new Request(`http://localhost/_f/files/${id}`, { headers: { authorization: `Bearer ${signed.access}` } }),
   )
   assert.equal(download.status, 200)
   assert.equal(await download.text(), 'the words of the note')
   const reader = await grantedApp(t, 'read')
-  const refused = await sent(reader.app, 'POST', '/_t/files?name=note.txt', reader.signed.access, {
+  const refused = await sent(reader.app, 'POST', '/_f/files?name=note.txt', reader.signed.access, {
     body: 'words',
     type: 'text/plain',
   })
-  assert.equal(Object(refused.body.error).code, 'T3101', 'an upload needs `write`')
+  assert.equal(Object(refused.body.error).code, 'F3101', 'an upload needs `write`')
 })
 
 test("[25-7] a picture of `mcp.inline` or less that an answer names travels inside the answer as the standard's own part, and a file field of the input says that its id comes from an upload", async (t) => {
@@ -180,7 +180,7 @@ test("[25-7] a picture of `mcp.inline` or less that an answer names travels insi
     'base64',
   )
   const uploaded = await app.request(
-    new Request('http://localhost/_t/files?name=dot.png', {
+    new Request('http://localhost/_f/files?name=dot.png', {
       method: 'POST',
       headers: {
         authorization: `Bearer ${signed.access}`,
@@ -204,7 +204,7 @@ test("[25-7] a picture of `mcp.inline` or less that an answer names travels insi
   assert.match(String(doc.description), /uploaded/)
 })
 
-test('[25-1] with a kept stream, `mcp.request` of a maker reaches the client of the grant and answers its answer, and is T7120 with no stream', async (t) => {
+test('[25-1] with a kept stream, `mcp.request` of a maker reaches the client of the grant and answers its answer, and is F7120 with no stream', async (t) => {
   const { app, ada, signed } = await grantedApp(t, 'read', [
     { from: "scopes: { billing: ['addOrder'] },", to: "scopes: { billing: ['addOrder'] },\n    stream: true," },
   ])
@@ -220,7 +220,7 @@ test('[25-1] with a kept stream, `mcp.request` of a maker reaches the client of 
       { as: { kind: 'system' } },
     )
   const [grant] = Object(await app.as(ada).call('myGrants', {}))
-  await assert.rejects(ask(String(grant.id)), { code: 'T7120' })
+  await assert.rejects(ask(String(grant.id)), { code: 'F7120' })
   const client = app.mcp({ as: { token: signed.access }, form: '2025-06-18' })
   const stream = await client.listen()
   const answer = ask(String(grant.id))

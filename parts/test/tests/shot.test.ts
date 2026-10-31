@@ -38,7 +38,7 @@ function colorAt(file: string, x: number, y: number): string {
 const shop = (port: number): Promise<Served> =>
   served('shot', {
     change: (folder) => {
-      for (const name of ['tent.ts', 'board.tsx']) {
+      for (const name of ['forjr.ts', 'board.tsx']) {
         const file = join(folder, name)
         writeFileSync(file, readFileSync(file, 'utf8').replaceAll('PICTURE_PORT', String(port)))
       }
@@ -77,7 +77,7 @@ test('[32-12] a picture as a user holds what that user sees, and one with no out
   try {
     const at = await shop(picture.port)
     const out = join(at.dataFolder, 'user.png')
-    // The user is the one row of `users` that the seed wrote, named by its id, as `tent shot --as` names one.
+    // The user is the one row of `users` that the seed wrote, named by its id, as `forjr shot --as` names one.
     const [ada] = Object(await at.app.read({ from: 'users' }, { as: 'system' }))
     await at.app.shot('/board', { as: String(Object(ada).id), size: { width: 640, height: 400 }, out })
     assert.equal(colorAt(out, 250, 50), '#00ff00')

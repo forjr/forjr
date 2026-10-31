@@ -1,4 +1,4 @@
-import { component, screen } from 'tentjs/ui'
+import { component, screen } from 'forjr/ui'
 
 // A `const` that is not exported, and a definition that is made inside a function.
 const hidden = screen('hidden', { path: '/hidden', access: 'anyone', view: () => 'Hidden' })

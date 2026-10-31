@@ -127,7 +127,7 @@ function contentOf(r: Reading, part: unknown): { kind: string; schema: unknown }
 /**
  * Takes a file of a published description of an API, as text or as the value it reads as, and the operations that
  * `use` names: a list of their ids, or a record from the name of a call to an id or to a method and a path. Answers
- * the record of each call, as a service stores it, and the findings, all T7013: an error where the file cannot be
+ * the record of each call, as a service stores it, and the findings, all F7013: an error where the file cannot be
  * read, is of another version, lacks a named operation, or gives two calls or two fields one name; a warning for a
  * part of a used call that had to be taken as `json`, and for a reference that leads out of the file. Nothing of the
  * file but the named operations is looked at.
@@ -139,22 +139,22 @@ export function readApiFile(
   const findings: Finding[] = []
   const error = (words: string): void =>
     void findings.push(
-      finding('T7013', words, { fix: 'Mend the file or `use`, so that every named operation is read.' }),
+      finding('F7013', words, { fix: 'Mend the file or `use`, so that every named operation is read.' }),
     )
   const warn = (words: string): void =>
     void findings.push(
-      finding('T7013', words, { fix: 'Write the call by hand in `calls` where its type matters.' }, 'warning'),
+      finding('F7013', words, { fix: 'Write the call by hand in `calls` where its type matters.' }, 'warning'),
     )
   let file: unknown = json
   if (typeof json === 'string')
     try {
       file = JSON.parse(json)
     } catch {
-      error('The file cannot be read as JSON. A file in YAML is turned into JSON with `tent api read`.')
+      error('The file cannot be read as JSON. A file in YAML is turned into JSON with `forjr api read`.')
       return { calls: {}, findings }
     }
   if (!isStored(file) || typeof file.openapi !== 'string' || !/^3\.[01]\./.test(`${file.openapi}.`)) {
-    error('The file is no description of an API in version 3.0 or 3.1. `tent api read` turns an older one into 3.1.')
+    error('The file is no description of an API in version 3.0 or 3.1. `forjr api read` turns an older one into 3.1.')
     return { calls: {}, findings }
   }
   const paths = isStored(file.paths) ? file.paths : {}

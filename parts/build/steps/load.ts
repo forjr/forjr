@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Loaded } from '../../core/internal.ts'
 import { describing } from '../../core/internal.ts'
 import { isDefinition, loadedOf, looseFound } from '../defined.ts'
@@ -28,11 +28,11 @@ function shapeOf(work: Work, file: SourceFile): void {
   for (const one of helpers)
     found(
       work,
-      'T1006',
+      'F1006',
       file,
       one.node,
       `The backend file ${file.path} exports \`${one.name}\`, which is no definition.`,
-      `Take \`export\` away where only this file uses \`${one.name}\`. A helper that other files use lives in a file of its own, which imports neither \`tentjs\` nor \`tentjs/ui\`.`,
+      `Take \`export\` away where only this file uses \`${one.name}\`. A helper that other files use lives in a file of its own, which imports neither \`forjr\` nor \`forjr/ui\`.`,
     )
 }
 
@@ -73,7 +73,7 @@ export const step: Step = {
       else
         found(
           work,
-          'T1014',
+          'F1014',
           seed,
           seed.unread?.line,
           `The file cannot be read: ${seed.unread?.words}`,
@@ -112,7 +112,7 @@ export const step: Step = {
         if (read.why && plain && unwrap(plain).value === true)
           found(
             work,
-            'T1010',
+            'F1010',
             file,
             read.why.line,
             `${declared.name ?? declared.exportName} states \`plain: true\`, and its \`${read.why.option}\` holds ${read.why.thing}.`,
@@ -150,7 +150,7 @@ export const step: Step = {
       const read = describing(() => readPlain(tree, seen, around))
       // What is no failure of a word may be a limit of the reader: the file is then run, as code is.
       for (const one of read.failed)
-        if (!(one.error instanceof TentError))
+        if (!(one.error instanceof ForjrError))
           read.notTaken.push({
             thing: `a definition that cannot be made from what was read (${one.error instanceof Error ? one.error.message : String(one.error)})`,
             node: one.node,
@@ -169,7 +169,7 @@ export const step: Step = {
         return
       }
       file.taken = 'read'
-      for (const one of read.failed) if (one.error instanceof TentError) threw(work, file, one.node, one.error)
+      for (const one of read.failed) if (one.error instanceof ForjrError) threw(work, file, one.node, one.error)
       loaded(read)
     }
     for (const file of backend)

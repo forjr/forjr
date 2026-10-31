@@ -1,4 +1,4 @@
-import { action, json, keys, link } from 'tentjs'
+import { action, json, keys, link } from 'forjr'
 
 // Code of the workspace's own: a function of the file, which the plain reader does not take.
 function keyName(user: string): string {

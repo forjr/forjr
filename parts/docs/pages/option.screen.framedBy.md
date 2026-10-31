@@ -9,7 +9,7 @@ A list of origins, as `['https://studio.example.com']`, or `'anyone'`. Left out,
 ## Example
 
 ```tsx
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 export const ordersScreen = screen('ordersScreen', {
   path: '/badge',

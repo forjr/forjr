@@ -12,7 +12,7 @@ import {
   X,
 } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { Link, read, screen, useCall, useQuery, useRun } from 'tentjs/ui'
+import { Link, read, screen, useCall, useQuery, useRun } from 'forjr/ui'
 import { AppFrame, Waiting } from '../components/frame'
 import { Mark } from '../components/icons'
 import { myProjects, projectMessages, publishProject, sendTurn, undoTurn } from '../functions/projects'
@@ -46,7 +46,7 @@ function kindOf(data: unknown): string | undefined {
 // A tool step that the engine refused names its code in its answer.
 function refusalOf(text: string | undefined, data: unknown): string | undefined {
   const said = `${text ?? ''} ${data === undefined ? '' : JSON.stringify(data)}`
-  return /T9105|T3101/.test(said) ? said : undefined
+  return /F9105|F3101/.test(said) ? said : undefined
 }
 
 // What an ask of the builder would carry out: the function it tries, or else the tool.
@@ -174,14 +174,14 @@ export const projectScreen = screen('projectScreen', {
     useEffect(() => {
       const heard = (event: MessageEvent) => {
         if (event.origin !== origin || event.source !== frame.current?.contentWindow) return
-        if (kindOf(event.data) !== 'tent.picked') return
+        if (kindOf(event.data) !== 'forjr.picked') return
         const picked = pickedOf(event.data)
         if (!picked) return
         setPointed(picked)
         setPicking(false)
-        frame.current?.contentWindow?.postMessage({ t: 'tent.pick', on: false }, origin)
+        frame.current?.contentWindow?.postMessage({ t: 'forjr.pick', on: false }, origin)
         frame.current?.contentWindow?.postMessage(
-          { t: 'tent.highlight', place: picked.place, color: '#5b4fe0' },
+          { t: 'forjr.highlight', place: picked.place, color: '#5b4fe0' },
           origin,
         )
       }
@@ -209,12 +209,12 @@ export const projectScreen = screen('projectScreen', {
     const point = () => {
       const on = !picking
       setPicking(on)
-      frame.current?.contentWindow?.postMessage({ t: 'tent.pick', on }, origin)
+      frame.current?.contentWindow?.postMessage({ t: 'forjr.pick', on }, origin)
     }
 
     const unpoint = () => {
       setPointed(undefined)
-      frame.current?.contentWindow?.postMessage({ t: 'tent.highlight' }, origin)
+      frame.current?.contentWindow?.postMessage({ t: 'forjr.highlight' }, origin)
     }
 
     const submit = async (event: { preventDefault: () => void }) => {

@@ -1,4 +1,4 @@
-import { boolean, read, screen } from 'tentjs/ui'
+import { boolean, read, screen } from 'forjr/ui'
 import { TalkOf } from '../components/BotTalk'
 import { Details } from '../components/Details'
 import { Frame } from '../components/Frame'

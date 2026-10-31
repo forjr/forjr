@@ -186,7 +186,7 @@ export async function calledAt(
   as?: string,
 ): Promise<{ ok: boolean; value?: unknown; error?: { code: string } }> {
   const body = JSON.stringify({ input, ...(as === undefined ? {} : { as }) })
-  const answer = await asked(port, name, `/_t/call/${fn}`, { method: 'POST', body, headers })
+  const answer = await asked(port, name, `/_f/call/${fn}`, { method: 'POST', body, headers })
   return JSON.parse(answer.body)
 }
 

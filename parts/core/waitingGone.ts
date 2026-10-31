@@ -5,7 +5,7 @@ import type { Description } from './description.ts'
 const ownNames = ['wait', 'now', 'random', 'done']
 
 /**
- * The rule of T5003, in its one home: takes a description and the step names that runs which have not ended
+ * The rule of F5003, in its one home: takes a description and the step names that runs which have not ended
  * depend on, flow by flow. Answers each flow that is gone, with no step, and each step that is gone or renamed.
  * A flow some of whose steps are named in code that the build could not read is passed over, and so is an
  * agent: their names are not known. The steps of a flow's own `onFail` are no step of its `run`.

@@ -19,7 +19,7 @@ function Glyph({ size = 18, children }: { size?: number; children: ReactNode }) 
   )
 }
 
-// The mark of the small builder: a tent over a door.
+// The mark of the small builder: a roof over a door.
 export const Mark = ({ size }: { size?: number }) => (
   <Glyph size={size}>
     <path d="M3 20 12 4l9 16" />

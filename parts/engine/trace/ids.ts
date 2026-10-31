@@ -55,5 +55,5 @@ export function readParent(header: string | null | undefined): Parent | undefine
 /** The `traceparent` header that names a span of a trace as the parent of what it is sent with, marked as kept. */
 export const parentHeader = (parent: Parent): string => `00-${parent.trace}-${parent.span}-01`
 
-/** Whether a text is the id of a trace, as `tent logs --trace` is handed one. */
+/** Whether a text is the id of a trace, as `forjr logs --trace` is handed one. */
 export const isTraceId = (text: unknown): text is string => typeof text === 'string' && /^[0-9a-f]{32}$/.test(text)

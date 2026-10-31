@@ -1,4 +1,4 @@
-import { action, anyone, flow } from 'tentjs'
+import { action, anyone, flow } from 'forjr'
 
 // Each of these throws while a test has switched it on by a save, and works once the save switches it off again.
 const actionBreaks = false

@@ -1,5 +1,5 @@
 import type { Caller, Type } from '../../core/index.ts'
-import { dayOf, TentError } from '../../core/index.ts'
+import { dayOf, ForjrError } from '../../core/index.ts'
 import { checkValue, isWritten } from '../../core/internal.ts'
 
 /** Whether a stored record is the record of a type: the shape of the description holds it to be one. */
@@ -53,7 +53,7 @@ function handed(type: Type, value: unknown, drawn: Drawn): unknown {
 /**
  * Takes the name of a function, the fields of its input as the description stores them, what was given, and what
  * a default that is no value stands for. Holds what was given to the declared types, and answers the input as the
- * function is handed it. No input at all is an empty one. Throws T0002 where a field does not fit, or is not
+ * function is handed it. No input at all is an empty one. Throws F0002 where a field does not fit, or is not
  * declared: `fields` names each by its dotted name, with the check it failed.
  */
 export function checkedInput(name: string, fields: unknown, given: unknown, drawn: Drawn): Record<string, unknown> {
@@ -62,7 +62,7 @@ export function checkedInput(name: string, fields: unknown, given: unknown, draw
   if (found.length) {
     const failed = Object.assign({}, ...found.map((one) => one.fields ?? {}))
     const more = found.length > 1 ? `, and ${found.length - 1} more` : ''
-    throw new TentError('T0002', `The input of ${name} does not fit: ${found[0].message.replace(/\.$/, '')}${more}.`, {
+    throw new ForjrError('F0002', `The input of ${name} does not fit: ${found[0].message.replace(/\.$/, '')}${more}.`, {
       fields: failed,
       fix: 'Give each field of the input a value of its declared type, and no field that is not declared.',
     })

@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { bench, codeOf } from './bench.ts'
 
 // What becomes of a run whose pass throws outside the work of a step.
@@ -20,14 +20,14 @@ test('[23-2] a pass that throws outside the work of a step fails its run with th
         told: (what) => {
           if (thrown || what.kind !== 'run' || what.state !== 'running') return
           thrown = true
-          throw new TentError('T0013', 'The log is full.')
+          throw new ForjrError('F0013', 'The log is full.')
         },
       },
     },
   )
   const run = b.start('plain')
   assert.equal(await b.until(run, 'failed', 'done'), 'failed')
-  assert.equal(await codeOf(b.runner.wait(run)), 'T0013')
+  assert.equal(await codeOf(b.runner.wait(run)), 'F0013')
   await b.settle()
   assert.deepEqual(unheard, [])
 })

@@ -5,7 +5,7 @@ import { json, list, number, object, text } from '../../core/index.ts'
 import { checkValue } from '../../core/internal.ts'
 import { recordedCopy, tested } from './recordedProject.ts'
 
-/** The facts of one call of a test, as `failures` of `tent test --json` holds them. */
+/** The facts of one call of a test, as `failures` of `forjr test --json` holds them. */
 interface Called {
   name: string
   caller: { kind: string; user?: { id: string; roles: string[] } }
@@ -23,7 +23,7 @@ interface Called {
   }[]
 }
 
-/** One failure of a test, as `failures` of `tent test --json` holds it. */
+/** One failure of a test, as `failures` of `forjr test --json` holds it. */
 interface Failure {
   test: string
   file: string
@@ -34,7 +34,7 @@ interface Failure {
   fix?: string
 }
 
-// The shape of the value of `tent test --json`, with the tests replayed and the facts of each failure.
+// The shape of the value of `forjr test --json`, with the tests replayed and the facts of each failure.
 const shape: Type = object({
   passed: number(),
   failed: number(),
@@ -99,7 +99,7 @@ test('[53-9] a failing test that called a change prints its caller, input, the r
   const refused = failures.find((one) => one.test === 'a customer marks the order paid')
   assert.ok(refused)
   assert.deepEqual([refused.file, refused.line, refused.call?.name], [failing, 23, 'markPaid'])
-  assert.equal(refused.call?.error?.code, 'T3101')
+  assert.equal(refused.call?.error?.code, 'F3101')
   assert.ok(refused.fix && refused.fix === refused.call?.error?.fix, JSON.stringify(refused))
   assert.deepEqual(refused.call?.wrote, [])
   // The finding of each failure tells the same in words: what came, the call with its caller, its input and its
@@ -113,7 +113,7 @@ test('[53-9] a failing test that called a change prints its caller, input, the r
     String(open.call?.input.order),
     '"paid":false',
     '"paid":true',
-    `tent logs --trace ${open.call?.trace}`,
+    `forjr logs --trace ${open.call?.trace}`,
   ])
     assert.ok(words.includes(piece), `${piece} in ${words}`)
   // A test whose last call read rows: each row it read stands in the words, as the facts hold it.
@@ -128,7 +128,7 @@ test('[53-9] a failing test that called a change prints its caller, input, the r
   // As text, the same.
   const typed = tested(project, failing, '--all')
   assert.equal(typed.ended, 1)
-  assert.ok(typed.printed.includes(`tent logs --trace`), typed.printed)
+  assert.ok(typed.printed.includes(`forjr logs --trace`), typed.printed)
 })
 
 test('[53-10] a failure of the app own code names the definition and its source line', (t) => {
@@ -137,7 +137,7 @@ test('[53-10] a failure of the app own code names the definition and its source 
   assert.equal(ran.ended, 1, ran.printed)
   const broken = failuresOf(ran.answer.value).find((one) => one.test === 'the code of the app fails')
   assert.ok(broken)
-  assert.equal(broken.call?.error?.code, 'T0009')
+  assert.equal(broken.call?.error?.code, 'F0009')
   assert.deepEqual(broken.call?.error?.where, { file: 'functions/paid.ts', line: 17, definition: 'broken' })
   const words = String(
     (ran.answer.findings ?? []).find((one) => one.message.includes('"the code of the app fails"'))?.message,
@@ -145,7 +145,7 @@ test('[53-10] a failure of the app own code names the definition and its source 
   assert.ok(words.includes('broken at functions/paid.ts:17'), words)
 })
 
-test('[15-6@12] the value of tent test --json holds the tests replayed and the facts of each failure, in its shape, as one that passed holds none', (t) => {
+test('[15-6@12] the value of forjr test --json holds the tests replayed and the facts of each failure, in its shape, as one that passed holds none', (t) => {
   const project = recordedCopy(t, 'failures-3', 'recordedFailing')
   const failed = tested(project, failing, '--json')
   assert.deepEqual(checkValue(shape, failed.answer.value), [])

@@ -8,7 +8,7 @@ import { withText } from '../../print.ts'
 function linesOf(value: Record<string, unknown>): string {
   const lines = textsOf(value.lines)
   const clashes = Array.isArray(value.clashes) ? value.clashes.length : 0
-  if (clashes) lines.push(`${clashes} ${clashes === 1 ? 'thing clashes' : 'things clash'}: see tent.clash.ts.`)
+  if (clashes) lines.push(`${clashes} ${clashes === 1 ? 'thing clashes' : 'things clash'}: see forjr.clash.ts.`)
   if (!lines.length) lines.push('Nothing to merge.')
   if (value.merged === false) lines.push('Nothing was merged: type --yes to merge.')
   return lines.join('\n')
@@ -17,8 +17,8 @@ function linesOf(value: Record<string, unknown>): string {
 /**
  * Merges a branch into the files. It first prints what the merge would change, in the terms of compare, and what
  * would clash, and merges only with `--yes`. A clean merge is built and checked, and its point marked with what
- * was found; a merge with clashes writes `tent.clash.ts`. `--settle` records the point once the clashes are
- * settled, and is T9102 while the clash file or a `.theirs` file is there.
+ * was found; a merge with clashes writes `forjr.clash.ts`. `--settle` records the point once the clashes are
+ * settled, and is F9102 while the clash file or a `.theirs` file is there.
  */
 export const command: Command = {
   name: 'history merge',

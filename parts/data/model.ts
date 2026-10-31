@@ -1,5 +1,5 @@
 import type { Type } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import type { Kept } from './counting.ts'
 import { keepsOf, keptBy } from './counting.ts'
@@ -137,7 +137,7 @@ function read(description: Description): Map<string, TableModel> {
       ...(table.kept === 'memory' ? { memory: typeof table.lasts === 'number' ? { lasts: table.lasts } : {} } : {}),
     })
   }
-  // A count of the rows of another file cannot move in their write, which is one file: the check refuses it (T2025).
+  // A count of the rows of another file cannot move in their write, which is one file: the check refuses it (F2025).
   for (const [of, kept] of keptBy([...tables.values()]))
     for (const one of kept)
       if (tables.get(of)?.tenantTable === tables.get(one.table)?.tenantTable) tables.get(of)?.counted.push(one)
@@ -148,10 +148,10 @@ function read(description: Description): Map<string, TableModel> {
   return tables
 }
 
-/** Takes a description and the name of a table. Answers what `data` needs of that table. Throws T0009 for a table the description does not hold. */
+/** Takes a description and the name of a table. Answers what `data` needs of that table. Throws F0009 for a table the description does not hold. */
 export function tableOf(description: Description, name: string): TableModel {
   const table = keptIn(models, description, () => read(description)).get(name)
-  if (!table) throw new TentError('T0009', `The app has no table \`${name}\`.`)
+  if (!table) throw new ForjrError('F0009', `The app has no table \`${name}\`.`)
   return table
 }
 

@@ -1,4 +1,4 @@
-import { choice, json, link, list, number, table, text } from 'tentjs'
+import { choice, json, link, list, number, table, text } from 'forjr'
 
 // What a run waits for the person on: a permission Claude Code asked for, or a question with lettered choices.
 export const asks = table('asks', {

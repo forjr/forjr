@@ -1,10 +1,10 @@
-import { between, later, TentError } from '../core/index.ts'
+import { between, later, ForjrError } from '../core/index.ts'
 
 const start = new Date(0)
 
 /**
  * Takes a length of time: in words, as `'3 days'`, or in milliseconds, as a limit is stored. Answers its
- * milliseconds. Throws T0027 for words that do not read.
+ * milliseconds. Throws F0027 for words that do not read.
  */
 export function msOf(length: string | number): number {
   if (typeof length === 'number') return length
@@ -13,7 +13,7 @@ export function msOf(length: string | number): number {
 
 /**
  * Takes what a wait is handed, and the present moment. Answers the moment the wait ends: a `Date`, and a text that
- * is a moment in the standard form, is that moment, and any other text is a length from now. Throws T0027 for
+ * is a moment in the standard form, is that moment, and any other text is a length from now. Throws F0027 for
  * what is neither.
  */
 export function momentOf(time: string | Date, now: number): number {
@@ -28,8 +28,8 @@ export function momentOf(time: string | Date, now: number): number {
   try {
     return now + msOf(time)
   } catch {
-    throw new TentError(
-      'T0027',
+    throw new ForjrError(
+      'F0027',
       `A wait cannot work out ${JSON.stringify(time)}: it is neither a moment nor a length of time.`,
       {
         fix: "Hand the wait a length, as `'3 days'`, or a moment: a `Date`, or its text in the standard form.",

@@ -191,7 +191,7 @@ export async function nodePage(
 ): Promise<NodePage> {
   const headers = { origin: at.origin, ...(o.cookie ? { cookie: o.cookie } : {}) }
   const html = o.html ?? (await (await fetch(at.origin + path, { headers })).text())
-  const block = /<script type="application\/json" id="tent-page">([\s\S]*?)<\/script>/.exec(html)?.[1]
+  const block = /<script type="application\/json" id="forjr-page">([\s\S]*?)<\/script>/.exec(html)?.[1]
   assert.ok(block, 'the first HTML holds the record of the page')
   const record: Record<string, unknown> = JSON.parse(block)
   const description = JSON.parse(readFileSync(join(at.bundleFolder, 'description.json'), 'utf8'))

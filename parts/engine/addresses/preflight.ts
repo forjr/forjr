@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Address } from '../door/address.ts'
 import { framePreflight, listedSite, preflightLines, sharedPath } from '../door/sites.ts'
 import { errorAnswer } from '../wire.ts'
@@ -26,7 +26,7 @@ export const address: Address = {
     return errorAnswer(
       app,
       'options',
-      new TentError('T0004', 'The question came from a site that `api.origins` does not list.', {
+      new ForjrError('F0004', 'The question came from a site that `api.origins` does not list.', {
         fix: 'List the site in `api.origins` of the project.',
       }),
     )

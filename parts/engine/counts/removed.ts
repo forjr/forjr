@@ -6,7 +6,7 @@ import { book, countsRemoved } from './book.ts'
 const system = { kind: 'system' } as const
 
 /**
- * The counts' part of a person's removal, in the write that removes their rows: each row of `_t_counts` that names
+ * The counts' part of a person's removal, in the write that removes their rows: each row of `_f_counts` that names
  * them is added into the row of `removed` of its day, its thing, its answer and its unit, and goes. So the counts of
  * the app stay whole, and no row names the person: a count that reaches the counts for them later is booked
  * under `removed` too.

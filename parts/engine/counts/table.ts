@@ -10,7 +10,7 @@ export interface CountsPlan {
 }
 
 /**
- * `counts` of `tentjs/engine`: the engine's table of counts as a table for a program that holds apps, which reads
+ * `counts` of `forjr/engine`: the engine's table of counts as a table for a program that holds apps, which reads
  * it with `app.read` as the system alone and never writes it: `app.read(counts.where({ day }), { as: 'system' })`.
  */
 export const counts: CountsPlan = table(countsLayout.name, {

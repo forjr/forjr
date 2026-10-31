@@ -10,13 +10,13 @@ import { codeOf, opened, system, workFolder } from './work.ts'
 
 const description = described()
 
-test('[16-4@3] `_t_history` exists with exactly its columns and its key, and holds each earlier version of a row with who changed it and when', (t) => {
+test('[16-4@3] `_f_history` exists with exactly its columns and its key, and holds each earlier version of a row with who changed it and when', (t) => {
   assert.deepEqual(Object.keys(historyTable.columns), ['id', 'tableName', 'rowId', 'at', 'by', 'value'])
   assert.deepEqual(historyTable.key, ['id'])
   const store = shopStore(t)
   const s = seedShop(store, description)
   // A raw text reads nothing that tells of a table of the engine, so the store is asked for the layout it holds.
-  assert.deepEqual(Object.keys(store.layout().find((one) => one.name === '_t_history')?.columns ?? {}), [
+  assert.deepEqual(Object.keys(store.layout().find((one) => one.name === '_f_history')?.columns ?? {}), [
     'id',
     'tableName',
     'rowId',
@@ -24,7 +24,7 @@ test('[16-4@3] `_t_history` exists with exactly its columns and its key, and hol
     'by',
     'value',
   ])
-  assert.deepEqual(store.read({ from: '_t_history' }, system).value, [], 'an added row has no earlier version')
+  assert.deepEqual(store.read({ from: '_f_history' }, system).value, [], 'an added row has no earlier version')
 
   let clock = Date.parse('2026-10-13T10:00:00Z')
   const as = (who: Parameters<typeof writing>[2]) => writing(store, description, who, { seal, now: () => clock })
@@ -37,7 +37,7 @@ test('[16-4@3] `_t_history` exists with exactly its columns and its key, and hol
     at(db, 'customers').remove(String(at(db, 'customers').add({ name: 'Brief', team: s.north }).id)),
   )
 
-  const kept = store.read({ from: '_t_history', sort: [{ by: 'at' }] }, system).value
+  const kept = store.read({ from: '_f_history', sort: [{ by: 'at' }] }, system).value
   assert.ok(Array.isArray(kept))
   assert.deepEqual(
     kept.map((row) => [row.tableName, row.rowId === s.acme ? 'acme' : 'brief', row.at, row.by, Object(row.value).name]),
@@ -63,7 +63,7 @@ test('[16-4@3] `_t_history` exists with exactly its columns and its key, and hol
   assert.equal(Object(kept[0].value).vip, false)
   // A table that does not keep its history keeps none.
   as(system)((db) => at(db, 'teams').change(s.north, { name: 'Far North' }))
-  assert.equal(Object(store.read({ from: '_t_history', count: true }, system)).value, 3)
+  assert.equal(Object(store.read({ from: '_f_history', count: true }, system)).value, 3)
 
   // `history(id)` reads them, the oldest first, each with its moment, who changed it and the row as it was.
   const history = at(reading(store, description, ada, { seal }), 'customers').history(s.acme)
@@ -153,7 +153,7 @@ test('[20-4] [16-4@3] history reads the versions kept under the former names of 
 
   // The table goes on under a third name.
   const v4 = described([shop, table('papers', { columns, was: ['notes', 'memos'], access, keepHistory: true })])
-  const kept = () => store.read({ from: '_t_history', sort: [{ by: 'at' }, { by: 'id' }] }, system).value
+  const kept = () => store.read({ from: '_f_history', sort: [{ by: 'at' }, { by: 'id' }] }, system).value
   const before = kept()
   switched(store, v4, { seal })
   // A rename writes nothing of the kept versions anew: each stands under the names it was kept under.
@@ -246,7 +246,7 @@ test('[20-4] where sealed is added to a column or taken from it, every kept vers
     const db = new DatabaseSync(join(folder, 'data.db'))
     try {
       return db
-        .prepare('SELECT "tableName", "rowId", "value" FROM "_t_history" ORDER BY "at", "id"')
+        .prepare('SELECT "tableName", "rowId", "value" FROM "_f_history" ORDER BY "at", "id"')
         .all()
         .map((row) => ({
           tableName: String(row.tableName),
@@ -283,7 +283,7 @@ test('[20-4] where sealed is added to a column or taken from it, every kept vers
   // `sealed` is added. It needs the key at hand, for the kept versions as for the rows.
   assert.equal(
     codeOf(() => switched(store, memos(true))),
-    'T0019',
+    'F0019',
   )
   assert.deepEqual(told(memos(false)), plain)
   switched(store, memos(true), { seal })

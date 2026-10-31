@@ -2,7 +2,8 @@ import type { Description } from '../../core/internal.ts'
 import { toolLine } from '../../core/internal.ts'
 import type { Change } from '../../history/index.ts'
 import type { ImpactLine, ImpactFacts } from './face.ts'
-import { fileOf, recordsOf } from './read.ts'
+import { placedIn } from './placed.ts'
+import { recordsOf } from './read.ts'
 
 /** The tools an agent tells a model of, each by the name it is told under. */
 function toldOf(description: Description, agent: string): string[] {
@@ -34,7 +35,7 @@ export function workOf(live: Description, next: Description, changes: Change[], 
     found.push({
       name: change.name,
       kind: 'step',
-      file: fileOf(next, flow) || fileOf(live, flow),
+      file: placedIn(next, flow).file || placedIn(live, flow).file,
       change: `${count} ${count === 1 ? 'run stands' : 'runs stand'} in it, and keep their version`,
     })
   }
@@ -48,7 +49,7 @@ export function workOf(live: Description, next: Description, changes: Change[], 
       found.push({
         name: `${agent}.${told}`,
         kind: 'tool',
-        file: fileOf(next, agent),
+        file: placedIn(next, agent).file,
         change: `its line "${before}" -> "${after}"`,
       })
     }

@@ -13,7 +13,7 @@ import type { Store } from './store.ts'
  * is a new folder of that folder, named the same way: it holds the shared file, every tenant's file that was
  * written since the backup that `before` names, a folder of that folder, and with `whole` every file; and its
  * list, `files.json`, names for every file the backup that holds it. It then answers the highest number that a
- * file of the backup holds. Throws T0009 where `before` names no backup.
+ * file of the backup holds. Throws F0009 where `before` names no backup.
  */
 export function backup(store: Store, toFolder: string): Promise<{ n: number }>
 export function backup(files: Files, toFolder: string, o?: { before?: string; whole?: true }): Promise<{ n: number }>

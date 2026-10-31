@@ -1,4 +1,4 @@
-import { anyone, file, table, text } from 'tentjs'
+import { anyone, file, table, text } from 'forjr'
 
 const open = anyone('the notes are open to anyone')
 

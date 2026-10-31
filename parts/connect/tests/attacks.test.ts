@@ -4,7 +4,7 @@ import { createServer } from 'node:http'
 import type { TestContext } from 'node:test'
 import { test } from 'node:test'
 import { brotliCompressSync, deflateSync, gzipSync, zstdCompressSync } from 'node:zlib'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { addressWith, settled } from '../guardedAddress.ts'
 import { fetchWith } from '../guardedFetch.ts'
 import { failure, names, refused, standIn } from './servers.ts'
@@ -13,24 +13,24 @@ import { failure, names, refused, standIn } from './servers.ts'
 // any connection, or where nothing but the rule is asked.
 const far = '93.184.216.34'
 
-/** Holds that a promise is refused with T0022, by whichever rule. */
+/** Holds that a promise is refused with F0022, by whichever rule. */
 async function refusedAtAll(work: Promise<unknown>, what: string): Promise<void> {
   const error = await failure(work)
-  assert.ok(error instanceof TentError && error.code === 'T0022', `${what}: ${error.name}: ${error.message}`)
+  assert.ok(error instanceof ForjrError && error.code === 'F0022', `${what}: ${error.name}: ${error.message}`)
 }
 
-/** Holds that a promise is refused with T0022 by one rule, and says what was tried where it is not. */
+/** Holds that a promise is refused with F0022 by one rule, and says what was tried where it is not. */
 async function refusedBy(work: Promise<unknown>, rule: string, what: string): Promise<void> {
   const error = await failure(work)
-  assert.ok(error instanceof TentError, `${what}: ${error.name}: ${error.message}`)
-  assert.equal(`${error.code} ${error.fields?.rule}`, `T0022 ${rule}`, what)
+  assert.ok(error instanceof ForjrError, `${what}: ${error.name}: ${error.message}`)
+  assert.equal(`${error.code} ${error.fields?.rule}`, `F0022 ${rule}`, what)
 }
 
-/** Holds that a promise is refused with T0023 by one cap. */
+/** Holds that a promise is refused with F0023 by one cap. */
 async function cutBy(work: Promise<unknown>, cap: 'size' | 'time', what: string): Promise<void> {
   const error = await failure(work)
-  assert.ok(error instanceof TentError, `${what}: ${error.name}: ${error.message}`)
-  assert.equal(`${error.code} ${error.fields?.cap}`, `T0023 ${cap}`, what)
+  assert.ok(error instanceof ForjrError, `${what}: ${error.name}: ${error.message}`)
+  assert.equal(`${error.code} ${error.fields?.cap}`, `F0023 ${cap}`, what)
 }
 
 const hex = (high: number, low: number): string => ((high << 8) | low).toString(16)
@@ -133,7 +133,7 @@ test('[05-7.1] an address of this computer, of a private network and of the clou
     // The same forms as a host that a connection is opened to with no fetch.
     for (const host of [...own, ...others]) {
       const error = await failure(addressWith(host, { mode }, none.lookup))
-      assert.ok(error instanceof TentError && error.code === 'T0022', `${mode} ${host}: ${error.message}`)
+      assert.ok(error instanceof ForjrError && error.code === 'F0022', `${mode} ${host}: ${error.message}`)
     }
   }
   // An address of a private network is refused in development too, in every form.
@@ -150,7 +150,7 @@ test('[05-7.1] an address of this computer, of a private network and of the clou
     const held = names({ 'inner.test': [[bare]] })
     const error = await failure(fetchWith({ mode: 'live' }, held.lookup)(`https://inner.test:${inner.port}/`))
     // A form that only a reader of typed addresses takes is no address from a resolver: it is no answer at all.
-    assert.ok(error instanceof TentError ? error.code === 'T0022' : error instanceof TypeError, `${bare}: ${error}`)
+    assert.ok(error instanceof ForjrError ? error.code === 'F0022' : error instanceof TypeError, `${bare}: ${error}`)
   }
   assert.deepEqual(inner.asked, [])
 })
@@ -424,8 +424,8 @@ test('[05-7.5] an answer larger than the cap, one that sends a byte at a time, a
   }
   for (const path of ['said', 'unsaid', 'endless', ...Object.keys(packed).map((name) => `packed/${name}`)]) {
     const [seen, error] = await readTo(`${server.origin}/${path}`, { size })
-    assert.ok(error instanceof TentError, `${path}: ${error.name}: ${error.message}`)
-    assert.equal(`${error.code} ${error.fields?.cap}`, 'T0023 size', path)
+    assert.ok(error instanceof ForjrError, `${path}: ${error.name}: ${error.message}`)
+    assert.equal(`${error.code} ${error.fields?.cap}`, 'F0023 size', path)
     // No more is handed to the reader than the cap and the one piece that passed it.
     assert.ok(seen <= size + 262_144, `${path}: ${seen} bytes were handed over`)
   }
@@ -442,8 +442,8 @@ test('[05-7.5] an answer larger than the cap, one that sends a byte at a time, a
   for (const path of ['drips', 'silent', 'members', 'slowly/']) {
     const started = performance.now()
     const [, error] = await readTo(`${server.origin}/${path}`, { size, time: 600 })
-    assert.ok(error instanceof TentError, `${path}: ${error.name}: ${error.message}`)
-    assert.equal(`${error.code} ${error.fields?.cap}`, 'T0023 time', path)
+    assert.ok(error instanceof ForjrError, `${path}: ${error.name}: ${error.message}`)
+    assert.equal(`${error.code} ${error.fields?.cap}`, 'F0023 time', path)
     assert.ok(performance.now() - started < 5000, `${path} was cut after ${performance.now() - started} ms`)
   }
   // A name whose look-up never answers is cut at the time too.

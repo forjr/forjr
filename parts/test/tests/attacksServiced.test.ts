@@ -13,21 +13,21 @@ const nobody: { as: Caller } = { as: { kind: 'nobody' } }
 // The secret that the test data of an app holds for the sign-in of the service `remote`.
 const remoteKey = 'test-REMOTE_KEY'
 
-test('[05-11.3] a service whose error echoes the key it was sent: `[secret]` in the log, and the caller is sent T7115 and nothing of the body', async (t) => {
+test('[05-11.3] a service whose error echoes the key it was sent: `[secret]` in the log, and the caller is sent F7115 and nothing of the body', async (t) => {
   const remote = await remoteOf(t, (heard, response) =>
     answerJson(response, 500, { error: `the key ${heard.headers.authorization} is not good`, plain: remoteKey }),
   )
   const { app, origin, dataFolder } = await servicedEngine(t, remote)
-  assert.equal(await callCodeOf(app.call('look', {}, nobody)), 'T7115')
+  assert.equal(await callCodeOf(app.call('look', {}, nobody)), 'F7115')
   const answer = await app.request(
-    new Request(`${origin}/_t/call/look`, {
+    new Request(`${origin}/_f/call/look`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ input: {} }),
     }),
   )
   const wire = await answer.text()
-  assert.match(wire, /T7115/)
+  assert.match(wire, /F7115/)
   assert.doesNotMatch(wire, /not good|REMOTE_KEY|\[secret\]/)
   for (const one of bytesUnder(dataFolder))
     assert.equal(one.bytes.includes(Buffer.from(remoteKey)), false, `${one.file} holds no key`)
@@ -36,11 +36,11 @@ test('[05-11.3] a service whose error echoes the key it was sent: `[secret]` in 
   assert.match(JSON.stringify(read), /\[secret\]/)
 })
 
-test('[05-11.24] a service call inside a read-only call that states no `changes: false` is T0013, and nothing is sent', async (t) => {
+test('[05-11.24] a service call inside a read-only call that states no `changes: false` is F0013, and nothing is sent', async (t) => {
   const remote = await remoteOf(t, (_, response) => answerJson(response, 200, {}))
   const { app, origin, dataFolder } = await servicedEngine(t, remote)
   const read = await app.request(
-    new Request(`${origin}/_t/read/readPay`, {
+    new Request(`${origin}/_f/read/readPay`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ input: {} }),
@@ -48,10 +48,10 @@ test('[05-11.24] a service call inside a read-only call that states no `changes:
   )
   assert.equal(Object(await read.json()).ok, false)
   assert.equal(remote.heard.length, 0)
-  assert.ok(logOf(dataFolder, 'errors').some((row) => /T0013|read-only/.test(JSON.stringify(row))))
+  assert.ok(logOf(dataFolder, 'errors').some((row) => /F0013|read-only/.test(JSON.stringify(row))))
 })
 
-test("[05-11.36] a plain `fetch` of an address that a user typed, which leads into this computer's network, straight and through a redirect, is T0022", async (t) => {
+test("[05-11.36] a plain `fetch` of an address that a user typed, which leads into this computer's network, straight and through a redirect, is F0022", async (t) => {
   const inside = ['http://169.254.169.254/latest/meta-data', 'http://10.1.2.3/', 'http://[::1]:9/', 'http://0.0.0.0:9/']
   let n = 0
   const remote = await remoteOf(t, (_, response) => {
@@ -59,9 +59,9 @@ test("[05-11.36] a plain `fetch` of an address that a user typed, which leads in
     response.end()
   })
   const { app } = await servicedEngine(t, remote)
-  for (const address of inside) assert.deepEqual(await app.call('fetched', { address }, nobody), { code: 'T0022' })
+  for (const address of inside) assert.deepEqual(await app.call('fetched', { address }, nobody), { code: 'F0022' })
   for (const _ of inside)
-    assert.deepEqual(await app.call('fetched', { address: `${remote.origin}/away` }, nobody), { code: 'T0022' })
+    assert.deepEqual(await app.call('fetched', { address: `${remote.origin}/away` }, nobody), { code: 'F0022' })
 })
 
 test('[05-11.37] [05-11.42] an error of a service that echoes the key, kept in a failed step, is not there, and its body is kept up to `limits.error`', async (t) => {
@@ -76,7 +76,7 @@ test('[05-11.37] [05-11.42] an error of a service that echoes the key, kept in a
     await new Promise((done) => setTimeout(done, 10))
   }
   await untilWithin('the run failed', () => app.runs.read(run)?.state === 'failed', 20_000)
-  assert.equal(app.runs.read(run)?.error?.code, 'T7115')
+  assert.equal(app.runs.read(run)?.error?.code, 'F7115')
   for (const one of bytesUnder(dataFolder)) {
     assert.equal(one.bytes.includes(Buffer.from(remoteKey)), false, `${one.file} holds no key`)
     assert.ok(one.bytes.length < 9 * 1_048_576 || !one.bytes.includes(Buffer.from('x'.repeat(20_000))), one.file)

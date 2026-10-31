@@ -1,4 +1,4 @@
-import { change, day, input, link, query, text } from 'tentjs'
+import { change, day, input, link, query, text } from 'forjr'
 import { tasks } from '../tables/tasks'
 
 export const allTasks = query('allTasks', {

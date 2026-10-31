@@ -14,9 +14,9 @@ export type { Page } from 'playwright-core'
 export type BrowserEngine = 'chromium' | 'firefox' | 'webkit'
 
 // The tree that runs, and the test file whose program this is or started it, by its path from the tree.
-const tree = process.env.TENT_TOUCHED_TREE ?? join(dirname(fileURLToPath(import.meta.url)), '..')
+const tree = process.env.FORJR_TOUCHED_TREE ?? join(dirname(fileURLToPath(import.meta.url)), '..')
 const testFile =
-  process.env.TENT_TOUCHED_OF ?? (process.argv[1] ? relative(tree, process.argv[1]).split(sep).join('/') : '')
+  process.env.FORJR_TOUCHED_OF ?? (process.argv[1] ? relative(tree, process.argv[1]).split(sep).join('/') : '')
 
 /**
  * The engines a test goes through, in their order: the three where `tests/browsers.txt` names its file, and

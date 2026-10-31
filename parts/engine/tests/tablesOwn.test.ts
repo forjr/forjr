@@ -11,15 +11,15 @@ const system = { kind: 'system' } as const
 
 // Each table of the engine's own for keys, connections and the calls made once, with its columns and its key, as the table of 16 names them.
 const asked: Record<string, { key: string[]; columns: string[] }> = {
-  _t_once: { key: ['caller', 'key'], columns: ['caller', 'key', 'run', 'at', 'result', 'places'] },
-  _t_api_keys: {
+  _f_once: { key: ['caller', 'key'], columns: ['caller', 'key', 'run', 'at', 'result', 'places'] },
+  _f_api_keys: {
     key: ['id'],
     columns: [
       ...['id', 'fingerprint', 'name', 'scopes', 'roles', 'user', 'perMinute', 'asks', 'work', 'rights'],
       ...['createdAt', 'lastUsedAt', 'expiresAt'],
     ],
   },
-  _t_connections: {
+  _f_connections: {
     key: ['service', 'user', 'account'],
     columns: ['service', 'user', 'account', 'tokens', 'scopes', 'expiresAt', 'createdAt', 'updatedAt'],
   },
@@ -40,7 +40,7 @@ function machine(t: { after(fn: () => void): void }): Store {
   return store
 }
 
-test('[16-4@8a] `_t_once`, `_t_api_keys`, `_t_connections` and the log table `outgoing` exist in code with exactly their columns and their keys', () => {
+test('[16-4@8a] `_f_once`, `_f_api_keys`, `_f_connections` and the log table `outgoing` exist in code with exactly their columns and their keys', () => {
   for (const table of tables) {
     assert.deepEqual(Object.keys(table.columns), asked[table.name].columns, `${table.name} holds exactly its columns`)
     assert.deepEqual(table.key, asked[table.name].key, `${table.name} has its key`)
@@ -67,8 +67,8 @@ test('[16-4@8a] a row written to each of the three tables reaches a second store
   const writer = connected(machine(t), [hereTable, changesTable, ...tables], { keep: true })
   const at = new Date(Date.UTC(2026, 0, 1))
   const rows: Record<string, Record<string, unknown>> = {
-    _t_once: { caller: 'incoming:stripeEvents', key: 'evt_1', run: '', at },
-    _t_api_keys: {
+    _f_once: { caller: 'incoming:stripeEvents', key: 'evt_1', run: '', at },
+    _f_api_keys: {
       id: '01m4vne21rehxa0vhe4ztfk1qx',
       fingerprint: 'f'.repeat(64),
       name: 'reports',
@@ -77,7 +77,7 @@ test('[16-4@8a] a row written to each of the three tables reaches a second store
       perMinute: 120,
       createdAt: at,
     },
-    _t_connections: {
+    _f_connections: {
       service: 'github',
       user: 'u1',
       account: '',

@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { isStored } from '../core/internal.ts'
 import type { ConnectEnv, Tokens } from './env.ts'
 import { valueOf } from './requestOf.ts'
@@ -23,8 +23,8 @@ export interface Registration {
 }
 
 /** The error of a service that has no auth `oauth`, or names a connection that has none. */
-const noOauth = (service: string): TentError =>
-  new TentError('T0013', `The service ${service} signs in with no connection of a user's own.`, {
+const noOauth = (service: string): ForjrError =>
+  new ForjrError('F0013', `The service ${service} signs in with no connection of a user's own.`, {
     fix: 'Give the service `auth: { oauth: { ... } }`, or name such a service in `connection`.',
   })
 
@@ -34,8 +34,8 @@ const textsOf = (env: ConnectEnv, written: unknown): Record<string, string> =>
 
 /**
  * Takes what the engine hands `connect`, a version and a service. Answers the registration its calls are signed
- * with: its own, or that of the service its `connection` names, whose connections it then uses. Throws T0013 for a
- * service with neither, and T0019 for a secret of the registration that has no value.
+ * with: its own, or that of the service its `connection` names, whose connections it then uses. Throws F0013 for a
+ * service with neither, and F0019 for a secret of the registration that has no value.
  */
 export function registrationOf(env: ConnectEnv, version: string, service: string): Registration {
   const { services } = env.description(version)
@@ -121,7 +121,7 @@ async function tokensIn(env: ConnectEnv, reg: Registration, answer: Response, be
     }
   const access = read.access_token
   if (typeof access !== 'string' || access === '')
-    throw new TentError('T7115', 'The provider answered no token.', { service: { status: answer.status } })
+    throw new ForjrError('F7115', 'The provider answered no token.', { service: { status: answer.status } })
   const life = Number(read.expires_in)
   const scope = typeof read.scope === 'string' && read.scope !== '' ? read.scope : undefined
   const refresh = typeof read.refresh_token === 'string' ? read.refresh_token : before?.refresh
@@ -133,20 +133,20 @@ async function tokensIn(env: ConnectEnv, reg: Registration, answer: Response, be
   }
 }
 
-/** Posts a request for tokens through the guarded fetch. Answers the answer, or throws T7115 where none came. */
+/** Posts a request for tokens through the guarded fetch. Answers the answer, or throws F7115 where none came. */
 async function askTokens(env: ConnectEnv, reg: Registration, fields: Record<string, string>): Promise<Response> {
   const { body, headers } = posted(reg, fields)
   try {
     return await env.fetch(reg.tokenUrl, { method: 'POST', headers, body })
   } catch (error) {
-    if (error instanceof TentError && error.code === 'T0022') throw error
-    throw new TentError('T7115', 'The provider did not answer the request for tokens.', { service: {} })
+    if (error instanceof ForjrError && error.code === 'F0022') throw error
+    throw new ForjrError('F7115', 'The provider did not answer the request for tokens.', { service: {} })
   }
 }
 
 /**
  * Takes what the engine hands `connect` and the code that the provider sent the user back with. Answers the tokens
- * it is changed for, with the proof where one was made. Throws T7115 where the provider refuses or answers nothing.
+ * it is changed for, with the proof where one was made. Throws F7115 where the provider refuses or answers nothing.
  */
 export async function tokensFor(
   env: ConnectEnv,
@@ -160,7 +160,7 @@ export async function tokensFor(
     ...(o.verifier !== undefined && reg.proof ? { code_verifier: o.verifier } : {}),
   })
   if (!answer.ok)
-    throw new TentError('T7115', `The provider refused the code with ${answer.status}.`, {
+    throw new ForjrError('F7115', `The provider refused the code with ${answer.status}.`, {
       service: { status: answer.status, body: (await answer.text()).slice(0, 16_384) },
     })
   return tokensIn(env, reg, answer)
@@ -168,14 +168,14 @@ export async function tokensFor(
 
 /**
  * Takes what the engine hands `connect`, a registration and the tokens of a connection. Answers the tokens that the
- * renewal token brings, or `refused` where the provider said no. Throws T7115 where it answered nothing.
+ * renewal token brings, or `refused` where the provider said no. Throws F7115 where it answered nothing.
  */
 export async function renewed(env: ConnectEnv, reg: Registration, tokens: Tokens): Promise<Tokens | 'refused'> {
   if (tokens.refresh === undefined) return 'refused'
   const answer = await askTokens(env, reg, { grant_type: 'refresh_token', refresh_token: tokens.refresh })
   if (answer.status === 400 || answer.status === 401) return 'refused'
   if (!answer.ok)
-    throw new TentError('T7115', `The provider answered the renewal with ${answer.status}.`, {
+    throw new ForjrError('F7115', `The provider answered the renewal with ${answer.status}.`, {
       service: { status: answer.status },
     })
   return tokensIn(env, reg, answer, tokens)
@@ -185,7 +185,7 @@ export async function renewed(env: ConnectEnv, reg: Registration, tokens: Tokens
  * Takes what the engine hands `connect`, a service, a version and the tokens of a connection. Posts the tokens to
  * `revokeUrl` of the registration, the renewal token and then the access token, each as a form with the
  * registration as `tokenAuth` says, through the guarded fetch. Whatever the provider answers, nothing is thrown
- * but T0022 for an address it may not reach.
+ * but F0022 for an address it may not reach.
  */
 export async function revoke(env: ConnectEnv, o: { service: string; version: string; tokens: Tokens }): Promise<void> {
   const reg = registrationOf(env, o.version, o.service)
@@ -201,7 +201,7 @@ export async function revoke(env: ConnectEnv, o: { service: string; version: str
     try {
       await (await env.fetch(revokeUrl, { method: 'POST', headers, body })).arrayBuffer()
     } catch (error) {
-      if (error instanceof TentError && error.code === 'T0022') throw error
+      if (error instanceof ForjrError && error.code === 'F0022') throw error
     }
   }
 }

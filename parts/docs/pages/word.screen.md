@@ -1,11 +1,11 @@
 # `screen`
 
-One page of the app at an address. It is written in a `.tsx` file that imports `tentjs/ui`, states who may see it and what it reads, and holds a `view`, a React component.
+One page of the app at an address. It is written in a `.tsx` file that imports `forjr/ui`, states who may see it and what it reads, and holds a `view`, a React component.
 
 ## Example
 
 ```tsx
-import { screen, read, Link } from 'tentjs/ui'
+import { screen, read, Link } from 'forjr/ui'
 import { openOrders } from '../functions/orders'
 import { orderScreen } from './order'
 import './orders.css'
@@ -32,7 +32,7 @@ export const ordersScreen = screen('ordersScreen', {
 })
 ```
 
-A screen file imports `tentjs/ui` and nothing from `tentjs`. A query, a change or an action that it imports from a backend file reaches it as its name and its input alone: the screen hands it to `read`, to `useQuery`, to `useCall` or to a `Form`, and never calls it (`code.T6008`). The name of a screen is camelCase, and the export has the same name.
+A screen file imports `forjr/ui` and nothing from `forjr`. A query, a change or an action that it imports from a backend file reaches it as its name and its input alone: the screen hands it to `read`, to `useQuery`, to `useCall` or to a `Form`, and never calls it (`code.F6008`). The name of a screen is camelCase, and the export has the same name.
 
 The `view` is handed each name of `data`, and beside them `params` (the values of the address, as text), `state` (the declared state), `user` (`{ id, roles }`, or nothing for a visitor on a screen that lets visitors in), `language`, `settings` (the public ones), `calls` (what the calls of the view are doing), `set` and `above`. None of these names may be a name of `data` or of `state`.
 
@@ -68,17 +68,17 @@ A record that carries the name, the kind `'screen'` and the options. The build r
 
 ## Errors
 
-`code.T1003`: an option that `screen` does not have.
+`code.F1003`: an option that `screen` does not have.
 
-`code.T1007`: `path` and `for` are both stated.
+`code.F1007`: `path` and `for` are both stated.
 
-`code.T1008`: `view` or `access` is left out, or neither `path` nor `for` is stated.
+`code.F1008`: `view` or `access` is left out, or neither `path` nor `for` is stated.
 
-`code.T1009`: a name of `data` or of `state` is one of the names every view is handed.
+`code.F1009`: a name of `data` or of `state` is one of the names every view is handed.
 
-`code.T1013`: the name is not camelCase letters and digits.
+`code.F1013`: the name is not camelCase letters and digits.
 
-`code.T1014`: a value that is not allowed: an address that could never be reached, a state that its place cannot hold, a line of the head that is none of the three.
+`code.F1014`: a value that is not allowed: an address that could never be reached, a state that its place cannot hold, a line of the head that is none of the three.
 
 ## See also
 

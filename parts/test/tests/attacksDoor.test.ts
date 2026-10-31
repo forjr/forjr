@@ -18,21 +18,21 @@ const ran = (dataFolder: string): number =>
 
 const seen = (answer: Wired): unknown[] => [answer.status, answer.error.code]
 
-test('[05-2.1] a request with a header x-tent-user, and with every other header that starts x-tent-, is the request of nobody', async (t) => {
+test('[05-2.1] a request with a header x-forjr-user, and with every other header that starts x-forjr-, is the request of nobody', async (t) => {
   const siege = await besieged(t)
   const ada = await added(siege.app, 'users', { name: 'Ada', roles: ['staff'] })
   const forged = {
-    'x-tent-user': ada,
-    'X-Tent-User': ada,
-    'x-tent-caller': 'system',
-    'x-tent-as': `user:${ada}`,
-    'x-tent-roles': 'staff',
-    'x-tent-admin': siege.token,
-    'x-tent-reader': 'k'.repeat(40),
-    'x-tent-for': '203.0.113.9; https; localhost',
-    'x-tent-': 'system',
-    'x-tent-kind': 'system',
-    'x-tent-session': ada,
+    'x-forjr-user': ada,
+    'X-Forjr-User': ada,
+    'x-forjr-caller': 'system',
+    'x-forjr-as': `user:${ada}`,
+    'x-forjr-roles': 'staff',
+    'x-forjr-admin': siege.token,
+    'x-forjr-reader': 'k'.repeat(40),
+    'x-forjr-for': '203.0.113.9; https; localhost',
+    'x-forjr-': 'system',
+    'x-forjr-kind': 'system',
+    'x-forjr-session': ada,
   }
   for (const [name, value] of Object.entries(forged)) {
     const who = await wire(siege, { path: callOf('whoAmI'), headers: { [name]: value } })
@@ -42,16 +42,16 @@ test('[05-2.1] a request with a header x-tent-user, and with every other header 
   assert.deepEqual(every.body, { ok: true, value: 'no user' })
   // A rule holds them as it holds nobody, and the log names nobody for each.
   for (const name of ['forSigned', 'forStaff', 'forNobody'])
-    assert.deepEqual(seen(await wire(siege, { path: callOf(name), headers: forged })), [401, 'T0006'], name)
+    assert.deepEqual(seen(await wire(siege, { path: callOf(name), headers: forged })), [401, 'F0006'], name)
   for (const row of logOf(siege.dataFolder, 'calls')) assert.deepEqual([row.callerKind, row.callerId], ['nobody', null])
   // The body names no caller either: a page drawn for a user, sent by nobody, is told that its caller changed.
   const named = await wire(siege, { path: callOf('whoAmI'), body: JSON.stringify({ input: {}, as: ada }) })
-  assert.deepEqual([named.body.ok, named.error.code, named.body.caller], [false, 'T3101', 'changed'])
+  assert.deepEqual([named.body.ok, named.error.code, named.body.caller], [false, 'F3101', 'changed'])
 })
 
-test('[05-2.2] a call from a page of another site is T0004, and the function is not run', async (t) => {
+test('[05-2.2] a call from a page of another site is F0004, and the function is not run', async (t) => {
   const siege = await besieged(t, { open: { mode: 'test' } })
-  const cookies = 'tent_session=stolen; tent_visitor=someone'
+  const cookies = 'forjr_session=stolen; forjr_visitor=someone'
   for (const origin of [
     'https://evil.example',
     `http://evil.example:${siege.port}`,
@@ -72,7 +72,7 @@ test('[05-2.2] a call from a page of another site is T0004, and the function is 
       input: { text: 'from another site' },
       headers: { origin, cookie: cookies },
     })
-    assert.deepEqual(seen(answer), [403, 'T0004'], origin)
+    assert.deepEqual(seen(answer), [403, 'F0004'], origin)
     assert.equal(ran(siege.dataFolder), before, origin)
   }
   // A change from another site writes nothing.
@@ -81,7 +81,7 @@ test('[05-2.2] a call from a page of another site is T0004, and the function is 
     input: { text: 'planted' },
     headers: { origin: 'https://evil.example', cookie: cookies },
   })
-  assert.deepEqual(seen(wrote), [403, 'T0004'])
+  assert.deepEqual(seen(wrote), [403, 'F0004'])
   assert.deepEqual(await siege.app.read({ from: 'words', count: true }, { as: 'system' }), 0)
   // The page of the app itself is let in.
   const own = await wire(siege, {
@@ -112,7 +112,7 @@ test('[05-2.3] a call sent as a form, with a body that only looks like JSON, is 
   ]) {
     const before = ran(siege.dataFolder)
     const answer = await wire(siege, { path: callOf('echo'), body, headers: { 'content-type': type } })
-    assert.deepEqual(seen(answer), [404, 'T0001'], type)
+    assert.deepEqual(seen(answer), [404, 'F0001'], type)
     assert.equal(ran(siege.dataFolder), before, type)
     // It is the answer of a name that is no function, whole.
     assert.deepEqual(wholeOf(answer), wholeOf(missing), type)
@@ -122,24 +122,24 @@ test('[05-2.3] a call sent as a form, with a body that only looks like JSON, is 
     body: `{"input":{"text":"planted"},"x":"=`,
     headers: { 'content-type': 'text/plain' },
   })
-  assert.deepEqual(seen(form), [404, 'T0001'])
+  assert.deepEqual(seen(form), [404, 'F0001'])
   assert.deepEqual(await siege.app.read({ from: 'words', count: true }, { as: 'system' }), 0)
 })
 
-test('[05-2.4@4] a call of a name that is no function is T0001, with the same answer for each', async (t) => {
+test('[05-2.4@4] a call of a name that is no function is F0001, with the same answer for each', async (t) => {
   const siege = await besieged(t)
   const missing = await wire(siege, { path: callOf('no-such-function') })
-  assert.deepEqual(seen(missing), [404, 'T0001'])
+  assert.deepEqual(seen(missing), [404, 'F0001'])
   for (const name of [
     'words',
     'users',
     'sweep',
     'siege',
-    '_t_meta',
-    '_t_sessions',
-    '_t_rate',
-    '_t_here',
-    '_t_',
+    '_f_meta',
+    '_f_sessions',
+    '_f_rate',
+    '_f_here',
+    '_f_',
     'echo/..',
     '../echo',
     '..%2Fecho',
@@ -168,7 +168,7 @@ test('[05-2.4@4] a call of a name that is no function is T0001, with the same an
   }
 })
 
-test('[05-2.5] a function whose rule the caller does not pass is T0006 for nobody and T3101 for a signed-in user, before any code of the app has run', async (t) => {
+test('[05-2.5] a function whose rule the caller does not pass is F0006 for nobody and F3101 for a signed-in user, before any code of the app has run', async (t) => {
   const siege = await besieged(t, { open: { mode: 'test' } })
   const cy = await added(siege.app, 'users', { name: 'Cy', roles: [] })
   let failed = 0
@@ -176,11 +176,11 @@ test('[05-2.5] a function whose rule the caller does not pass is T0006 for nobod
   // As nobody, over the web: an input that does not fit is not even looked at.
   for (const name of ['forSigned', 'forStaff', 'forNobody']) {
     const answer = await wire(siege, { path: callOf(name), input: { no: 'such field' } })
-    assert.deepEqual(seen(answer), [401, 'T0006'], name)
+    assert.deepEqual(seen(answer), [401, 'F0006'], name)
   }
   // As a signed-in user who has no such role.
   for (const name of ['forStaff', 'forNobody'])
-    assert.equal(await refusedWith(siege.app.call(name, { no: 'such field' }, asUser(cy))), 'T3101', name)
+    assert.equal(await refusedWith(siege.app.call(name, { no: 'such field' }, asUser(cy))), 'F3101', name)
   assert.equal(failed, 5)
   // Nothing of the app ran: the log holds the refusals, and no line of any code.
   assert.equal(logOf(siege.dataFolder, 'lines').length, 0)
@@ -195,36 +195,36 @@ test('[05-2.5] a function whose rule the caller does not pass is T0006 for nobod
     ],
   )
   // A role that the caller writes for themselves is no role: the roles are those of the row.
-  assert.equal(await refusedWith(siege.app.call('forStaff', {}, asUser(cy, []))), 'T3101')
+  assert.equal(await refusedWith(siege.app.call('forStaff', {}, asUser(cy, []))), 'F3101')
 })
 
-test('[05-2.6] an input that does not fit is T0002 or T0003: the code of the app never runs, and nothing of the engine changes', async (t) => {
+test('[05-2.6] an input that does not fit is F0002 or F0003: the code of the app never runs, and nothing of the engine changes', async (t) => {
   const siege = await besieged(t, { limits: { callSize: 4096, anyonePerMinute: 1000 } })
   const call = (body: string | Uint8Array<ArrayBuffer>) => wire(siege, { path: callOf('echo'), body })
   const nested = (depth: number) => `{"input":{"text":"x","deep":${'['.repeat(depth)}${']'.repeat(depth)}}}`
   const most = `{"input":{"text":"${'x'.repeat(4096 - 21)}"}}`
   assert.equal(Buffer.byteLength(most), 4096)
   const attacks: [string, string | Uint8Array<ArrayBuffer>, string][] = [
-    ['a field that is not declared', '{"input":{"text":"x","admin":true}}', 'T0002'],
-    ['a field that is not declared, beside the input', '{"input":{"text":"x"},"caller":{"kind":"system"}}', 'T0002'],
-    ['a wrong type', '{"input":{"text":5}}', 'T0002'],
-    ['a list where a record is declared', '{"input":["x"]}', 'T0002'],
-    ['a value 65 deep', nested(63), 'T0002'],
-    ['a key __proto__', '{"input":{"text":"x","__proto__":{"admin":true}}}', 'T0002'],
-    ['a key __proto__ written with a sign', '{"input":{"text":"x","\\u005f_proto__":{"admin":true}}}', 'T0002'],
-    ['a key __proto__ deeper', '{"input":{"text":"x","deep":{"a":[{"__proto__":{"x":1}}]}}}', 'T0002'],
-    ['two keys of one name', '{"input":{"text":"x","text":"y"}}', 'T0002'],
-    ['two keys of one name, one written with a sign', '{"input":{"text":"x","te\\u0078t":"y"}}', 'T0002'],
-    ['two inputs', '{"input":{"text":"x"},"input":{"text":"y"}}', 'T0002'],
-    ['a number too large to hold', '{"input":{"text":"x","n":1e999}}', 'T0002'],
-    ['a number too large to hold, of many digits', `{"input":{"text":"x","n":${'9'.repeat(400)}}}`, 'T0002'],
-    ['half of a character, written out', '{"input":{"text":"\\ud83d"}}', 'T0002'],
+    ['a field that is not declared', '{"input":{"text":"x","admin":true}}', 'F0002'],
+    ['a field that is not declared, beside the input', '{"input":{"text":"x"},"caller":{"kind":"system"}}', 'F0002'],
+    ['a wrong type', '{"input":{"text":5}}', 'F0002'],
+    ['a list where a record is declared', '{"input":["x"]}', 'F0002'],
+    ['a value 65 deep', nested(63), 'F0002'],
+    ['a key __proto__', '{"input":{"text":"x","__proto__":{"admin":true}}}', 'F0002'],
+    ['a key __proto__ written with a sign', '{"input":{"text":"x","\\u005f_proto__":{"admin":true}}}', 'F0002'],
+    ['a key __proto__ deeper', '{"input":{"text":"x","deep":{"a":[{"__proto__":{"x":1}}]}}}', 'F0002'],
+    ['two keys of one name', '{"input":{"text":"x","text":"y"}}', 'F0002'],
+    ['two keys of one name, one written with a sign', '{"input":{"text":"x","te\\u0078t":"y"}}', 'F0002'],
+    ['two inputs', '{"input":{"text":"x"},"input":{"text":"y"}}', 'F0002'],
+    ['a number too large to hold', '{"input":{"text":"x","n":1e999}}', 'F0002'],
+    ['a number too large to hold, of many digits', `{"input":{"text":"x","n":${'9'.repeat(400)}}}`, 'F0002'],
+    ['half of a character, written out', '{"input":{"text":"\\ud83d"}}', 'F0002'],
     [
       'half of a character, in bytes',
       new Uint8Array([...Buffer.from('{"input":{"text":"'), 0xf0, 0x9f, ...Buffer.from('"}}')]),
-      'T0002',
+      'F0002',
     ],
-    ['one byte over callSize', `${most} `, 'T0003'],
+    ['one byte over callSize', `${most} `, 'F0003'],
   ]
   const held = () => JSON.stringify(readdirSync(siege.dataFolder).sort())
   const files = held()
@@ -232,7 +232,7 @@ test('[05-2.6] an input that does not fit is T0002 or T0003: the code of the app
     const before = ran(siege.dataFolder)
     const answer = await call(body)
     assert.equal(answer.error.code, code, what)
-    assert.equal(answer.status, code === 'T0003' ? 413 : 400, what)
+    assert.equal(answer.status, code === 'F0003' ? 413 : 400, what)
     assert.equal(ran(siege.dataFolder), before, what)
   }
   // The bounds themselves are taken: 64 deep, and exactly callSize.
@@ -246,7 +246,7 @@ test('[05-2.6] an input that does not fit is T0002 or T0003: the code of the app
   assert.equal((await call('{"input":{"text":"still answering"}}')).status, 200)
 })
 
-test('[05-2.7] the id of the row of another user given to a change is T2103, as for an id that does not exist', async (t) => {
+test('[05-2.7] the id of the row of another user given to a change is F2103, as for an id that does not exist', async (t) => {
   const siege = await besieged(t)
   const ada = await added(siege.app, 'users', { name: 'Ada', roles: [] })
   const bob = await added(siege.app, 'users', { name: 'Bob', roles: [] })
@@ -261,7 +261,7 @@ test('[05-2.7] the id of the row of another user given to a change is T2103, as 
   ] as const) {
     const theirs = await wire(siege, { path: callOf(name), input: { note, ...more } })
     const none = await wire(siege, { path: callOf(name), input: { note: nothing, ...more } })
-    assert.deepEqual(seen(theirs), [404, 'T2103'], name)
+    assert.deepEqual(seen(theirs), [404, 'F2103'], name)
     assert.deepEqual(wholeOf(theirs), wholeOf(none), name)
   }
   // As another signed-in user: the same code, and the same words but for the id that each call named.
@@ -274,7 +274,7 @@ test('[05-2.7] the id of the row of another user given to a change is T2103, as 
     }
     return ['answered']
   }
-  assert.equal((await told(note))[0], 'T2103')
+  assert.equal((await told(note))[0], 'F2103')
   assert.deepEqual(await told(note), await told(nothing))
   // The row is as it was, and its owner still changes it.
   const kept = await siege.app.read({ from: 'notes', one: 'get', id: note }, { as: 'system' })
@@ -282,7 +282,7 @@ test('[05-2.7] the id of the row of another user given to a change is T2103, as 
   await siege.app.call('renameNote', { note, title: 'still hers' }, asUser(ada))
 })
 
-test('[05-2.9] a version that never was, and one with dots and slashes in it, is T0007, and no file outside versions/ is read', async (t) => {
+test('[05-2.9] a version that never was, and one with dots and slashes in it, is F0007, and no file outside versions/ is read', async (t) => {
   const siege = await besieged(t)
   const versions = readdirSync(join(siege.dataFolder, 'versions'))
   for (const version of [
@@ -305,7 +305,7 @@ test('[05-2.9] a version that never was, and one with dots and slashes in it, is
       path: callOf('whoAmI'),
       body: JSON.stringify({ input: {}, version }),
     })
-    assert.deepEqual(seen(answer), [409, 'T0007'], version)
+    assert.deepEqual(seen(answer), [409, 'F0007'], version)
     assert.equal(answer.error.running, versions[0], version)
     // Nothing of a file is in the answer: neither the token of the engine nor a path.
     assert.equal(answer.text.includes(siege.token), false, version)
@@ -323,12 +323,12 @@ test('[05-2.9] a version that never was, and one with dots and slashes in it, is
   assert.equal(existsSync(join(siege.dataFolder, 'engine.json')), true)
 })
 
-test('[05-2.10] the 61st call of a minute from one address is T0005, a made-up X-Forwarded-For is ignored, and behind a named proxy each visitor has a count of their own', async (t) => {
+test('[05-2.10] the 61st call of a minute from one address is F0005, a made-up X-Forwarded-For is ignored, and behind a named proxy each visitor has a count of their own', async (t) => {
   // From one address, over real connections: sixty calls are taken and the next is not.
   const plain = await besieged(t)
   for (let i = 0; i < 60; i++)
     assert.equal((await wire(plain, { path: callOf('whoAmI') })).status, 200, `call ${i + 1}`)
-  assert.deepEqual(seen(await wire(plain, { path: callOf('whoAmI') })), [429, 'T0005'])
+  assert.deepEqual(seen(await wire(plain, { path: callOf('whoAmI') })), [429, 'F0005'])
   // A header that the sender made up gives them no other address, in either family.
   const madeUp: Record<string, string>[] = [
     { 'x-forwarded-for': '203.0.113.77' },
@@ -339,12 +339,12 @@ test('[05-2.10] the 61st call of a minute from one address is T0005, a made-up X
   for (const headers of madeUp)
     assert.deepEqual(
       seen(await wire(plain, { path: callOf('whoAmI'), headers })),
-      [429, 'T0005'],
+      [429, 'F0005'],
       JSON.stringify(headers),
     )
   // Another function, and a name that is none, are held by the same count.
-  assert.deepEqual(seen(await wire(plain, { path: callOf('wordCount') })), [429, 'T0005'])
-  assert.deepEqual(seen(await wire(plain, { path: callOf('no-such-function') })), [429, 'T0005'])
+  assert.deepEqual(seen(await wire(plain, { path: callOf('wordCount') })), [429, 'F0005'])
+  assert.deepEqual(seen(await wire(plain, { path: callOf('no-such-function') })), [429, 'F0005'])
   // When the minute has passed the address is taken again.
   plain.clock.advance(61_000)
   assert.equal((await wire(plain, { path: callOf('whoAmI') })).status, 200)
@@ -359,16 +359,16 @@ test('[05-2.10] the 61st call of a minute from one address is T0005, a made-up X
     assert.equal((await from('198.51.100.1')).status, 200, `the first visitor, call ${i + 1}`)
     assert.equal((await from('198.51.100.2', forged)).status, 200, `the second visitor, call ${i + 1}`)
   }
-  assert.deepEqual(seen(await from('198.51.100.1')), [429, 'T0005'])
-  assert.deepEqual(seen(await from('198.51.100.2', forged)), [429, 'T0005'])
+  assert.deepEqual(seen(await from('198.51.100.1')), [429, 'F0005'])
+  assert.deepEqual(seen(await from('198.51.100.2', forged)), [429, 'F0005'])
   // Nor does an address that a visitor writes in front of the one the proxy wrote move them to another count.
-  assert.deepEqual(seen(await from('203.0.113.5, 198.51.100.2')), [429, 'T0005'])
-  assert.deepEqual(seen(await from('unknown, 198.51.100.2')), [429, 'T0005'])
+  assert.deepEqual(seen(await from('203.0.113.5, 198.51.100.2')), [429, 'F0005'])
+  assert.deepEqual(seen(await from('unknown, 198.51.100.2')), [429, 'F0005'])
   // A third visitor is still answered.
   assert.equal((await from('198.51.100.3', { forwarded: 'for=198.51.100.1' })).status, 200)
 })
 
-test('[05-2.12] a request that names another host, and one that names this computer by a name of the attacker, is T0017', async (t) => {
+test('[05-2.12] a request that names another host, and one that names this computer by a name of the attacker, is F0017', async (t) => {
   const siege = await besieged(t)
   const own = `localhost:${siege.port}`
   for (const host of [
@@ -399,28 +399,28 @@ test('[05-2.12] a request that names another host, and one that names this compu
     }).catch((error: unknown) => String(error))
     // A host that is no host at all is refused by the web side itself, with nothing but its status.
     if (typeof answer === 'string' || answer.status === 400) continue
-    assert.deepEqual(seen(answer), [421, 'T0017'], host)
+    assert.deepEqual(seen(answer), [421, 'F0017'], host)
     assert.equal(ran(siege.dataFolder), before, host)
   }
   // The same for an address that needs no caller.
-  const health = await wire(siege, { method: 'GET', path: '/_t/health', host: `evil.example:${siege.port}` })
-  assert.deepEqual(seen(health), [421, 'T0017'])
+  const health = await wire(siege, { method: 'GET', path: '/_f/health', host: `evil.example:${siege.port}` })
+  assert.deepEqual(seen(health), [421, 'F0017'])
   // And for the forwarded host of a sender that is no named proxy.
   const forwarded = await wire(siege, {
     method: 'GET',
-    path: '/_t/health',
+    path: '/_f/health',
     host: 'evil.example',
     headers: { 'x-forwarded-host': own, forwarded: `host=${own}` },
   })
-  assert.deepEqual(seen(forwarded), [421, 'T0017'])
-  assert.equal((await wire(siege, { method: 'GET', path: '/_t/health' })).status, 200)
+  assert.deepEqual(seen(forwarded), [421, 'F0017'])
+  assert.equal((await wire(siege, { method: 'GET', path: '/_f/health' })).status, 200)
 })
 
-test('[05-2.13] a function that fails with a message that holds a secret text: on live data the caller is sent T0009 and its reference, and nothing of the message', async (t) => {
+test('[05-2.13] a function that fails with a message that holds a secret text: on live data the caller is sent F0009 and its reference, and nothing of the message', async (t) => {
   const siege = await besieged(t)
   for (const how of ['code', 'data']) {
     const answer = await wire(siege, { path: callOf('breaks'), input: { how } })
-    assert.deepEqual(seen(answer), [500, 'T0009'], how)
+    assert.deepEqual(seen(answer), [500, 'F0009'], how)
     assert.deepEqual(Object.keys(answer.error).sort(), ['code', 'message', 'name', 'ref', 'trace'], how)
     assert.equal(answer.error.message, 'Something went wrong.', how)
     assert.match(String(answer.error.ref), /^[0-9a-z]{8}$/, how)
@@ -460,7 +460,7 @@ test('[05-2.14] a GET of the address of a call, and every other method, is not f
   assert.deepEqual(await siege.app.read({ from: 'words', count: true }, { as: 'system' }), 1)
 })
 
-test('[05-2.15] two calls at once that each try to write the same unique value: one is T2101, and the data holds one row', async (t) => {
+test('[05-2.15] two calls at once that each try to write the same unique value: one is F2101, and the data holds one row', async (t) => {
   const siege = await besieged(t, { limits: { anyonePerMinute: 1000 } })
   for (let round = 0; round < 10; round++) {
     const text = `the same ${round}`
@@ -468,7 +468,7 @@ test('[05-2.15] two calls at once that each try to write the same unique value: 
       Array.from({ length: 8 }, () => wire(siege, { path: callOf('addWord'), input: { text } })),
     )
     const codes = answers.map((one) => (one.status === 200 ? 'added' : String(one.error.code))).sort()
-    assert.deepEqual(codes, ['T2101', 'T2101', 'T2101', 'T2101', 'T2101', 'T2101', 'T2101', 'added'], text)
+    assert.deepEqual(codes, ['F2101', 'F2101', 'F2101', 'F2101', 'F2101', 'F2101', 'F2101', 'added'], text)
     for (const one of answers) if (one.status !== 200) assert.equal(one.status, 409)
     assert.deepEqual(
       await siege.app.read({ from: 'words', where: { col: 'text', is: text }, count: true }, { as: 'system' }),
@@ -477,20 +477,20 @@ test('[05-2.15] two calls at once that each try to write the same unique value: 
   }
 })
 
-test('[05-2.16] a call with the cookies of the visitor and Origin: null, as a page inside a locked frame sends it, is T0004', async (t) => {
+test('[05-2.16] a call with the cookies of the visitor and Origin: null, as a page inside a locked frame sends it, is F0004', async (t) => {
   const siege = await besieged(t)
   for (const origin of ['null', 'NULL', 'Null', ' null', 'null ']) {
     const answer = await wire(siege, {
       path: callOf('addWord'),
       input: { text: 'from a locked frame' },
-      headers: { origin, cookie: 'tent_session=of-the-visitor' },
+      headers: { origin, cookie: 'forjr_session=of-the-visitor' },
     })
-    assert.deepEqual(seen(answer), [403, 'T0004'], origin)
+    assert.deepEqual(seen(answer), [403, 'F0004'], origin)
   }
   assert.deepEqual(await siege.app.read({ from: 'words', count: true }, { as: 'system' }), 0)
 })
 
-test('[05-2.18] an input marked secret that fails its type check: T0002 names the field and the check, and the value is in no answer and no log', async (t) => {
+test('[05-2.18] an input marked secret that fails its type check: F0002 names the field and the check, and the value is in no answer and no log', async (t) => {
   for (const mode of ['live', 'test', 'development'] as const) {
     const siege = await besieged(t, { open: { mode } })
     const attempts: [unknown, string][] = [
@@ -501,7 +501,7 @@ test('[05-2.18] an input marked secret that fails its type check: T0002 names th
     ]
     for (const [password, check] of attempts) {
       const answer = await wire(siege, { path: callOf('logIn'), input: { name: 'ada', password } })
-      assert.deepEqual(seen(answer), [400, 'T0002'], `${mode}: ${JSON.stringify(password)}`)
+      assert.deepEqual(seen(answer), [400, 'F0002'], `${mode}: ${JSON.stringify(password)}`)
       assert.deepEqual(answer.error.fields, { password: check }, mode)
       for (const piece of ['hunter2', '7654321'])
         assert.equal(answer.text.includes(piece), false, `${mode}: the answer holds ${piece}`)
@@ -512,7 +512,7 @@ test('[05-2.18] an input marked secret that fails its type check: T0002 names th
       200,
     )
     const beside = await wire(siege, { path: callOf('logIn'), input: { name: 5, password: 'hunter2-beside' } })
-    assert.deepEqual(seen(beside), [400, 'T0002'])
+    assert.deepEqual(seen(beside), [400, 'F0002'])
     assert.equal(beside.text.includes('hunter2'), false, mode)
     for (const piece of ['hunter2', '7654321'])
       assert.equal(wholeLog(siege.dataFolder).includes(piece), false, `${mode}: the log holds ${piece}`)

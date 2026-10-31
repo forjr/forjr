@@ -20,7 +20,7 @@ import {
   role,
   secret,
   text,
-} from 'tentjs'
+} from 'forjr'
 import { weather } from './services.ts'
 import { customers, notes, orders } from './tables.ts'
 
@@ -263,7 +263,7 @@ export const pyHelper = agent('pyHelper', {
   limits: { steps: 4, perRun: { calls: 10 } },
 })
 
-// A python that says how far it has come, with `tent.say`.
+// A python that says how far it has come, with `forjr.say`.
 export const saying = python('saying', { file: 'py/saying.py', input: {}, output: number(), access: 'signedIn' })
 
 export const bigProgress = python('bigProgress', {

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { CallContext } from '../context.ts'
 import { hasFullAccess } from '../full.ts'
 import type { Mailer, Who } from '../makers.ts'
@@ -41,13 +41,13 @@ function projectFrom(o: Opened): Who | undefined {
   return typeof address === 'string' ? { address, ...(typeof name === 'string' ? { name } : {}) } : undefined
 }
 
-/** The file of an id for the caller of a call, by the rule of a download. Throws T0001: a file that is not theirs is not there. */
+/** The file of an id for the caller of a call, by the rule of a download. Throws F0001: a file that is not theirs is not there. */
 function attached(o: Opened, cx: CallContext, id: string): StoredFile {
   const file = fileRow(o, id)
   const visitor = visitorNow()
   const theirs = file && (hasFullAccess(cx) || mayDownload(o, cx.caller, file, visitor))
   if (!file || file.removedAt !== undefined || !theirs)
-    throw new TentError('T0001', `No file has the id ${JSON.stringify(id).slice(0, 60)}.`, {
+    throw new ForjrError('F0001', `No file has the id ${JSON.stringify(id).slice(0, 60)}.`, {
       fix: 'Attach a file that the caller of the call may download.',
     })
   return file
@@ -76,9 +76,9 @@ const mailLine = 'Mail that is not sent in the mode development'
  * message is kept in the mailbox of the app; in `development` its head, its text and the names of its files are
  * written to the log too and nothing is sent, unless the app was opened to send; otherwise the message is handed to
  * the mailer of the app, with each file read first, which a test makes of its own. Throws
- * T0002 for a message that does not fit or is from nobody, T0001 for a file that is not the caller's to have,
- * T0020 where there is no mailer, and T0021 where the server did not take the message, or took it for some. The
- * mailer that ships throws T0019, T0020 and T0022 as `shippedMailer` says.
+ * F0002 for a message that does not fit or is from nobody, F0001 for a file that is not the caller's to have,
+ * F0020 where there is no mailer, and F0021 where the server did not take the message, or took it for some. The
+ * mailer that ships throws F0019, F0020 and F0022 as `shippedMailer` says.
  */
 export async function sendMail(o: Opened, cx: CallContext, given: unknown): Promise<void> {
   const how = kept.get(o.handles) ?? { send: false }
@@ -88,7 +88,7 @@ export async function sendMail(o: Opened, cx: CallContext, given: unknown): Prom
   const { attach: _, ...head } = read
   const bytesOfAll = () =>
     Promise.all(files.map(async (file) => ({ name: file.name, kind: file.kind, bytes: await bytesOf(o, file) })))
-  // The development mode keeps what the app sent in its mailbox, to be read at `/_t/mail` as its receiver would see it.
+  // The development mode keeps what the app sent in its mailbox, to be read at `/_f/mail` as its receiver would see it.
   if (o.mode === 'development') {
     const attach = await bytesOfAll()
     keepInMailbox(o, { ...head, ...(from ? { from } : {}), ...(attach.length ? { attach } : {}) })
@@ -134,11 +134,11 @@ async function handedOut(
   const { head, from, bytesOfAll } = m
   // A test sends nothing: its message is kept in the mailbox of the app, and no mailer is needed.
   if (o.mode !== 'test' && !how.mailer && mailSecret(o) === undefined)
-    throw new TentError('T0020', 'The app has no mailer: it connects none, and its project names no mail server.', {
+    throw new ForjrError('F0020', 'The app has no mailer: it connects none, and its project names no mail server.', {
       fix: 'State `mail` in `project`, with the secret that holds the address of the mail server, or connect a `Mailer` in `engine.ts`.',
     })
   if (!from)
-    throw new TentError('T0002', 'The message is from nobody: it states no `from`, and the project states none.', {
+    throw new ForjrError('F0002', 'The message is from nobody: it states no `from`, and the project states none.', {
       fields: { from: 'required' },
       fix: 'State `from` in the message, or `mail: { from }` in `project`.',
     })
@@ -154,14 +154,14 @@ async function handedOut(
   }
   // The mailer that ships looks the server up for this message, before anything is read.
   const mailer = how.mailer ?? (await shippedMailer(o))
-  if (!mailer) throw new TentError('T0020', 'The app has no mailer.')
+  if (!mailer) throw new ForjrError('F0020', 'The app has no mailer.')
   const attach = await bytesOfAll()
   await handOn(o, mailer, { ...head, from, ...(attach.length ? { attach } : {}) }, cx)
 }
 
 /**
  * Hands a message to a mailer. A message that it takes is counted, for the caller of the call where one is given,
- * with the bytes of its head, its words and its files. Throws T0021 where it does not take the message, with its
+ * with the bytes of its head, its words and its files. Throws F0021 where it does not take the message, with its
  * answer in the log, and where it took it for some addresses alone.
  */
 async function handOn(
@@ -182,8 +182,8 @@ async function handOn(
       message: 'The mail server did not take a message.',
       data: JSON.stringify({ subject: head.subject, answer }),
     })
-    throw new TentError('T0021', 'The mail server did not take the message. The log holds its answer.', {
-      fix: 'Read the answer of the server in the log, with `tent logs`.',
+    throw new ForjrError('F0021', 'The mail server did not take the message. The log holds its answer.', {
+      fix: 'Read the answer of the server in the log, with `forjr logs`.',
     })
   }
   // A message that the server took is counted, with the bytes of its head, its words and its files.
@@ -191,8 +191,8 @@ async function handOn(
   if (cx) gather(o, 'mail', { mails: 1, bytesOut }, { caller: cx.caller })
   const refused = Array.isArray(answered.refused) ? answered.refused.map(String) : []
   if (refused.length)
-    throw new TentError(
-      'T0021',
+    throw new ForjrError(
+      'F0021',
       `The mail server took the message for some addresses, and not for: ${refused.join(', ').slice(0, 400)}.`,
       { fix: 'Send the message again to the addresses that the error names.' },
     )

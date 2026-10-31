@@ -6,7 +6,7 @@ The two marks of the engine's cookies that a project may change: which sites a c
 
 `{ sameSite, domain }`. `sameSite` is `'lax'` or `'none'`, and `domain` a parent name that the cookies are set for. Left out, a cookie is sent to this site alone (`SameSite=Lax`) and belongs to the one name the app was reached by.
 
-The engine's cookies are the session (`handle.sessions`) and the visitor id. Each is named `tent_<kind>.<the app's name>`, cannot be read by the scripts of a page, and is marked `Secure` over https. Over https its name starts `__Host-`, so that a browser takes it from this very site alone.
+The engine's cookies are the session (`handle.sessions`) and the visitor id. Each is named `forjr_<kind>.<the app's name>`, cannot be read by the scripts of a page, and is marked `Secure` over https. Over https its name starts `__Host-`, so that a browser takes it from this very site alone.
 
 | Stated | Does |
 |---|---|

@@ -17,7 +17,7 @@ export const shop = project('shop', {
 
 ## Errors
 
-`code.T1014`: a name of another form, one the engine writes itself, a handler of an event, or a value that is no text.
+`code.F1014`: a name of another form, one the engine writes itself, a handler of an event, or a value that is no text.
 
 ## See also
 

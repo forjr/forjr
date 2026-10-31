@@ -1,4 +1,4 @@
-import { event as eventNamed, flow } from 'tentjs'
+import { event as eventNamed, flow } from 'forjr'
 
 // A flow that an event starts is handed `event`, which hides the word: the word is imported under another name.
 export const deliveryWatch = flow('deliveryWatch', {

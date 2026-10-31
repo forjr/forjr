@@ -37,7 +37,7 @@ function heldIn(dataFolder: string, team: string): unknown {
     columns: readFile(file, 'SELECT name, type, "notnull" FROM pragma_table_info(\'orders\')'),
     meta: readFile(
       file,
-      `SELECT "key", "value" FROM "_t_meta" WHERE "key" IN ('table', 'tenant', 'fingerprint', 'holds', 'n', 'epoch') ORDER BY "key"`,
+      `SELECT "key", "value" FROM "_f_meta" WHERE "key" IN ('table', 'tenant', 'fingerprint', 'holds', 'n', 'epoch') ORDER BY "key"`,
     ),
   }
 }
@@ -162,9 +162,9 @@ test(
     // As a kill between the commit of the file and its kept change leaves the disk: the file holds the write and
     // is marked open, and the shared file holds no kept change of it.
     const shared = join(dataFolder, 'data.db')
-    assert.equal(readFile(shared, `SELECT "n" FROM "_t_changes" WHERE "n" = ${before + 1}`).length, 1)
-    writeFile(shared, 'DELETE FROM "_t_changes" WHERE "n" = ?', before + 1)
-    writeFile(shared, 'UPDATE "_t_tenants" SET "open" = 1 WHERE "rowId" = ?', north)
+    assert.equal(readFile(shared, `SELECT "n" FROM "_f_changes" WHERE "n" = ${before + 1}`).length, 1)
+    writeFile(shared, 'DELETE FROM "_f_changes" WHERE "n" = ?', before + 1)
+    writeFile(shared, 'UPDATE "_f_tenants" SET "open" = 1 WHERE "rowId" = ?', north)
 
     await app.restart()
     // The writer read the file that was marked open, and gave it a kept change that holds `fetch` and no record.
@@ -190,7 +190,7 @@ test(
 
 /** Reads one kept change of a shared file that an engine holds open: whether it holds `fetch`, its file, and the length of its record. */
 function readFileWhileOpen(shared: string, n: number): { fetch: unknown; file: unknown; record: number }[] {
-  return readFile(shared, `SELECT "change", length("record") AS "size" FROM "_t_changes" WHERE "n" = ${n}`).map(
+  return readFile(shared, `SELECT "change", length("record") AS "size" FROM "_f_changes" WHERE "n" = ${n}`).map(
     (row) => {
       const change = JSON.parse(String(row.change))
       return { fetch: change.fetch, file: change.file, record: Number(row.size) }
@@ -243,7 +243,7 @@ test(
       [north],
     )
     // A write for it is refused on the writer, and no file is made anew on either machine.
-    assert.equal(await codeOf(app.call('addOrder', { team: south, title: 'for nobody' }, system)), 'T2104')
+    assert.equal(await codeOf(app.call('addOrder', { team: south, title: 'for nobody' }, system)), 'F2104')
     await level(app, near)
     assert.equal(hasFile(folder, south), false)
   },
@@ -365,7 +365,7 @@ async function rebuilt(t: TestContext) {
     for (const sql of [
       "SELECT name, type FROM pragma_table_info('orders') ORDER BY name",
       'SELECT count(*) AS n, typeof("total") AS t FROM "orders" GROUP BY t',
-      `SELECT "key", "value" FROM "_t_meta" WHERE "key" IN ('fingerprint', 'n', 'epoch') ORDER BY "key"`,
+      `SELECT "key", "value" FROM "_f_meta" WHERE "key" IN ('fingerprint', 'n', 'epoch') ORDER BY "key"`,
     ])
       assert.deepEqual(
         readFile(fileOf(reader.dataFolder, large), sql),
@@ -464,7 +464,7 @@ test(
       'the writer stands back',
       async () => {
         await beat(app)
-        return (await codeOf(app.call('addOrder', { team: north, title: 'refused' }, system))) === 'T0029'
+        return (await codeOf(app.call('addOrder', { team: north, title: 'refused' }, system))) === 'F0029'
       },
       20,
     )
@@ -543,12 +543,12 @@ test(
     await app.kill()
     /** The count of removals as the shared file tells it, read beside the engine. */
     const removals = (): string[] =>
-      readFile(join(dataFolder, 'data.db'), `SELECT "value" FROM "_t_meta" WHERE "key" = 'removals'`).map((row) =>
+      readFile(join(dataFolder, 'data.db'), `SELECT "value" FROM "_f_meta" WHERE "key" = 'removals'`).map((row) =>
         String(row.value),
       )
     /** The count that the file of a team says it was last swept at, read beside the engine. */
     const sweptAt = (team: string): string =>
-      readFile(fileOf(dataFolder, team), `SELECT "value" FROM "_t_meta" WHERE "key" = 'swept'`)
+      readFile(fileOf(dataFolder, team), `SELECT "value" FROM "_f_meta" WHERE "key" = 'swept'`)
         .map((row) => String(row.value))
         .join()
     await app.restart({ at: mark })
@@ -609,7 +609,7 @@ test('[50-11] the pass that brings files up beside a writer that lost writes is 
     'the reader was told that it holds more than its writer',
     () => logLines(reader.dataFolder, 'holds more writes than its writer').length > 0,
   )
-  assert.equal(await codeOf(next.call('addOrder', { team: north, title: 'refused' }, system)), 'T0029')
+  assert.equal(await codeOf(next.call('addOrder', { team: north, title: 'refused' }, system)), 'F0029')
   assert.equal(next.at().epoch.split('.')[0], '1')
   assert.deepEqual(
     readdirSync(reader.dataFolder).filter((name) => name.startsWith('lost.')),
@@ -635,7 +635,7 @@ test('[50-11] a reader keeps a change that holds fetch first, and says so at onc
   }
   const pair = await pairOf(t, await deskBundle(t), dataPlace(t), async (request) => {
     const { pathname, searchParams } = new URL(request.url)
-    if (pathname !== '/_t/copy/data' || !searchParams.has('id')) return
+    if (pathname !== '/_f/copy/data' || !searchParams.has('id')) return
     fetches.push(String(searchParams.get('id')))
     await held
     if (failing) throw new Error('the connection of the fetch broke')
@@ -679,7 +679,7 @@ test('[50-11] a reader keeps a change that holds fetch first, and says so at onc
   assert.equal(fetchedBy(), 0)
   /** Whether the directory of the reader marks the file of North as open, read beside the engine. */
   const marked = (): unknown =>
-    readFile(join(reader.dataFolder, 'data.db'), `SELECT "open" FROM "_t_tenants" WHERE "rowId" = '${north}'`)[0]?.open
+    readFile(join(reader.dataFolder, 'data.db'), `SELECT "open" FROM "_f_tenants" WHERE "rowId" = '${north}'`)[0]?.open
   assert.equal(marked(), 1, 'the row of the file is marked until the file is held')
   // The reader answers a read of South itself, and hands a read of the file that it does not hold yet on.
   const counted = (): number[] => [writer.dataFolder, reader.dataFolder].map((one) => callsIn(one, 'countOrders'))
@@ -806,7 +806,7 @@ test('[50-11] a reader whose running version is the first with a tenant table ke
   await pair.close()
   assert.deepEqual(heldIn(reader.dataFolder, north), heldIn(writer.dataFolder, north))
   assert.deepEqual(
-    readFile(join(reader.dataFolder, 'data.db'), 'SELECT "tableName", "rowId", "open" FROM "_t_tenants"').map((row) => [
+    readFile(join(reader.dataFolder, 'data.db'), 'SELECT "tableName", "rowId", "open" FROM "_f_tenants"').map((row) => [
       row.tableName,
       row.rowId,
       row.open,

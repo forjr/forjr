@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Leave } from '../../flows/index.ts'
 import type { Message, ToolCall } from '../face.ts'
 import { answerTool, typedValue } from './answer.ts'
@@ -61,14 +61,14 @@ export async function toolCall(r: Running, n: number, m: number, asked: ToolCall
   if (listed && 'error' in listed) return { who: 'tool', id: asked.id, error: errorText(listed.error, words) }
   const call = listed ? listed.call : asked
   const tool = listed ? listed.tool : r.offered.find((one) => one.entry.told === call.tool && r.agent.tell !== 'list')
-  if (!tool) return { who: 'tool', id: call.id, error: errorText(new TentError('T0001', 'no such tool'), words) }
+  if (!tool) return { who: 'tool', id: call.id, error: errorText(new ForjrError('F0001', 'no such tool'), words) }
   let leave = leaveOf(tool)
   if (tool.asks) {
     const answer = await r.step.waitFor(`ask ${n}.${m}`, {
       timeout: askTimeOf(r.agent),
       show: { tool: call.tool, input: call.input },
     })
-    if (answer.approved !== true) return { who: 'tool', id: call.id, error: errorText({ code: 'T7111' }, words) }
+    if (answer.approved !== true) return { who: 'tool', id: call.id, error: errorText({ code: 'F7111' }, words) }
     leave = 'agreed'
   }
   try {
@@ -81,7 +81,7 @@ export async function toolCall(r: Running, n: number, m: number, asked: ToolCall
     return { who: 'tool', id: call.id, result: answer }
   } catch (error) {
     // A tool whose work would pass `perRun` of this run, or of one above it, ends the run: the limit is the run's.
-    if (error instanceof TentError && error.code === 'T7102' && error.fields?.limit === 'perRun') throw error
+    if (error instanceof ForjrError && error.code === 'F7102' && error.fields?.limit === 'perRun') throw error
     return { who: 'tool', id: call.id, error: errorText(error, words) }
   }
 }

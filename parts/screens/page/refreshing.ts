@@ -1,5 +1,5 @@
 // What the part `refresh` lays on a page of development before the main file runs: React's own runtime of Fast
-// Refresh, as `__tentRefresh` of the page, which each module of development reaches by the two names that the
+// Refresh, as `__forjrRefresh` of the page, which each module of development reaches by the two names that the
 // builder's transform writes, and the main file by this.
 import type { Drawable } from '../borrowed/react.ts'
 
@@ -26,5 +26,5 @@ export interface Refreshing {
 
 declare global {
   // Laid on a page of development by the part `refresh`, and on no other page.
-  var __tentRefresh: Refreshing | undefined
+  var __forjrRefresh: Refreshing | undefined
 }

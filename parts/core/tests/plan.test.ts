@@ -6,7 +6,7 @@ import { typeCheck } from './typed.ts'
 
 const notes = table('notes', { columns: { body: text(), open: boolean() } })
 
-test('[20-1] limit and skip of a plan take a whole number of zero or more, or a reference, and anything else is T1014 from the word', () => {
+test('[20-1] limit and skip of a plan take a whole number of zero or more, or a reference, and anything else is F1014 from the word', () => {
   for (const member of ['limit', 'skip'] as const) {
     const of = (value: unknown): unknown => Reflect.apply(notes[member], notes, [value])
     // What they take: zero, a whole number, and a value that is worked out when the plan is carried out.
@@ -28,7 +28,7 @@ test('[20-1] limit and skip of a plan take a whole number of zero or more, or a 
       assert.throws(
         () => of(value),
         (error) => {
-          assert.equal(Reflect.get(Object(error), 'code'), 'T1014', what)
+          assert.equal(Reflect.get(Object(error), 'code'), 'F1014', what)
           assert.equal(
             Reflect.get(Object(error), 'message'),
             `${member} of a plan takes a whole number of zero or more.`,
@@ -58,15 +58,15 @@ test('[20-1] limit and skip of a plan take a whole number of zero or more, or a 
 })
 
 test('[20-1] a Db carries out what is stored: it has read and write, and the db that code is handed has neither', () => {
-  const tables = `import { table, text } from 'tentjs'
+  const tables = `import { table, text } from 'forjr'
 export const notes = table('notes', { columns: { body: text() } })
-declare module 'tentjs' {
+declare module 'forjr' {
   interface Tables {
     notes: typeof notes
   }
 }
 `
-  const right = `import type { Db } from 'tentjs'
+  const right = `import type { Db } from 'forjr'
 const resolve = (ref: object): unknown => ref
 export const reads = (db: Db): unknown => db.read({ from: 'notes', where: { col: 'body', is: { input: 'body' } } }, resolve)
 export const readsPlain = (db: Db): unknown => db.read({ from: 'notes' })
@@ -75,7 +75,7 @@ export const writes = (db: Db): unknown =>
 export const writesPlain = (db: Db): unknown => db.write([])
 `
   assert.deepEqual(typeCheck('db-right', { 'tables.ts': tables, 'right.ts': right }), [])
-  const wrong = `import type { ActionDb, ChangeDb, Db, QueryDb } from 'tentjs'
+  const wrong = `import type { ActionDb, ChangeDb, Db, QueryDb } from 'forjr'
 export const a = (db: Db): unknown => db.read(5)
 export const b = (db: Db): unknown => db.write({ add: 'notes', values: {} })
 export const c = (db: Db): unknown => db.read({ from: 'notes' }, 'resolve')
@@ -96,7 +96,7 @@ export const f = (db: ActionDb): unknown => db.read({ from: 'notes' })
   )
 })
 
-test('[13-5] a table that names a private column in search is T1014, since nothing of a private column is told by a search', () => {
+test('[13-5] a table that names a private column in search is F1014, since nothing of a private column is told by a search', () => {
   const shop = { value: project('shop', {}) }
   const made = (options: object): object => Object(Reflect.apply(Object(table), undefined, ['people', options]))
   const columns = { name: text(), about: text({ optional: true }), secretNote: text({ private: true }) }
@@ -109,7 +109,7 @@ test('[13-5] a table that names a private column in search is T1014, since nothi
     const { findings } = describe({ definitions: [shop, { value: made(options) }] })
     assert.deepEqual(
       findings.map((finding) => `${finding.code} ${finding.message}`),
-      ['T1014 people: `search` names the private column `secretNote`.'],
+      ['F1014 people: `search` names the private column `secretNote`.'],
       JSON.stringify(options.search),
     )
   }

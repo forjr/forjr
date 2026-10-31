@@ -161,7 +161,7 @@ test('[12-4] a column with from holds what valueOf gives after every write and a
   )
 })
 
-test('[12-4] a from that names now, random, token or a setting is T1014', () => {
+test('[12-4] a from that names now, random, token or a setting is F1014', () => {
   const app = project('shop', { settings: { rate: { type: number(), default: 1 } } })
   const refused: (() => object)[] = [
     () => date({ from: now() }),
@@ -173,7 +173,7 @@ test('[12-4] a from that names now, random, token or a setting is T1014', () => 
     const codes = describing(() =>
       codesOf([app, table('lines', { columns: { net: number(), made: Object(column()) }, access })]),
     )
-    assert.deepEqual(codes, ['T1014'], String(column))
+    assert.deepEqual(codes, ['F1014'], String(column))
   }
   assert.deepEqual(
     codesOf([app, table('lines', { columns: { net: number(), made: number({ from: col('net') }) } })]),
@@ -255,7 +255,7 @@ const base = {
   code: text(),
 }
 
-test('[12-6@3] in the from of a column each word that may stand there holds what the word answers, and each that may not is T1014', (t) => {
+test('[12-6@3] in the from of a column each word that may stand there holds what the word answers, and each that may not is F1014', (t) => {
   const columns = Object.fromEntries(yes.map(([name, column]) => [under(name), Object(column())]))
   const { store, description } = started(t, [shop, table('words', { columns: { ...base, ...columns }, access })])
   const added = writing(store, description, system)((db) => at(db, 'words').add(row))
@@ -276,12 +276,12 @@ test('[12-6@3] in the from of a column each word that may stand there holds what
   ]
   for (const [name, column] of no) {
     const codes = describing(() => codesOf([app, table('words', { columns: { ...base, made: Object(column()) } })]))
-    assert.deepEqual(codes, ['T1014'], name)
+    assert.deepEqual(codes, ['F1014'], name)
   }
-  // `each` takes an arrow, which no `from` can hold: handed a column in the place of its list, it raises T1014 itself.
+  // `each` takes an arrow, which no `from` can hold: handed a column in the place of its list, it raises F1014 itself.
   assert.equal(
     codeOf(() => each(Object(col('nums')), (n: number) => n * 2)),
-    'T1014',
+    'F1014',
   )
 })
 
@@ -327,12 +327,12 @@ test('[12-4] a filter entry written with given is no part of the plan while its 
     1,
   )
 
-  // In the filter of a rule `given` is T1014.
+  // In the filter of a rule `given` is F1014.
   const guarded = table('guarded', {
     columns: { kind: text() },
     access: { read: where({ kind: given('a') }) },
   })
-  assert.deepEqual(codesOf([shop, guarded]), ['T1014'])
+  assert.deepEqual(codesOf([shop, guarded]), ['F1014'])
   assert.deepEqual(
     codesOf([shop, notes, query('found', { access: 'signedIn', input: { kind: text() }, rows: byKind })]),
     [],

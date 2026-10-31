@@ -75,7 +75,7 @@ function failedCode(o: Opened, run: string, step?: { name: string; repeat: numbe
   const error = step
     ? view?.steps.find((one) => one.name === step.name && one.repeat === step.repeat)?.error
     : view?.error
-  return error?.code ?? 'T0009'
+  return error?.code ?? 'F0009'
 }
 
 /** The code that the last try of a step that waits failed with, where it waits to be tried again. */

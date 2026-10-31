@@ -2,7 +2,7 @@
  * The header by which an answer says that its body is sent piece by piece as each piece comes, and never held
  * whole. The web side takes it off before the answer leaves.
  */
-export const flowsHeader = 'x-tent-flows'
+export const flowsHeader = 'x-forjr-flows'
 
 /**
  * Takes the first piece of a body and the pieces that follow it. Answers the body as a stream of bytes that asks

@@ -39,10 +39,10 @@ test('[03-5] the pages say what the docs site opening looked for: the files Tail
   assert.match(motion, /useRef/)
   assert.match(motion, /return \(\) => cancelAnimationFrame/)
   says([
-    ['option.agent.tools', /`as: 'starter'`[^.]*`code\.T7012`/],
-    ['option.agent.tools', /`code\.T7009`/],
+    ['option.agent.tools', /`as: 'starter'`[^.]*`code\.F7012`/],
+    ['option.agent.tools', /`code\.F7009`/],
     ['option.agent.tools', /`ask 1\.1`/],
-    ['option.agent.tools', /`code\.T7111`/],
+    ['option.agent.tools', /`code\.F7111`/],
     ['topic.flows', /changed\(\{ where[^)]*columns/],
     ['topic.flows', /`event\.before`/],
     ['option.change.danger', /`option\.agent\.tools`/],
@@ -54,7 +54,7 @@ test('[03-5] the pages say what the docs site opening looked for: the files Tail
 
 test('[03-5] the pages say what the screens of sample app 5 looked for: a turn that waits in page.say, a value that changes after a step, a property that holds a function, the look of a screen above, and the folder of a failed step in git', () => {
   const chat = pageOf('topic.tests.browser')
-  assert.match(chat, /`say` fails with `code\.T0008`/)
+  assert.match(chat, /`say` fails with `code\.F0008`/)
   assert.match(chat, /`state: 'waiting'`/)
   assert.match(chat, /follows nothing that changes after it/)
   assert.match(chat, /`results\/` in its `\.gitignore`/)
@@ -62,6 +62,6 @@ test('[03-5] the pages say what the screens of sample app 5 looked for: a turn t
     ['option.component.props', /holds a function/],
     ['tag.Link', /::backdrop/],
     ['tag.Link', /dialog\[aria-modal="true"\]/],
-    ['command.new', /`node_modules\/`[^.]*`tent\.d\.ts`/],
+    ['command.new', /`node_modules\/`[^.]*`forjr\.d\.ts`/],
   ])
 })

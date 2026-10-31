@@ -148,7 +148,7 @@ test('[50-4] a row of the shared file is removed: in an open file the rows that 
   // stands in place of them where the history names who changed a row. The order that was cleared keeps its
   // earlier version, as any row that is changed does.
   assert.deepEqual(
-    storedIn(files.of(south), '_t_history').map((row) => `${row.tableName} ${row.rowId} by ${row.by}`),
+    storedIn(files.of(south), '_f_history').map((row) => `${row.tableName} ${row.rowId} by ${row.by}`),
     [`notes ${so.adasNote.id} by removed`, `orders ${so.bobs.id} by system`],
   )
   assert.deepEqual(kept.gone, [[s.bob], [s.bob]])

@@ -1,4 +1,4 @@
-import { boolean, screen, read, useField, useTranslations, message, Form, Link } from 'tentjs/ui'
+import { boolean, screen, read, useField, useTranslations, message, Form, Link } from 'forjr/ui'
 import { addOrder, allOrders } from './functions'
 
 export const ordersScreen = screen('ordersScreen', {

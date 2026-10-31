@@ -1,6 +1,6 @@
 import { callerText } from '../../data/index.ts'
 import { createReadStream, readFileSync, statSync } from 'node:fs'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Address } from '../door/address.ts'
 import { logCall, refusedCall } from '../door/failure.ts'
 import { countedFor } from '../door/rate.ts'
@@ -20,7 +20,7 @@ import { errorAnswer } from '../wire.ts'
 import { fileHeaders, firstRead } from './file.ts'
 import { fileAt, holdsFile } from '../files.ts'
 
-const prefix = '/_t/img/'
+const prefix = '/_f/img/'
 const name = 'image'
 
 // The widths that the door scales a picture down to, where the project states none.
@@ -36,15 +36,15 @@ const kinds: Record<string, string> = {
   svg: 'image/svg+xml',
 }
 
-const bad = (words: string, field: string): TentError =>
-  new TentError('T0002', words, { fields: { [field]: 'values' } })
+const bad = (words: string, field: string): ForjrError =>
+  new ForjrError('F0002', words, { fields: { [field]: 'values' } })
 
-const notFound = (): TentError =>
-  new TentError('T0001', 'No picture of that name or id is served.', {
+const notFound = (): ForjrError =>
+  new ForjrError('F0001', 'No picture of that name or id is served.', {
     fix: 'The image door serves a picture that this caller may download, and an asset that a kept version names.',
   })
 
-/** Holds the width that the door was asked for to the list of the project. Throws T0002 for none and for another. */
+/** Holds the width that the door was asked for to the list of the project. Throws F0002 for none and for another. */
 function widthOf(o: Opened, asked: URLSearchParams): number {
   const stated: unknown = Reflect.get(Object(o.description.project.images), 'widths')
   const list = Array.isArray(stated) && stated.length ? stated : widths
@@ -93,12 +93,12 @@ const scaledHeaders = (headers: Record<string, string>, scaled: Scaled, mark: st
 })
 
 /**
- * `GET /_t/img/<id>?w=<width>` for a file of the app, and `GET /_t/img/a/<name>?w=<width>&v=<fingerprint>` for an
+ * `GET /_f/img/<id>?w=<width>` for a file of the app, and `GET /_f/img/a/<name>?w=<width>&v=<fingerprint>` for an
  * asset. A file holds to the rule of a download first, and counts on `filesPerMinute`; an asset is open to
  * everyone, counts on nothing, and is answered to be kept for a year. The door answers the picture scaled down to
  * the width where the resizer is there, in the format that the browser takes where that is smaller: while that
  * part is not, it starts its fetch and sends the picture as it is, and never fails for it. Anything else it is
- * asked is T0002.
+ * asked is F0002.
  */
 export const address: Address = {
   order: 1,
@@ -144,7 +144,7 @@ export const address: Address = {
       const perMinute = storedLimit(o.description, 'filesPerMinute')
       const who = caller.kind === 'nobody' ? countedAs(about.from) : callerText(caller)
       if (!countedFor(o, `files:${who}`, perMinute))
-        throw new TentError('T0005', `More than ${perMinute} files in a minute were asked for by one caller.`, {
+        throw new ForjrError('F0005', `More than ${perMinute} files in a minute were asked for by one caller.`, {
           fix: 'Ask for fewer files, or raise `filesPerMinute` in `project.limits`.',
         })
       // The rule of a download comes first: a caller who may not have a file learns nothing of its kind.

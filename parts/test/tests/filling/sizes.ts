@@ -1,4 +1,4 @@
-import { action, number, table } from 'tentjs'
+import { action, number, table } from 'forjr'
 import { noted } from './helpers/seen.ts'
 
 export const doubled = action('doubled', {

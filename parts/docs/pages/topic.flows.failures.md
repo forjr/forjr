@@ -4,17 +4,17 @@ This page says what follows when a step fails, and gives typed events, a run tha
 
 ## A step that fails
 
-A step that fails is tried again: after 5 seconds, then after 30 seconds, then after 3 minutes. It is tried 4 times in all, unless `tries` of the flow or of the step says otherwise: `step('charge', work, { tries: 2 })`. The run waits meanwhile. Not tried again is a failure that a second try would only repeat: the own `fail` of the app, and an error of the framework that says the call itself was wrong, as `code.T0002` and `code.T3101`.
+A step that fails is tried again: after 5 seconds, then after 30 seconds, then after 3 minutes. It is tried 4 times in all, unless `tries` of the flow or of the step says otherwise: `step('charge', work, { tries: 2 })`. The run waits meanwhile. Not tried again is a failure that a second try would only repeat: the own `fail` of the app, and an error of the framework that says the call itself was wrong, as `code.F0002` and `code.F3101`.
 
 A step that has failed for good refuses its promise with its error, on that pass and on every later one. Code may catch it and go on. A step that states `onFail: 'goOn'` does not refuse: it answers `{ failed: true, code, message }`, so a flow reads `r?.failed` and goes on. A run whose `run` lets an error out has failed, and keeps the error and its finished steps.
 
 ## Typed events
 
-`export const orderShipped = event('order.shipped', { data: object({ order: link('orders') }) })` in a definition file declares an event with the shape of its data. `emit(orderShipped, data)` holds the data to it - the type checker before, `code.T0002` while running - and every `on` and `step.waitFor` of it is handed that type (`word.event`). An event with no declaration works as ever, with its data untyped; the check warns where one such name is emitted with two shapes (`code.T5111`).
+`export const orderShipped = event('order.shipped', { data: object({ order: link('orders') }) })` in a definition file declares an event with the shape of its data. `emit(orderShipped, data)` holds the data to it - the type checker before, `code.F0002` while running - and every `on` and `step.waitFor` of it is handed that type (`word.event`). An event with no declaration works as ever, with its data untyped; the check warns where one such name is emitted with two shapes (`code.F5111`).
 
 ## A run that is stopped, and hearing of other runs
 
-`onStop` is the last work of a run that was stopped, by `runs.stop`, `tent runs stop` or `stopOn`: it is carried out once, its steps saved under their names with `onStop.` in front, and it is handed `stopped`, the step that was at work and what that step kept of its progress, so that it can take back what was half done (`option.flow.onStop`). The run is `stopped` once `onStop` has ended; a second stop ends it at once.
+`onStop` is the last work of a run that was stopped, by `runs.stop`, `forjr runs stop` or `stopOn`: it is carried out once, its steps saved under their names with `onStop.` in front, and it is handed `stopped`, the step that was at work and what that step kept of its progress, so that it can take back what was half done (`option.flow.onStop`). The run is `stopped` once `onStop` has ended; a second stop ends it at once.
 
 When a run of a flow ends failed or stopped, the engine raises `run.failed` or `run.stopped`, `{ flow, run, key, failure }`, in the write that ends the run. A flow listens to them as to any event: `on: event('run.failed', { where: { flow: 'billing' } })` starts a run for each failure of `billing`, in that very write, so that someone is told. A flow is never started by the failure or the stop of one of its own runs, so a flow on `run.failed` with no `where` cannot start itself without end.
 
@@ -24,11 +24,11 @@ Each is what holds where the flow states nothing, and `limits` of the flow chang
 
 | Limit | Holds | Its error |
 |---|---|---|
-| `steps` | 1,000 steps in one run | `code.T5101` |
-| `result` | 1 MB for the result of one step, and for the answer of the flow | `code.T5102` |
-| `wait` | 1 year for one wait | `code.T5103` |
-| `time` | 30 days of work in one run, waits not counted | `code.T5104` |
-| `pass` | 5 seconds of work between two steps | `code.T5104` |
+| `steps` | 1,000 steps in one run | `code.F5101` |
+| `result` | 1 MB for the result of one step, and for the answer of the flow | `code.F5102` |
+| `wait` | 1 year for one wait | `code.F5103` |
+| `time` | 30 days of work in one run, waits not counted | `code.F5104` |
+| `pass` | 5 seconds of work between two steps | `code.F5104` |
 
 Ten runs of one flow work at the same time, and one more waits its turn: `together: { max }` changes the count.
 

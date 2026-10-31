@@ -1,4 +1,4 @@
-import { action, change, count, input, query, text, vector } from 'tentjs'
+import { action, change, count, input, query, text, vector } from 'forjr'
 import { articles, embedder, other, same } from '../tables/articles'
 
 // What is as the documents ask, and is found with nothing.
@@ -71,7 +71,7 @@ export const bodyNear = query('bodyNear', {
   },
 })
 
-// T2008: a `near` value whose size is not the column's.
+// F2008: a `near` value whose size is not the column's.
 
 export const wrongSize = query('wrongSize', {
   access: 'signedIn',
@@ -90,7 +90,7 @@ export const bodyWrongSize = query('bodyWrongSize', {
   run: ({ db, input }) => db.articles.near('meaning', input.to).limit(3).all(),
 })
 
-// T2009: `near` with neither `limit` nor `first()`.
+// F2009: `near` with neither `limit` nor `first()`.
 
 export const noLimit = query('noLimit', {
   access: 'signedIn',
@@ -105,7 +105,7 @@ export const bodyNoLimit = query('bodyNoLimit', {
   run: ({ db, input }) => db.articles.near('meaning', input.to).all(),
 })
 
-// T2010: a vector column used as an ordinary one, and `near` where it does not belong.
+// F2010: a vector column used as an ordinary one, and `near` where it does not belong.
 
 export const filtered = query('filtered', {
   access: 'signedIn',
@@ -165,7 +165,7 @@ export const bodySorted = query('bodySorted', {
   run: ({ db, input }) => db.articles.near('meaning', input.to).newest('title').limit(3).all(),
 })
 
-// T2012: a value of another model than the column states.
+// F2012: a value of another model than the column states.
 
 export const otherModel = query('otherModel', {
   access: 'signedIn',

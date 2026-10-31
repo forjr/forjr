@@ -1,4 +1,4 @@
-import { messages } from 'tentjs/ui'
+import { messages } from 'forjr/ui'
 
 export default messages('en', {
   orders: { title: 'Open orders', count: { zero: 'No orders', one: '{count} order', other: '{count} orders' } },

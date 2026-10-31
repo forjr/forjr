@@ -24,7 +24,7 @@ export const member =
     heldOpen(o)
     if (!Array.isArray(writes) || !writes.every(isWrite)) throw notTaken('write', 'a list of writes')
     const caller = callerNamed(how?.as)
-    // Under `tent test`, what the test itself wrote, as `app.make` and `app.user` write it.
+    // Under `forjr test`, what the test itself wrote, as `app.make` and `app.user` write it.
     for (const write of writes)
       noteTouched('wrote', 'add' in write ? write.add : 'change' in write ? write.change : write.remove)
     return o.machine.sent('write', [writes], caller, false, async () => {

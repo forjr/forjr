@@ -1,4 +1,4 @@
-import { link, project, table, text } from 'tentjs'
+import { link, project, table, text } from 'forjr'
 
 export const sealedTeams = project('sealedTeams', {
   limits: { filesAtOnce: 2 },

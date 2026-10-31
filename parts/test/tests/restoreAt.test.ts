@@ -33,13 +33,13 @@ interface Archived {
 async function archivedBundle(t: TestContext, store?: S3StandIn): Promise<string> {
   const project = copyOf(t, 'archived')
   if (store) {
-    const file = join(project, 'tent.ts')
+    const file = join(project, 'forjr.ts')
     const text = readFileSync(file, 'utf8')
-    const stated = `backups: { every: false, keep: 8, store: s3({ url: '${store.url}', bucket: 'tent', key: secret('storeKey') }) },`
+    const stated = `backups: { every: false, keep: 8, store: s3({ url: '${store.url}', bucket: 'forjr', key: secret('storeKey') }) },`
     writeFileSync(
       file,
       text
-        .replace("import { project } from 'tentjs'", "import { project, s3, secret } from 'tentjs'")
+        .replace("import { project } from 'forjr'", "import { project, s3, secret } from 'forjr'")
         .replace('backups: { every: false, keep: 8 },', stated),
     )
   }
@@ -170,7 +170,7 @@ test('[45-1] an hour of writes after a backup is restored to a moment in the mid
   assert.equal(await printOf(held.app), print, 'the moment in the middle, once more')
 })
 
-test('[45-1] a moment before the oldest backup is refused with T0002 and nothing is restored; and with `archive: false` no part is kept', async (t) => {
+test('[45-1] a moment before the oldest backup is refused with F0002 and nothing is restored; and with `archive: false` no part is kept', async (t) => {
   const held = await archivedApp(t)
   const teams = await twoTeams(held.app)
   const before = held.now()
@@ -179,12 +179,12 @@ test('[45-1] a moment before the oldest backup is refused with T0002 and nothing
   for (let m = 1; m <= 3; m++) await minute(held, teams, m)
   const print = await printOf(held.app)
   await assert.rejects(command(held.app, held.dataFolder, 'data', { what: 'restore', at: momentOf(before - 60_000) }), {
-    code: 'T0002',
+    code: 'F0002',
   })
   assert.equal(await printOf(held.app), print)
 
   const project = copyOf(t, 'archived')
-  const file = join(project, 'tent.ts')
+  const file = join(project, 'forjr.ts')
   writeFileSync(file, readFileSync(file, 'utf8').replace('keep: 8 }', 'keep: 8, archive: false }'))
   const built = await buildProject(project, { for: 'dev', out: join(project, 'bundle') })
   const engine = createEngine({ port: 0 })
@@ -225,7 +225,7 @@ test('[45-1] with the archive in a store, a deleted data folder is restored from
   }
 
   // The disk is lost: the data folder is opened again empty, and restored from the store alone. The key of the
-  // secrets is the server's own, as `TENT_SECRET_KEY` holds it there: it is laid into the empty folder again.
+  // secrets is the server's own, as `FORJR_SECRET_KEY` holds it there: it is laid into the empty folder again.
   const keyFile = join(held.dataFolder, 'secret.key')
   const key = readFileSync(keyFile)
   await held.reopen(() => {

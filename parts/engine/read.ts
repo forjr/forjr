@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Here, Mode } from '../data/index.ts'
 import { here, sqliteStore } from '../data/index.ts'
 import type { App } from './app.ts'
@@ -42,7 +42,7 @@ const modes: Mode[] = ['development', 'test', 'live']
 
 const isMode = (value: unknown): value is Mode => modes.some((one) => one === value)
 
-/** What a data folder says of itself before it is opened: what its `_t_here` holds, and the version its data names. */
+/** What a data folder says of itself before it is opened: what its `_f_here` holds, and the version its data names. */
 function peek(dataFolder: string): { mine: Here; version: string | undefined } {
   const store = sqliteStore()
   store.open(dataFolder, { readOnly: true })
@@ -58,7 +58,7 @@ function holdsDirectory(file: string): boolean {
   const store = sqliteStore()
   store.open(file, { readOnly: true })
   try {
-    return store.layout().some((one) => one.name === '_t_tenants')
+    return store.layout().some((one) => one.name === '_f_tenants')
   } finally {
     store.close()
   }
@@ -66,15 +66,15 @@ function holdsDirectory(file: string): boolean {
 
 /**
  * Takes what the engine hands an opening, and the options of `engine.read`. Opens the app as a reader of the
- * writer at `from`. On an empty data folder it first fetches the running version and the data, and throws T0029
+ * writer at `from`. On an empty data folder it first fetches the running version and the data, and throws F0029
  * where the writer is not reached. On a folder that holds data it answers once the store is open, whether the
  * writer is reached or not. A folder of the machine that took over from that address goes on as the writer. A
- * folder of any other writer changes nothing until it has reached a writer of a newer epoch. Throws T0013 for
- * options that do not read and for a store that cannot be copied, and T0011 for a version that cannot be kept.
+ * folder of any other writer changes nothing until it has reached a writer of a newer epoch. Throws F0013 for
+ * options that do not read and for a store that cannot be copied, and F0011 for a version that cannot be kept.
  */
 export async function readApp(program: Program, options: ReadOptions): Promise<App> {
   const { from, key } = Object(options)
-  const wrong = (words: string, fix: string): TentError => new TentError('T0013', words, { fix })
+  const wrong = (words: string, fix: string): ForjrError => new ForjrError('F0013', words, { fix })
   if (typeof from !== 'string' || !/^https?:\/\/[^/]+$/.test(from.replace(/\/+$/, '')))
     throw wrong(
       'A reader is told the address of its writer in `from`, with its scheme.',
@@ -101,12 +101,12 @@ export async function readApp(program: Program, options: ReadOptions): Promise<A
     removeHalf(dataFolder)
     /** Fetches what the writer tells of its versions, and the files of the running one that this folder lacks. */
     const fetched = async (): Promise<{ mode: Mode; running: ToldVersion }> => {
-      const told = Object(await (await asked(reached(writer), writer, '/_t/copy/versions', key)).json())
+      const told = Object(await (await asked(reached(writer), writer, '/_f/copy/versions', key)).json())
       const list: unknown = told.list
       const running = isTold(list) ? list.find((one) => one.running) : undefined
       if (!isMode(told.mode) || !running) throw notReached(writer, 'it told no running version')
       const blob = async (fingerprint: string): Promise<Uint8Array> =>
-        new Uint8Array(await (await asked(reached(writer), writer, `/_t/copy/blob/${fingerprint}`, key)).arrayBuffer())
+        new Uint8Array(await (await asked(reached(writer), writer, `/_f/copy/blob/${fingerprint}`, key)).arrayBuffer())
       await fetchVersion(dataFolder, running, blob)
       return { mode: told.mode, running }
     }

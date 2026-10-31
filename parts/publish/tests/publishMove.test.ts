@@ -16,7 +16,7 @@ export const notes = table('notes', {
 })
 `
 
-test('[50-10] tent publish --move moves the rows of a table that gains tenant into the files of its tenants, and without it the publish is refused for those rows', async (t) => {
+test('[50-10] forjr publish --move moves the rows of a table that gains tenant into the files of its tenants, and without it the publish is refused for those rows', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder, { project: 'desk' })
   const here = computer(t, folder, 'here', join(import.meta.dirname, 'desk'))
@@ -38,7 +38,7 @@ test('[50-10] tent publish --move moves the rows of a table that gains tenant in
     () => undefined,
     (error: { code?: string; fields?: Record<string, string> }) => error,
   )
-  assert.deepEqual([refused?.code, refused?.fields?.reason], ['T9103', 'rows'])
+  assert.deepEqual([refused?.code, refused?.fields?.reason], ['F9103', 'rows'])
 
   const tried = await publish({
     project: here.project,

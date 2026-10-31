@@ -245,7 +245,7 @@ export function deviceText(states: Record<string, unknown>): string {
  * states: over https it starts `__Host-`, as the session cookie's does, so that a sister site cannot plant a choice.
  */
 export const deviceCookie = (app: string, origin: string): string =>
-  `${origin.startsWith('https:') ? '__Host-' : ''}tent_state.${app}`
+  `${origin.startsWith('https:') ? '__Host-' : ''}forjr_state.${app}`
 
 /** Takes the value of the cookie of the device states. Answers the record it holds, and an empty one for any other text. */
 export function deviceRead(text: string): Record<string, unknown> {

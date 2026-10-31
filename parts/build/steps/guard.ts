@@ -65,10 +65,10 @@ export const step: Step = {
     for (const file of work.options.unsearched ?? [])
       work.findings.push(
         finding(
-          'T3011',
+          'F3011',
           `The secrets file ${file} is there, and this computer cannot open it: the guard searched the browser code for none of its values.`,
           {
-            fix: 'Build where the key of the secrets is at hand, as `TENT_SECRET_KEY` or as `secret.key` of the data folder, so that the guard can look for every value.',
+            fix: 'Build where the key of the secrets is at hand, as `FORJR_SECRET_KEY` or as `secret.key` of the data folder, so that the guard can look for every value.',
           },
           'note',
         ),
@@ -84,7 +84,7 @@ export const step: Step = {
       if (count)
         found(
           work,
-          'T3007',
+          'F3007',
           name,
           1,
           `The browser file ${name} holds ${count === 1 ? 'a secret value' : `${count} secret values`} of this computer.`,

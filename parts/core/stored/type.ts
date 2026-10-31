@@ -43,7 +43,7 @@ const own: Record<string, string[]> = {
 /** The words that a `from` may not hold: what is drawn, and what is no value of the row. */
 const notInFrom = ['now', 'random', 'input', 'caller', 'setting']
 
-/** Reports what a stored value holds that its place does not take: T1014. `where` says the place. */
+/** Reports what a stored value holds that its place does not take: F1014. `where` says the place. */
 export function heldValue(told: Told, where: string, value: unknown, refuse: readonly string[], plans = false): void {
   if (Array.isArray(value)) {
     for (const one of value) heldValue(told, where, one, refuse, plans)
@@ -52,7 +52,7 @@ export function heldValue(told: Told, where: string, value: unknown, refuse: rea
   if (typeof value === 'function')
     report(
       told,
-      'T1014',
+      'F1014',
       `${where} holds a function where a value stands.`,
       'Write a value, or a word of ours that works one out.',
     )
@@ -60,7 +60,7 @@ export function heldValue(told: Told, where: string, value: unknown, refuse: rea
   if (typeof value.from === 'string' && !plans)
     report(
       told,
-      'T1014',
+      'F1014',
       `${where} holds a plan where a value stands.`,
       'A plan may stand in `in` of a filter of a plan, and nowhere else in a value.',
     )
@@ -69,7 +69,7 @@ export function heldValue(told: Told, where: string, value: unknown, refuse: rea
     if (word in value || fn === word)
       report(
         told,
-        'T1014',
+        'F1014',
         `${where} holds \`${fn ?? word}\`, which may not stand there.`,
         'Take it out, or work the value out in a change.',
       )
@@ -107,12 +107,12 @@ const shownOf = (written: unknown): unknown => (isStored(written) ? plainOf(writ
 /**
  * Takes a type as a type word answered it, and whether it stands as a column. Answers the type as it is stored: a
  * size in bytes, `'now'` and `'today'` as their records, `was` as a list, and a member that equals its default
- * left out. Reports T1003 for an option the type does not take where it stands, and T1014 for a value of an option
+ * left out. Reports F1003 for an option the type does not take where it stands, and F1014 for a value of an option
  * that is not allowed.
  */
 export function typeOf(told: Told, where: string, written: unknown, column = false): Stored {
   if (!isStored(written) || typeof written.kind !== 'string' || !Object.hasOwn(own, written.kind)) {
-    report(told, 'T1014', `${where} is no type.`, 'Write a type word, as text() or number().')
+    report(told, 'F1014', `${where} is no type.`, 'Write a type word, as text() or number().')
     return { kind: 'json' }
   }
   const kind = written.kind
@@ -128,7 +128,7 @@ export function typeOf(told: Told, where: string, written: unknown, column = fal
   known(told, `${where}, a \`${kind}\`,`, written, taken)
   const type: Stored = { kind }
   const bad = (option: string, why: string) =>
-    report(told, 'T1014', `${where}: \`${option}\` ${why}.`, `Give \`${option}\` a value that is allowed.`)
+    report(told, 'F1014', `${where}: \`${option}\` ${why}.`, `Give \`${option}\` a value that is allowed.`)
   for (const option of ['min', 'max']) {
     if (written[option] !== undefined && typeof written[option] !== 'number') bad(option, 'is no number')
     setField(type, option, written[option])
@@ -230,7 +230,7 @@ function readKind(told: Told, keeps: Keeps): unknown {
 
 /**
  * Stores how a column that a `from` keeps is kept: a count as a whole number from 0, a sum from 0, and a least and
- * a most as optional, since they hold nothing while no row is counted. Reports T1014 for a count or a sum in a
+ * a most as optional, since they hold nothing while no row is counted. Reports F1014 for a count or a sum in a
  * column that is no number, and for a least or a most in a column of another kind than the column it reads.
  */
 function keptOf(told: Told, where: string, type: Stored, keeps: Keeps): void {
@@ -238,7 +238,7 @@ function keptOf(told: Told, where: string, type: Stored, keeps: Keeps): void {
   if (typeof reads === 'string' && type.kind !== reads)
     report(
       told,
-      'T1014',
+      'F1014',
       `${where}: a kept \`${keeps.do}\` of \`${keeps.of}\` is a \`${reads}\`, and the column is a \`${String(type.kind)}\`.`,
       `Write ${reads}({ from: ${keeps.do}({ ... }) }).`,
     )
@@ -250,7 +250,7 @@ function keptOf(told: Told, where: string, type: Stored, keeps: Keeps): void {
 
 /**
  * The stored form of `by` of a column: the work that fills it, or for a vector with a model the columns its words
- * come from. `columns` on any other column is stored as it is written, for the check to name (T2015).
+ * come from. `columns` on any other column is stored as it is written, for the check to name (F2015).
  */
 function byOf(told: Told, where: string, written: unknown, embeds: boolean): Stored {
   const by: Stored = {}
@@ -263,7 +263,7 @@ function byOf(told: Told, where: string, written: unknown, embeds: boolean): Sto
     const work = o.work ?? written
     const name = typeof work === 'string' ? work : Reflect.get(Object(work), 'definition')
     if (typeof name !== 'string')
-      report(told, 'T1014', `${where}: \`by\` names no work.`, 'Name an action, a python or a model.')
+      report(told, 'F1014', `${where}: \`by\` names no work.`, 'Name an action, a python or a model.')
     setField(by, 'work', name)
     setField(by, 'input', o.input)
     setField(by, 'take', o.take)
@@ -285,7 +285,7 @@ export function typesOf(
 ): Record<string, Stored> | undefined {
   if (written === undefined) return undefined
   if (!isStored(written)) {
-    report(told, 'T1014', `${where} is no record of types.`, 'Write a record from a name to a type.')
+    report(told, 'F1014', `${where} is no record of types.`, 'Write a record from a name to a type.')
     return undefined
   }
   return Object.fromEntries(
@@ -316,31 +316,31 @@ export function ruleOf(told: Told, option: string, written: unknown, exported: s
   }
   report(
     told,
-    'T1014',
+    'F1014',
     `\`${option}\` is no rule.`,
     "Write 'nobody', 'signedIn', 'owner', role(...), anyone(...), where(...) or allow(...).",
   )
   return undefined
 }
 
-/** Reports a zone that the runtime does not know: T1014. */
+/** Reports a zone that the runtime does not know: F1014. */
 export function zoneOf(told: Told, option: string, written: unknown): unknown {
   if (written !== undefined && !isZone(written))
     report(
       told,
-      'T1014',
+      'F1014',
       `\`${option}\` names no time zone that the runtime knows: ${shownAs(written)}.`,
       "Write the name of a zone, as 'Europe/Istanbul'.",
     )
   return written
 }
 
-/** The stored record of a plan that a table made, or nothing with T1014 for any other value. */
+/** The stored record of a plan that a table made, or nothing with F1014 for any other value. */
 export function planRecord(told: Told, option: string, written: unknown): Stored | undefined {
   if (written === undefined) return undefined
   const record = planOf(written)
   if (!record) {
-    report(told, 'T1014', `\`${option}\` is no plan.`, 'Write a plan that starts at a table, as orders.where({ ... }).')
+    report(told, 'F1014', `\`${option}\` is no plan.`, 'Write a plan that starts at a table, as orders.where({ ... }).')
     return undefined
   }
   heldValue(told, `\`${option}\``, record, [], true)

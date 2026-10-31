@@ -4,7 +4,7 @@ import type { Opened } from '../opened.ts'
 import { heldOpen } from '../opened.ts'
 
 /**
- * `app.link`: the opening of `/_t/copy`, the link of a reader, with no network. The scheme and the name it was
+ * `app.link`: the opening of `/_f/copy`, the link of a reader, with no network. The scheme and the name it was
  * sent to are those of its address. It throws what the opening was refused with.
  */
 export const member =

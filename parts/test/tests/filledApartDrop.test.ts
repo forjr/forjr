@@ -15,7 +15,7 @@ const moment = (ms = 5): Promise<void> => new Promise((done) => setTimeout(done,
 const tables = (
   model: 'embedderA' | 'embedderB',
   old: string,
-) => `import { link, model, table, text, vector } from 'tentjs'
+) => `import { link, model, table, text, vector } from 'forjr'
 export const embedderA = model('embedderA', { provider: 'mine', name: 'a-1', abilities: ['embed'] })
 export const embedderB = model('embedderB', { provider: 'mine', name: 'b-1', abilities: ['embed'] })
 export const teams = table('teams', { columns: { name: text() }, access: { read: 'signedIn', add: 'signedIn' } })
@@ -42,7 +42,7 @@ async function until(app: TestApp, what: string, holds: () => boolean | Promise<
 
 test('[51-14] in a tenant table, a file that was closed at a change of the model of a vector column with old drop is filled anew by the new model once it is brought up', async (t) => {
   // The provider of the project waits until the test has heard each `embed`.
-  listened(t, 'tentjs.test.vectors', () => undefined)
+  listened(t, 'forjr.test.vectors', () => undefined)
   const folder = copyOf(t, 'vectors')
   writeFileSync(join(folder, 'tables.ts'), tables('embedderA', ''))
   const { app, dataFolder } = await appIn(t, folder)

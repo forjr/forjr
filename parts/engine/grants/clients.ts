@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored } from '../../core/internal.ts'
 import { countedFor } from '../door/rate.ts'
 import { storedLimit } from '../limits.ts'
@@ -23,17 +23,17 @@ export interface Client {
 }
 
 /** The id of the app's own command line, which the engine knows by itself in an app that has commands. */
-export const cliClient = 'tent-cli'
+export const cliClient = 'forjr-cli'
 
 /** What a registered id is bound to, so that no other sealed text of the engine opens as one. */
-const registered = 'tent.client/1'
+const registered = 'forjr.client/1'
 
 /** The documents of clients that were read, by their address, each with the moment it was read. */
 const read = new WeakMap<Opened, Map<string, { client: Client; at: number }>>()
 
 /** The failure of a client or a return address that cannot be trusted: no return is made to it. */
-export const untrusted = (message: string): TentError =>
-  new TentError('T0002', message, { fix: 'Sign in from the program again, as its maker set it up.' })
+export const untrusted = (message: string): ForjrError =>
+  new ForjrError('F0002', message, { fix: 'Sign in from the program again, as its maker set it up.' })
 
 const textsOf = (value: unknown): string[] =>
   Array.isArray(value) ? value.filter((one): one is string => typeof one === 'string') : []
@@ -91,7 +91,7 @@ export const fairReturns = (redirects: string[]): boolean =>
 /** The id of a client that registers itself: its name, its return addresses and the time, sealed with the key of the secrets. */
 export function registeredId(o: Opened, name: string, redirects: string[]): string {
   const key = secretKeyAt(o.dataFolder)
-  if (!key) throw new TentError('T0019', 'A client registers itself only where the app holds the key of its secrets.')
+  if (!key) throw new ForjrError('F0019', 'A client registers itself only where the app holds the key of its secrets.')
   return sealText(key, JSON.stringify({ name, redirects, at: o.clock.now() }), registered)
 }
 
@@ -151,7 +151,7 @@ async function documentOf(o: Opened, id: string): Promise<Client> {
  * Takes an app, the id that a client names itself by, and the person who signs in. Answers who the client is: the
  * app's own command line, a client the builder states, one that registered itself, or one whose document the
  * engine reads, at most `clientNamesPerMinute` new ones a minute for one person, and keeps for `clientDocKept`.
- * Throws T0002 for a client that cannot be trusted, T0005 for one more new name, and what the guarded fetch throws.
+ * Throws F0002 for a client that cannot be trusted, F0005 for one more new name, and what the guarded fetch throws.
  */
 export async function clientOf(o: Opened, id: string, person: string): Promise<Client> {
   if (id === cliClient && cliSignsIn(o.description)) {
@@ -182,7 +182,7 @@ export async function clientOf(o: Opened, id: string, person: string): Promise<C
   if (held && now - held.at <= storedLimit(o.description, 'clientDocKept')) return held.client
   const limit = storedLimit(o.description, 'clientNamesPerMinute')
   if (!countedFor(o, `clientNames:${person}`, limit))
-    throw new TentError('T0005', `More than ${limit} new programs were named in a minute.`, {
+    throw new ForjrError('F0005', `More than ${limit} new programs were named in a minute.`, {
       fix: 'Sign in from fewer programs at once.',
     })
   const client = await documentOf(o, id)

@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { storedLimit } from '../limits.ts'
 import type { Opened } from '../opened.ts'
 import { progressKeptOf } from '../stored/keptProgress.ts'
@@ -29,7 +29,7 @@ export async function framed(o: Opened, out: OutTask, value: unknown): Promise<{
 export async function carried(o: Opened, out: OutTask, id: unknown): Promise<unknown> {
   const file = fileRow(o, id)
   if (!file || !out.carried?.includes(file.id))
-    throw new TentError('T5108', 'The file that the message names was not posted for this task.')
+    throw new ForjrError('F5108', 'The file that the message names was not posted for this task.')
   const value: unknown = JSON.parse(new TextDecoder().decode(await wholeBytes(o, file)))
   await forgetFile(o, file).catch(() => undefined)
   return value

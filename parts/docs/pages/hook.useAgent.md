@@ -5,7 +5,7 @@ Starts an agent from the code of a view, and shows its run as it works: the answ
 ## Example
 
 ```tsx
-import { screen, useAgent, useParams } from 'tentjs/ui'
+import { screen, useAgent, useParams } from 'forjr/ui'
 import { helper } from '../functions/helper'
 
 export const chatScreen = screen('chatScreen', {
@@ -37,7 +37,7 @@ export const chatScreen = screen('chatScreen', {
 
 ## Returns
 
-`{ send, run, state, answer, reasoning, steps, said, asks, approve, refuse, used, error, stop }`, of the type `AgentShown` of `tentjs/ui`.
+`{ send, run, state, answer, reasoning, steps, said, asks, approve, refuse, used, error, stop }`, of the type `AgentShown` of `forjr/ui`.
 
 `send(message, { files, audio })` starts a run through the door, and the page follows it over its live connection. `state` is `'idle'` before there is a run, and then `'queued'`, `'running'`, `'waiting'`, `'done'`, `'failed'` or `'stopped'`. `answer` is the text of the latest `model` step, as far as it has come, and `reasoning` its reasoning where the agent states `reasoning`. `steps`, `said` and `asks` are below. `approve(ask)` and `refuse(ask)` answer an ask. `used` is what the run used so far, with the runs it called. `error` is a failure as a caller sees it, `{ code, name, message, fields, ref }`. `stop()` stops the run, and the playing of its sounds.
 
@@ -45,7 +45,7 @@ export const chatScreen = screen('chatScreen', {
 
 `said` holds the last value that each step said, as `{ step, repeat, value }`: the work of a step says it with `say(value)`, and it is never saved (`hook.useRun`).
 
-`asks` holds each ask that waits for the person, in the run and in the runs it called, as `{ run, step, repeat, n, tool, input, call?, sequence?, more? }`: the run and the step that wait, the step's repeat, and `n`, which ask of that step it is; `tool` and `input`, the tool call that is asked about, which for a run that another run called is the tool call of the top run; `call`, where a call inside a tool call waits for a yes (`code.T7111`), the name of that call; and for the ask of a sequence, `sequence`, the calls it lists, each `{ step, tool, input, asks, agreed? }`, with `more`, whether more may follow (`option.agent.sequence`). A question of the model is an ask whose `tool` is `question` (`option.agent.questions`). A tool asks so where it states `danger: 'ask'`, or sends data out and `trust` does not name it (`option.agent.tools`).
+`asks` holds each ask that waits for the person, in the run and in the runs it called, as `{ run, step, repeat, n, tool, input, call?, sequence?, more? }`: the run and the step that wait, the step's repeat, and `n`, which ask of that step it is; `tool` and `input`, the tool call that is asked about, which for a run that another run called is the tool call of the top run; `call`, where a call inside a tool call waits for a yes (`code.F7111`), the name of that call; and for the ask of a sequence, `sequence`, the calls it lists, each `{ step, tool, input, asks, agreed? }`, with `more`, whether more may follow (`option.agent.sequence`). A question of the model is an ask whose `tool` is `question` (`option.agent.questions`). A tool asks so where it states `danger: 'ask'`, or sends data out and `trust` does not name it (`option.agent.tools`).
 
 An agent that a driver of your own runs (`adapter.Driver`) has no `model` step of the engine's: its `answer` is what the driver tells of it, piece by piece, with `env.tell(run.id, { kind: 'text', step, text })`, and `said` what its steps say with `say`.
 
@@ -53,7 +53,7 @@ After a reload the hook follows its run again: with a `thread`, the caller's lat
 
 Earlier messages of a conversation are no part of the hook: a screen reads them from the memory table with a live query.
 
-**What was heard.** A run that `send` started with `audio` hears it first, in its step `hear`, and the words it heard are the person's message, after what they typed on a new line. With `memory` and a `thread`, the run writes that message into the memory table as the row `who: 'user'` before the model reads it, so the live query of the conversation shows what was heard as the person's own words (`code.T7007`).
+**What was heard.** A run that `send` started with `audio` hears it first, in its step `hear`, and the words it heard are the person's message, after what they typed on a new line. With `memory` and a `thread`, the run writes that message into the memory table as the row `who: 'user'` before the model reads it, so the live query of the conversation shows what was heard as the person's own words (`code.F7007`).
 
 **In a test** a faked model gives its text as one part, so `answer` holds the whole text at once; a page that shows an answer as it arrives is tested with a real model, or with a provider of the project's own whose `reply` gives the text in several parts (`adapter.Provider`), which `providers` of its `engine.ts` makes and a test app uses (`topic.tests.model`).
 

@@ -13,7 +13,7 @@ function freshUnder(folder: string): [string, string][] {
 }
 
 /**
- * `tent test --looks update`: keeps every new picture and every new thing heard that the tests of a project wrote,
+ * `forjr test --looks update`: keeps every new picture and every new thing heard that the tests of a project wrote,
  * under its name, in the place of what was kept. Answers the paths it kept, from the folder of the project.
  */
 export function keepLooks(project: string): string[] {

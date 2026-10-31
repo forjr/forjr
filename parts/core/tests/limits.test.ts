@@ -9,7 +9,7 @@ const run = async () => undefined
 const made = (word: object, name: string, options: object): object =>
   Object(Reflect.apply(Object(word), undefined, [name, options]))
 
-test('[13-5] tentjs/core gives the defaults of the limits of a project, a flow and an action, and describe leaves a limit out by that one table', () => {
+test('[13-5] forjr/core gives the defaults of the limits of a project, a flow and an action, and describe leaves a limit out by that one table', () => {
   // Rows of `13`, section 15, and of the limits that it names: a time in milliseconds, a size in bytes, a count.
   assert.equal(limitDefaults.project.callSize, 1_048_576)
   assert.equal(limitDefaults.project.uploadSize, 52_428_800)
@@ -59,7 +59,7 @@ test('[13-5] tentjs/core gives the defaults of the limits of a project, a flow a
   }
 })
 
-test('[13-5] sizeOf and lengthOf of tentjs/core read a size and a length of time as the document of the words writes them', () => {
+test('[13-5] sizeOf and lengthOf of forjr/core read a size and a length of time as the document of the words writes them', () => {
   // A size: a number and KB, MB or GB, counted in 1,024s.
   assert.equal(sizeOf('1 KB'), 1024)
   assert.equal(sizeOf('10 MB'), 10_485_760)

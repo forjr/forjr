@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { CallContext } from '../context.ts'
 import { dbFor } from '../program.ts'
 import type { MemoryOf } from './memory.ts'
@@ -41,12 +41,12 @@ function nearestRows(
 }
 
 /**
- * `_t_recall({ agent, thread, text })`: what the memory of an agent brings back by meaning, nearest to the
+ * `_f_recall({ agent, thread, text })`: what the memory of an agent brings back by meaning, nearest to the
  * text. `rows`: as `memory.recall` asks, so many older messages of every conversation the starter may read, by
  * `near` under the table's rule and held to the rows the starter owns, past the rows that are sent in full, each as
  * `{ who, text }`. `nearest`: as `shrink: { nearest }` asks, the ids of the rows of so many older turns of this
  * conversation, which are sent beside the latest. The text is turned into a vector once, by the model of the
- * table's vector column, as a model call of the starter. Throws T7007 for a table with no vector column filled from
+ * table's vector column, as a model call of the starter. Throws F7007 for a table with no vector column filled from
  * `text`.
  */
 export async function recalled(
@@ -64,8 +64,8 @@ export async function recalled(
   const turns = memory.nearest ?? 0
   const meaning = meaningOf(cx, memory.table)
   if (!meaning)
-    throw new TentError(
-      'T7007',
+    throw new ForjrError(
+      'F7007',
       `The memory table ${memory.table} of ${name} has no vector column filled from \`text\`.`,
       {
         fix: "Give the table a column `vector({ size, model, by: 'text' })`, which the engine fills from each message.",

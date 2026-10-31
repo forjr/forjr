@@ -5,7 +5,7 @@ import { heldOpen } from '../opened.ts'
 import { proxyRule } from '../web/proxy.ts'
 
 // A request that the program hands in with no address of its own crossed no network, so no proxy sent it, even
-// where a proxy of this computer is named: the commands of `tent start` ask their own app so.
+// where a proxy of this computer is named: the commands of `forjr start` ask their own app so.
 const unproxied = proxyRule(undefined)
 
 /**

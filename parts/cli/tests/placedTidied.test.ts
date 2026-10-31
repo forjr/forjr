@@ -18,17 +18,17 @@ async function within(ms: number, holds: () => boolean): Promise<boolean> {
 
 // An outside server of MCP that is a program, which the engine starts in a folder of links to the whole version. The
 // program is a stand-in that is not there, so no program holds the folder while the test looks at it.
-const services = `import { service } from 'tentjs'
+const services = `import { service } from 'forjr'
 
-export const local = service('local', { mcp: { command: ['tent-stand-in-that-is-not-there'] } })
+export const local = service('local', { mcp: { command: ['forjr-stand-in-that-is-not-there'] } })
 `
 
-test('[21-17] tent dev removes each folder of links that a program of another language was handed, once no loaded version needs it', async (t) => {
+test('[21-17] forjr dev removes each folder of links that a program of another language was handed, once no loaded version needs it', async (t) => {
   let started: Dev | undefined
   t.after(() => started?.close())
   const folder = copied(t, 'placed-tidied', 'devs')
   writeFileSync(join(folder, 'services.ts'), services)
-  const placed = join(folder, '.tent', 'build', 'placed')
+  const placed = join(folder, '.forjr', 'build', 'placed')
   const dev = await startDev(folder, { port: 0, out: () => undefined })
   started = dev
   assert.ok(await within(10_000, () => existsSync(placed) && readdirSync(placed).length > 0), 'the version is laid out')

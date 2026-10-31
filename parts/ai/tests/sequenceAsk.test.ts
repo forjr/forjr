@@ -142,7 +142,7 @@ test('[27-18] a choice whose test is not known ends the walk with more true, and
   assert.equal(stepsOf(app, together.run).filter((one) => one.name.startsWith('ask ')).length, 1)
 })
 
-test('[27-18] a no ends the sequence with T7111 and the words of a refusal, and the calls before it stay made; a walk that lists more calls than are left of toolCalls ends the sequence with T7102 before any of them', async (t) => {
+test('[27-18] a no ends the sequence with F7111 and the words of a refusal, and the calls before it stay made; a walk that lists more calls than are left of toolCalls ends the sequence with F7102 before any of them', async (t) => {
   const { app, maya } = await sequencedApp(t)
   app.fake('writer', handing(lateOrders))
   const refused = notDropped(await app.start('asking', { message: 'Refund.' }, { as: maya }))
@@ -154,7 +154,7 @@ test('[27-18] a no ends the sequence with T7111 and the words of a refusal, and 
   assert.equal(await rowsOf(app, maya, 'allRefunds'), 0)
   const tight = notDropped(await app.start('tight', { message: 'Refund.' }, { as: maya }))
   const past = JSON.parse((await answered(app, tight.run)).slice('Done: '.length))
-  assert.match(String(past), /^Error T7102: .*4/s)
+  assert.match(String(past), /^Error F7102: .*4/s)
   assert.match(String(past), /"tool":"myOrders"/)
   assert.ok(!stepsOf(app, tight.run).some((one) => one.name.startsWith('ask ')), 'nobody was asked')
   assert.equal(await rowsOf(app, maya, 'allRefunds'), 0)

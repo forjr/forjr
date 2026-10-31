@@ -1,4 +1,4 @@
-import { anyone, Form, screen, text, useTranslations } from 'tentjs/ui'
+import { anyone, Form, screen, text, useTranslations } from 'forjr/ui'
 import { Brand, Languages, PlainFrame } from '../components/frames'
 import { Labelled } from '../components/Labelled'
 import { button } from '../components/ui'

@@ -1,4 +1,4 @@
-import { action, agent, change, choice, connections, json, link, list, model, secret, table, text } from 'tentjs'
+import { action, agent, change, choice, connections, json, link, list, model, secret, table, text } from 'forjr'
 import { board, cloud, local, notes, team, wiki } from './services'
 
 export const users = table('users', { columns: { name: text(), roles: list(text()) } })

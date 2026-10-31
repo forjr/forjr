@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import type { Caller, Finding } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { finding } from '../../core/internal.ts'
 import { bundleFiles } from '../addresses/bundle.ts'
 import type { Opened } from '../opened.ts'
@@ -36,7 +36,7 @@ const perFile = 50_000
 function baseOf(given: unknown): string {
   if (given === undefined || given === '' || given === '/') return ''
   if (typeof given !== 'string' || !/^(\/[A-Za-z0-9._~-]+)+\/?$/.test(given) || given.includes('/../'))
-    throw new TentError('T0002', 'The base of an export is a path of plain words, such as /shop.')
+    throw new ForjrError('F0002', 'The base of an export is a path of plain words, such as /shop.')
   return given.replace(/\/$/, '')
 }
 
@@ -49,7 +49,7 @@ function originOf(o: Opened, given: unknown): string {
   const text = typeof given === 'string' ? given.replace(/\/$/, '') : ''
   const url = URL.canParse(text) ? new URL(text) : undefined
   if (!url || !/^https?:$/.test(url.protocol) || url.origin !== text)
-    throw new TentError('T0002', 'The origin of an export is a scheme and a name, such as https://shop.example.com.')
+    throw new ForjrError('F0002', 'The origin of an export is a scheme and a name, such as https://shop.example.com.')
   return url.origin
 }
 
@@ -74,7 +74,7 @@ function policyLine(o: Opened, origin: string, base: string): string {
   const lines = String(headers['content-security-policy'])
     .split('; ')
     .filter((line) => !line.startsWith('frame-ancestors'))
-    .map((line) => (origin === '' ? line.replaceAll(' /_t/b/', " 'self'").replace(/ {2,}/g, ' ').trim() : line))
+    .map((line) => (origin === '' ? line.replaceAll(' /_f/b/', " 'self'").replace(/ {2,}/g, ' ').trim() : line))
   const text = lines.join('; ').replaceAll('&', '&amp;').replaceAll('"', '&quot;')
   return `<meta http-equiv="Content-Security-Policy" content="${text}">`
 }
@@ -83,14 +83,14 @@ function policyLine(o: Opened, origin: string, base: string): string {
  * Takes an app, the folder of the export, and how it is asked. Writes the site out as files for any host of files,
  * from the version that `version` names or the running one, as nobody, in the default language: each page and the
  * answer of a move to it, the browser files and the assets, the sitemap, `robots.txt` and `404.html`. The pages say
- * that they were exported for the public. A version built for development is refused with T0013.
+ * that they were exported for the public. A version built for development is refused with F0013.
  */
 export async function exportOf(o: Opened, folder: string, asked: ExportAsked = {}): Promise<Exported> {
   const served = asked.version === undefined || asked.version === o.version ? o : o.versions?.get(asked.version)?.served
-  if (!served) throw new TentError('T0013', `No version ${String(asked.version).slice(0, 40)} can be loaded.`)
+  if (!served) throw new ForjrError('F0013', `No version ${String(asked.version).slice(0, 40)} can be loaded.`)
   if (served.description.app.dev === true)
-    throw new TentError('T0013', 'An export is made of a release build, and this version was built for development.', {
-      fix: 'Type `tent export`: it builds the project as a release for the export.',
+    throw new ForjrError('F0013', 'An export is made of a release build, and this version was built for development.', {
+      fix: 'Type `forjr export`: it builds the project as a release for the export.',
     })
   const base = baseOf(asked.base)
   const origin = originOf(o, asked.origin)
@@ -115,7 +115,7 @@ export async function exportOf(o: Opened, folder: string, asked: ExportAsked = {
       continue
     }
     files.set(one.place === '' ? 'index.html' : `${one.place}/index.html`, withPolicy(answer.html))
-    files.set(`_t/s/${one.place === '' ? 'index' : one.place}.json`, JSON.stringify({ ok: true, value: answer.page }))
+    files.set(`_f/s/${one.place === '' ? 'index' : one.place}.json`, JSON.stringify({ ok: true, value: answer.page }))
     pages.push(one.path)
     pictures.push(...(answer.pictures ?? []))
     const calls = screenCalls(served.description, one.screen)
@@ -125,7 +125,7 @@ export async function exportOf(o: Opened, folder: string, asked: ExportAsked = {
       const named = [...new Set([...calls, ...waits])].sort().join(', ')
       findings.push(
         finding(
-          'T6016',
+          'F6016',
           `The screen ${one.screen} calls ${named}, and an exported page has no engine to call where none stands behind it.`,
           { fix: 'Serve the export with the engine behind the same address, or leave the call out of the screen.' },
           'warning',
@@ -135,7 +135,7 @@ export async function exportOf(o: Opened, folder: string, asked: ExportAsked = {
   }
   const missing = await pageAnswer(
     served,
-    new URL('http://localhost/_t/not-found'),
+    new URL('http://localhost/_f/not-found'),
     origin,
     nobody,
     undefined,
@@ -165,11 +165,11 @@ export async function exportOf(o: Opened, folder: string, asked: ExportAsked = {
       )
       if (answer.status !== 200 || !answer.page) continue
       files.set(one.place === '' ? 'index.html' : `${one.place}/index.html`, withPolicy(answer.html))
-      files.set(`_t/s/${one.place === '' ? 'index' : one.place}.json`, JSON.stringify({ ok: true, value: answer.page }))
+      files.set(`_f/s/${one.place === '' ? 'index' : one.place}.json`, JSON.stringify({ ok: true, value: answer.page }))
     }
   }
   for (const file of bundleFiles(served.description))
-    files.set(`_t/b/${file}`, new Uint8Array(bytesAt(served.bundle, file)))
+    files.set(`_f/b/${file}`, new Uint8Array(bytesAt(served.bundle, file)))
   const listed = pages
     .filter((path) => {
       const screen = planned.find((one) => one.path === path)?.screen

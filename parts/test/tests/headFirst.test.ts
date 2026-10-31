@@ -10,7 +10,7 @@ import { served } from './served.ts'
 // that serves it, so the test can read what was sent before the body was drawn.
 const heads = `import './heads.css'
 import { use } from 'react'
-import { read, screen } from 'tentjs/ui'
+import { read, screen } from 'forjr/ui'
 import { allNotes, slowNote } from '../functions/shelf'
 
 const held = (name: string): Promise<void> => {
@@ -125,12 +125,12 @@ test('[31-20] the head of a page goes first: its status, its title, its styles a
   assert.equal(sent.status, 200)
   assert.match(sent.head, /^<!doctype html>/)
   assert.ok(sent.head.includes('<title>The head of the shelf</title>'), sent.head)
-  assert.match(sent.head, /<link rel="stylesheet" href="\/_t\/b\/browser\/[^"]+\.[0-9a-f]{12}\.css">/)
+  assert.match(sent.head, /<link rel="stylesheet" href="\/_f\/b\/browser\/[^"]+\.[0-9a-f]{12}\.css">/)
   assert.match(
     sent.head,
-    /<link rel="modulepreload" href="\/_t\/b\/browser\/screens\.heads\.headScreen\.[0-9a-f]{12}\.js">/,
+    /<link rel="modulepreload" href="\/_f\/b\/browser\/screens\.heads\.headScreen\.[0-9a-f]{12}\.js">/,
   )
-  assert.ok(!sent.head.includes('id="tent"'), 'nothing of the body was sent with the head')
+  assert.ok(!sent.head.includes('id="forjr"'), 'nothing of the body was sent with the head')
   assert.equal(sent.headers.get('content-length'), null, 'the answer is sent in pieces')
   assert.match(String(sent.headers.get('content-security-policy')), /script-src/)
   free()
@@ -138,7 +138,7 @@ test('[31-20] the head of a page goes first: its status, its title, its styles a
   const whole = sent.head + body
   assert.ok(whole.includes('Notes: 2'), whole)
   assert.ok(whole.includes('The body came'), whole)
-  assert.ok(whole.includes('id="tent-page"'), whole)
+  assert.ok(whole.includes('id="forjr-page"'), whole)
   assert.match(whole, /<\/html>\n$/)
   assert.ok(!whole.includes('noindex'), 'a page that drew is no page of a failure')
 })
@@ -153,13 +153,13 @@ test('[31-20] a failure while the body is drawn after the head was sent keeps th
   const body = await sent.rest()
   assert.ok(body.includes('<meta name="robots" content="noindex">'), body)
   assert.ok(body.includes('Something went wrong'), body)
-  assert.ok(body.includes('id="tent-page"'), body)
+  assert.ok(body.includes('id="forjr-page"'), body)
   assert.match(body, /<\/html>\n$/)
   // The page record of the error screen tells the page code what was drawn, with the status of the failure.
   const record = JSON.parse(
-    /<script type="application\/json" id="tent-page">([\s\S]*?)<\/script>/.exec(body)?.[1] ?? '',
+    /<script type="application\/json" id="forjr-page">([\s\S]*?)<\/script>/.exec(body)?.[1] ?? '',
   )
-  assert.equal(record.screen, 'tent.error')
+  assert.equal(record.screen, 'forjr.error')
   assert.equal(record.status, 500)
   const log = new DatabaseSync(join(dataFolder, 'logs.db'), { readOnly: true })
   try {

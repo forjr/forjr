@@ -16,7 +16,7 @@ async function ended(app: { runs: { read(run: string): { state: string } | undef
   }
 }
 
-test('[47-9] [15-6@10g] `tent test --ai --from-runs` writes the kept runs of an agent that were rated low as a file of evals', async (t) => {
+test('[47-9] [15-6@10g] `forjr test --ai --from-runs` writes the kept runs of an agent that were rated low as a file of evals', async (t) => {
   // The engine is closed before the folder of the copy is taken away: its data file is open until then.
   const engine = createEngine({ port: 0 })
   t.after(() => engine.close())

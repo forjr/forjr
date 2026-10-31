@@ -1,2 +1,2 @@
-def run(input, tent):
+def run(input, forjr):
     return {"value": object()}

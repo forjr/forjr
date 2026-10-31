@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import { isStored, projectZone } from '../core/internal.ts'
 import { foundColumn } from './found.ts'
@@ -30,7 +30,7 @@ function columnOf(type: Stored, description: Description, zone: string): ColumnT
   // changes nothing, and a change of the definition itself is a change of the column.
   const made = typeof model === 'string' ? description.models[model] : undefined
   if (made) column.made = `${String(made.provider)}/${String(made.name)}`
-  if (!isColumn(column)) throw new TentError('T0011', 'A column of the description holds no type.')
+  if (!isColumn(column)) throw new ForjrError('F0011', 'A column of the description holds no type.')
   return column
 }
 

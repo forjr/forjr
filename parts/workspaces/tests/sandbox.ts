@@ -5,7 +5,7 @@ import type { TestContext } from 'node:test'
 import type { Box, Ran, Sandbox } from '../../engine/index.ts'
 import { closing } from './held.ts'
 
-// The program of the command line, which a box of these tests runs as `tent`.
+// The program of the command line, which a box of these tests runs as `forjr`.
 const shell = join(import.meta.dirname, '..', '..', 'cli', 'shell.ts')
 
 /** The words of a command as a box reads them: a word in double quotes may hold spaces. */
@@ -57,8 +57,8 @@ export function testSandbox(t: TestContext): TestSandbox {
     async run(box, command, o) {
       sandbox.commands.push(command)
       shown(box.id)
-      const [tent, ...words] = wordsOf(command)
-      if (tent !== 'tent') throw new Error(`a box runs the command tent alone, and was handed ${command}`)
+      const [forjr, ...words] = wordsOf(command)
+      if (forjr !== 'forjr') throw new Error(`a box runs the command forjr alone, and was handed ${command}`)
       const child = spawn(process.execPath, [shell, ...words], { cwd: box.folder, env, signal: o?.signal })
       const [out, err]: string[][] = [[], []]
       child.stdout.on('data', (part) => void out.push(String(part)))

@@ -1,4 +1,4 @@
-import { screen, read } from 'tentjs/ui'
+import { screen, read } from 'forjr/ui'
 import { newest } from './functions'
 
 // A code screen: a view of the rows its query reads.

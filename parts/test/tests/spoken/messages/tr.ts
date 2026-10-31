@@ -1,4 +1,4 @@
-import { messages } from 'tentjs/ui'
+import { messages } from 'forjr/ui'
 
 // `only.english` is left out: the page shows the English word in its place.
 export default messages('tr', {
@@ -6,5 +6,5 @@ export default messages('tr', {
   greeting: 'Merhaba {name}',
   status: { open: 'Açık', paid: 'Ödendi' },
   language: { english: 'English', turkish: 'Türkçe' },
-  tent: { required: 'Bu gerekli.' },
+  forjr: { required: 'Bu gerekli.' },
 })

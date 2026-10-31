@@ -1,31 +1,31 @@
 # Installation
 
-This page walks one app from nothing to a running screen: how `tent` is run, a table, a query, a screen with its data, a link, a form, a sign-in, the seed and `tent dev`. Every file below is whole, and the app it makes runs as it is written.
+This page walks one app from nothing to a running screen: how `forjr` is run, a table, a query, a screen with its data, a link, a form, a sign-in, the seed and `forjr dev`. Every file below is whole, and the app it makes runs as it is written.
 
-## Running tent
+## Running forjr
 
-`tent` comes with the package `tentjs` of npm, which brings the Node.js it runs on:
+`forjr` comes with the package `forjr` of npm, which brings the Node.js it runs on:
 
 ```sh
-npm install -g tentjs
+npm install -g forjr
 ```
 
-Each command of these docs is then `tent <command>`. A project names its own `tentjs` in its `package.json`, and `tent` builds and runs a project with the version it names. A program of your own that imports the framework, as `topic.engine` shows one, finds it in the `tentjs` that the project holds.
+Each command of these docs is then `forjr <command>`. A project names its own `forjr` in its `package.json`, and `forjr` builds and runs a project with the version it names. A program of your own that imports the framework, as `topic.engine` shows one, finds it in the `forjr` that the project holds.
 
 ## A new project
 
 ```sh
-tent new my-app
+forjr new my-app
 cd my-app
 ```
 
-`npm create tent my-app` makes the same project with nothing installed first, by `tent new` of the newest `tentjs`. `tent new` writes a bare project: `tent.ts`, `package.json`, `AGENTS.md`, the mark of Tent.js as the icon of the site in `assets/icon.svg`, one screen at `/` and the query it reads. The files below take their place. A definition is a top-level `export const` made by a word of `tentjs`; `tent check` after every change reports every mistake at once, each with its fix.
+`npm create forjr my-app` makes the same project with nothing installed first, by `forjr new` of the newest `forjr`. `forjr new` writes a bare project: `forjr.ts`, `package.json`, `AGENTS.md`, the mark of Forjr as the icon of the site in `assets/icon.svg`, one screen at `/` and the query it reads. The files below take their place. A definition is a top-level `export const` made by a word of `forjr`; `forjr check` after every change reports every mistake at once, each with its fix.
 
 ## The project and its people
 
 ```ts
-// tent.ts
-import { project } from 'tentjs'
+// forjr.ts
+import { project } from 'forjr'
 
 export const myApp = project('myApp', {
   title: 'My App',
@@ -37,7 +37,7 @@ The engine reads `id` and `roles` of each row of `users`; the rest is the projec
 
 ```ts
 // tables/users.ts
-import { list, table, text } from 'tentjs'
+import { list, table, text } from 'forjr'
 
 export const users = table('users', {
   columns: {

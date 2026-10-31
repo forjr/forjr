@@ -2,12 +2,12 @@ import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join, resolve } from 'node:path'
 import test from 'node:test'
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { codes, isStored } from '../core/internal.ts'
 import { heldRefusal, holdOutside, notesOf, underTest } from '../engine/index.ts'
 import type { AccessCase, CaseCaller, EdgeCase, FormCase } from './declared.ts'
 import type { Mark } from './marks.ts'
-import { declaredCases, refusalWords, rolesOf, ruleWords, typeWords, valueWords } from './declared.ts'
+import { declaredCases, refusalWords, rolesOf, ruleAsWritten, typeWords, valueWords } from './declared.ts'
 import { closePage, sendForm } from './page.ts'
 import { sampleOf } from './sample.ts'
 import type { TestApp } from './testApp.ts'
@@ -27,10 +27,10 @@ type Outcome = { said: string; error?: unknown }
 
 /** Whether a refusal is a failure of a case: an internal error, or an engine code at status 500 or past it. */
 function internal(error: unknown): boolean {
-  const code = String(Reflect.get(Object(error), 'code') ?? 'T0009')
+  const code = String(Reflect.get(Object(error), 'code') ?? 'F0009')
   const row: unknown = Object.hasOwn(codes, code) ? Reflect.get(codes, code) : undefined
   const status: unknown = isStored(row) ? row.status : undefined
-  return code === 'T0009' || (typeof status === 'number' && status >= 500)
+  return code === 'F0009' || (typeof status === 'number' && status >= 500)
 }
 
 /** What came of a piece of work: taken, or found nothing where a read answered no row, or refused with the code of its error. */
@@ -40,12 +40,12 @@ async function outcomeOf(work: () => Promise<unknown>, read = false): Promise<Ou
     const none = got === null || got === undefined || (Array.isArray(got) && got.length === 0)
     return { said: read && none ? 'found nothing' : 'taken' }
   } catch (error) {
-    const code = String(Reflect.get(Object(error), 'code') ?? 'T0009')
+    const code = String(Reflect.get(Object(error), 'code') ?? 'F0009')
     return { said: internal(error) ? `internal ${code}` : `refused ${code}`, error }
   }
 }
 
-/** Stands in for every service and model of the app, each refusing with T7132, and for every plain fetch. */
+/** Stands in for every service and model of the app, each refusing with F7132, and for every plain fetch. */
 function standInAll(app: TestApp): void {
   for (const name of Object.keys(app.description.services))
     app.standIn(
@@ -123,10 +123,10 @@ async function answeredNo(app: TestApp): Promise<boolean> {
 }
 
 /** The code of a refusal that an answer of the door carries, or its status where it carries none. */
-async function refusedBy(answer: Response): Promise<TentError> {
+async function refusedBy(answer: Response): Promise<ForjrError> {
   const told: unknown = await answer.json().catch(() => undefined)
   const code: unknown = Reflect.get(Object(Reflect.get(Object(told), 'error') ?? told), 'code')
-  return new TentError(typeof code === 'string' ? code : `status ${answer.status}`, `answered ${answer.status}`)
+  return new ForjrError(typeof code === 'string' ? code : `status ${answer.status}`, `answered ${answer.status}`)
 }
 
 /** Asks a route as a caller, through every step of the door: nobody with no session, a user with one. */
@@ -150,8 +150,8 @@ async function commandRan(app: TestApp, name: string, as: Caller): Promise<void>
     if (isStored(type) && type.optional !== true) words.push(`--${arg}`, String(sampleOf(type, arg)))
   const done = await app.cli(words, { as: as.kind === 'user' && as.user ? as.user.id : 'system' })
   if (done.code === 0) return
-  const code = /\bT\d{4}\b/.exec(`${done.err}\n${done.out}`)?.[0]
-  throw new TentError(code ?? `ended ${done.code}`, done.err)
+  const code = /\bF\d{4}\b/.exec(`${done.err}\n${done.out}`)?.[0]
+  throw new ForjrError(code ?? `ended ${done.code}`, done.err)
 }
 
 /** What came of one case of access, as the line of the table names it and as it ran. */
@@ -350,7 +350,7 @@ async function caseRun<Answer>(
 }
 
 /**
- * Runs the cases made from the declarations of the project in the folder the program was started in, as `tent test
+ * Runs the cases made from the declarations of the project in the folder the program was started in, as `forjr test
  * --declared` starts it, each from one mark of its data, with every service and model stood in for, and every plain
  * fetch, request of a page to another host and connection of the app's code held: what each caller gets of each definition, kept in `tests/declared/access.json` and held to it as a
  * picture is, each edge of each input, and each form. Each case is a test of the runner, by its line, in the order of
@@ -374,8 +374,8 @@ export async function declared(o: { update?: boolean } = {}): Promise<void> {
     if (said === 'no users') continue
     table[key] = said
     // A refusal of the rule says why; any other is the code's own.
-    const why = ['refused T3101', 'refused T0006', 'refused T2103'].includes(said) ? refusalWords(one.rule) : ''
-    const line = `${one.definition} - ${one.what}: ${ruleWords(one.rule)}: as ${one.caller.words}, ${said}${why}${more}`
+    const why = ['refused F3101', 'refused F0006', 'refused F2103'].includes(said) ? refusalWords(one.rule) : ''
+    const line = `${one.definition} - ${one.what}: ${ruleAsWritten(one.rule)}: as ${one.caller.words}, ${said}${why}${more}`
     const was = kept[key]
     const changed = !o.update && typeof was === 'string' && was !== said
     ran.push({ definition: one.definition, line, ...(changed ? { failure: `${key}: was ${was}, now ${said}` } : {}) })

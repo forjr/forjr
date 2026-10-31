@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import type { RuleCode } from '../data/index.ts'
 import { underWay } from './context.ts'
@@ -15,8 +15,8 @@ import { heldNative, holdOf } from './rooms/hold.ts'
 import type { Called, Room, RoomVersion } from './rooms/room.ts'
 import { keepRoutes } from './routes.ts'
 
-const lacking = (what: string, cause?: unknown): TentError => {
-  const failed = new TentError('T0011', `The bundle holds no code for ${what}.`, {
+const lacking = (what: string, cause?: unknown): ForjrError => {
+  const failed = new ForjrError('F0011', `The bundle holds no code for ${what}.`, {
     fix: 'Build the project again, and run the bundle as the build wrote it.',
   })
   if (cause !== undefined) failed.cause = cause
@@ -40,7 +40,7 @@ export function roomVersionOf(o: Opened, modules: RoomVersion['modules']): RoomV
   return placedVersion(version, o.bundle)
 }
 
-/** Asks the room for one entry, by its second way where the first finds no arrow. Throws T0011 where neither does. */
+/** Asks the room for one entry, by its second way where the first finds no arrow. Throws F0011 where neither does. */
 function calledOf(room: Room, version: string, kept: Kept): Called {
   if (kept.entry.module === '') throw lacking(kept.what)
   try {
@@ -58,7 +58,7 @@ function calledOf(room: Room, version: string, kept: Kept): Called {
 /**
  * Has the room of an app load the code of the version that the record names, for this record alone, and keeps
  * what the room answers for each entry where the engine keeps its arrows: the `run` of each function and flow, the
- * rules, the routes, the project's own arrows and the backfills. Throws T0011 where the bundle lacks one.
+ * rules, the routes, the project's own arrows and the backfills. Throws F0011 where the bundle lacks one.
  */
 export async function loadCode(o: Opened): Promise<void> {
   const { entries, modules } = entriesOf(o.description)

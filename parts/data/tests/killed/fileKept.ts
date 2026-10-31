@@ -59,8 +59,8 @@ const file = { table: 'teams', id: team.id }
 const kept = () => read(files.shared, { from: changesTable.name, sort: [{ by: 'n' }] })
 const before = kept().map((row) => row.n)
 const store = files.of(file)
-const n = read(store, { from: '_t_meta', one: 'get', id: 'n' }).value
-const [sum] = read(store, { from: '_t_here' }).filter((row) => row.key === 'sum')
+const n = read(store, { from: '_f_meta', one: 'get', id: 'n' }).value
+const [sum] = read(store, { from: '_f_here' }).filter((row) => row.key === 'sum')
 const after = kept()
 const last = after.at(-1)
 const whole =

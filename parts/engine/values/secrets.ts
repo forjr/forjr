@@ -1,5 +1,5 @@
 import { existsSync } from 'node:fs'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { ValuesMode } from './files.ts'
 import { readValues, valuesFile, writeValues } from './files.ts'
 import { secretKeyAt, keyFile, secretKeyIn, keyText, noKeyAtHand } from './key.ts'
@@ -9,19 +9,19 @@ import { openText, sealText } from './sealing.ts'
  * What a secret is bound to: the form of the file, the mode and the name, so that a value cannot be moved to
  * another name or to the other file.
  */
-export const secretBound = (held: ValuesMode, name: string): string => `tent.secrets/1\n${held}\n${name}`
+export const secretBound = (held: ValuesMode, name: string): string => `forjr.secrets/1\n${held}\n${name}`
 
 /** The words of the command that sets a secret of one of the two files. */
 const commandOf = (held: ValuesMode, name: string): string =>
-  `tent secrets set ${name}${held === 'live' ? ' --live' : ''}`
+  `forjr secrets set ${name}${held === 'live' ? ' --live' : ''}`
 
 /** The secrets of one data folder, for test data or for live, as an engine or a command holds them. */
 export interface SecretValues {
-  /** The value of a secret. Throws T0019 for one that has no value, with no key at hand, and for a value that does not open. */
+  /** The value of a secret. Throws F0019 for one that has no value, with no key at hand, and for a value that does not open. */
   value(name: string): string
   /** The names that are set. */
   names(): string[]
-  /** Sets a secret, and writes the file. Throws T0019 with no key at hand, and where a value of the file does not open under the key. */
+  /** Sets a secret, and writes the file. Throws F0019 with no key at hand, and where a value of the file does not open under the key. */
   set(name: string, value: string): void
   /** Takes a secret away, and writes the file. */
   remove(name: string): void
@@ -33,10 +33,10 @@ export interface SecretValues {
   again(): void
 }
 
-/** Holds a name of a secret to a text that holds something. Throws T0002 for any other. */
+/** Holds a name of a secret to a text that holds something. Throws F0002 for any other. */
 function named(name: unknown): string {
   if (typeof name === 'string' && name !== '' && name !== 'then') return name
-  throw new TentError('T0002', 'A secret is named by a text, and `then` names none.', { fields: { name: 'type' } })
+  throw new ForjrError('F0002', 'A secret is named by a text, and `then` names none.', { fields: { name: 'type' } })
 }
 
 /** Answers the secrets of a data folder, for test data or for live. Nothing is read before the first asking. */
@@ -59,11 +59,11 @@ export function secretValues(dataFolder: string, held: ValuesMode): SecretValues
     if (!key) throw noKeyAtHand(what)
     const closed = Object.keys(read()).filter((name) => opened(name, key) === undefined)
     if (closed.length)
-      throw new TentError(
-        'T0019',
+      throw new ForjrError(
+        'F0019',
         `The key at hand does not open ${file}: ${closed.join(', ')} ${closed.length === 1 ? 'was' : 'were'} sealed under another key. Nothing was written.`,
         {
-          fix: 'Give the key that the file was written under, as `TENT_SECRET_KEY` or as `secret.key` of the data folder.',
+          fix: 'Give the key that the file was written under, as `FORJR_SECRET_KEY` or as `secret.key` of the data folder.',
         },
       )
     return key
@@ -71,7 +71,7 @@ export function secretValues(dataFolder: string, held: ValuesMode): SecretValues
   return {
     value(name) {
       if (!Object.hasOwn(read(), name))
-        throw new TentError('T0019', `The secret ${name} has no value on ${held} data.`, {
+        throw new ForjrError('F0019', `The secret ${name} has no value on ${held} data.`, {
           fix: `Set it with \`${commandOf(held, name)}\`.`,
         })
       const key = secretKeyAt(dataFolder)
@@ -80,8 +80,8 @@ export function secretValues(dataFolder: string, held: ValuesMode): SecretValues
       const other = secretKeyIn(keyFile(dataFolder, '.next'))
       const value = opened(name, key) ?? (other ? opened(name, other) : undefined)
       if (value === undefined)
-        throw new TentError(
-          'T0019',
+        throw new ForjrError(
+          'F0019',
           `The secret ${name} does not open under this key, on ${held} data and under this name.`,
           { fix: `Give the key that it was set under, or set it again with \`${commandOf(held, name)}\`.` },
         )

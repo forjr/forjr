@@ -24,7 +24,7 @@ import type { SourceFile, Work } from './work.ts'
 import { found } from './work.ts'
 
 /** The names by which a module finds the page code. */
-const pageNames = ['react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom', 'react-dom/client', 'tentjs/ui']
+const pageNames = ['react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-dom', 'react-dom/client', 'forjr/ui']
 
 const encode = (text: string): Uint8Array => new TextEncoder().encode(text)
 const print = (text: string): string => fingerprintOf(encode(text))
@@ -148,7 +148,7 @@ function byValue(lines: string[], file: string): number | undefined {
 }
 
 /**
- * Reports one asking for a held file as its text or its bytes (T1005), on the line that asks. Where the builder
+ * Reports one asking for a held file as its text or its bytes (F1005), on the line that asks. Where the builder
  * told only which file it took in, the one that asked is looked for among the texts it read.
  */
 function asked(work: Work, root: string, one: Asking, texts: Map<string, string>, around: Omit<AskedIn, 'file'>): void {
@@ -178,11 +178,11 @@ function asked(work: Work, root: string, one: Asking, texts: Map<string, string>
   const line = at === undefined ? 1 : at + 1
   // The words of a finding are the same for one file however often and by whomever it was asked for.
   const where = path(by)
-  if (work.findings.some((held) => held.code === 'T1005' && held.where?.file === where && held.where.line === line))
+  if (work.findings.some((held) => held.code === 'F1005' && held.where?.file === where && held.where.line === line))
     return
   found(
     work,
-    'T1005',
+    'F1005',
     where,
     line,
     `The file ${path(one.file)} is asked for as its text or as an address. A backend file, the starter data, the makers of the adapters and a test reach a browser as the names of their definitions alone, and never as text or as bytes.`,

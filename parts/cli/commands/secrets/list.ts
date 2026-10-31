@@ -3,7 +3,7 @@ import type { Command } from '../../command.ts'
 import { valuesTold } from '../../values.ts'
 
 /**
- * `tent secrets list` shows the names of the secrets that are set, and those that a definition names and that are
+ * `forjr secrets list` shows the names of the secrets that are set, and those that a definition names and that are
  * not, and never a value: of test data, and with `--live` of live data.
  */
 export const command: Command = {

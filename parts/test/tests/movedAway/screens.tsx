@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Form, Link, screen } from 'tentjs/ui'
+import { Form, Link, screen } from 'forjr/ui'
 import { slowSave } from './functions'
 
 export const homeScreen = screen('homeScreen', {

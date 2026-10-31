@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { screen, useCall, useRun } from 'tentjs/ui'
+import { screen, useCall, useRun } from 'forjr/ui'
 import { startCounting } from './functions'
 
 // A screen in code that starts a run and follows it: what its step says, and its answer at the end.

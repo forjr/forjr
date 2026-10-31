@@ -3,7 +3,7 @@ import type { By, Store, TableLayout, Tx } from './store.ts'
 
 /**
  * One write of the files of an app. `tx` answers the write of the shared file, or of one tenant's: it opens the
- * write at the first asking, and a second file is T2109. A read goes to the store of its file.
+ * write at the first asking, and a second file is F2109. A read goes to the store of its file.
  */
 export interface Writing {
   files: Files

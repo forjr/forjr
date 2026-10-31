@@ -112,7 +112,7 @@ export async function waitFor(
 /** Opens the tool with an address of the app in its frame, and waits for the page to say it is ready. */
 export async function toolOpened(page: Page, tool: string, address: string, screen: string): Promise<void> {
   await page.goto(`${tool}/?src=${encodeURIComponent(address)}`)
-  await waitFor(page, `${screen} is ready`, (one) => one.t === 'tent.ready' && one.screen === screen)
+  await waitFor(page, `${screen} is ready`, (one) => one.t === 'forjr.ready' && one.screen === screen)
 }
 
 /** The frame of the app inside the tool. */

@@ -4,11 +4,11 @@ import { DatabaseSync } from 'node:sqlite'
 import test from 'node:test'
 import { running, send, system } from './apps.ts'
 
-/** The rows of `_t_sessions` as the data file holds them, read beside the engine. */
+/** The rows of `_f_sessions` as the data file holds them, read beside the engine. */
 function sessionRows(dataFolder: string): Record<string, unknown>[] {
   const data = new DatabaseSync(join(dataFolder, 'data.db'), { readOnly: true })
   try {
-    return data.prepare('SELECT * FROM "_t_sessions" ORDER BY "createdAt", rowid').all()
+    return data.prepare('SELECT * FROM "_f_sessions" ORDER BY "createdAt", rowid').all()
   } finally {
     data.close()
   }
@@ -22,19 +22,19 @@ test('[21-20@7a] session.started is heard once for each session that was started
   const headers = { origin }
 
   // An action starts a session: the event is raised once, and names the app and the user.
-  const first = await send(app, `${origin}/_t/call/signIn`, { input: { email: 'ada@example.com' }, headers })
+  const first = await send(app, `${origin}/_f/call/signIn`, { input: { email: 'ada@example.com' }, headers })
   assert.deepEqual(first.body, { ok: true, caller: 'changed' })
   assert.deepEqual(heard, [{ app, user: ada }])
 
   // In a change the session is part of the write: it is heard of once the write is committed.
   heard.length = 0
-  const second = await send(app, `${origin}/_t/call/signInWrite`, { input: { email: 'ada@example.com' }, headers })
+  const second = await send(app, `${origin}/_f/call/signInWrite`, { input: { email: 'ada@example.com' }, headers })
   assert.deepEqual(second.body, { ok: true, caller: 'changed' })
   assert.deepEqual(heard, [{ app, user: ada }])
 
   // A change that is undone leaves no session, no cookie and no event, and its answer says nothing of the caller.
   heard.length = 0
-  const undone = await send(app, `${origin}/_t/call/signInWrite`, {
+  const undone = await send(app, `${origin}/_f/call/signInWrite`, {
     input: { email: 'ada@example.com', undo: true },
     headers,
   })
@@ -45,7 +45,7 @@ test('[21-20@7a] session.started is heard once for each session that was started
 
   // The end of a session raises nothing, and its row is gone from the data.
   const cookie = first.headers.getSetCookie()[0].split(';')[0]
-  const out = await send(app, `${origin}/_t/call/signOut`, {
+  const out = await send(app, `${origin}/_f/call/signOut`, {
     headers: { ...headers, cookie },
     body: JSON.stringify({ input: {}, as: ada }),
   })
@@ -54,12 +54,12 @@ test('[21-20@7a] session.started is heard once for each session that was started
   assert.equal(sessionRows(dataFolder).length, 1)
 })
 
-test('[16-4@7a] _t_sessions holds exactly its columns: the fingerprint of the bytes of a cookie and never the bytes, with the life of a session that was started with one of its own', async (t) => {
+test('[16-4@7a] _f_sessions holds exactly its columns: the fingerprint of the bytes of a cookie and never the bytes, with the life of a session that was started with one of its own', async (t) => {
   const { app, origin, dataFolder } = await running(t, { project: 'signs' })
   const ada = String(Object(await app.call('addUser', { email: 'ada@example.com' }, { as: system })).id)
   const headers = { origin }
-  const whole = await send(app, `${origin}/_t/call/signIn`, { input: { email: 'ada@example.com' }, headers })
-  const short = await send(app, `${origin}/_t/call/signIn`, {
+  const whole = await send(app, `${origin}/_f/call/signIn`, { input: { email: 'ada@example.com' }, headers })
+  const short = await send(app, `${origin}/_f/call/signIn`, {
     input: { email: 'ada@example.com', for: '30 minutes', browserOnly: true },
     headers,
   })

@@ -1,4 +1,4 @@
-import { anyone, number, query, text } from 'tentjs'
+import { anyone, number, query, text } from 'forjr'
 
 /** Work that keeps a query busy past the slow bar, with no clock, which a query cannot read. */
 function busy(): number {

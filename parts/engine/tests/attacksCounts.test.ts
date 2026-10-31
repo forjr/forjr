@@ -13,9 +13,9 @@ const mine: Provider = {
   },
 }
 
-/** The app of the counts of the review, counted by caller, with the provider of the tests. */
+/** The app of the counts, counted by caller, with the provider of the tests. */
 const counting = (t: test.TestContext) =>
-  running(t, { project: 'reviewCounts', engine: { makers: { providers: () => ({ mine }) } } })
+  running(t, { project: 'countedCallers', engine: { makers: { providers: () => ({ mine }) } } })
 
 /** Adds a user, and answers the caller that is that user. */
 async function person(app: App, name: string): Promise<Caller> {
@@ -34,7 +34,7 @@ interface Counted {
 
 /** The rows of the engine's own counts, as a program reads them. */
 async function countsOf(app: App): Promise<Counted[]> {
-  const rows: unknown = await app.read({ from: '_t_counts' }, { as: system })
+  const rows: unknown = await app.read({ from: '_f_counts' }, { as: system })
   return (Array.isArray(rows) ? rows : []).map((one) => Object(one))
 }
 
@@ -77,7 +77,7 @@ test('[05-18.7] under countBy: caller, a visitor who drops the cookie before eve
   const { app, origin } = await counting(t)
   for (let n = 0; n < 3; n++) {
     const answer = await app.request(
-      new Request(`${origin}/_t/call/ask`, {
+      new Request(`${origin}/_f/call/ask`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', origin },
         body: JSON.stringify({ input: { words: 'Hi.' } }),
@@ -105,16 +105,16 @@ test('[05-18.8] a write that starts a flow by a trigger, and a call of an offere
   assert.deepEqual(by, { system: 1, [`user:${ada.user?.id}`]: 1 }, JSON.stringify(by))
 })
 
-test("[05-18.9] a change and raw SQL of a function that states system, that write the table which states shows: 'counts' and _t_counts, are refused: the counts are never written by an app", async (t) => {
+test("[05-18.9] a change and raw SQL of a function that states system, that write the table which states shows: 'counts' and _f_counts, are refused: the counts are never written by an app", async (t) => {
   const { app } = await counting(t)
   const ada = await person(app, 'Ada')
   await app.call('ask', { words: 'Hi.' }, { as: ada })
   const before = JSON.stringify(await countsOf(app))
-  assert.equal(await codeOf(Promise.resolve().then(() => app.call('written', { unit: 'calls' }, { as: ada }))), 'T2016')
+  assert.equal(await codeOf(Promise.resolve().then(() => app.call('written', { unit: 'calls' }, { as: ada }))), 'F2016')
   const raw = await codeOf(Promise.resolve().then(() => app.call('rawUsage', {}, { as: system })))
   const engines = await codeOf(Promise.resolve().then(() => app.call('rawCounts', {}, { as: system })))
   // No table of that name stands in the data: the raw write fails there, and writes nothing.
   assert.notEqual(raw, 'ok', `raw SQL on the table of the counts: ${raw}`)
-  assert.ok(['T2016', 'T0013'].includes(String(engines)), `raw SQL on _t_counts: ${engines}`)
+  assert.ok(['F2016', 'F0013'].includes(String(engines)), `raw SQL on _f_counts: ${engines}`)
   assert.equal(JSON.stringify(await countsOf(app)), before)
 })

@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { Worker } from 'node:worker_threads'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fetchPart } from '../fetchPart.ts'
 import { storedLimit } from '../limits.ts'
 import type { TextReader } from '../makers.ts'
@@ -24,12 +24,12 @@ const takes = (reader: TextReader, kind: string): boolean =>
   Array.isArray(reader.kinds) &&
   reader.kinds.some((one) => one === kind || (one.endsWith('/*') && kind.startsWith(one.slice(0, -1))))
 
-const tookTooLong = (): TentError =>
-  new TentError('T0008', 'The reading of the file passed `limits.readTime` of the project.', {
+const tookTooLong = (): ForjrError =>
+  new ForjrError('F0008', 'The reading of the file passed `limits.readTime` of the project.', {
     fix: 'Read a smaller file, or raise `readTime` in `project.limits`.',
   })
 
-/** Answers what a piece of work answers, or T0008 once a time is up: `stop` ends the work then. */
+/** Answers what a piece of work answers, or F0008 once a time is up: `stop` ends the work then. */
 async function within<Answer>(work: Promise<Answer>, ms: number, stop?: () => void): Promise<Answer> {
   let timer: NodeJS.Timeout | undefined
   const timeUp = new Promise<never>((_, refuse) => {
@@ -58,28 +58,28 @@ function onThread(kind: string, bytes: Uint8Array, most: number, ms: number): Pr
       // What the reader refused by a code of ours is told as it is, and anything else is a file that it cannot read.
       failed(
         typeof error.code === 'string'
-          ? new TentError(error.code, String(error.message), fix)
-          : new TentError('T0015', `The file cannot be read: ${String(error.message)}`, {
+          ? new ForjrError(error.code, String(error.message), fix)
+          : new ForjrError('F0015', `The file cannot be read: ${String(error.message)}`, {
               fix: 'Read a file that is whole, of a kind that a reader knows.',
             }),
       )
     })
     worker.once('error', failed)
-    worker.once('exit', () => failed(new TentError('T0009', 'The thread that read the file ended with no answer.')))
+    worker.once('exit', () => failed(new ForjrError('F0009', 'The thread that read the file ended with no answer.')))
   })
   return within(read, ms, () => void worker.terminate()).finally(() => void worker.terminate())
 }
 
 /**
  * Reads a PDF with the part that is fetched at its first use. The wait for the part has a time of its own, and
- * the time of the reading begins once the part is there. Throws T0016, which names the part, where it cannot be
+ * the time of the reading begins once the part is there. Throws F0016, which names the part, where it cannot be
  * fetched.
  */
 async function readPdf(bytes: Uint8Array, ms: number): Promise<string> {
   const folder = await fetchPart('unpdf')
   const { pdfReaderIn } = await import('../borrowed/unpdf.ts')
   const reader = await pdfReaderIn(folder).catch((error) => {
-    throw new TentError('T0016', `The part unpdf does not give what reads a PDF: ${String(error)}`)
+    throw new ForjrError('F0016', `The part unpdf does not give what reads a PDF: ${String(error)}`)
   })
   // The pages come in order, each ended by a page mark.
   const read = (async () => (await reader(bytes)).map((page) => `${page}\f`).join(''))()
@@ -91,8 +91,8 @@ async function readPdf(bytes: Uint8Array, ms: number): Promise<string> {
  * the words of the file. A reader that the makers of the app made is asked first, for the kinds it lists, on the
  * main thread; then our own, on a thread of their own; a PDF is read by its part. Each is held to
  * `limits.readTime`. What was read is kept in `cache/` under the fingerprint of the file and the kind it was read
- * as, so that a second reading costs nothing. Throws T0015 for a kind that no reader knows, T0008 for a reading
- * that passes its time, and T0003 for a packed file that opens to more than `limits.readSize`.
+ * as, so that a second reading costs nothing. Throws F0015 for a kind that no reader knows, F0008 for a reading
+ * that passes its time, and F0003 for a packed file that opens to more than `limits.readSize`.
  */
 export async function textOf(o: Opened, file: StoredFile): Promise<string> {
   const kind = readAs(file.kind, file.name)
@@ -107,7 +107,7 @@ export async function textOf(o: Opened, file: StoredFile): Promise<string> {
   else if (kind === pdfKind) text = await readPdf(await bytesOf(o, file), ms)
   else if (isOwn(kind)) text = await onThread(kind, await bytesOf(o, file), storedLimit(o.description, 'readSize'), ms)
   else
-    throw new TentError('T0015', `No reader knows a file of the kind ${kind.slice(0, 80)}.`, {
+    throw new ForjrError('F0015', `No reader knows a file of the kind ${kind.slice(0, 80)}.`, {
       fix: 'Read a text, Markdown, CSV, JSON, HTML, Word or PDF file, or connect a `TextReader` for this kind in `engine.ts`.',
     })
   // The words are written beside their place and then moved into it, so that no reading finds half of them.

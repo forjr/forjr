@@ -1,4 +1,4 @@
-import { action, anyone, text } from 'tentjs'
+import { action, anyone, text } from 'forjr'
 
 // A call that takes its time, so that a page moves on while it is under way.
 export const slowSave = action('slowSave', {

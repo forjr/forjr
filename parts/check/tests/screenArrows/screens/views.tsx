@@ -1,4 +1,4 @@
-import { number, read, screen } from 'tentjs/ui'
+import { number, read, screen } from 'forjr/ui'
 import { openOrders } from '../functions/orders'
 
 const titles = { open: 'Open orders' }

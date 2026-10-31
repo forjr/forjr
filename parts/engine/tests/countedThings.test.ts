@@ -78,7 +78,7 @@ test('[21-22] a run adds runs, steps and workedMs; a service call, a fetch of th
   // An upload and its download, by one visitor, and a file of the bundle.
   const paper = 'The words of a paper.'
   const uploaded = await app.request(
-    new Request(`${run.origin}/_t/files?name=paper.txt`, {
+    new Request(`${run.origin}/_f/files?name=paper.txt`, {
       method: 'POST',
       headers: { 'content-type': 'text/plain', 'content-length': String(bytes(paper)), origin: run.origin },
       body: paper,
@@ -89,9 +89,9 @@ test('[21-22] a run adds runs, steps and workedMs; a service call, a fetch of th
     .map((line) => line.split(';')[0])
     .join('; ')
   const id = String(Object(Object(await uploaded.json()).value).id)
-  const downloaded = await app.request(new Request(`${run.origin}/_t/files/${id}`, { headers: { cookie } }))
+  const downloaded = await app.request(new Request(`${run.origin}/_f/files/${id}`, { headers: { cookie } }))
   assert.equal(await downloaded.text(), paper)
-  const asset = await app.request(new Request(`${run.origin}/_t/b/assets/note.txt`))
+  const asset = await app.request(new Request(`${run.origin}/_f/b/assets/note.txt`))
   assert.equal(await asset.text(), 'A note of the bundle.')
   const page = watcher(app, run.origin)
   await page.watch('w1', 'listNotes')

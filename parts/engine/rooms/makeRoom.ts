@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Mode } from '../../data/index.ts'
 import type { Makers } from '../makers.ts'
 import { heldRoom } from './held/room.ts'
@@ -18,7 +18,7 @@ export function makeRoom(
 ): Room {
   let made: Room | undefined
   const ways = waysOf(() => {
-    if (!made) throw new TentError('T0013', 'The room asked the engine for a call before it was made.')
+    if (!made) throw new ForjrError('F0013', 'The room asked the engine for a call before it was made.')
     return made
   })
   const input: RoomInput = { app: o.app, dataFolder: o.dataFolder, mode: o.mode, where: o.where, ways }

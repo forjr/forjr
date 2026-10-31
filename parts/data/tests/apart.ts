@@ -208,9 +208,9 @@ export function writingFiles(files: Files, description: Description, who: Caller
 export const readingFiles = (files: Files, description: Description, who: Caller = system, o: DbOptions = {}): Db =>
   createDb(files, description, who, 'read', {}, { seal, ...o })
 
-/** The value that `_t_meta` of a store holds under a key. */
+/** The value that `_f_meta` of a store holds under a key. */
 export function metaOf(store: Store, key: string): unknown {
-  const row = store.read({ from: '_t_meta', one: 'get', id: key }, system).value
+  const row = store.read({ from: '_f_meta', one: 'get', id: key }, system).value
   return typeof row === 'object' && !Array.isArray(row) ? row.value : undefined
 }
 
@@ -218,7 +218,7 @@ export function metaOf(store: Store, key: string): unknown {
 export const appTablesOf = (store: Store | undefined): string[] =>
   (store?.layout() ?? [])
     .map((one) => one.name)
-    .filter((name) => !name.startsWith('_t_'))
+    .filter((name) => !name.startsWith('_f_'))
     .sort()
 
 /** Every row of a table of a store, as the store holds it, or none where the store does not hold the table. */
@@ -226,7 +226,7 @@ export function storedIn(store: Store | undefined, name: string): Row[] {
   if (!store?.layout().some((one) => one.name === name)) return []
   const rows = store.read({ from: name }, system).value
   const all = Array.isArray(rows) ? rows : []
-  return name === '_t_meta' ? all.sort((a, b) => (String(a.key) < String(b.key) ? -1 : 1)) : all
+  return name === '_f_meta' ? all.sort((a, b) => (String(a.key) < String(b.key) ? -1 : 1)) : all
 }
 
 /** What a store holds of the tables a record covers, table by table, with the vectors as they are stored. */
@@ -248,7 +248,7 @@ export function heldIn(store: Store | undefined): Record<string, unknown> {
 
 /** The running fingerprint that a store holds, or nothing where it holds none. */
 export function sumOf(store: Store | undefined): unknown {
-  const [row] = storedIn(store, '_t_here').filter((one) => one.key === 'sum')
+  const [row] = storedIn(store, '_f_here').filter((one) => one.key === 'sum')
   return row?.value
 }
 

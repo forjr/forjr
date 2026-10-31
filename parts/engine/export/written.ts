@@ -3,7 +3,7 @@ import { dirname, join } from 'node:path'
 import { isStored } from '../../core/internal.ts'
 
 /** The list of what an export wrote, which the next export of the folder reads. */
-const listFile = '_t/export.json'
+const listFile = '_f/export.json'
 
 /**
  * Whether an entry of the list is a plain path inside the folder: no two dots, no drive, no slash at its start,
@@ -29,7 +29,7 @@ function isPlain(folder: string, entry: string): boolean {
 function writtenBefore(folder: string): string[] {
   try {
     const list: unknown = JSON.parse(readFileSync(join(folder, listFile), 'utf8'))
-    return isStored(list) && list.format === 'tent.export/1' && Array.isArray(list.files)
+    return isStored(list) && list.format === 'forjr.export/1' && Array.isArray(list.files)
       ? list.files.filter((one): one is string => typeof one === 'string')
       : []
   } catch {
@@ -65,6 +65,6 @@ export function writtenOut(folder: string, files: Map<string, string | Uint8Arra
     rmSync(join(folder, old), { force: true })
     emptiedUp(folder, old)
   }
-  const list = { format: 'tent.export/1', files: [...files.keys(), listFile].sort() }
+  const list = { format: 'forjr.export/1', files: [...files.keys(), listFile].sort() }
   writeFileSync(join(folder, listFile), `${JSON.stringify(list, null, 2)}\n`)
 }

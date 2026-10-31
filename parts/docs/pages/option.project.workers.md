@@ -16,9 +16,9 @@ export const shop = project('shop', {
 
 ## Errors
 
-`code.T1014`: `alone` of a kind is neither `false` nor a whole number of 1 or more.
+`code.F1014`: `alone` of a kind is neither `false` nor a whole number of 1 or more.
 
-`code.T1003`: a kind states an option that it does not have.
+`code.F1003`: a kind states an option that it does not have.
 
 ## See also
 

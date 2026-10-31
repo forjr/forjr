@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 
 export default seed(({ db }) => {
   db.users.add({ email: 'ada@example.com', roles: [] })

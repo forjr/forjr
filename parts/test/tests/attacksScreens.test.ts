@@ -17,8 +17,9 @@ const shop = (name: string): Promise<Served> => {
 
 /** The record of the page that a document holds, as its text, and the drawing. */
 function partsOf(html: string): { record: string; drawing: string } {
-  const record = /<script type="application\/json" id="tent-page">(.*?)<\/script>/s.exec(html)?.[1] ?? ''
-  const drawing = /<div id="tent">(.*)<\/div>\n<script type="application\/json" id="tent-page">/s.exec(html)?.[1] ?? ''
+  const record = /<script type="application\/json" id="forjr-page">(.*?)<\/script>/s.exec(html)?.[1] ?? ''
+  const drawing =
+    /<div id="forjr">(.*)<\/div>\n<script type="application\/json" id="forjr-page">/s.exec(html)?.[1] ?? ''
   return { record, drawing }
 }
 
@@ -69,17 +70,17 @@ test('[05-4.5] a Link and then of a form whose address is javascript in capitals
 
 test('[05-4.11] a public screen with a cache, asked first by one visitor and then by another: nothing of the first is sent to the second', async () => {
   const { address } = await shop('cached')
-  const cookie = `tent_state.shop=${Buffer.from(JSON.stringify({ dark: true })).toString('base64url')}`
+  const cookie = `forjr_state.shop=${Buffer.from(JSON.stringify({ dark: true })).toString('base64url')}`
   const first = await fetch(`${address}/shared`, { headers: { cookie } })
   assert.match(await first.text(), /"dark":true/)
   const second = await (await fetch(`${address}/shared`)).text()
   assert.doesNotMatch(second, /"dark":true/)
 })
 
-test('[05-4.16] a value of state in the address and in the tent_state cookie that holds </script> and a quote is read against its type, and drawn as text', async () => {
+test('[05-4.16] a value of state in the address and in the forjr_state cookie that holds </script> and a quote is read against its type, and drawn as text', async () => {
   const { address } = await shop('stated')
   const bad = '</script>"<b>'
-  const cookie = `tent_state.shop=${Buffer.from(JSON.stringify({ seen: bad, dark: bad })).toString('base64url')}`
+  const cookie = `forjr_state.shop=${Buffer.from(JSON.stringify({ seen: bad, dark: bad })).toString('base64url')}`
   const html = await (await fetch(`${address}/desk?name=${encodeURIComponent(bad)}`, { headers: { cookie } })).text()
   const { record, drawing } = partsOf(html)
   assert.ok(!record.includes('</script'), record)
@@ -165,10 +166,10 @@ test('[05-9.3] a value of seo.addresses that holds < is written as text in the s
   )
 })
 
-test('[05-9.5] a head line with a name that is not listed, and a script from a host that unlock does not list, are T1014, and nothing is loaded', async () => {
+test('[05-9.5] a head line with a name that is not listed, and a script from a host that unlock does not list, are F1014, and nothing is loaded', async () => {
   const folder = join(mkdtempSync(join(process.cwd(), 'results', 'test', 'attacked-')), 'attacked')
   cpSync(join(import.meta.dirname, 'attacked'), folder, { recursive: true })
-  const file = join(folder, 'tent.ts')
+  const file = join(folder, 'forjr.ts')
   writeFileSync(
     file,
     readFileSync(file, 'utf8').replace(
@@ -179,7 +180,7 @@ test('[05-9.5] a head line with a name that is not listed, and a script from a h
   const made = await buildProject(folder, { for: 'dev' })
   assert.deepEqual(
     made.findings.map((one) => one.code),
-    ['T1014', 'T1014'],
+    ['F1014', 'F1014'],
     made.findings.map((one) => one.message).join('\n'),
   )
 })
@@ -199,9 +200,9 @@ test('[05-9.11] a redirect whose to begins with a value of from, asked for with 
   }
 })
 
-test('[05-9.16] a public screen that reads a state kept in the device, asked for with a tent_state cookie of an attacker, is sent with no-store', async () => {
+test('[05-9.16] a public screen that reads a state kept in the device, asked for with a forjr_state cookie of an attacker, is sent with no-store', async () => {
   const { address } = await shop('cached')
-  const cookie = `tent_state.shop=${Buffer.from(JSON.stringify({ dark: true })).toString('base64url')}`
+  const cookie = `forjr_state.shop=${Buffer.from(JSON.stringify({ dark: true })).toString('base64url')}`
   const answer = await fetch(`${address}/shared`, { headers: { cookie } })
   assert.equal(answer.headers.get('cache-control'), 'no-store')
 })
@@ -211,7 +212,7 @@ test('[05-9.16] a public screen that reads a state kept in the device, asked for
  * visitors who say they are of share b on to another address of the screen they asked for.
  */
 const handing = (folder: string): void => {
-  const file = join(folder, 'tent.ts')
+  const file = join(folder, 'forjr.ts')
   const from = "  state: { dark: { type: boolean(), in: 'device' } },\n"
   const text = readFileSync(file, 'utf8')
   assert.ok(text.includes(from))
@@ -266,11 +267,11 @@ test('[05-9.10] [32-11] a public screen of an app whose onRequest adds a cookie 
 test('[05-9.14] [05-9.17] [32-11] an answer to a request that onRequest handed on to another address says no-store, is drawn afresh each time, and is never kept for those who ask that address', async () => {
   const at = await served('cached', { change: handing })
   const handed = { headers: { 'x-share': 'b' } }
-  // A public screen handed on, and /_t/screen of a public screen: both say no-store.
+  // A public screen handed on, and /_f/screen of a public screen: both say no-store.
   const shared = await fetch(`${at.address}/shared`, handed)
   assert.equal(shared.status, 200)
   assert.equal(shared.headers.get('cache-control'), 'no-store')
-  const again = await fetch(`${at.address}/_t/screen?path=${encodeURIComponent('/shared')}`)
+  const again = await fetch(`${at.address}/_f/screen?path=${encodeURIComponent('/shared')}`)
   assert.equal(again.headers.get('cache-control'), 'no-store')
   // A cached screen handed on is drawn each time it is asked for, and what it drew is kept for nobody.
   const before = await readOf(at, 'allNews')
@@ -299,7 +300,7 @@ test('[21-12] [32-11] a page drawn for a request that onRequest handed on under 
   const html = await answer.text()
   assert.match(html, /The news/)
   const record = JSON.parse(
-    /<script type="application\/json" id="tent-page">(.*?)<\/script>/s.exec(html)?.[1] ?? 'null',
+    /<script type="application\/json" id="forjr-page">(.*?)<\/script>/s.exec(html)?.[1] ?? 'null',
   )
   assert.deepEqual([record.screen, record.path], ['newsScreen', '/old-news'])
 })

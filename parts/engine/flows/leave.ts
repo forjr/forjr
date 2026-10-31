@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { sendsOut } from '../../core/internal.ts'
 import type { At, Runner } from '../../flows/index.ts'
@@ -39,9 +39,9 @@ function refusedUnder(leave: unknown, held: LeaveHeld): boolean {
 }
 
 /** The refusal of a call that no person agreed to, with its place, which makes the step of an agent wait. */
-const notAgreed = (name: string, held: LeaveHeld, nth: number): TentError =>
-  new TentError(
-    'T7111',
+const notAgreed = (name: string, held: LeaveHeld, nth: number): ForjrError =>
+  new ForjrError(
+    'F7111',
     `${name} ${held === 'asks' ? 'asks a person before it runs' : 'sends data out'}, and nobody agreed to it under the tool call it was reached from.`,
     {
       place: { name, nth },
@@ -89,7 +89,7 @@ function passedOnWorker(cx: CallContext, name: string, held: LeaveHeld): Passed 
 /**
  * Takes the call context of a call, the name of what it calls and what kind of call it is. Answers the call context
  * it is made in, with its place where a person agreed to it, or the answer kept of it where it was made already:
- * on a worker by its writer's runner, at the `may` of the call, here by this one's. Throws T7111 with its place
+ * on a worker by its writer's runner, at the `may` of the call, here by this one's. Throws F7111 with its place
  * where nobody agreed.
  */
 export const passedWhere = (cx: CallContext, name: string, held: LeaveHeld): Passed =>
@@ -109,7 +109,7 @@ export function keepMade(cx: CallContext, place: Place | undefined, answer: unkn
 /**
  * Takes the writer's runner, where work of a task on a worker stands, the leave its run stands under, and an outside
  * call that the worker is about to make itself, with what kind of call it is and its place. Answers nothing where
- * the call may be made, and what was kept of it where a person agreed to it and it was made already. Throws T7111
+ * the call may be made, and what was kept of it where a person agreed to it and it was made already. Throws F7111
  * with its place where the leave refuses it and nobody agreed.
  */
 export function yesOfMay(
@@ -143,7 +143,7 @@ export function keptOfDid(
 /**
  * Takes the call context of a call, the name of what it calls, what kind of call it is, and the call. Answers what
  * the call answers, made where the tool call above it lets it: under `agreed` where the person agreed to it, and
- * once, as a later making of its step is handed the answer that was kept. Throws T7111 with its place for a call
+ * once, as a later making of its step is handed the answer that was kept. Throws F7111 with its place for a call
  * that nobody agreed to, before anything is sent.
  */
 export async function heldToLeave(
@@ -162,7 +162,7 @@ export async function heldToLeave(
 /**
  * Takes the call context of a call that is made in the same making whatever it answers - a function, a write, a
  * start - with its name and kind. Answers the call context it is made in: under `agreed` where the person agreed
- * to it. Throws T7111 with its place where it is refused.
+ * to it. Throws F7111 with its place where it is refused.
  */
 export function agreedOr(cx: CallContext, name: string, held: LeaveHeld): CallContext {
   const pass = passed(cx, name, held, false)
@@ -171,7 +171,7 @@ export function agreedOr(cx: CallContext, name: string, held: LeaveHeld): CallCo
 
 /**
  * The yes of the starter to a call of a tool of a source that asks inside its step: true where the person agreed
- * at its place, and else T7111 with its place, which makes the step wait for them.
+ * at its place, and else F7111 with its place, which makes the step wait for them.
  */
 export function askedOf(cx: CallContext, name: string): true {
   const at = atOf(cx)

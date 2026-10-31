@@ -1,4 +1,4 @@
-import { asset, Image, read, screen, text, useTranslations } from 'tentjs/ui'
+import { asset, Image, read, screen, text, useTranslations } from 'forjr/ui'
 import { greeting } from './functions'
 
 // A screen with a state that the page alone keeps, a view that calls a hook, and an entry that reads the state.

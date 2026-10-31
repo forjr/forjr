@@ -10,7 +10,7 @@ const moment = (ms = 20): Promise<void> => new Promise((done) => setTimeout(done
 /** What the work of the project did, and the gate it waits at, made anew. */
 function heldAnew(): { gate?: Promise<void>; calls: string[] } {
   const made: { gate?: Promise<void>; calls: string[] } = { calls: [] }
-  Reflect.set(globalThis, Symbol.for('tentjs.test.engineFilling'), made)
+  Reflect.set(globalThis, Symbol.for('forjr.test.engineFilling'), made)
   return made
 }
 
@@ -60,7 +60,7 @@ test('[51-12] a column that gains by on a table that holds rows is filled for ea
   const second = engineOf(t, { makers: { clock: () => clock } })
   await second.open(withBy.folder, { dataFolder, mode: 'test' })
   for (let i = 0; i < 200 && held.calls.length === 0; i++) await moment(10)
-  const walked = rowsOf(dataFolder, `SELECT value FROM "_t_meta" WHERE "key" = 'walk.orders.summary'`)
+  const walked = rowsOf(dataFolder, `SELECT value FROM "_f_meta" WHERE "key" = 'walk.orders.summary'`)
   assert.ok(String(walked[0]?.value).includes('"after":"0'), `the walk stands in the middle: ${JSON.stringify(walked)}`)
   const stopping = second.close()
   delete held.gate
@@ -74,10 +74,10 @@ test('[51-12] a column that gains by on a table that holds rows is filled for ea
     advance(1000)
     await moment()
   }
-  const made = rowsOf(dataFolder, `SELECT "rowId" FROM "_t_filled" WHERE "columnName" = 'summary' AND "state" = 'made'`)
+  const made = rowsOf(dataFolder, `SELECT "rowId" FROM "_f_filled" WHERE "columnName" = 'summary' AND "state" = 'made'`)
   assert.equal(made.length, 10, 'a value of each row was made')
   assert.deepEqual(
-    rowsOf(dataFolder, `SELECT 1 FROM "_t_meta" WHERE "key" = 'walk.orders.summary'`),
+    rowsOf(dataFolder, `SELECT 1 FROM "_f_meta" WHERE "key" = 'walk.orders.summary'`),
     [],
     'the walk ended',
   )

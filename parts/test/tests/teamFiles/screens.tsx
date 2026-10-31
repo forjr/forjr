@@ -1,4 +1,4 @@
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 // The one screen of the app: a browser of a test asks for it again after a sign-in, as a page does.
 export const homeScreen = screen('homeScreen', {

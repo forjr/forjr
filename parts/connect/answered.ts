@@ -1,5 +1,5 @@
 import type { Caller, Type } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { checkValue } from '../core/internal.ts'
 import { isType } from './callInput.ts'
 import type { ConnectEnv } from './env.ts'
@@ -64,15 +64,15 @@ function statedName(answer: Response): string | undefined {
 }
 
 /** The error of an answer that does not fit the output of its call. */
-const misfit = (name: string, words: string): TentError =>
-  new TentError('T7116', `The answer of ${name} does not fit its output: ${words}`, {
+const misfit = (name: string, words: string): ForjrError =>
+  new ForjrError('F7116', `The answer of ${name} does not fit its output: ${words}`, {
     fix: 'State an `output` that the answer of the service fits, or leave it out to take the answer as it comes.',
   })
 
 /**
  * Takes what the engine hands `connect`, the name of a call and its record, the answer of the service, and the
  * caller. Reads the answer: with a stated `output`, as JSON checked against the type and filtered through it,
- * T7116 where it does not fit; with `output: file()`, as a loose file of the caller, whose id it answers; with none,
+ * F7116 where it does not fit; with `output: file()`, as a loose file of the caller, whose id it answers; with none,
  * as JSON where it says so and as text otherwise. An answer with no body answers nothing. `seen` is told what was
  * read as JSON, whole, before it is filtered.
  */

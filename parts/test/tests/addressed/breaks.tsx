@@ -1,4 +1,4 @@
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 // A view that fails on the server: what it reads is not there.
 function Fails(): never {

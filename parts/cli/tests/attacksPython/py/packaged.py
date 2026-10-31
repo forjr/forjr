@@ -1,5 +1,5 @@
 import tinyone
 
 
-def run(input, tent):
+def run(input, forjr):
     return tinyone.VALUE

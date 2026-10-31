@@ -25,24 +25,24 @@ test('[05-16.24] a route of code of anyone else that reads the Cookie line of a 
   const at = await boxedEcho(t)
   const app = at.app.description.app.name
   const cookie = [
-    `tent_session.${app}=s1`,
-    `__Host-tent_session.${app}=s2`,
-    `__Secure-tent_visitor.${app}=v1`,
-    `tent_state.${app}=x`,
+    `forjr_session.${app}=s1`,
+    `__Host-forjr_session.${app}=s2`,
+    `__Secure-forjr_visitor.${app}=v1`,
+    `forjr_state.${app}=x`,
     'theirs=kept',
   ].join('; ')
   const seen = await echoed(at.port, at.made.id, { cookie, 'x-test-user': 'ada@example.com' })
-  for (const name of ['s1', 's2', 'v1', `tent_state.${app}`])
+  for (const name of ['s1', 's2', 'v1', `forjr_state.${app}`])
     assert.ok(!seen.cookie.includes(name), `${name} reached the code: ${seen.cookie}`)
   assert.match(seen.cookie, /theirs=kept/)
 })
 
-test('[05-16.25] a visitor of an app of anyone else who sends Tent-Caller and an Authorization of their own making is nobody there', async (t) => {
+test('[05-16.25] a visitor of an app of anyone else who sends Forjr-Caller and an Authorization of their own making is nobody there', async (t) => {
   const at = await boxedEcho(t)
   const sent: Record<string, string>[] = [
-    { 'tent-caller': 'system', authorization: 'Bearer made-up' },
-    { 'tent-caller': 'system', authorization: `Bearer ${'0'.repeat(43)}` },
-    { 'Tent-Caller': 'system' },
+    { 'forjr-caller': 'system', authorization: 'Bearer made-up' },
+    { 'forjr-caller': 'system', authorization: `Bearer ${'0'.repeat(43)}` },
+    { 'Forjr-Caller': 'system' },
   ]
   for (const headers of sent) {
     const seen = await echoed(at.port, at.made.id, headers)
@@ -54,10 +54,10 @@ test('[05-16.25] a visitor of an app of anyone else who sends Tent-Caller and an
 test('[05-16.26] the admin channel of the product engine is not reached through the name of a workspace of anyone else', async (t) => {
   const at = await boxedEcho(t)
   for (const name of ['asleep', 'logs', 'values', 'run']) {
-    const answer = await asked(at.port, nameOf(at.made.id), `/_t/admin/${name}`, {
+    const answer = await asked(at.port, nameOf(at.made.id), `/_f/admin/${name}`, {
       method: 'POST',
       body: '{"args":{}}',
-      headers: { 'tent-caller': 'system' },
+      headers: { 'forjr-caller': 'system' },
     })
     assert.notEqual(Object(JSON.parse(answer.body || '{}')).ok, true, `${name} answered at the name of the workspace`)
   }
@@ -88,7 +88,7 @@ test('[05-16.28] a build in a box writes into its work alone, and nothing of the
   const at = await boxedEcho(t)
   const before = projectFiles(at.made.folder)
   await at.workspaces.rebuild(at.made.id, { kind: 'person' })
-  const builds = at.sandbox.commands.filter((one) => one.startsWith('tent build'))
+  const builds = at.sandbox.commands.filter((one) => one.startsWith('forjr build'))
   assert.ok(builds.length >= 2)
   for (const one of builds) assert.ok(one.includes(at.sandbox.started[0]?.work ?? '?'), one)
   assert.deepEqual(projectFiles(at.made.folder), before)

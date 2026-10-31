@@ -1,4 +1,4 @@
-import { fail, object, query, text } from 'tentjs'
+import { fail, object, query, text } from 'forjr'
 
 // A query that says no with a code of the app's own, as a builder writes a row that is not there.
 export const findThing = query('findThing', {

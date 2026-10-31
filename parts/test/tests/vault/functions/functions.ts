@@ -1,4 +1,4 @@
-import { anyone, change, input, number, query, text } from 'tentjs'
+import { anyone, change, input, number, query, text } from 'forjr'
 import { orders, teams } from '../tables/tables'
 
 const open = anyone('a test calls it')
@@ -42,7 +42,7 @@ export const rawMeta = query('rawMeta', {
   system: 'a function with full access tries to read the engine own table of a tenant file',
   input: { team: text() },
   output: number(),
-  run: ({ db, input: given }) => db.sql('SELECT "value" FROM "_t_meta"', [], { of: given.team }).length,
+  run: ({ db, input: given }) => db.sql('SELECT "value" FROM "_f_meta"', [], { of: given.team }).length,
 })
 
 export const rawSessions = query('rawSessions', {
@@ -50,7 +50,7 @@ export const rawSessions = query('rawSessions', {
   system: 'a function with full access tries to read the sessions of the app from a tenant file',
   input: { team: text() },
   output: number(),
-  run: ({ db, input: given }) => db.sql('SELECT * FROM "_t_sessions"', [], { of: given.team }).length,
+  run: ({ db, input: given }) => db.sql('SELECT * FROM "_f_sessions"', [], { of: given.team }).length,
 })
 
 // Raw SQL that tries to open another file, read the file itself, or hold more than one statement: each is refused.

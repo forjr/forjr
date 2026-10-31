@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { beginEpoch, here, keepChanges, setHere } from '../../data/index.ts'
 import { archiveOf, keepsArchive, makeArchive } from '../archived/archive.ts'
 import { flowsOf } from '../flows/needs.ts'
@@ -26,7 +26,7 @@ function tellTook(o: Opened, to: string, key: string, epoch: string): void {
     try {
       asking = o.machine
         .reached(address)
-        .request(new Request(`${address}/_t/copy/took`, { method: 'POST', headers, body }))
+        .request(new Request(`${address}/_f/copy/took`, { method: 'POST', headers, body }))
     } catch {
       again()
       return
@@ -35,9 +35,9 @@ function tellTook(o: Opened, to: string, key: string, epoch: string): void {
       .then(async (answer) => {
         const read: unknown = await answer.json().catch(() => undefined)
         const value: unknown = Reflect.get(Object(read), 'value')
-        // A machine that is no writer answers T0030, and is asked no more. Any other failure is asked again.
+        // A machine that is no writer answers F0030, and is asked no more. Any other failure is asked again.
         if (!answer.ok)
-          return Reflect.get(Object(Reflect.get(Object(read), 'error')), 'code') === 'T0030' ? undefined : again()
+          return Reflect.get(Object(Reflect.get(Object(read), 'error')), 'code') === 'F0030' ? undefined : again()
         if (address === to && !o.closed) setHere(o.store, { took: { from: to, answered: true } })
         const [other, own]: unknown[] = [Reflect.get(Object(value), 'other'), Reflect.get(Object(value), 'own')]
         if (typeof other !== 'string') return
@@ -60,8 +60,8 @@ function tellTook(o: Opened, to: string, key: string, epoch: string): void {
  * Takes what the engine holds of an app. Makes this machine the writer of what it holds: a reader stops following,
  * begins a new epoch in one write, which is its first change, goes on as a writer does when it opens, lets
  * readers join, and tells the writer it followed. A writer that stands back for a reader goes on with what it
- * holds, under a new epoch. Answers the epoch and the number of its last write. Throws T0030 on a machine that is
- * the writer, T0029 on a reader that does not hold the whole data, and T0032 on a reader that is current.
+ * holds, under a new epoch. Answers the epoch and the number of its last write. Throws F0030 on a machine that is
+ * the writer, F0029 on a reader that does not hold the whole data, and F0032 on a reader that is current.
  */
 export function takeOver(o: Opened): Promise<{ epoch: string; n: number }> {
   // One taking over at a time: while one is under way, between the closing of the reader and its first write as
@@ -81,8 +81,8 @@ async function taken(o: Opened): Promise<{ epoch: string; n: number }> {
   const mine = here(o.store)
   if (writer) {
     if (writer.state() !== 'back')
-      throw new TentError('T0030', 'This machine is the writer already: nothing is taken over.', {
-        fix: 'Run `tent take-over` on a reader, once its writer is stopped.',
+      throw new ForjrError('F0030', 'This machine is the writer already: nothing is taken over.', {
+        fix: 'Run `forjr take-over` on a reader, once its writer is stopped.',
       })
     // A writer that lost writes of its shared file goes on as after a file was put back: no place of a reader fits.
     const epoch = writer.lost()
@@ -95,12 +95,12 @@ async function taken(o: Opened): Promise<{ epoch: string; n: number }> {
     o.raise('writer.changed', { app: o.app, epoch })
     return { epoch, n: heldBy(o) }
   }
-  if (!reader) throw new TentError('T0009', 'The app is neither a writer nor a reader.')
+  if (!reader) throw new ForjrError('F0009', 'The app is neither a writer nor a reader.')
   if (!reader.whole())
     throw notReached(reader.writer(), 'this reader does not hold the whole data yet, and takes nothing over')
   if (reader.current()) {
     const from = new Date(o.clock.now() + manyLimit(o.description, 'behind')).toISOString()
-    throw new TentError('T0032', 'This reader is current: its writer runs, and two writers must never both write.', {
+    throw new ForjrError('F0032', 'This reader is current: its writer runs, and two writers must never both write.', {
       fix: `Stop the writer first. Taking over passes ${manyLimit(o.description, 'behind')} ms after its last beat was answered, no sooner than ${from}.`,
     })
   }

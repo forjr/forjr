@@ -1,4 +1,4 @@
-import { table, text } from 'tentjs' // the words of ours
+import { table, text } from 'forjr' // the words of ours
 
 export const bareTable = table('bareTable', {
   columns: { name: text({ max: 40 }) },

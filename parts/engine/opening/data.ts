@@ -46,18 +46,18 @@ function isOlder(version: string): boolean {
   return false
 }
 
-/** Holds a store that stands open to what the engine can work with. Throws T0018 where it cannot. */
+/** Holds a store that stands open to what the engine can work with. Throws F0018 where it cannot. */
 function held(store: Store, description: Description): void {
   const { engine, layout } = store.version()
   if (isOlder(engine))
     throw refused(
-      'T0018',
+      'F0018',
       `The data cannot be opened: the store is SQLite ${engine}, and the engine needs ${oldestStore.join('.')} or newer.`,
       'Run the app on the runtime that the framework ships with.',
     )
   if (layout > ownLayout)
     throw refused(
-      'T0018',
+      'F0018',
       `The data cannot be opened: its file is of the layout ${layout}, made by a newer engine than this one, which knows the layout ${ownLayout}.`,
       'Run the app with an engine as new as the one that wrote its data.',
     )
@@ -66,7 +66,7 @@ function held(store: Store, description: Description): void {
   const tied = groups.flatMap((group) => Object.keys(group).filter((name) => group[name].tiedTo === 'sqlite'))
   if (tied.length)
     throw refused(
-      'T0018',
+      'F0018',
       `The data cannot be opened: ${tied.join(', ')} ${tied.length === 1 ? 'is' : 'are'} tied to SQLite by raw SQL, and the store of this app has none.`,
       'Run the app on the SQLite store, or write those definitions with plans.',
     )

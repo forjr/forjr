@@ -1,4 +1,4 @@
-import { choice, json, link, table, text } from 'tentjs'
+import { choice, json, link, table, text } from 'forjr'
 
 // The memory of the assistant that builds: one conversation for each project.
 export const messages = table('messages', {

@@ -12,7 +12,7 @@ import type { Row } from './store.ts'
  * opened under the bound of its row, and each column that its read rule keeps from the caller left out, a private
  * one among them, where the `db` is limited to its caller.
  * `id` is the id of the row, for a row that was read without it. `bound` answers the bound of a sealed column,
- * for a value that was sealed under other names than those of today. Throws T0019 with no key at hand.
+ * for a value that was sealed under other names than those of today. Throws F0019 with no key at hand.
  */
 export function shown(
   cx: DbContext,

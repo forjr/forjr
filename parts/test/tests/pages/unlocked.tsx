@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { screen, text, Link } from 'tentjs/ui'
+import { screen, text, Link } from 'forjr/ui'
 
 // A page that needs two entries of `unlock`: a style tag of its own, and code that is made from text.
 export const unlockedScreen = screen('unlockedScreen', {

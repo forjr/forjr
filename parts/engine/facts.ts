@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description, Facts } from '../core/internal.ts'
 import type { Files, Store } from '../data/index.ts'
 import { factsOf, openFiles, sqliteStore } from '../data/index.ts'
@@ -21,7 +21,7 @@ export const isDescription = (value: unknown): value is Description =>
 
 /**
  * Takes a store that stands open, and a description. Answers the facts that the check needs of that data: what
- * the table change from the data to the description would be refused for (T2001 to T2004), as the data part finds
+ * the table change from the data to the description would be refused for (F2001 to F2004), as the data part finds
  * it, and the step names that the unfinished runs of its flows depend on. It changes nothing.
  */
 export function factsIn(store: Store, description: Description): Facts {
@@ -61,7 +61,7 @@ async function factsOfFolder(folder: string, description: Description): Promise<
  * an app that no engine runs: it opens the data to read alone for the length of the call, with the `store` of the
  * makers where there is one, and closes it again. A folder that holds no data says nothing, and nothing is made
  * in it. For data that keeps a data file for each tenant it answers a promise, and reads the file of each tenant
- * too. Throws T0013 for what is no description, and T0018 for data that cannot be opened.
+ * too. Throws F0013 for what is no description, and F0018 for data that cannot be opened.
  */
 export function readFacts(
   dataFolder: string,
@@ -69,8 +69,8 @@ export function readFacts(
   o: { makers?: Makers } = {},
 ): Facts | Promise<Facts> {
   if (!isDescription(description))
-    throw new TentError('T0013', '`readFacts` takes the description of a project.', {
-      fix: 'Hand it the description that `describeProject` of `tentjs/build` answers.',
+    throw new ForjrError('F0013', '`readFacts` takes the description of a project.', {
+      fix: 'Hand it the description that `describeProject` of `forjr/build` answers.',
     })
   const folder = resolve(dataFolder)
   const maker = o.makers?.store
@@ -85,18 +85,20 @@ export function readFacts(
     dataFolder: folder,
     secrets: {},
     settings: {},
-    mcp: { request: () => Promise.reject(new TentError('T0013', 'No client of MCP is joined to a reading of facts.')) },
+    mcp: {
+      request: () => Promise.reject(new ForjrError('F0013', 'No client of MCP is joined to a reading of facts.')),
+    },
   }
   const store = maker ? maker(input) : sqliteStore()
   // What lies there and does not open as data is told by its place, and not by what the store said last.
   const unopened = (error: unknown): never => {
-    if (error instanceof TentError && error.code !== 'T0009') throw error
+    if (error instanceof ForjrError && error.code !== 'F0009') throw error
     const file = join(folder, 'data.db')
-    throw new TentError(
-      'T0018',
+    throw new ForjrError(
+      'F0018',
       `The data cannot be opened: ${file} is no database that an engine made (${error instanceof Error ? error.message : String(error)}).`,
       {
-        fix: 'Name the data folder of the app with `--data`. Where it is that folder, move the file away and put a backup back with `tent data restore`.',
+        fix: 'Name the data folder of the app with `--data`. Where it is that folder, move the file away and put a backup back with `forjr data restore`.',
       },
     )
   }
@@ -104,7 +106,7 @@ export function readFacts(
     store.open(folder, { readOnly: true })
     // The directory of the files of tenants stands in the shared file of an app that keeps some, and the files of
     // tenants that do not open are told as the shared file is.
-    if (!maker && store.layout().some((table) => table.name === '_t_tenants')) {
+    if (!maker && store.layout().some((table) => table.name === '_f_tenants')) {
       store.close()
       return factsOfFolder(folder, description).then(withAdvice, unopened)
     }

@@ -1,11 +1,11 @@
 # `sampleOf`
 
-A valid value of a type, the one sample that `app.make`, `tent test --plan` and `tent test --declared` all take.
+A valid value of a type, the one sample that `app.make`, `forjr test --plan` and `forjr test --declared` all take.
 
 ## Example
 
 ```ts
-import { sampleOf } from 'tentjs/test'
+import { sampleOf } from 'forjr/test'
 
 sampleOf({ kind: 'text', min: 3 }, 'title')              // 'A title'
 sampleOf({ kind: 'choice', values: ['open', 'paid'] }, 'state')   // 'open'
@@ -24,7 +24,7 @@ A value of the type, as the description stores it: a text of its own, as long as
 
 ## Errors
 
-`code.T0002`: a kind of which no sample is made, as a file.
+`code.F0002`: a kind of which no sample is made, as a file.
 
 ## See also
 

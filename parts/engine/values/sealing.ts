@@ -20,7 +20,7 @@ export function sealText(key: Uint8Array, text: string, bound: string): string {
  * nothing of the text can be read from it.
  */
 export function foundText(key: Uint8Array, text: string, bound: string): string {
-  const drawn = createHmac('sha256', key).update('tent.found/1').digest()
+  const drawn = createHmac('sha256', key).update('forjr.found/1').digest()
   return createHmac('sha256', drawn).update(`${bound}\n${text}`).digest('hex')
 }
 

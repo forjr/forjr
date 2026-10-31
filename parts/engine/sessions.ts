@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import type { Caller } from '../core/index.ts'
-import { later, TentError } from '../core/index.ts'
+import { later, ForjrError } from '../core/index.ts'
 import type { Row, Store, StorePlan, Tx } from '../data/index.ts'
 import type { CallContext } from './context.ts'
 import { cookieLine, cookieName, cookieOf } from './cookies.ts'
@@ -131,8 +131,8 @@ export function sessionCaller(
 }
 
 /** The error of a member of `sessions` that is used where no request of a browser is being answered. */
-const noBrowser = (member: string): TentError =>
-  new TentError('T0013', `\`sessions.${member}\` was used where no request of a browser is being answered.`, {
+const noBrowser = (member: string): ForjrError =>
+  new ForjrError('F0013', `\`sessions.${member}\` was used where no request of a browser is being answered.`, {
     fix: 'Start and end a session in a change, an action or a route that a browser called through the door. A test reaches it with `app.browser()`.',
   })
 
@@ -212,8 +212,8 @@ const thisComputer: About = {
 
 /**
  * Takes a writer, a user, the fingerprint of a new session, and whether it is for a browser that a program drives.
- * Writes that session for the user, as `sessions.start` does. Throws T0030 on a machine that does not write, T0014
- * with no `users` table, and T2103 for an id that names no row.
+ * Writes that session for the user, as `sessions.start` does. Throws F0030 on a machine that does not write, F0014
+ * with no `users` table, and F2103 for an id that names no row.
  */
 function sessionWritten(o: Opened, user: string, fingerprint: string, driven: boolean): void {
   o.machine.writes('`app.session`')
@@ -251,19 +251,19 @@ const makingOf = new WeakMap<Opened, Map<string, Promise<void>>>()
  * `app.session`: takes an app, a user, by the id of its row, as a caller that is a user, or as the row, and whether
  * the session is for a browser that a program drives. Makes a session for that user as `sessions.start` does, with
  * no request and no address of the app, and answers the line of its cookie as a browser of this computer sends it
- * back: `tent_session.<the app's name>=<the token>`. A reader has its writer write the session, as it hands on a
- * write, and a request that carries the cookie there waits until the reader holds it. Throws T0013 outside the
- * modes `development` and `test`, T0030 on a writer that no longer writes, T0014 with no `users` table, and T2103
+ * back: `forjr_session.<the app's name>=<the token>`. A reader has its writer write the session, as it hands on a
+ * write, and a request that carries the cookie there waits until the reader holds it. Throws F0013 outside the
+ * modes `development` and `test`, F0030 on a writer that no longer writes, F0014 with no `users` table, and F2103
  * where it names no user, or an id that names no row.
  */
 export function madeSession(o: Opened, user: unknown, driven = false): string {
   if (o.mode !== 'development' && o.mode !== 'test')
-    throw new TentError('T0013', 'A program makes a session for a user in the modes development and test alone.', {
+    throw new ForjrError('F0013', 'A program makes a session for a user in the modes development and test alone.', {
       fix: 'On live data a user signs in through the sign-in of the app, which calls `sessions.start`.',
     })
   const id = userIdOf(user)
   if (id === undefined)
-    throw new TentError('T2103', 'A session is for a user of the app, and none was named.', {
+    throw new ForjrError('F2103', 'A session is for a user of the app, and none was named.', {
       fix: 'Name the id of a row of `users`.',
     })
   const token = randomBytes(32).toString('base64url')
@@ -304,7 +304,7 @@ export async function drivenEnded(o: Opened, line: string): Promise<void> {
 
 /**
  * What a writer does with `app.session` that a reader sent on: `{ user, fingerprint, driven }` writes that session,
- * and `{ ends }` ends a session of a browser that a program drives. Throws T0002 for anything else.
+ * and `{ ends }` ends a session of a browser that a program drives. Throws F0002 for anything else.
  */
 export function sessionHanded(o: Opened, told: unknown): void {
   const asked: Record<string, unknown> = Object(told)
@@ -313,7 +313,7 @@ export function sessionHanded(o: Opened, told: unknown): void {
   else if (typeof user === 'string' && typeof fingerprint === 'string' && /^[0-9a-f]{64}$/.test(fingerprint))
     sessionWritten(o, user, fingerprint, asked.driven === true)
   else
-    throw new TentError('T0002', 'A session that a reader sends on is { "user", "fingerprint" } or { "ends" }.', {
+    throw new ForjrError('F0002', 'A session that a reader sends on is { "user", "fingerprint" } or { "ends" }.', {
       fields: { args: 'type' },
     })
 }
@@ -344,8 +344,8 @@ export function drivenClosed(o: Opened): void {
  * `sessions.start`: takes the context of a call, the id of a user or the row, and how the session is started.
  * Makes a new session for the browser whose request is being answered, and ends the one the request came with. A
  * user who holds `limits.sessionsPerUser` loses the one that was used longest ago.
- * Throws T0013 where no browser is being answered, T0014 with no `users` table, T2103 for an id that names no
- * row, and T0027 for a life that does not read.
+ * Throws F0013 where no browser is being answered, F0014 with no `users` table, F2103 for an id that names no
+ * row, and F0027 for a life that does not read.
  */
 export function startSession(cx: CallContext, user: unknown, how: unknown): void {
   const o = cx.app
@@ -356,7 +356,7 @@ export function startSession(cx: CallContext, user: unknown, how: unknown): void
   const stated: unknown = Reflect.get(Object(how), 'for')
   const own = stated === undefined ? undefined : later(new Date(0), String(stated)).getTime()
   if (own !== undefined && !(own > 0))
-    throw new TentError('T0027', `A session lives for a length of time, and ${JSON.stringify(stated)} is none.`, {
+    throw new ForjrError('F0027', `A session lives for a length of time, and ${JSON.stringify(stated)} is none.`, {
       fix: "Hand `for` a length of time, as `'30 minutes'`.",
     })
   const browserOnly = Reflect.get(Object(how), 'browserOnly') === true
@@ -395,7 +395,7 @@ function leaves(o: Opened, here: Visit): void {
 /**
  * `sessions.end`: ends the session of the request, or the one that `id` names: one of the caller's own, and any
  * user's in code with full access. The cookie of an ended session of the request is taken away. An id that names
- * no session the code may end changes nothing. Throws T0013 where no browser is being answered.
+ * no session the code may end changes nothing. Throws F0013 where no browser is being answered.
  */
 export function endSession(cx: CallContext, id: unknown): void {
   const o = cx.app
@@ -425,12 +425,12 @@ export function endSession(cx: CallContext, id: unknown): void {
   )
 }
 
-/** Holds a member that names a user to the caller's own, and to any user in code with full access. Throws T0013. */
+/** Holds a member that names a user to the caller's own, and to any user in code with full access. Throws F0013. */
 function heldToUser(cx: CallContext, member: string, user: unknown): string {
   const id = typeof user === 'string' ? user : String(Reflect.get(Object(user), 'id'))
   if (id === ownUser(cx) || hasFullAccess(cx)) return id
-  throw new TentError(
-    'T0013',
+  throw new ForjrError(
+    'F0013',
     `${cx.work.name} used \`sessions.${member}\` for another user than its caller, which is full access.`,
     { fix: "Name the user of the call, or state `system: 'why'` on the definition." },
   )
@@ -438,7 +438,7 @@ function heldToUser(cx: CallContext, member: string, user: unknown): string {
 
 /**
  * `sessions.endAll`: ends every session of a user, the one of the request among them, whose cookie is then taken
- * away. Throws T0013 for another user than the caller, in code that has no full access.
+ * away. Throws F0013 for another user than the caller, in code that has no full access.
  */
 export function endSessions(cx: CallContext, user: unknown): void {
   const o = cx.app
@@ -463,7 +463,7 @@ export function endSessions(cx: CallContext, user: unknown): void {
 
 /**
  * `sessions.list`: the sessions of a user that stand, the oldest first, each as `{ id, createdAt, usedAt,
- * current }`, where `current` marks the session of the request. Throws T0013 for another user than the caller, in
+ * current }`, where `current` marks the session of the request. Throws F0013 for another user than the caller, in
  * code that has no full access.
  */
 export function listSessions(

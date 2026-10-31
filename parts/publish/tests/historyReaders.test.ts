@@ -9,7 +9,7 @@ import { ada, closing, computer, fetched, folderOf, started } from './server.ts'
 
 const functions = 'functions/orders.ts'
 
-test('[29-11] after a publish, a push and a take-over, the new writer answers a pull with the pushed points, and goes back with tent publish --back', async (t) => {
+test('[29-11] after a publish, a push and a take-over, the new writer answers a pull with the pushed points, and goes back with forjr publish --back', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder, { open: { insecure: true } })
   const here = computer(t, folder, 'here')

@@ -1,4 +1,4 @@
-import { boolean, choice, link, number, table, text } from 'tentjs'
+import { boolean, choice, link, number, table, text } from 'forjr'
 
 // What the Settings dialog keeps for its person, the day's limit of use among it.
 export const preferences = table('preferences', {

@@ -5,7 +5,7 @@ import type { Opened } from '../opened.ts'
 import { heldOpen } from '../opened.ts'
 
 /**
- * `app.caller`: who a request is to this app, as step 3 of the door finds it, with the `x-tent-` headers taken out
+ * `app.caller`: who a request is to this app, as step 3 of the door finds it, with the `x-forjr-` headers taken out
  * first as step 1 takes them. Its scheme and its name are those of its address, and it counts as coming from this
  * computer. Nobody where no way of telling who calls names anyone.
  */

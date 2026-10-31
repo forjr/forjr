@@ -4,15 +4,15 @@ import { definitionName, definitionOf } from '../service/definitions.ts'
 
 // The name comes from the description of a bundle, which another may have written.
 const name = '../../tmp/x\nshop'
-const defined = { name, user: 'shop', home: '/home/shop/.tent', words: ['start', '/srv/shop'], machine: false }
+const defined = { name, user: 'shop', home: '/home/shop/.forjr', words: ['start', '/srv/shop'], machine: false }
 
-test('[41-13a] tent service names the file of a definition by a name that holds no folder of its own', () => {
+test('[41-13a] forjr service names the file of a definition by a name that holds no folder of its own', () => {
   const named = definitionName(name)
   assert.doesNotMatch(named, /[/\\.\n]/, named)
-  assert.match(definitionOf('darwin', defined), new RegExp(`<string>com\\.tentjs\\.${named}</string>`))
+  assert.match(definitionOf('darwin', defined), new RegExp(`<string>com\\.forjr\\.${named}</string>`))
 })
 
-test('[41-13a] tent service writes the name of an app into a launchd file and a task on one line', () => {
+test('[41-13a] forjr service writes the name of an app into a launchd file and a task on one line', () => {
   for (const system of ['darwin', 'win32'] as const) {
     const lines = definitionOf(system, defined).split('\n')
     assert.equal(

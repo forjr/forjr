@@ -2,7 +2,7 @@ import type { Caller } from '../../core/index.ts'
 import type { AiEnv, Message, ToolCall } from '../face.ts'
 import { isStored, wordsOf } from '../../core/internal.ts'
 
-/** A row of a conversation as `_t_memoryRead` answers it, with each file of it read. */
+/** A row of a conversation as `_f_memoryRead` answers it, with each file of it read. */
 export interface Recalled {
   id: string
   who: 'user' | 'assistant' | 'tool' | 'summary'

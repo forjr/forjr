@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { fingerprintOf } from '../core/internal.ts'
 import type { SqliteFile } from '../data/index.ts'
 import { found } from './find.ts'
@@ -30,20 +30,20 @@ export function startOnMain(file: SqliteFile): void {
 }
 
 /**
- * Makes a branch at the point that `from` names, or at `now`, and keeps where it was made. Throws T0002 for a
- * name that may not name a branch or that names one already, and T9107 where the point is not there.
+ * Makes a branch at the point that `from` names, or at `now`, and keeps where it was made. Throws F0002 for a
+ * name that may not name a branch or that names one already, and F9107 where the point is not there.
  */
 export function branch(file: SqliteFile, name: string, from = 'now'): void {
   if (!isBranchName(name))
-    throw new TentError(
-      'T0002',
+    throw new ForjrError(
+      'F0002',
       `\`${name}\` cannot name a branch: a name holds no colon and no white space, and is not now, on or live.`,
       {
         fields: { name: 'type' },
       },
     )
   if (pointerOf(file, name) !== undefined)
-    throw new TentError('T0002', `A branch named \`${name}\` is there already.`, { fields: { name: 'unique' } })
+    throw new ForjrError('F0002', `A branch named \`${name}\` is there already.`, { fields: { name: 'unique' } })
   const at = found(file, from).id
   file.write(() => {
     setPointer(file, name, at)

@@ -1,13 +1,13 @@
 import type { TableLayout } from '../../data/index.ts'
 
 /**
- * `_t_filled`, in the file of the row: one row for each value of a column that work fills. `read` is the
+ * `_f_filled`, in the file of the row: one row for each value of a column that work fills. `read` is the
  * fingerprint of what the work was handed, and `work` that of what the value rests on beside the row; `state` is
  * `due`, `made` or `failed`. A row whose value a link reads stands under the column name `*`, with the mark of
  * the write that changed it in `read`, until the pass marked the rows that read it.
  */
 export const table: TableLayout = {
-  name: '_t_filled',
+  name: '_f_filled',
   columns: {
     tableName: { kind: 'text' },
     rowId: { kind: 'text' },

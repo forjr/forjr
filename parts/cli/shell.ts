@@ -1,6 +1,6 @@
 import { resolve } from 'node:path'
 import type { Finding, Type } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { nearest, safe } from '../connect/index.ts'
 import { checkValue, finding } from '../core/internal.ts'
 import { shippedRelease } from '../engine/index.ts'
@@ -25,7 +25,7 @@ interface Listed {
 }
 
 /**
- * Thrown where a command was typed with a word, a flag or a value it does not take, or without one it needs: T0038.
+ * Thrown where a command was typed with a word, a flag or a value it does not take, or without one it needs: F0038.
  * Its fix is how the command is typed, after the nearest real word where one is near.
  */
 class Mistyped extends Error {
@@ -45,8 +45,8 @@ function typedAs(listed: string): string {
   return file === undefined || file === folder ? folder : `${folder} ${file}`
 }
 
-/** What `tent` alone and `tent --help` print: how a command is typed, and every command. */
-const helpOf = (names: string[]): string => `tent <command>, one of: ${names.join(', ')}. Every command takes --json.`
+/** What `forjr` alone and `forjr --help` print: how a command is typed, and every command. */
+const helpOf = (names: string[]): string => `forjr <command>, one of: ${names.join(', ')}. Every command takes --json.`
 
 /** A flag of a command as it is typed, from its type: in brackets where it may be left out, as the reference writes it. */
 function flagOf(name: string, type: Type): string {
@@ -60,9 +60,9 @@ function flagOf(name: string, type: Type): string {
   return optional ? `[${value}]` : value
 }
 
-/** How a command is typed: `tent`, its name, and each flag that its `args` state, as the reference writes its line. */
+/** How a command is typed: `forjr`, its name, and each flag that its `args` state, as the reference writes its line. */
 const usageOf = (command: Command): string =>
-  ['tent', command.name, ...Object.entries(command.args).map(([name, type]) => flagOf(name, type))].join(' ')
+  ['forjr', command.name, ...Object.entries(command.args).map(([name, type]) => flagOf(name, type))].join(' ')
 
 /**
  * Takes the commands of a list and the words that were typed. Answers the command that the first two words name,
@@ -79,17 +79,17 @@ function commandOf(commands: Listed[], words: string[]): { listed: Listed; rest:
   if (files.length) {
     const near = second === undefined ? undefined : nearest(second, files)
     throw new Mistyped(
-      `tent ${first} needs one of: ${files.join(', ')}.`,
-      `tent ${first} <${files.join('|')}>`,
-      near === undefined ? undefined : `tent ${first} ${near}`,
+      `forjr ${first} needs one of: ${files.join(', ')}.`,
+      `forjr ${first} <${files.join('|')}>`,
+      near === undefined ? undefined : `forjr ${first} ${near}`,
     )
   }
   const names = commands.map((one) => typedAs(one.name))
   const near = nearest(first, names)
   throw new Mistyped(
-    `tent has no command "${first}". It has: ${names.join(', ')}.`,
+    `forjr has no command "${first}". It has: ${names.join(', ')}.`,
     helpOf(names),
-    near === undefined ? undefined : `tent ${near}`,
+    near === undefined ? undefined : `forjr ${near}`,
   )
 }
 
@@ -137,7 +137,7 @@ function argsOf(command: Command, words: string[]): Record<string, unknown> {
       if (!Object.hasOwn(command.args, name)) {
         const near = nearest(name, Object.keys(command.args))
         throw new Mistyped(
-          `tent ${command.name} takes no --${name}.`,
+          `forjr ${command.name} takes no --${name}.`,
           usage,
           near === undefined ? undefined : `--${near}`,
         )
@@ -145,7 +145,7 @@ function argsOf(command: Command, words: string[]): Record<string, unknown> {
       if (command.args[name].kind === 'boolean') give(name, given ?? 'true')
       else if (given !== undefined) give(name, given)
       else if (k + 1 < words.length) give(name, words[++k])
-      else throw new Mistyped(`--${name} of tent ${command.name} needs a value${valuesOf(command.args[name])}.`, usage)
+      else throw new Mistyped(`--${name} of forjr ${command.name} needs a value${valuesOf(command.args[name])}.`, usage)
     }
   }
   // A word that is no flag fills what takes one value and was not given by a flag, in the order the command lists it.
@@ -153,7 +153,7 @@ function argsOf(command: Command, words: string[]): Record<string, unknown> {
     (name) => !Object.hasOwn(args, name) && !['boolean', 'list'].includes(command.args[name].kind),
   )
   if (loose.length > open.length)
-    throw new Mistyped(`tent ${command.name} does not take "${loose[open.length]}".`, usage)
+    throw new Mistyped(`forjr ${command.name} does not take "${loose[open.length]}".`, usage)
   for (const [k, word] of loose.entries()) give(open[k], word)
   for (const [name, type] of Object.entries(command.args))
     if (
@@ -162,19 +162,19 @@ function argsOf(command: Command, words: string[]): Record<string, unknown> {
       Reflect.get(type, 'default') === undefined &&
       type.kind !== 'boolean'
     )
-      throw new Mistyped(`tent ${command.name} needs <${name}>${valuesOf(type)}.`, usage)
+      throw new Mistyped(`forjr ${command.name} needs <${name}>${valuesOf(type)}.`, usage)
   // A value is held to the type of its flag, as a number or one of the values of a choice.
   for (const [name, given] of Object.entries(args))
     if (checkValue(command.args[name], given).length)
       throw new Mistyped(
-        `--${name} of tent ${command.name} does not take ${JSON.stringify(Array.isArray(given) ? given.join(' ') : String(given))}${valuesOf(command.args[name])}.`,
+        `--${name} of forjr ${command.name} does not take ${JSON.stringify(Array.isArray(given) ? given.join(' ') : String(given))}${valuesOf(command.args[name])}.`,
         usage,
       )
   return args
 }
 
 /**
- * Takes the commands of a list, the words that were typed after `tent`, and where they were typed. Carries the
+ * Takes the commands of a list, the words that were typed after `forjr`, and where they were typed. Carries the
  * command out and prints what it answers: as text, or with `--json` as `{ "ok", "value", "findings" }`. Answers the
  * number that the program ends with: 0 when there is no error, 1 when there is, 2 when the command itself failed.
  * Of a command that states `raw` it prints nothing, and answers the number that the command answers.
@@ -192,12 +192,12 @@ export async function carryOut(commands: Listed[], words: string[], typed: Typed
       if (text !== '') out(text)
     }
     // A command that answers that it was typed with what it does not take ends as one that the shell refused.
-    return failed || findings.some((one) => one.code === 'T0038') ? 2 : ok ? 0 : 1
+    return failed || findings.some((one) => one.code === 'F0038') ? 2 : ok ? 0 : 1
   }
   try {
     // The first start of what an installer unpacked holds it to our signature, before anything of it runs.
     const unsigned = firstStart()
-    if (unsigned) return answer(undefined, [finding('T0026', unsigned, { fix: 'Install Tent.js again.' })], true)
+    if (unsigned) return answer(undefined, [finding('F0026', unsigned, { fix: 'Install Forjr again.' })], true)
     // An install on the list of known problems says so in every command, in one line beside what it prints.
     noticed((line) => console.error(line))
     const names = commands.map((one) => typedAs(one.name))
@@ -212,7 +212,8 @@ export async function carryOut(commands: Listed[], words: string[], typed: Typed
     const { listed, rest } = commandOf(commands, plain)
     // A command of the build tools is not loaded where the install holds the player alone: it says what brings it.
     const lacking = lacksTools(typedAs(listed.name))
-    if (lacking) return answer(undefined, [finding('T0013', lacking, { fix: 'Type tent update --build-tools.' })], true)
+    if (lacking)
+      return answer(undefined, [finding('F0013', lacking, { fix: 'Type forjr update --build-tools.' })], true)
     const { command } = await listed.load()
     const here = resolve(typed.folder ?? process.cwd())
     const project = command.needs === 'nothing' ? undefined : projectOf(here)
@@ -222,7 +223,7 @@ export async function carryOut(commands: Listed[], words: string[], typed: Typed
     const handed = handsOver(command) ? handedOver(here, words, (line) => console.error(line)) : undefined
     if (handed !== undefined) return handed
     const none = (): never => {
-      throw new Error(`No project is here: no folder from ${here} upward holds a tent.ts.`)
+      throw new Error(`No project is here: no folder from ${here} upward holds a forjr.ts.`)
     }
     if (command.raw) {
       // The words after the name stand as they were typed, a `--json` among them: the name ends where as many
@@ -236,7 +237,7 @@ export async function carryOut(commands: Listed[], words: string[], typed: Typed
       })
     }
     const args = argsOf(command, rest)
-    // A command that needs the engine finds it through `--data`, through `--at` on a server, or through the `.tent/`
+    // A command that needs the engine finds it through `--data`, through `--at` on a server, or through the `.forjr/`
     // of the project.
     const far = command.needs === 'engine' && (typeof args.data === 'string' || typeof args.at === 'string')
     const folder = project ?? (command.needs === 'nothing' || far ? here : none())
@@ -250,23 +251,23 @@ export async function carryOut(commands: Listed[], words: string[], typed: Typed
   } catch (error) {
     // What a command throws is a failure of the command itself, and is printed as a finding of its own.
     const words = error instanceof Error ? error.message : String(error)
-    if (error instanceof Mistyped) return answer(undefined, [finding('T0038', words, { fix: error.fix })], true)
-    const code = error instanceof TentError ? error.code : 'T0009'
+    if (error instanceof Mistyped) return answer(undefined, [finding('F0038', words, { fix: error.fix })], true)
+    const code = error instanceof ForjrError ? error.code : 'F0009'
     return answer(
       undefined,
-      [finding(code, words, { fix: 'See `tent docs` for the commands and what each takes.' })],
+      [finding(code, words, { fix: 'See `forjr docs` for the commands and what each takes.' })],
       true,
     )
   }
 }
 
 /**
- * Takes the words that were typed after `tent`, and where they were typed. Carries the command out among the
+ * Takes the words that were typed after `forjr`, and where they were typed. Carries the command out among the
  * commands of the framework, as `carryOut` does, and answers the number that the program ends with.
  */
-export const tent = (words: string[], typed: Typed = {}): Promise<number> => carryOut(list, words, typed)
+export const forjr = (words: string[], typed: Typed = {}): Promise<number> => carryOut(list, words, typed)
 
 if (import.meta.main) {
   askFirst(process.argv.slice(2))
-  process.exitCode = await tent(process.argv.slice(2))
+  process.exitCode = await forjr(process.argv.slice(2))
 }

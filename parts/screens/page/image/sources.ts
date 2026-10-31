@@ -80,12 +80,12 @@ export function loadedOf(source: Source | undefined, store: PageStore, picture: 
     const parts = file.slice(file.lastIndexOf('/') + 1).split('.')
     const print = parts.at(source.asset.includes('.') ? -2 : -1) ?? ''
     const door = (width: number): string =>
-      named(page, `/_t/img/a/${encodeURIComponent(source.asset)}?w=${width}&v=${encodeURIComponent(print)}`)
+      named(page, `/_f/img/a/${encodeURIComponent(source.asset)}?w=${width}&v=${encodeURIComponent(print)}`)
     return { src: file, ...widthsIn(door, widths, store, source), picture: source, widths }
   }
-  const whole = named(page, `/_t/files/${source.file}`)
+  const whole = named(page, `/_f/files/${source.file}`)
   if (!picture) return { src: whole }
-  const door = (width: number): string => named(page, `/_t/img/${source.file}?w=${width}`)
+  const door = (width: number): string => named(page, `/_f/img/${source.file}?w=${width}`)
   return { src: whole, ...widthsIn(door, widths, store, source), picture: source, widths }
 }
 

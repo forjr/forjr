@@ -1,4 +1,4 @@
-import { component, text } from 'tentjs/ui'
+import { component, text } from 'forjr/ui'
 import { Boxed } from './boxed'
 import './note.css'
 import styles from './note.module.css'

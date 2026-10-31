@@ -25,12 +25,12 @@ async function builderProduct(t: Parameters<typeof attacked>[0]) {
   return { ...at, ada, bob, workspace: String(project.workspace), project: String(project.project) }
 }
 
-test('[05-16.2] a turn on a workspace by a user who is not its owner is T3101, and a workspace id inside the message names nothing: the tools act on the workspace the product code gave', async (t) => {
+test('[05-16.2] a turn on a workspace by a user who is not its owner is F3101, and a workspace id inside the message names nothing: the tools act on the workspace the product code gave', async (t) => {
   const at = await builderProduct(t)
   const refused = await refusal(
     at.app.call('askTurn', { workspace: at.workspace, project: at.project, message: 'x' }, { as: at.bob }),
   )
-  assert.equal(refused?.code, 'T3101')
+  assert.equal(refused?.code, 'F3101')
   // Bob's own workspace, whose id Ada names in her message.
   const theirs = Object(await at.app.call('newProject', { from: 'notes' }, { as: at.bob }))
   const theirApp = await at.workspaces.run(String(theirs.workspace))
@@ -40,7 +40,7 @@ test('[05-16.2] a turn on a workspace by a user who is not its owner is T3101, a
       calls: [
         { tool: 'rows', with: { table: 'notes', workspace: theirs.workspace } },
         { tool: 'rows', with: { table: 'notes' } },
-        { tool: 'read', with: { path: `../../${theirs.workspace}/project/tent.ts` } },
+        { tool: 'read', with: { path: `../../${theirs.workspace}/project/forjr.ts` } },
       ],
     },
     { text: 'Done.' },
@@ -52,9 +52,9 @@ test('[05-16.2] a turn on a workspace by a user who is not its owner is T3101, a
   })
   assert.equal(turn.state, 'done')
   const answers = (model.sent.at(-1)?.messages ?? []).filter((one) => one.who === 'tool')
-  assert.match(JSON.stringify(answers[0]?.error), /T0002/)
+  assert.match(JSON.stringify(answers[0]?.error), /F0002/)
   assert.doesNotMatch(JSON.stringify(answers[1]?.result), /the note of bob/)
-  assert.match(JSON.stringify(answers[2]?.error), /T9105/)
+  assert.match(JSON.stringify(answers[2]?.error), /F9105/)
 })
 
 test('[05-16.7] the app of a workspace that calls a function of the app of another, asks for its files and opens its live connection is answered on its own name alone', async (t) => {
@@ -77,14 +77,14 @@ test('[05-16.7] the app of a workspace that calls a function of the app of anoth
   assert.equal(there.ok, true)
   const here = await calledAt(at.port, nameOf(at.made.id), 'onlyThere', {})
   assert.equal(here.ok, false)
-  assert.equal(here.error?.code, 'T0001')
+  assert.equal(here.error?.code, 'F0001')
   // A read of the other's query from a page of the one is not found either.
-  const read = await asked(at.port, nameOf(at.made.id), '/_t/read/onlyThere', { method: 'POST', body: '{"input":{}}' })
+  const read = await asked(at.port, nameOf(at.made.id), '/_f/read/onlyThere', { method: 'POST', body: '{"input":{}}' })
   assert.notEqual(read.status, 200)
   assert.ok(theirs)
 })
 
-test('[05-16.10] undo of a turn of the workspace of another user, through the handle, is T3101, and after the data was changed by hand an undo puts the files back, keeps the data and says so', async (t) => {
+test('[05-16.10] undo of a turn of the workspace of another user, through the handle, is F3101, and after the data was changed by hand an undo puts the files back, keeps the data and says so', async (t) => {
   const at = await builderProduct(t)
   const model = scripted([
     { calls: [{ tool: 'write', with: { path: 'functions/turned.ts', text: queryWith('turned') } }] },
@@ -98,7 +98,7 @@ test('[05-16.10] undo of a turn of the workspace of another user, through the ha
   })
   assert.equal(turn.state, 'done')
   const refused = await refusal(at.app.call('undoTurn', { workspace: at.workspace, turn: turn.id }, { as: at.bob }))
-  assert.equal(refused?.code, 'T3101')
+  assert.equal(refused?.code, 'F3101')
   // A note added by hand, outside a turn.
   const app = await at.workspaces.run(at.workspace)
   await app.call('addNote', { body: 'by hand' }, { as: nobody })
@@ -112,7 +112,7 @@ test('[05-16.10] undo of a turn of the workspace of another user, through the ha
   )
 })
 
-test('[05-16.14] shot with a full address, with //host/x, with a file address and with the address of the product is T0002', async (t) => {
+test('[05-16.14] shot with a full address, with //host/x, with a file address and with the address of the product is F0002', async (t) => {
   const at = await attacked(t)
   for (const path of [
     'http://example.com/',
@@ -122,7 +122,7 @@ test('[05-16.14] shot with a full address, with //host/x, with a file address an
     `http://127.0.0.1:${at.port}/`,
     '\\\\example.com\\x',
   ])
-    assert.equal((await refusal(at.tool('shot', { path })))?.code, 'T0002', path)
+    assert.equal((await refusal(at.tool('shot', { path })))?.code, 'F0002', path)
 })
 
 test('[05-16.16] text that tells the model to give a table read anyone is not stopped where edit names the kind, and with edit in ask it waits for the person with nothing written', async (t) => {
@@ -155,7 +155,7 @@ test('[05-16.16] text that tells the model to give a table read anyone is not st
   at.app.runs.stop(run)
 })
 
-test('[05-16.18] run with as of system, and of the id of a user of another workspace, is T0002', async (t) => {
+test('[05-16.18] run with as of system, and of the id of a user of another workspace, is F0002', async (t) => {
   const at = await attacked(t)
   const other = await at.workspaces.create({ owner: at.owner, from: 'notes' })
   const theirs = await at.workspaces.run(other.id)
@@ -163,27 +163,27 @@ test('[05-16.18] run with as of system, and of the id of a user of another works
     await theirs.write([{ add: 'users', values: { email: 'cy@example.com', roles: [] } }], { as: { kind: 'system' } }),
   )
   for (const as of ['system', String(Object(user).id)])
-    assert.equal((await refusal(at.tool('run', { name: 'addNote', input: { body: 'x' }, as })))?.code, 'T0002', as)
+    assert.equal((await refusal(at.tool('run', { name: 'addNote', input: { body: 'x' }, as })))?.code, 'F0002', as)
 })
 
-test('[05-16.19] rows, logs and history asked for another workspace through the input of the tool are T0002: no input names a workspace', async (t) => {
+test('[05-16.19] rows, logs and history asked for another workspace through the input of the tool are F0002: no input names a workspace', async (t) => {
   const at = await attacked(t)
   const other = await at.workspaces.create({ owner: at.owner, from: 'notes' })
   for (const [tool, input] of [
     ['rows', { table: 'notes', workspace: other.id }],
     ['logs', { workspace: other.id }],
     ['history', { workspace: other.id }],
-    ['read', { path: 'tent.ts', workspace: other.id }],
+    ['read', { path: 'forjr.ts', workspace: other.id }],
   ] as const)
-    assert.equal((await refusal(at.tool(tool, input)))?.code, 'T0002', tool)
+    assert.equal((await refusal(at.tool(tool, input)))?.code, 'F0002', tool)
 })
 
 test('[05-16.21] an id of ../x handed to get, turn and undo is not found', async (t) => {
   const at = await attacked(t)
   for (const id of ['../x', '..', `../${at.made.id}`, `${at.made.id}/..`, '.']) {
     assert.equal(at.workspaces.get(id), undefined, id)
-    assert.equal((await refusal(at.workspaces.turn(id, 'builder', 'x', { caller: at.caller })))?.code, 'T0001', id)
-    assert.equal((await refusal(at.workspaces.undo(id, 'x', { caller: at.caller })))?.code, 'T0001', id)
+    assert.equal((await refusal(at.workspaces.turn(id, 'builder', 'x', { caller: at.caller })))?.code, 'F0001', id)
+    assert.equal((await refusal(at.workspaces.undo(id, 'x', { caller: at.caller })))?.code, 'F0001', id)
   }
 })
 
@@ -194,7 +194,7 @@ test('[05-16.22] a template project that holds a link out of its folder brings n
   writeFileSync(join(outside, 'secret.txt'), 'of the computer')
   const template = join(folder, 'linked')
   mkdirSync(join(template, 'tables'), { recursive: true })
-  for (const path of ['tent.ts', 'tables/users.ts', 'functions/users.ts', 'screens/home.tsx']) {
+  for (const path of ['forjr.ts', 'tables/users.ts', 'functions/users.ts', 'screens/home.tsx']) {
     mkdirSync(join(template, path, '..'), { recursive: true })
     writeFileSync(join(template, path), readFileSync(join(import.meta.dirname, 'notes', path)))
   }
@@ -209,7 +209,7 @@ test('[05-16.23] a stranger who opens the test address of a workspace is let thr
   await at.workspaces.run(at.made.id)
   const mine = await calledAt(at.port, nameOf(at.made.id), 'whoAmI', {})
   assert.equal(mine.ok, false)
-  assert.equal(mine.error?.code, 'T0006')
+  assert.equal(mine.error?.code, 'F0006')
   const open = await calledAt(at.port, nameOf(at.made.id), 'allNotes', {})
   assert.equal(open.ok, true)
   const page = readFileSync(

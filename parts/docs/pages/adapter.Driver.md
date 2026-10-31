@@ -35,8 +35,8 @@ What `env` gives:
 
 | Member | Is |
 |---|---|
-| `call(name, args)` | A call of the runtime, made as the starter of the run, in the call context of the step it is made in: a function by its name with `[input]`, a model call as `call('writer.reply', [...])`, a service call as `call('slack.postMessage', [...])`. A function is held to its own rule for that starter, as a call from the starter's page is, so one that its `access` keeps from them is `code.T3101` |
-| `allow({ model, call, caller, run })` | Holds the limits of a model for a caller, and of the run, before a call that the driver makes itself: one that was reached throws `code.T7102` |
+| `call(name, args)` | A call of the runtime, made as the starter of the run, in the call context of the step it is made in: a function by its name with `[input]`, a model call as `call('writer.reply', [...])`, a service call as `call('slack.postMessage', [...])`. A function is held to its own rule for that starter, as a call from the starter's page is, so one that its `access` keeps from them is `code.F3101` |
+| `allow({ model, call, caller, run })` | Holds the limits of a model for a caller, and of the run, before a call that the driver makes itself: one that was reached throws `code.F7102` |
 | `used({ name, answeredBy, kind, caller, run, units, ms, ok })` | Books what such a call used in the counts and the log, as the model layer does: `units` as `{ tokensIn, tokensOut }` |
 | `tell(run, part)` | Tells whoever follows the run a part: `{ kind: 'text', step, text }`, the next piece of the answer of that step, which `answer` of `useAgent` shows as it grows, and `{ kind: 'reasoning', step, text }` |
 | `description(version)` | The description of the version the run works on, `run.version` |
@@ -45,9 +45,9 @@ What `env` gives:
 | `providers`, `standIn(model)` | The providers made in `engine.ts`, by name, and the stand-in of a test for a model, where `app.fake` made one |
 | `now()`, `sleep(ms)` | The engine's clock, which the clock of a test moves |
 
-A driver is the whole body of the run. What the engine's own loop does with the other options of the agent - its `tools`, `memory`, `questions`, `trust`, `guards`, `knows`, `handsOver` and `voice` - is that loop's: a driver of your own reads them from `run.record`, the record of the agent, and does what it keeps of them itself. A memory table states no `add` rule, so a driver writes its rows through a change of the app that states `system`; the rows are those of `code.T7007`, so a chat screen draws them as it draws the engine's own.
+A driver is the whole body of the run. What the engine's own loop does with the other options of the agent - its `tools`, `memory`, `questions`, `trust`, `guards`, `knows`, `handsOver` and `voice` - is that loop's: a driver of your own reads them from `run.record`, the record of the agent, and does what it keeps of them itself. A memory table states no `add` rule, so a driver writes its rows through a change of the app that states `system`; the rows are those of `code.F7007`, so a chat screen draws them as it draws the engine's own.
 
-`Driver` and `DriverSteps` are declared in `tentjs/flows`, and `AiEnv` in `tentjs/ai`, which `tentjs/engine` gives again: `engine.ts` imports them as types. An agent that names a driver that nobody made stops the app from opening (`code.T7114`).
+`Driver` and `DriverSteps` are declared in `forjr/flows`, and `AiEnv` in `forjr/ai`, which `forjr/engine` gives again: `engine.ts` imports them as types. An agent that names a driver that nobody made stops the app from opening (`code.F7114`).
 
 ## Example
 
@@ -61,8 +61,8 @@ export const helper = agent('helper', {
 })
 
 // engine.ts
-import type { AiEnv, Makers } from 'tentjs/engine'
-import type { Driver } from 'tentjs/flows'
+import type { AiEnv, Makers } from 'forjr/engine'
+import type { Driver } from 'forjr/flows'
 
 const planner = (env: AiEnv): Driver => async ({ input, step }) => {
   const plan = await step('plan', () => env.call('writer.reply', [`Plan the steps for: ${JSON.stringify(input)}`]))

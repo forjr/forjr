@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { screen, read, useGoTo, Form, Link } from 'tentjs/ui'
+import { screen, read, useGoTo, Form, Link } from 'forjr/ui'
 import { addOrder, openOrders, ordersOnce, rates, rushOrder } from './functions'
 
 // Moves that are disabled.

@@ -1,4 +1,4 @@
-import { list, project, table, text } from 'tentjs'
+import { list, project, table, text } from 'forjr'
 
 export const followed = project('followed', { limits: { anyonePerMinute: 100000, callerPerMinute: 100000 } })
 

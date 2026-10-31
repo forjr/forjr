@@ -6,7 +6,7 @@ import { addOrder, addTeam, deskOf, fileOf, readFile, titlesOf } from './desks.t
 
 /** Whether the directory of a data folder marks the file of a tenant as open. */
 const markedOpen = (dataFolder: string, id: string): unknown[] =>
-  readFile(join(dataFolder, 'data.db'), `SELECT "open" FROM "_t_tenants" WHERE "rowId" = '${id}'`).map(
+  readFile(join(dataFolder, 'data.db'), `SELECT "open" FROM "_f_tenants" WHERE "rowId" = '${id}'`).map(
     (row) => row.open,
   )
 

@@ -51,7 +51,7 @@ function perRunOf(o: Opened, run: RunView): Record<string, number> {
 /**
  * Takes an app, the run a model call is made in or a task is handed out for, and what that task reserves. Holds
  * that run and every run above it to its `perRun`, unit by unit, against what it used with the runs it called, and
- * a unit that the task reserves with that added. Throws T7102, naming the limit and the unit, at one that was
+ * a unit that the task reserves with that added. Throws F7102, naming the limit and the unit, at one that was
  * reached: what the calls under way used can pass it.
  */
 export function runAllowed(o: Opened, run: string, reserve: Record<string, number> = {}): void {

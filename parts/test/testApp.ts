@@ -5,7 +5,7 @@ import { join, resolve } from 'node:path'
 import { after } from 'node:test'
 import { buildProject } from '../build/index.ts'
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { App, Unsent } from '../engine/index.ts'
 import { noteOpened, noteUnheld } from '../engine/index.ts'
 import { keysOfProject, testSecrets } from './secrets.ts'
@@ -65,7 +65,7 @@ export interface TestOptions {
   secrets?: Record<string, string>
   /** The services that are let through to where they are: every other one fails its calls until it is faked. */
   real?: string[]
-  /** Where the code of the app runs: `tenant`, the test room, which crosses every call; the room of the program where it is left out, unless the run states `TENT_ROOM=apart`. */
+  /** Where the code of the app runs: `tenant`, the test room, which crosses every call; the room of the program where it is left out, unless the run states `FORJR_ROOM=apart`. */
   room?: TestRoom
   /**
    * `'held'`: the clock of the app stands until the test moves it, with `app.clock.advance` and `app.clock.set`, as
@@ -85,7 +85,7 @@ export interface TestOptions {
  * removes its temporary data.
  */
 export interface TestApp extends App {
-  /** Adds a row to `users` with those columns, as the system, and answers a caller. T0014 with no `users` table. */
+  /** Adds a row to `users` with those columns, as the system, and answers a caller. F0014 with no `users` table. */
   user(values?: Record<string, unknown>): Promise<Caller>
   /** Writes that many rows of a table as the system, each filled from its types where the function gives no value. */
   make(
@@ -191,7 +191,7 @@ function faceOf(
 ): TestReader {
   const app = (): App => {
     if (!machine.app)
-      throw new TentError('T0013', 'This machine of the test was closed or killed.', {
+      throw new ForjrError('F0013', 'This machine of the test was closed or killed.', {
         fix: 'Open it again with `restart`.',
       })
     return machine.app
@@ -342,7 +342,7 @@ function faceOf(
       await closeMachine(machine)
       if (o.at) putBack(machine, o.at.file)
       const of = o.reads ? machines.get(o.reads) : undefined
-      if (o.reads && !of) throw new TentError('T0013', '`reads` of `restart` names a test app of this test.')
+      if (o.reads && !of) throw new ForjrError('F0013', '`reads` of `restart` names a test app of this test.')
       if (of) await openReader(world, machine, of)
       else await openWriter(world, machine)
       fakes.standIns()
@@ -375,9 +375,9 @@ function faceOf(
  */
 export async function testApp(options: TestOptions = {}): Promise<TestApp> {
   const project = resolve(options.folder ?? process.cwd())
-  // Under `tent test`, an app opened by a hook of a whole file is shared by its tests, which then run whole.
+  // Under `forjr test`, an app opened by a hook of a whole file is shared by its tests, which then run whole.
   noteOpened()
-  const home = mkdtempSync(join(tmpdir(), 'tent-test-'))
+  const home = mkdtempSync(join(tmpdir(), 'forjr-test-'))
   const { clock, moves } = testClock({ held: options.clock === 'held' })
   const { random } = chanceOf(options.randomSeed)
   let world: World | undefined
@@ -401,8 +401,8 @@ export async function testApp(options: TestOptions = {}): Promise<TestApp> {
       const told = errors.map(
         (one) => `${one.code} ${one.where ? `${one.where.file}:${one.where.line} ` : ''}${one.message}`,
       )
-      throw new TentError(first.code, `The project ${project} does not build:\n${told.join('\n')}`, {
-        fix: first.fix ?? 'Run `tent check`, and mend what it finds.',
+      throw new ForjrError(first.code, `The project ${project} does not build:\n${told.join('\n')}`, {
+        fix: first.fix ?? 'Run `forjr check`, and mend what it finds.',
         ...(first.where ? { where: first.where } : {}),
       })
     }
@@ -412,7 +412,7 @@ export async function testApp(options: TestOptions = {}): Promise<TestApp> {
     if (room) world.room = room
     const writer = machineIn(world, 'data')
     writer.folder = join(home, 'data')
-    // A test of AI behaviour, which `tent test --ai` runs, has the keys of the project's own test data.
+    // A test of AI behaviour, which `forjr test --ai` runs, has the keys of the project's own test data.
     keysOfProject(writer.folder)
     testSecrets(writer.folder, built.description, options.secrets ?? {})
     const app = await openWriter(world, writer)

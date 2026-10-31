@@ -10,7 +10,7 @@ import { copyOf } from './projects.ts'
 const escape = String.fromCharCode(27)
 
 test('[14-10@5] where the builder fails, the words of a finding hold no color of a terminal: for a screen file and for a backend file that are run', async () => {
-  const head = "import { useState } from 'react'\nimport { screen } from 'tentjs/ui'\n"
+  const head = "import { useState } from 'react'\nimport { screen } from 'forjr/ui'\n"
   const ways: Record<string, Record<string, string>> = {
     // A screen file that is run, since its view holds a hook, and that names a file which is not there.
     'a screen file': {
@@ -19,7 +19,7 @@ test('[14-10@5] where the builder fails, the words of a finding hold no color of
     // A backend file that is run, since its action is code, and that names a file which is not there.
     'a backend file': {
       'functions/more.ts':
-        "import { action } from 'tentjs'\nimport { gone } from './gone'\nexport const more = action('more', { access: 'anyone', run: async () => String(gone) })\n",
+        "import { action } from 'forjr'\nimport { gone } from './gone'\nexport const more = action('more', { access: 'anyone', run: async () => String(gone) })\n",
     },
   }
   for (const [name, files] of Object.entries(ways)) {

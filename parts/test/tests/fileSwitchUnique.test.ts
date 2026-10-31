@@ -46,7 +46,7 @@ test('[50-5@6] the index of a new unique rule is made at the check, in each file
   // One team holds two orders of one code: the check holds the files that fit, and refuses the switch for that one.
   await addOrder(app, teams[9], 'a third', { code: 'A' })
   const version = await app.add(unique)
-  assert.equal(await codeOf(app.switch(version)), 'T2001')
+  assert.equal(await codeOf(app.switch(version)), 'F2001')
   assert.equal(running(app), first)
   // No hold outlives its check, and neither does its index: every file is as it stood.
   await until(
@@ -81,5 +81,5 @@ test('[50-5@6] the index of a new unique rule is made at the check, in each file
   assert.ok(held > 0, 'a file was read while the pass had not reached it')
   await until('the pass has ended', async () => (await listed(app, dataFolder)).files.every((one) => !one.behind), 3000)
   await moment(100)
-  assert.equal(await codeOf(addOrder(app, teams[1], 'a second A', { code: 'A' })), 'T2101')
+  assert.equal(await codeOf(addOrder(app, teams[1], 'a second A', { code: 'A' })), 'F2101')
 })

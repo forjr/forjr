@@ -1,11 +1,11 @@
 import assert from 'node:assert/strict'
-import { existsSync, readFileSync, writeFileSync } from 'node:fs'
+import { existsSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import type { TestContext } from 'node:test'
 import { test } from 'node:test'
-import { pull, push } from '../index.ts'
+import { pull, push, publish } from '../index.ts'
 import type { Computer, Server } from './server.ts'
-import { ada, computer, describedNow, fetched, folderOf, started } from './server.ts'
+import { ada, computer, describedNow, fetched, folderOf, started, sent } from './server.ts'
 
 const functions = 'functions/orders.ts'
 const tables = 'tables/orders.ts'
@@ -60,7 +60,7 @@ test('[40-21] a push to a server whose pointer moved, where the two changed othe
   assert.ok(text.includes('.limit(50)') && text.includes('text({ min: 3 })'), 'the files hold what both changed')
 })
 
-test('[40-21] other fields of one definition merge on the server; one field both changed is T9103, and nothing on the server moves', async (t) => {
+test('[40-21] other fields of one definition merge on the server; one field both changed is F9103, and nothing on the server moves', async (t) => {
   const { server, one, two, to } = await twoComputers(t)
   one.edit(functions, ".limit(input('limit'))", '.limit(50)')
   await one.save()
@@ -86,7 +86,7 @@ test('[40-21] other fields of one definition merge on the server; one field both
   await push({ history: one.history, to, fetch: fetched })
   const standing = server.history.pointer('main')
   const refused = await refusal(push({ history: two.history, to, fetch: fetched }))
-  assert.equal(refused?.code, 'T9103')
+  assert.equal(refused?.code, 'F9103')
   assert.equal(Object(refused?.fields).reason, 'pointer-moved')
   assert.equal(server.history.pointer('main'), standing)
 })
@@ -123,7 +123,7 @@ test('[40-21] two pushes at one moment are merged one after the other', async (t
     assert.ok(all.has(String(side.history.pointer('now'))), 'each push is in what the branch holds')
 })
 
-test('[40-21] two pushes that touch other paths and do not fit - a column renamed beside a query that reads its old name - are T9103 with the finding of the merged project', async (t) => {
+test('[40-21] two pushes that touch other paths and do not fit - a column renamed beside a query that reads its old name - are F9103 with the finding of the merged project', async (t) => {
   const { server, one, two, to } = await twoComputers(t)
   one.edit(tables, '    title: text({ min: 1, max: 80 }),', "    name: text({ min: 1, max: 80, was: ['title'] }),")
   one.edit(
@@ -134,13 +134,62 @@ test('[40-21] two pushes that touch other paths and do not fit - a column rename
   await one.save()
   writeFileSync(
     join(two.project, 'functions', 'titled.ts'),
-    "import { query } from 'tentjs'\nimport { orders } from '../tables/orders'\n\nexport const titled = query('titled', { access: 'signedIn', rows: orders.where({ title: 'first' }) })\n",
+    "import { query } from 'forjr'\nimport { orders } from '../tables/orders'\n\nexport const titled = query('titled', { access: 'signedIn', rows: orders.where({ title: 'first' }) })\n",
   )
   await two.save()
   await push({ history: one.history, to, fetch: fetched })
   const standing = server.history.pointer('main')
   const refused = await refusal(push({ history: two.history, to, fetch: fetched }))
-  assert.equal(refused?.code, 'T9103', String(refused?.message))
+  assert.equal(refused?.code, 'F9103', String(refused?.message))
   assert.equal(Object(refused?.fields).reason, 'check')
+  assert.equal(server.history.pointer('main'), standing, 'nothing on the server moves')
+})
+
+test('[40-15] a key with publish alone publishes and is refused the source, and one with push cannot publish', async (t) => {
+  const folder = folderOf(t)
+  const server = await started(t, folder)
+  const here = computer(t, folder, 'here')
+  const head = await here.save()
+  const pusher = server.key(['read', 'push'])
+  const refused = await publish({ project: here.project, history: here.history, to: pusher, fetch: fetched }).then(
+    () => undefined,
+    (error: { code?: string }) => error.code,
+  )
+  assert.equal(refused, 'F9104')
+  const deploy = server.key(['publish'])
+  const done = await publish({ project: here.project, history: here.history, to: deploy, fetch: fetched })
+  assert.equal(server.app.versions().find((one) => one.running)?.id, done.version)
+  const source = Object.values(here.history.read(head)?.files ?? {})[0]
+  const fetchedSource = await sent(server, '/_f/sync/blobs', { want: [source] }, deploy.key)
+  assert.equal(Object(fetchedSource.answer.error).code, 'F9104')
+  const points = await sent(server, '/_f/sync/points', { from: 'live', have: [] }, deploy.key)
+  assert.equal(Object(points.answer.error).code, 'F9104')
+})
+
+test('[40-8] a pull into a history that holds nothing yet is a merge, and never writes over a change of the files that no point holds', async (t) => {
+  const folder = folderOf(t)
+  const server = await started(t, folder)
+  const to = server.key(['read', 'push'])
+  const one = computer(t, folder, 'one')
+  await one.save()
+  await push({ history: one.history, to, fetch: fetched })
+  // Another computer whose history was lost: its files hold a change of its own that no point holds.
+  const two = computer(t, folder, 'two')
+  two.edit('notes.md', '# Notes', '# Notes\n\nWritten here, and recorded nowhere.')
+  await pull({ project: two.project, history: two.history, from: to, fetch: fetched, by: ada })
+  assert.match(readFileSync(join(two.project, 'notes.md'), 'utf8'), /recorded nowhere/)
+})
+
+test('[40-21] a merge on the server whose merged project cannot be described at all lands nothing: the branch stays where it stood', async (t) => {
+  const { server, one, two, to } = await twoComputers(t)
+  one.edit(functions, ".limit(input('limit'))", '.limit(50)')
+  await one.save()
+  // The other side touches another path alone: the file of the project.
+  rmSync(join(two.project, 'forjr.ts'))
+  two.history.record(two.project, { by: ada, kind: 'command', checked: true })
+  await push({ history: one.history, to, fetch: fetched })
+  const standing = server.history.pointer('main')
+  const refused = await refusal(push({ history: two.history, to, fetch: fetched }))
+  assert.notEqual(refused, undefined, 'the push is refused')
   assert.equal(server.history.pointer('main'), standing, 'nothing on the server moves')
 })

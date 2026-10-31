@@ -5,7 +5,7 @@ import { storedLimit } from '../limits.ts'
 import type { Opened } from '../opened.ts'
 import { whoOf } from './streams.ts'
 
-/** A call that asks a person, as the engine keeps it under the door's text of its T7120 for the page of `/_t/ask`. */
+/** A call that asks a person, as the engine keeps it under the door's text of its F7120 for the page of `/_f/ask`. */
 export interface Waiting {
   name: string
   input: unknown
@@ -20,7 +20,7 @@ export interface Waiting {
   more?: boolean
 }
 
-/** The calls that the T7120 of the ask of a sequence lists, and whether more may follow, where it lists any. */
+/** The calls that the F7120 of the ask of a sequence lists, and whether more may follow, where it lists any. */
 export function listedOf(fields: Record<string, string> | undefined): Pick<Waiting, 'sequence' | 'more'> {
   let listed: unknown
   try {
@@ -53,7 +53,7 @@ function heldOf(o: Opened): Held {
   return made
 }
 
-/** Whether an ask of `/_t/ask` waits for its answer, or a yes or a used text of one is kept: the app is in use. */
+/** Whether an ask of `/_f/ask` waits for its answer, or a yes or a used text of one is kept: the app is in use. */
 export function askingKept(o: Opened): boolean {
   if (!held.has(o)) return false
   const { waiting, agreed, answered } = heldOf(o)
@@ -77,7 +77,7 @@ export const askedCallOf = (name: string, input: unknown, caller: Caller): strin
 
 const lifeOf = (o: Opened): number => storedLimit(o.description, 'askTime')
 
-/** Keeps a call that asks a person, for the page of `/_t/ask`, for `askTime` and within `callSize`. */
+/** Keeps a call that asks a person, for the page of `/_f/ask`, for `askTime` and within `callSize`. */
 export function keepWaiting(o: Opened, text: string, one: Waiting): boolean {
   if (steady(one.input).length > storedLimit(o.description, 'callSize')) return false
   heldOf(o).waiting.set(text, { one, until: o.clock.now() + lifeOf(o) })

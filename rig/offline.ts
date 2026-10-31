@@ -132,7 +132,7 @@ for (const line of Array.isArray(pinned) ? pinned : []) {
     writeFileSync(at, text)
   }
 }
-process.env.TENT_HOME = home
+process.env.FORJR_HOME = home
 process.on('exit', () => rmSync(home, { recursive: true, force: true, maxRetries: 5, retryDelay: 50 }))
 
 /** Whether bytes have a fingerprint as the list writes it: SHA-256 in hex, or SHA-512 in base64 after `sha512-`. */

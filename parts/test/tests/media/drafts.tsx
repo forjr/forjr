@@ -1,4 +1,4 @@
-import { screen, read, Image } from 'tentjs/ui'
+import { screen, read, Image } from 'forjr/ui'
 import { allDrafts } from './functions'
 
 // The drafts, whose photos a visitor may not download.

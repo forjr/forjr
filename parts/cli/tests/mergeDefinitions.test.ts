@@ -2,7 +2,12 @@ import assert from 'node:assert/strict'
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
 import { test } from 'node:test'
-import { ada, describedNow, textIn, twoSides } from './merging.ts'
+import { ada, describedNow, textIn, twoSides, edit } from './merging.ts'
+import type { TestContext } from 'node:test'
+import type { History } from '../../history/index.ts'
+import { openHistory } from '../../history/index.ts'
+import type { Edits } from './merging.ts'
+import { copied } from './typed.ts'
 
 const functions = 'functions/orders.ts'
 const tables = 'tables/orders.ts'
@@ -39,7 +44,7 @@ test('[40-4] a plain definition that both changed in other fields is merged and 
   const record = Object(description.functions.openOrders)
   assert.deepEqual(record.access, { rule: 'nobody' })
   assert.match(JSON.stringify(record), /"limit":50/)
-  assert.equal(existsSync(join(two.project, 'tent.clash.ts')), false)
+  assert.equal(existsSync(join(two.project, 'forjr.clash.ts')), false)
 })
 
 test('[40-4] a definition that only their side changed is taken as their text, so its comments and its layout stay', async (t) => {
@@ -79,7 +84,7 @@ test('[40-4] two sides that changed one list with no names clash, and the clash 
     [['table', 'orders', ['columns', 'state', 'values']]],
   )
   assert.equal(textIn(two.project, tables), two.texts.ours[tables], 'ours stays in its file')
-  const clash = textIn(two.project, 'tent.clash.ts')
+  const clash = textIn(two.project, 'forjr.clash.ts')
   assert.match(
     clash,
     /\/\/ 1\. table orders \(tables\/orders\.ts\): columns\.state\.values - ours \["open","sent","done","lost"\], theirs \["new","sent","done"\], before \["open","sent","done"\]/,
@@ -99,7 +104,7 @@ test('[40-4] a plain definition both changed whose text reads a name that no rec
   assert.equal(merged.point?.unsettled, true)
   assert.equal(textIn(two.project, tables), two.texts.ours[tables])
   assert.match(
-    textIn(two.project, 'tent.clash.ts'),
+    textIn(two.project, 'forjr.clash.ts'),
     /\/\/ 1\. table orders \(tables\/orders\.ts\): both changed it, and ours reads NOTE_LENGTH on line \d+, which no record holds\nexport const orders__theirs = table\('orders'/,
   )
 })
@@ -207,7 +212,7 @@ test('[40-4] a definition that one side removed and the other changed clashes wh
   assert.equal(merged.point?.unsettled, true)
   assert.ok(!textIn(two.project, tables).includes('export const clients'))
   assert.match(
-    textIn(two.project, 'tent.clash.ts'),
+    textIn(two.project, 'forjr.clash.ts'),
     /\/\/ 1\. table clients \(tables\/orders\.ts\): removed here, and changed there\nexport const clients__theirs = table\('clients'/,
   )
 })
@@ -235,10 +240,67 @@ test('[40-4] a code definition merges line by line: other lines are both taken, 
     apart.clashes.map((one) => [one.what, one.name]),
     [['action', 'refund']],
   )
-  const clash = textIn(clashing.project, 'tent.clash.ts')
+  const clash = textIn(clashing.project, 'forjr.clash.ts')
   assert.match(
     clash,
     /\/\/ 1\. action refund \(functions\/orders\.ts\): code, lines \d+ to \d+\n\/\* ours\n {2}\s*const third = second\.slice\(0, 5\)\ntheirs\n {2}\s*const third = second\.slice\(1, 4\)\n\*\//,
   )
   assert.equal(textIn(clashing.project, functions), clashing.texts.ours[functions])
+})
+
+/** The project `merging`, changed first as the base asks, with main and the branch `side` each changed after it. */
+async function twoSidesOf(t: TestContext, name: string, base: Edits, ours: Edits, theirs: Edits) {
+  let history: History | undefined
+  t.after(() => history?.close())
+  const project = copied(t, name, 'merging')
+  edit(project, base)
+  history = openHistory(join(project, '.forjr'))
+  history.record(project, { by: ada, kind: 'save', description: await describedNow(project) })
+  history.branch('side')
+  history.switch(project, 'side', ada)
+  edit(project, theirs)
+  history.record(project, { by: ada, kind: 'save', description: await describedNow(project) })
+  history.switch(project, 'main', ada)
+  edit(project, ours)
+  history.record(project, { by: ada, kind: 'save', description: await describedNow(project) })
+  return { project, history }
+}
+
+/** Both sides change other fields of the table `orders`, whose text reads a name the file brought in. */
+const bothChange: [Edits, Edits] = [
+  { [tables]: [['title: text({ min: 1, max: 80 })', 'title: text({ min: 2, max: 80 })']] },
+  { [tables]: [['total: number({ min: 0 })', 'total: number({ min: 1 })']] },
+]
+
+test('[40-4] a plain definition that both changed, whose text reads a name imported on lines of their own, is never written with the value in place of the name', async (t) => {
+  const limits = 'export const NOTE_MAX = 200\nexport const TITLE_MAX = 80\n'
+  const base: Edits = {
+    'tables/limits.ts': limits,
+    [tables]: [
+      [
+        "import { boolean, choice, number, table, text } from 'forjr'\n",
+        "import { boolean, choice, number, table, text } from 'forjr'\nimport {\n  NOTE_MAX,\n  TITLE_MAX,\n} from './limits'\n",
+      ],
+      ['note: text({ optional: true, max: NOTE_LENGTH })', 'note: text({ optional: true, max: NOTE_MAX })'],
+    ],
+  }
+  const two = await twoSidesOf(t, 'merge-reads-lines', base, ...bothChange)
+  const merged = two.history.merge(two.project, 'side', ada)
+  const text = textIn(two.project, tables)
+  if (merged.clashes.length === 0) assert.match(text, /max: NOTE_MAX/, `the merged text reads the name still:\n${text}`)
+  else assert.equal(merged.point?.unsettled, true)
+})
+
+test('[40-4] a plain definition that both changed, whose text reads a name the file gives by taking a list apart, is never written with the value in place of the name', async (t) => {
+  const base: Edits = {
+    [tables]: [
+      ['const NOTE_LENGTH = 200\n', 'const NOTE_LENGTH = 200\nconst [NOTE_MAX] = [300]\n'],
+      ['note: text({ optional: true, max: NOTE_LENGTH })', 'note: text({ optional: true, max: NOTE_MAX })'],
+    ],
+  }
+  const two = await twoSidesOf(t, 'merge-reads-list', base, ...bothChange)
+  const merged = two.history.merge(two.project, 'side', ada)
+  const text = textIn(two.project, tables)
+  if (merged.clashes.length === 0) assert.match(text, /max: NOTE_MAX/, `the merged text reads the name still:\n${text}`)
+  else assert.equal(merged.point?.unsettled, true)
 })

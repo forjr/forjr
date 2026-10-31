@@ -37,7 +37,7 @@ async function refusedAt(browser: Pick<TestBrowser, 'request'>, path: string, wh
   return answer.text()
 }
 
-test('[05-13.5] a client document inside this computer network is T0022, one of 10 MB is cut at 64 kB, and a thousand made-up names of a stranger fetch nothing', async (t) => {
+test('[05-13.5] a client document inside this computer network is F0022, one of 10 MB is cut at 64 kB, and a thousand made-up names of a stranger fetch nothing', async (t) => {
   const { app, ada } = await signedApp(t)
   const browser = app.browser({ as: ada })
   // A document that holds a fair client, followed by 10 MB of spaces: read whole it would be taken.
@@ -61,24 +61,24 @@ test('[05-13.5] a client document inside this computer network is T0022, one of 
     authorizeAt({ client: 'https://10.1.2.3/client.json', redirect, proof: proof() }),
     'a document inside the network',
   )
-  assert.match(inside, /T0022/)
+  assert.match(inside, /F0022/)
 })
 
-test('[05-13.9] a page of another site that posts a yes to /_t/oauth/decide in the visitor name is T0004, and without the engine text nothing is granted', async (t) => {
+test('[05-13.9] a page of another site that posts a yes to /_f/oauth/decide in the visitor name is F0004, and without the engine text nothing is granted', async (t) => {
   const { app, ada } = await signedApp(t)
   const chat = await chatApp(t)
   const browser = app.browser({ as: ada })
   const page = await browser.request('GET', authorizeAt({ client: chat.id, redirect, proof: proof() }))
   const { text } = decideFormOf(await page.text())
   assert.ok(text)
-  const forged = await browser.request('POST', '/_t/oauth/decide', {
+  const forged = await browser.request('POST', '/_f/oauth/decide', {
     headers: { 'content-type': 'application/x-www-form-urlencoded', origin: 'https://evil.example' },
     body: new URLSearchParams({ t: text, answer: 'allow' }).toString(),
   })
   assert.equal(forged.status, 403)
-  assert.match(await forged.text(), /T0004/)
+  assert.match(await forged.text(), /F0004/)
   assert.equal(returned(forged).code, '')
-  const bare = await browser.request('POST', '/_t/oauth/decide', {
+  const bare = await browser.request('POST', '/_f/oauth/decide', {
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ answer: 'allow' }).toString(),
   })
@@ -97,7 +97,7 @@ test('[05-13.10] the page that asks for a yes may be shown in a frame by no site
   assert.match(String(page.headers.get('content-security-policy')), /frame-ancestors 'none'/)
 })
 
-test('[05-13.16] a key and a token sent to /_t/oauth/authorize and to /_t/oauth/decide in a person name are nobody', async (t) => {
+test('[05-13.16] a key and a token sent to /_f/oauth/authorize and to /_f/oauth/decide in a person name are nobody', async (t) => {
   const { app, ada } = await signedApp(t)
   const chat = await chatApp(t)
   const { key } = await app.key({ user: callerIdOf(ada), scopes: ['*'] })
@@ -120,7 +120,7 @@ test('[05-13.16] a key and a token sent to /_t/oauth/authorize and to /_t/oauth/
     ['a token', access],
   ]) {
     const posted = await app.request(
-      new Request('http://localhost/_t/oauth/decide', {
+      new Request('http://localhost/_f/oauth/decide', {
         method: 'POST',
         headers: { authorization: `Bearer ${one}`, 'content-type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ t: text, answer: 'allow' }).toString(),
@@ -146,7 +146,7 @@ test('[05-13.19] a return address that is a script or a scheme of a program, and
     await refusedAt(browser, authorizeAt({ client: chat.id, redirect: back, proof: proof() }), back)
 })
 
-test('[05-13.31] a made-up client document named by a signed-in person a thousand times is T0005 from the 11th of a minute', async (t) => {
+test('[05-13.31] a made-up client document named by a signed-in person a thousand times is F0005 from the 11th of a minute', async (t) => {
   const { app, ada } = await signedApp(t)
   const chat = await chatApp(t)
   const browser = app.browser({ as: ada })
@@ -157,10 +157,10 @@ test('[05-13.31] a made-up client document named by a signed-in person a thousan
       authorizeAt({ client: `${chat.remote.origin}/made-up-${n}.json`, redirect, proof: proof() }),
       `made-up ${n}`,
     )
-    codes.push(/T0005/.test(html) ? 'T0005' : 'other')
+    codes.push(/F0005/.test(html) ? 'F0005' : 'other')
   }
   assert.deepEqual(codes.slice(0, 10), Array(10).fill('other'))
-  assert.deepEqual(codes.slice(10), ['T0005', 'T0005'])
+  assert.deepEqual(codes.slice(10), ['F0005', 'F0005'])
 })
 
 test('[05-13.32] a renewal token sent as the token of a request is nobody, an access token at the token address is refused, and a renewal under another client name is refused', async (t) => {
@@ -188,7 +188,7 @@ test('[05-13.32] a renewal token sent as the token of a request is nobody, an ac
   assert.equal(own.status, 200)
 })
 
-test('[05-13.37] the text r changed by one letter, used after its hour, and used by another signed-in person is the error screen with T0002, and no return', async (t) => {
+test('[05-13.37] the text r changed by one letter, used after its hour, and used by another signed-in person is the error screen with F0002, and no return', async (t) => {
   const { app } = await signedApp(t)
   const bob = await app.user({ email: 'bob@example.com' })
   const chat = await chatApp(t)
@@ -199,10 +199,10 @@ test('[05-13.37] the text r changed by one letter, used after its hour, and used
   await ada.call('signIn', { email: 'ada@example.com' })
   assert.equal((await ada.request('GET', back)).status, 200, 'the person who signed in is asked')
   const changed = `${sealed.slice(0, 10)}${sealed[10] === 'A' ? 'B' : 'A'}${sealed.slice(11)}`
-  assert.match(await refusedAt(ada, `/_t/oauth/authorize?r=${changed}`, 'one letter changed'), /T0002/)
-  assert.match(await refusedAt(app.browser({ as: bob }), back, 'another signed-in person'), /T0002/)
+  assert.match(await refusedAt(ada, `/_f/oauth/authorize?r=${changed}`, 'one letter changed'), /F0002/)
+  assert.match(await refusedAt(app.browser({ as: bob }), back, 'another signed-in person'), /F0002/)
   app.clock.advance('61 minutes')
-  assert.match(await refusedAt(ada, back, 'after its hour'), /T0002/)
+  assert.match(await refusedAt(ada, back, 'after its hour'), /F0002/)
 })
 
 test('[05-13.42] a stated client `for: app` sent back to an address it does not list is refused', async (t) => {
@@ -245,14 +245,14 @@ test("[05-13.15] [20-7@9b] a person's removal removes the rows of their grants, 
   await signedWith(via, sessionBrowser(at.app, ada, at.address), { client: chat.id, redirect, scope: 'read' })
   const grants = (): number => {
     const data = new DatabaseSync(join(at.dataFolder, 'data.db'), { readOnly: true })
-    const rows = data.prepare('SELECT id FROM _t_oauth').all()
+    const rows = data.prepare('SELECT id FROM _f_oauth').all()
     data.close()
     return rows.length
   }
   assert.equal(grants(), 1)
   const { token } = JSON.parse(readFileSync(join(at.dataFolder, 'engine.json'), 'utf8'))
   const removed = await at.app.request(
-    new Request(`${at.address}/_t/admin/data`, {
+    new Request(`${at.address}/_f/admin/data`, {
       method: 'POST',
       headers: { authorization: `Bearer ${token}`, 'content-type': 'application/json' },
       body: JSON.stringify({ args: { what: 'user', do: 'remove', id: ada, yes: true } }),

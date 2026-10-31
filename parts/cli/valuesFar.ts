@@ -4,7 +4,7 @@ import type { Asked } from './reach.ts'
 import { serverFetch, targetOf } from './targets.ts'
 
 /**
- * Hands a secret or a setting to the engine of a far server, with the key of the right `publish` that `tent login`
+ * Hands a secret or a setting to the engine of a far server, with the key of the right `publish` that `forjr login`
  * kept for it, or lists the names that are set there: never a value. Answers what the command prints.
  */
 export async function valuesFar(to: unknown, insecure: unknown, told: ValuesAsked): Promise<Asked> {
@@ -12,10 +12,10 @@ export async function valuesFar(to: unknown, insecure: unknown, told: ValuesAske
   const kind = told.kind === 'secrets' ? 'secret' : 'setting'
   const reaching = { to: target, fetch: serverFetch(insecure) }
   if (told.list) {
-    const listed = Object(await asked(reaching, '/_t/publish/values', { list: true }))
+    const listed = Object(await asked(reaching, '/_f/publish/values', { list: true }))
     return { value: kind === 'secret' ? { set: listed.secrets ?? [] } : { settings: listed.settings ?? [] } }
   }
-  await asked(reaching, '/_t/publish/values', {
+  await asked(reaching, '/_f/publish/values', {
     kind,
     name: told.name,
     ...(told.remove ? { remove: true } : { value: told.value }),

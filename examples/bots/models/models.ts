@@ -1,4 +1,4 @@
-import { model } from 'tentjs'
+import { model } from 'forjr'
 
 // The two Claude models that Claude Code is told to use. Claude Code itself calls them, on the person's own sign-in;
 // the driver books what each turn used, and these limits bound a day of it above the person's own limit.

@@ -1,4 +1,4 @@
-import { choice, link, role, table, text, vector } from 'tentjs'
+import { choice, link, role, table, text, vector } from 'forjr'
 import { embedder } from '../models/models'
 
 export const tickets = table('tickets', {

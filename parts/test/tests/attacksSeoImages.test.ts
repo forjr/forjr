@@ -16,7 +16,7 @@ function keptIn(dataFolder: string): string[] {
 
 /** The project of the pictures, with a limit of drawings a minute and products of each color it is handed. */
 const shop = (colors: string[], perMinute: number) => (folder: string) => {
-  const project = join(folder, 'tent.ts')
+  const project = join(folder, 'forjr.ts')
   writeFileSync(
     project,
     readFileSync(project, 'utf8').replace(
@@ -27,7 +27,7 @@ const shop = (colors: string[], perMinute: number) => (folder: string) => {
   const seeded = colors.map((color, n) => `  db.products.add({ title: 'Product ${n}', color: '${color}' })`).join('\n')
   writeFileSync(
     join(folder, 'seed.ts'),
-    `import { seed } from 'tentjs'\n\nexport default seed(({ db }) => {\n${seeded}\n})\n`,
+    `import { seed } from 'forjr'\n\nexport default seed(({ db }) => {\n${seeded}\n})\n`,
   )
 }
 
@@ -40,14 +40,14 @@ async function productsOf(at: Served): Promise<string[]> {
 test('[44-10.5] a stranger who asks for the pictures of many made-up addresses draws nothing: each answers 404 alike', async () => {
   const at = await served('seoImages', { change: shop(['#ff0000'], 30) })
   const made = [
-    ...Array.from({ length: 40 }, (_, n) => `/_t/seo/image/productScreen?/products/made-up-${n}`),
-    '/_t/seo/image/productScreen?/about',
-    '/_t/seo/image/productScreen?//elsewhere.example/products/1',
-    '/_t/seo/image/productScreen?https://elsewhere.example/products/1',
-    '/_t/seo/image/noSuchScreen?/products/1',
-    '/_t/seo/image/aboutScreen?/about',
-    '/_t/seo/image/productScreen?%E0%A4%A',
-    '/_t/seo/image/productScreen',
+    ...Array.from({ length: 40 }, (_, n) => `/_f/seo/image/productScreen?/products/made-up-${n}`),
+    '/_f/seo/image/productScreen?/about',
+    '/_f/seo/image/productScreen?//elsewhere.example/products/1',
+    '/_f/seo/image/productScreen?https://elsewhere.example/products/1',
+    '/_f/seo/image/noSuchScreen?/products/1',
+    '/_f/seo/image/aboutScreen?/about',
+    '/_f/seo/image/productScreen?%E0%A4%A',
+    '/_f/seo/image/productScreen',
   ]
   for (const path of made) {
     const answer = await fetch(`${at.address}${path}`)
@@ -61,7 +61,7 @@ test('[44-10.5] the drawings of pictures are bounded by seoImagesPerMinute for t
   const colors = ['#ff0000', '#00ff00', '#0000ff', '#ffff00', '#00ffff', '#ff00ff']
   const at = await served('seoImages', { change: shop(colors, 2) })
   const ids = await productsOf(at)
-  const picture = (id: string | undefined): string => `${at.address}/_t/seo/image/productScreen?/products/${String(id)}`
+  const picture = (id: string | undefined): string => `${at.address}/_f/seo/image/productScreen?/products/${String(id)}`
   // Asked at once, the drawings are made one after another: two in a minute, or four where they cross into the
   // next one, and the rest are refused.
   const began = Date.now()
@@ -85,7 +85,7 @@ test('[44-10.5] the drawings of pictures are bounded by seoImagesPerMinute for t
 test('[44-10.5] names after the question mark that are no state of the screen draw no new picture and keep no new file', async () => {
   const at = await served('seoImages', { change: shop(['#ff0000'], 30) })
   const [lamp] = await productsOf(at)
-  const address = `${at.address}/_t/seo/image/productScreen?/products/${String(lamp)}`
+  const address = `${at.address}/_f/seo/image/productScreen?/products/${String(lamp)}`
   for (const more of ['', '?x=1', '?x=2', '?made=up&more=3', '?utm_source=a']) {
     const answer = await fetch(`${address}${more}`)
     await answer.arrayBuffer()
@@ -98,11 +98,11 @@ test('[44-10.5] names after the question mark that are no state of the screen dr
 test('[44-10.6] the picture of a shared link is drawn as nobody, whatever the request that asks for it carries', async () => {
   const at = await served('seoImages', { change: shop(['#ff0000'], 30) })
   const [lamp] = await productsOf(at)
-  const address = `${at.address}/_t/seo/image/productScreen?/products/${String(lamp)}`
+  const address = `${at.address}/_f/seo/image/productScreen?/products/${String(lamp)}`
   const plain = new Uint8Array(await (await fetch(address)).arrayBuffer())
   const carried = await fetch(address, {
     headers: {
-      cookie: `tent_session.shop=${'s'.repeat(43)}; tent_visitor.shop=${'v'.repeat(32)}`,
+      cookie: `forjr_session.shop=${'s'.repeat(43)}; forjr_visitor.shop=${'v'.repeat(32)}`,
       authorization: 'Bearer made-up',
     },
   })

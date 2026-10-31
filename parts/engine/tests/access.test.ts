@@ -4,10 +4,10 @@ import { join } from 'node:path'
 import test from 'node:test'
 import { running, send } from './apps.ts'
 
-test('[15-6@7a] tent access prints each rule as it is written, a rule of a signed-in caller as `signedIn`, and no sign-up of the project', async (t) => {
+test('[15-6@7a] forjr access prints each rule as it is written, a rule of a signed-in caller as `signedIn`, and no sign-up of the project', async (t) => {
   const run = await running(t, { project: 'signedUp' })
   const token = String(JSON.parse(readFileSync(join(run.dataFolder, 'engine.json'), 'utf8')).token)
-  const answered = await send(run.app, `${run.origin}/_t/admin/access`, {
+  const answered = await send(run.app, `${run.origin}/_f/admin/access`, {
     body: JSON.stringify({ args: {} }),
     headers: { authorization: `Bearer ${token}` },
   })

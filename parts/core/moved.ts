@@ -3,7 +3,7 @@ import { cannot } from './word.ts'
 
 /**
  * Takes a word, a moment or a day, a length of time in words, and 1 for later or -1 for earlier. Answers it moved
- * by the length, in the kind it was handed, and nothing for nothing. Throws T0027 for a length that does not read,
+ * by the length, in the kind it was handed, and nothing for nothing. Throws F0027 for a length that does not read,
  * for a unit a day does not have, for a move that leaves the calendar, and for a value that is neither a moment
  * nor a day.
  */
@@ -29,7 +29,7 @@ function daysApart(a: string, b: string, unit: string): number {
 
 /**
  * Takes two moments or two days, and a unit. Answers how many whole units lie from the first to the second, and
- * nothing where either is nothing. Throws T0027 for one of each kind, and for a unit that the kind does not have.
+ * nothing where either is nothing. Throws F0027 for one of each kind, and for a unit that the kind does not have.
  */
 export function unitsBetween(a: unknown, b: unknown, unit: unknown): unknown {
   if (a === undefined || a === null || b === undefined || b === null) return undefined

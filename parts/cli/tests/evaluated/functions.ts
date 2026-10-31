@@ -1,4 +1,4 @@
-import { action, agent, change, list, model, number, query, secret, table, text } from 'tentjs'
+import { action, agent, change, list, model, number, query, secret, table, text } from 'forjr'
 
 export const users = table('users', {
   columns: { name: text({ optional: true }), roles: list(text()) },
@@ -19,7 +19,7 @@ export const addOrder = change('addOrder', {
   about: 'Adds an order',
   access: 'signedIn',
   input: { item: text() },
-  set: orders.add({ item: 'tent', total: 120 }),
+  set: orders.add({ item: 'forjr', total: 120 }),
 })
 
 export const refund = action('refund', {

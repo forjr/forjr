@@ -29,7 +29,7 @@ test('[17-1@4] app.kill() answers nothing and writes nothing more: an action tha
   )
   await app.kill()
   await under
-  assert.deepEqual(answered, [['refused', 'T0029']])
+  assert.deepEqual(answered, [['refused', 'F0029']])
   assert.equal(calls(dataFolder), before)
   // Opened again, the folder holds what it held, and answers.
   await app.restart()

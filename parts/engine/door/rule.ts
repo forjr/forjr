@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 
 /** What a caller is in the log: their kind, and the id of the user, the key or the grant where they are one. */
 export function callerOf(caller: Caller): { callerKind: string; callerId: string | undefined } {
@@ -14,15 +14,15 @@ const rolesOf = (caller: Caller): string[] => caller.key?.roles ?? caller.user?.
 const signedIn = (caller: Caller): boolean => caller.kind === 'user' || caller.kind === 'key' || caller.kind === 'mcp'
 
 /**
- * The refusal of a rule, for the caller it kept out: a caller who is nobody is told to sign in (T0006), and a
- * signed-in caller is denied (T3101).
+ * The refusal of a rule, for the caller it kept out: a caller who is nobody is told to sign in (F0006), and a
+ * signed-in caller is denied (F3101).
  */
-export function refusedBy(name: string, needs: string, caller: Caller): TentError {
+export function refusedBy(name: string, needs: string, caller: Caller): ForjrError {
   if (caller.kind === 'nobody')
-    return new TentError('T0006', `${name} ${needs}; the caller is not signed in.`, {
+    return new ForjrError('F0006', `${name} ${needs}; the caller is not signed in.`, {
       fix: 'Sign in, and call it again.',
     })
-  return new TentError('T3101', `${name} ${needs}; the caller is signed in and the rule does not let them in.`, {
+  return new ForjrError('F3101', `${name} ${needs}; the caller is signed in and the rule does not let them in.`, {
     fix: 'Call it as a caller that its rule lets in, or change its `access`.',
   })
 }

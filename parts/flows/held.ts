@@ -1,4 +1,4 @@
-import type { TentError } from '../core/index.ts'
+import type { ForjrError } from '../core/index.ts'
 import type { Tx } from '../data/index.ts'
 import type { Driver, Fired, RunnerEnv, StepAt } from './face.ts'
 import type { Queued } from './handOut.ts'
@@ -21,7 +21,7 @@ export interface AtWork {
 /** Who waits for the end of a run. */
 interface Waiter {
   done(answer: unknown): void
-  failed(error: TentError): void
+  failed(error: ForjrError): void
 }
 
 /** What one runner holds while it runs: what it was handed, and what is under way in this program. */

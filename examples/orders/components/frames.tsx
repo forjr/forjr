@@ -2,7 +2,7 @@ import '@fontsource-variable/inter'
 import '../screens/app.css'
 import { LayoutDashboard, LogOut, Package, ShoppingBag, Users } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { component, Form, Link, useTranslations } from 'tentjs/ui'
+import { component, Form, Link, useTranslations } from 'forjr/ui'
 import { signOut } from '../functions/signIn'
 import { button } from './ui'
 

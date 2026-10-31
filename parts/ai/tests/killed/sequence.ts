@@ -59,7 +59,7 @@ let id = found?.id
 if (!id) {
   const user = await app.call('addUser', { name: 'Maya' }, { as: system })
   const as = { kind: 'user', user: { id: String(Object(user).id), roles: [] } }
-  for (const total of [50, 150, 250, 350]) await app.call('addOrder', { item: 'tent', total }, { as })
+  for (const total of [50, 150, 250, 350]) await app.call('addOrder', { item: 'forjr', total }, { as })
   id = (await app.start('helper', { message: 'Mark the late ones.' }, { as })).run
 }
 const answer = await app.runs.wait(id)

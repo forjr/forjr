@@ -11,7 +11,7 @@ import { createEngine } from '../../engine/index.ts'
 import { endedBeforeFolders, workOf } from './secured.ts'
 import { notDropped } from './started.ts'
 
-// The attacks of the reviewer on moving an app: a copy of its data folder, started where it should not be.
+// Attacks on moving an app: a copy of its data folder, started where it should not be.
 
 const shop = fileURLToPath(new URL('./movedShop/', import.meta.url))
 const pages = fileURLToPath(new URL('../../docs/pages/', import.meta.url))
@@ -57,7 +57,7 @@ test('[05-18.10] the docs of moving an app say to stop the first engine before t
 })
 
 test('[05-18.11] a copy that is started with another key of the secrets opens no sealed column, and the error names the key', async (t) => {
-  const folder = workOf(t, 'review-key')
+  const folder = workOf(t, 'moved-key')
   const { bundle } = await built(folder, 'shop')
   const first = join(folder, 'a')
   cpSync(shop, join(folder, 'unused'), { recursive: true })
@@ -83,7 +83,7 @@ test('[05-18.11] a copy that is started with another key of the secrets opens no
 })
 
 test('[05-18.12] a copy whose versions/ lacks the version that a waiting run is pinned to: that run fails with an error that names the version, and the app opens', async (t) => {
-  const folder = workOf(t, 'review-versions')
+  const folder = workOf(t, 'moved-versions')
   const one = await built(folder, 'one')
   const order = ['$', '{input.order}'].join('')
   const two = await built(folder, 'two', [

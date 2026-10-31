@@ -40,7 +40,7 @@ export async function valuesOf(held: Held, id: string, o: ValuesAsked): Promise<
   }
   const live = held.o.live?.(id)
   if (live && 'key' in live) {
-    const answer = await asked({ to: live, fetch: held.o.fetch }, '/_t/publish/values', o.list ? { list: true } : ask)
+    const answer = await asked({ to: live, fetch: held.o.fetch }, '/_f/publish/values', o.list ? { list: true } : ask)
     return o.list ? (namesOf(answer) ?? []) : undefined
   }
   const app = await openLive(held, one)

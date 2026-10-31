@@ -1,4 +1,4 @@
-import { screen, upper, where } from 'tentjs/ui'
+import { screen, upper, where } from 'forjr/ui'
 
 // A view that works values out with value words: the open orders of a list, and a word in capitals.
 export const valuedScreen = screen('valuedScreen', {

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { storedLimit } from '../limits.ts'
 import type { Opened } from '../opened.ts'
 import { connectNow } from '../services/loaded.ts'
@@ -6,10 +6,10 @@ import { signingOf } from '../services/signing.ts'
 import { valuesOf } from '../values/ofApp.ts'
 import { isStored } from '../../core/internal.ts'
 
-/** T7118, from a check of the builder's own that threw. */
-const refused = (cause: unknown): TentError =>
+/** F7118, from a check of the builder's own that threw. */
+const refused = (cause: unknown): ForjrError =>
   Object.assign(
-    new TentError('T7118', 'The call could not be verified: the check of the scheme refused it.', {
+    new ForjrError('F7118', 'The call could not be verified: the check of the scheme refused it.', {
       fix: 'Send the call as the provider signs it.',
     }),
     { cause },
@@ -31,7 +31,7 @@ export function schemeOf(o: Opened, verify: unknown): { scheme: unknown; secret:
  * Takes an app, what a call coming in, or a route, is verified by, and the headers and the exact bytes that
  * arrived. Checks the signature by its scheme, with the secret of the app's mode, or asks the check of the builder's
  * own that a scheme `{ by }` names, and holds the time it answers to `limits.incomingAge`. Answers the id of the
- * call where it has one. Throws T7118 for a signature that does not hold, and T0009 for a secret with no value.
+ * call where it has one. Throws F7118 for a signature that does not hold, and F0009 for a secret with no value.
  */
 export async function verifyCall(
   o: Opened,
@@ -45,9 +45,9 @@ export async function verifyCall(
   try {
     secret = valuesOf(o).secrets.value(named.secret)
   } catch (error) {
-    // T0009, so that the service tries again later; the log names the secret.
+    // F0009, so that the service tries again later; the log names the secret.
     throw Object.assign(
-      new TentError('T0009', `The secret ${named.secret} that checks this call has no value.`, {
+      new ForjrError('F0009', `The secret ${named.secret} that checks this call has no value.`, {
         fix: `Set the secret ${named.secret}.`,
       }),
       { cause: error },

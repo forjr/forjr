@@ -1,90 +1,66 @@
 import type { Description } from '../../core/internal.ts'
 import { isStored } from '../../core/internal.ts'
 import type { Reached } from './face.ts'
-import type { Stored } from './read.ts'
-import { doorsOf, listOf, recordsOf } from './read.ts'
+import { usesIn } from './graph.ts'
 
 /**
- * Every name of a function that a screen or a component asks: what each entry of its `data` reads, as the build
- * stores it under `query` or `action`, and each function it calls.
- */
-function asked(record: Stored): Set<string> {
-  const found = new Set(listOf(record.calls))
-  for (const entry of Object.values(isStored(record.data) ? record.data : {}))
-    for (const kind of ['query', 'action'])
-      if (isStored(entry) && typeof entry[kind] === 'string') found.add(entry[kind])
-  return found
-}
-
-/** What reads from what: each function by the tables it reads and writes, each screen by the functions it asks. */
-interface Graph {
-  functions: Record<string, Stored>
-  screens: [string, 'screen' | 'component', Stored][]
-}
-
-const graphOf = (description: Description): Graph => ({
-  functions: recordsOf(description, 'functions'),
-  screens: [
-    ...Object.entries(recordsOf(description, 'screens')).map(([name, one]): [string, 'screen', Stored] => [
-      name,
-      'screen',
-      one,
-    ]),
-    ...Object.entries(recordsOf(description, 'components')).map(([name, one]): [string, 'component', Stored] => [
-      name,
-      'component',
-      one,
-    ]),
-  ],
-})
-
-/** The screens and components that ask or call a function, each with whether its pages are kept as public. */
-function screensOf(graph: Graph, fn: string): Reached[] {
-  return graph.screens
-    .filter(([, , record]) => asked(record).has(fn))
-    .map(([name, kind, record]) => ({
-      name,
-      kind,
-      ...(isStored(record.cache) && Reflect.get(record.cache, 'public') === true ? { cached: true as const } : {}),
-      under: [],
-    }))
-}
-
-/** A function as a thing that is reached: its kind, the doors it is offered to, and the screens that ask it. */
-const functionOf = (graph: Graph, name: string): Reached => {
-  const record = graph.functions[name]
-  const offered = doorsOf(record)
-  return {
-    name,
-    kind: String(record?.kind ?? 'function'),
-    ...(offered.length ? { offered } : {}),
-    under: screensOf(graph, name),
-  }
-}
-
-/**
- * Takes a description and the name of a definition that changed: a table, a column as `<table>.<column>`, or a
- * function. Answers everything that depends on it, as a tree to the screens and the offers at its ends: a table
- * reaches the functions that read it, and a function the screens and components that read it or call it.
+ * Takes a description and the name of a definition that changed: a column as `<table>.<column>`, which walks from
+ * its table, or any other definition. Answers everything that depends on it, as a tree: the walk of every edge in
+ * of the graph, breadth first, each definition once in the whole tree under the first that reached it, and under
+ * each the definitions that reach it in the order of their names. A name of no node reaches nothing.
  */
 export function reachedBy(description: Description, name: string): Reached[] {
-  const graph = graphOf(description)
+  const uses = usesIn(description)
   const owner = name.split('.')[0]
-  if (Object.hasOwn(recordsOf(description, 'tables'), owner))
-    return Object.entries(graph.functions)
-      .filter(([, record]) => listOf(record.reads).includes(owner))
-      .map(([fn]) => functionOf(graph, fn))
-  if (Object.hasOwn(graph.functions, name)) return screensOf(graph, name)
-  return []
+  const start = Object.hasOwn(description.tables, owner) ? owner : name
+  if (!uses.nodes.has(start)) return []
+  const reached = (one: string): Reached => {
+    const node = uses.nodes.get(one)
+    const offered = (node?.doors ?? []).filter((door) => door.startsWith('offered ')).map((door) => door.slice(8))
+    const screen = description.screens[one]
+    const cached = isStored(screen?.cache) && Reflect.get(screen.cache, 'public') === true
+    return {
+      name: one,
+      kind: node?.kind ?? 'definition',
+      ...(offered.length ? { offered } : {}),
+      ...(cached ? { cached: true as const } : {}),
+      under: [],
+    }
+  }
+  const seen = new Set([start])
+  const tree: Reached[] = []
+  let level: [string, Reached[]][] = [[start, tree]]
+  while (level.length) {
+    const next: [string, Reached[]][] = []
+    for (const [at, under] of level)
+      for (const from of [...new Set(uses.in(at).map((one) => one.from))].sort()) {
+        if (seen.has(from)) continue
+        seen.add(from)
+        const one = reached(from)
+        under.push(one)
+        next.push([from, one.under])
+      }
+    level = next
+  }
+  return tree
 }
 
-/** Counts what a tree reaches: its functions, its screens and components, and its offers by door. */
-export function countOf(tree: Reached[]): { functions: number; screens: number; offers: Record<string, number> } {
-  const offers: Record<string, number> = {}
-  const counted = { functions: 0, screens: 0, offers }
+/** The word a reached definition is counted under: a function of each kind, a screen for a component too. */
+const countedAs = (kind: string): string =>
+  ['query', 'change', 'action', 'python'].includes(kind)
+    ? 'function'
+    : kind === 'component'
+      ? 'screen'
+      : kind === 'incoming'
+        ? 'incoming call'
+        : kind
+
+/** Counts what a tree reaches: each definition once under its word, and its offers by door. */
+export function countOf(tree: Reached[]): { kinds: Record<string, number>; offers: Record<string, number> } {
+  const counted: { kinds: Record<string, number>; offers: Record<string, number> } = { kinds: {}, offers: {} }
   const walk = (one: Reached): void => {
-    if (one.kind === 'screen' || one.kind === 'component') counted.screens++
-    else counted.functions++
+    const word = countedAs(one.kind)
+    counted.kinds[word] = (counted.kinds[word] ?? 0) + 1
     for (const door of one.offered ?? []) counted.offers[door] = (counted.offers[door] ?? 0) + 1
     for (const below of one.under) walk(below)
   }

@@ -1,19 +1,19 @@
-# `tent data`
+# `forjr data`
 
 Reads and keeps the data of an app through its running engine: the rows of a table, backups, a restore of a backup or to a moment, an import of a file of records, a cleaning of what was retired, the data files of tenants, and the data of one person. It never opens the data file itself.
 
 ## Usage
 
 ```
-tent data rows <table> [--of <tenant id>]
-tent data backup [--whole]
-tent data restore <file> [--of <tenant id>]
-tent data restore --at <moment> [--dry]
-tent data import <file> --with <change> [--map 'Full name=name'] [--language <code>] [--as <user id>] [--dry]
-tent data clean
-tent data files [--behind] [--unswept] [--due] [--stray] [--sweep] [--retry <tenant id>]
-tent data user export <id> [--out <file>]
-tent data user remove <id> [--yes]
+forjr data rows <table> [--of <tenant id>]
+forjr data backup [--whole]
+forjr data restore <file> [--of <tenant id>]
+forjr data restore --at <moment> [--dry]
+forjr data import <file> --with <change> [--map 'Full name=name'] [--language <code>] [--as <user id>] [--dry]
+forjr data clean
+forjr data files [--behind] [--unswept] [--due] [--stray] [--sweep] [--retry <tenant id>]
+forjr data user export <id> [--out <file>]
+forjr data user remove <id> [--yes]
 ```
 
 ## Options
@@ -34,12 +34,12 @@ tent data user remove <id> [--yes]
 | `--stray` | Of `files`: holds the disk against the directory at once, and says what it found and did |
 | `--sweep` | Of `files`: opens and sweeps every file that is unswept |
 | `--retry <tenant id>` | Of `files`: tries a file again that could not be brought up |
-| `--data <folder>` | The data folder of the engine to ask. Left out, it is `.tent/` of the project |
+| `--data <folder>` | The data folder of the engine to ask. Left out, it is `.forjr/` of the project |
 
 ## Example
 
 ```
-tent data user remove 01m4ssnmz8f11sy43ctwdn5nvd --yes
+forjr data user remove 01m4ssnmz8f11sy43ctwdn5nvd --yes
 ```
 
 ## Output
@@ -47,10 +47,10 @@ tent data user remove 01m4ssnmz8f11sy43ctwdn5nvd --yes
 With `--json`, for `backup`:
 
 ```json
-{ "ok": true, "value": { "file": "/apps/shop/.tent/backups/data-2026-10-13T05-10-42-345Z.db", "writes": 41, "rows": 18 }, "findings": [] }
+{ "ok": true, "value": { "file": "/apps/shop/.forjr/backups/data-2026-10-13T05-10-42-345Z.db", "writes": 41, "rows": 18 }, "findings": [] }
 ```
 
-`rows` answers every row of the table, with full access. `backup` makes a snapshot in `backups/` of the data folder, safe while the app runs, restores it to a temporary file as a test, and answers the rows it counted there: a backup that cannot be restored is removed and not kept as one. The engine takes a backup by itself every day, and before every table change, and keeps the last seven: `backups` of the project changes each of these. `restore` puts the file of a backup back under the running app and applies the table changes to it: `{ "restored": "<file>" }`. `restore --at <moment>` takes the newest backup taken before the moment and applies the archived changes up to it, one by one; the file of a tenant is brought to the same moment by its own backup and its own changes. It is a restore as the one of a file is: under the running app, made as one switch. The data that stood is kept as a backup of its own first, and what was put back is a backup too, so a moment after the restore is reached as well. It answers `{ "restored": "<moment>", "backup": "<the name of the backup>", "changes": 140, "reaches": "<the moment of the last change it applied>" }`, and with `--dry` the same with `"dry": true` in place of `restored`. With the archive in a store (`option.project.backups`) a data folder that was lost is restored from the store alone: start the engine on an empty folder, and restore to a moment. `clean` drops each table and each column that was retired, and nothing else: `{ "dropped": [ ... ] }`, the steps of the shared file. On an app that keeps a data file for each tenant the clean reaches each file too: every file is behind until it was cleaned, as `tent data files --behind` shows, and is brought up by the pass or when it is next asked for.
+`rows` answers every row of the table, with full access. `backup` makes a snapshot in `backups/` of the data folder, safe while the app runs, restores it to a temporary file as a test, and answers the rows it counted there: a backup that cannot be restored is removed and not kept as one. The engine takes a backup by itself every day, and before every table change, and keeps the last seven: `backups` of the project changes each of these. `restore` puts the file of a backup back under the running app and applies the table changes to it: `{ "restored": "<file>" }`. `restore --at <moment>` takes the newest backup taken before the moment and applies the archived changes up to it, one by one; the file of a tenant is brought to the same moment by its own backup and its own changes. It is a restore as the one of a file is: under the running app, made as one switch. The data that stood is kept as a backup of its own first, and what was put back is a backup too, so a moment after the restore is reached as well. It answers `{ "restored": "<moment>", "backup": "<the name of the backup>", "changes": 140, "reaches": "<the moment of the last change it applied>" }`, and with `--dry` the same with `"dry": true` in place of `restored`. With the archive in a store (`option.project.backups`) a data folder that was lost is restored from the store alone: start the engine on an empty folder, and restore to a moment. `clean` drops each table and each column that was retired, and nothing else: `{ "dropped": [ ... ] }`, the steps of the shared file. On an app that keeps a data file for each tenant the clean reaches each file too: every file is behind until it was cleaned, as `forjr data files --behind` shows, and is brought up by the pass or when it is next asked for.
 
 `user export` answers every row whose owner is that person, and their row of `users`: `{ "id", "user", "rows" }`. `user remove` answers `{ "removed", "rows", "refused", "backups", "archive" }`: how many rows of each table are theirs, the rows that a link which refuses kept, how many backups made before still hold the person, until they age out, and whether the archive of the changes still holds them, as it does until what it kept of them is past, with the backups it reaches back to. It removes in one write, and writes `removed` in place of the person wherever the log names them.
 
@@ -60,7 +60,7 @@ For an app that keeps a data file for each tenant, a backup is a folder: the sha
 
 `import` reads CSV and TSV with the header line naming the fields, a CSV whose header holds `;` and no `,` separated by `;`; JSON, a list of records; JSON lines; and spreadsheets (`.xlsx`), every sheet by its name with its first row as its header, by a reader that is fetched at its first use. Each value is read by the type of its field of the input as a person writes it: a number with the signs of the language, a date in the standard form or in the order of the language, in the zone of the project where it names none, yes or no, and a choice by its value or by its word. Every row passes the change's types, its rules and its triggers: the import writes nothing that the change does not. A page of records (`limits.workPage`, 1,000) is one write, with the place of the import: an import that stops goes on from its last page when the same command is given again. Of an app that keeps a data file for each tenant, where a page cannot be one write, each record is a write of its own, which notes in the file it wrote the record it is at: a record written before a stop is never written twice. Each refused record is listed in `<file>.refused.csv`, with its line and the field that does not fit and why; of a spreadsheet the line is the sheet and its row, as `Members:12`. While it runs a line says how many records it went through. It answers `{ "records": 1000, "imported": 996, "refused": 4, "refusedFile": "<file>.refused.csv" }`, and with `--dry` the same with `"dry": true`, as the import would go.
 
-`code.T0002` for a word that is missing, for a file of a form that no import reads or that does not read as its form, for a language that the runtime does not know, for a moment that does not read or that is before the oldest backup the archive rests on, for `rows` of a tenant table that names no tenant, and for `rows` of a word that names no table, which is told with the tables there are, `code.T0001` for `--with` that names no change, `code.T0016` where the reader of spreadsheets cannot be fetched, `code.T0009` for a file that is no backup, with the data left as it was, and for a moment in a gap of the archive, which it names, or after the file of one tenant was put back alone and before the next backup, and `code.T2028` for `restore --at` of an app whose archive is off.
+`code.F0002` for a word that is missing, for a file of a form that no import reads or that does not read as its form, for a language that the runtime does not know, for a moment that does not read or that is before the oldest backup the archive rests on, for `rows` of a tenant table that names no tenant, and for `rows` of a word that names no table, which is told with the tables there are, `code.F0001` for `--with` that names no change, `code.F0016` where the reader of spreadsheets cannot be fetched, `code.F0009` for a file that is no backup, with the data left as it was, and for a moment in a gap of the archive, which it names, or after the file of one tenant was put back alone and before the next backup, and `code.F2028` for `restore --at` of an app whose archive is off.
 
 ## See also
 

@@ -1,4 +1,4 @@
-import { list, number, query, table, text } from 'tentjs'
+import { list, number, query, table, text } from 'forjr'
 
 // The users of the app: a picture as a user is taken through a pass, which names one.
 export const users = table('users', {

@@ -10,7 +10,7 @@ import { ownedHere } from '../cli/owner.ts'
 
 /** A folder of its own for one test, removed when the test ends. */
 function folderOf(t: TestContext): string {
-  const folder = mkdtempSync(join(tmpdir(), 'tent-owners-'))
+  const folder = mkdtempSync(join(tmpdir(), 'forjr-owners-'))
   t.after(() => rmSync(folder, { recursive: true, force: true }))
   return folder
 }
@@ -46,7 +46,7 @@ test('[24-15] `keys.json` is closed by the tools of the system, and not by a pro
     process.env.PATH = before
   })
   const kept = mkdtempSync(join(folder, 'home-'))
-  keepKey(kept, 'https://server.test', 'tent_kept')
+  keepKey(kept, 'https://server.test', 'forjr_kept')
   process.env.PATH = before
-  assert.equal(keptKey(kept, 'https://server.test'), 'tent_kept')
+  assert.equal(keptKey(kept, 'https://server.test'), 'forjr_kept')
 })

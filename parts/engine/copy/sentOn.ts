@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Opened } from '../opened.ts'
 import { asAsked, underwayNow, isNeedsWriter, needsWriter, newAsked } from './asked.ts'
 import { notReached } from './reach.ts'
@@ -10,14 +10,14 @@ export type Member = 'call' | 'write' | 'seed' | 'read' | 'page' | 'start' | 'ru
 /**
  * Takes a reader, a member of its app that code asked it for, the arguments, and the caller that the code named.
  * On test data the reader sends it to its writer, which carries it out as that caller, and answers what the
- * writer answered, or throws what it failed with. On live data it throws T0030: a writer takes no caller on a
+ * writer answered, or throws what it failed with. On live data it throws F0030: a writer takes no caller on a
  * reader's word.
  */
 export async function sentOn(o: Opened, member: Member, args: unknown[], as: Caller): Promise<unknown> {
   const reader = o.machine.reader
   if (!reader || o.mode === 'live') throw needsWriter(`\`app.${member}\` of what writes`, reader?.writer())
   const address = reader.writer()
-  const sent = new Request(`${address}/_t/copy/do`, {
+  const sent = new Request(`${address}/_f/copy/do`, {
     method: 'POST',
     headers: { authorization: `Bearer ${reader.reads.key}`, 'content-type': 'application/json' },
     body: JSON.stringify({ member, args, as }),
@@ -31,7 +31,7 @@ export async function sentOn(o: Opened, member: Member, args: unknown[], as: Cal
   const answer = Object(read)
   if (answer.ok === true) return answer.value ?? undefined
   const failed = Object(answer.error)
-  throw new TentError(String(failed.code ?? 'T0009'), String(failed.message ?? 'The writer failed.'), {
+  throw new ForjrError(String(failed.code ?? 'F0009'), String(failed.message ?? 'The writer failed.'), {
     ...(typeof failed.fix === 'string' ? { fix: failed.fix } : {}),
     ...(typeof failed.fields === 'object' && failed.fields !== null ? { fields: failed.fields } : {}),
   })

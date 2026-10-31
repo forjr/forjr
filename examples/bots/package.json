@@ -3,6 +3,6 @@
   "private": true,
   "type": "module",
   "engines": {
-    "tentjs": "1.0"
+    "forjr": "1.0"
   }
 }

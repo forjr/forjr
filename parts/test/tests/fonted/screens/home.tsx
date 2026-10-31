@@ -1,6 +1,6 @@
 import 'tiny-font'
 import './app.css'
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 export const homeScreen = screen('homeScreen', {
   path: '/',

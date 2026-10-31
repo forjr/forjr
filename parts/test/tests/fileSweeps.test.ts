@@ -22,13 +22,13 @@ test('[50-4@4] a file whose row of the directory names no count of removals is l
   /** Takes the count that the row of North names away, while no engine holds the data. */
   const forgotten = async (): Promise<void> => {
     await app.kill()
-    writeFile(join(dataFolder, 'data.db'), 'UPDATE "_t_tenants" SET "swept" = NULL WHERE "rowId" = ?', north)
+    writeFile(join(dataFolder, 'data.db'), 'UPDATE "_f_tenants" SET "swept" = NULL WHERE "rowId" = ?', north)
     await app.restart()
   }
   const unswept = async (): Promise<string[]> =>
     (await listed(app, dataFolder, { unswept: true })).files.map((one) => one.id).sort()
   const sweptIn = (team: string): unknown =>
-    readFile(join(dataFolder, 'data.db'), `SELECT "swept" FROM "_t_tenants" WHERE "rowId" = '${team}'`)[0]?.swept
+    readFile(join(dataFolder, 'data.db'), `SELECT "swept" FROM "_f_tenants" WHERE "rowId" = '${team}'`)[0]?.swept
 
   // The row of North names no count, and its file stands at the count before the removal: its next opening sweeps it.
   await forgotten()

@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { finding } from '../core/internal.ts'
 import type { ValuesAsked } from '../engine/index.ts'
 import { makeSecretKey, storedValues } from '../engine/index.ts'
@@ -47,11 +47,11 @@ export async function valuesTold(
     if (sets) makeSecretKey(dataFolder)
     return { value: storedValues(dataFolder, built.description, asked) }
   } catch (error) {
-    if (!(error instanceof TentError)) throw error
+    if (!(error instanceof ForjrError)) throw error
     return { findings: [finding(error.code, error.message, error.fix === undefined ? {} : { fix: error.fix })] }
   }
 }
 
-const noKey = finding('T0019', 'The secret was not set: no key of the secrets is at hand, and none was made.', {
-  fix: 'Give the engine the key as `TENT_SECRET_KEY`. On a server the variable stands with the engine, and not in the shell of the person who types: `tent secrets key` prints a new key.',
+const noKey = finding('F0019', 'The secret was not set: no key of the secrets is at hand, and none was made.', {
+  fix: 'Give the engine the key as `FORJR_SECRET_KEY`. On a server the variable stands with the engine, and not in the shell of the person who types: `forjr secrets key` prints a new key.',
 })

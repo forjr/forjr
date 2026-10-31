@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Row } from './store.ts'
 
 /**
@@ -74,8 +74,8 @@ export function handAgain(value: object, what: unknown): object {
   return value
 }
 
-const refused = (what: string): TentError =>
-  new TentError('T0009', `A query answered ${what}, which is no row that db handed out.`, {
+const refused = (what: string): ForjrError =>
+  new ForjrError('F0009', `A query answered ${what}, which is no row that db handed out.`, {
     fix: 'Answer the rows as db handed them, or state `output` for another shape.',
   })
 
@@ -96,7 +96,7 @@ function leaving(value: unknown): unknown {
 /**
  * Takes what a query written with `run` answered where it states no `output`. Answers the value, with the private
  * columns of each row's table removed, when it is nothing, a number, one object that a `db` handed out, or a list
- * whose every entry is one. What it answers is marked as handed again. Throws T0009 for anything else: a copy of a
+ * whose every entry is one. What it answers is marked as handed again. Throws F0009 for anything else: a copy of a
  * row, a record that code built, a row inside one, and a list with an empty place in it.
  */
 export function handedAnswer(value: unknown): unknown {

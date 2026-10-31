@@ -2,12 +2,12 @@ import os
 import time
 
 
-def run(input, tent):
-    db = tent.db()
-    made = os.path.join(tent.folder, "held.txt")
+def run(input, forjr):
+    db = forjr.db()
+    made = os.path.join(forjr.folder, "held.txt")
     with open(made, "w") as f:
         f.write("held")
-    with open(os.path.join(tent.disk, "holder.started"), "w") as f:
+    with open(os.path.join(forjr.disk, "holder.started"), "w") as f:
         f.write("started")
     # The test adds a version of the app while the call is under way.
     time.sleep(4)

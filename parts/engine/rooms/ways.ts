@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isInherited } from '../../core/internal.ts'
 import { outsideCalls, within } from '../context.ts'
 import { slot } from '../slot.ts'
@@ -69,7 +69,7 @@ function runtimeWord(word: string, args: unknown[]): unknown {
       return slot.emit(String(args[0]), args[1])
     case 'draw': {
       const asked = drawn.find((one) => one === args[0])
-      if (asked === undefined) throw new TentError('T0013', 'The room asked for a value that no word draws.')
+      if (asked === undefined) throw new ForjrError('F0013', 'The room asked for a value that no word draws.')
       return slot.draw(asked, Array.isArray(args[1]) ? args[1] : [])
     }
     case 'handle': {
@@ -89,7 +89,7 @@ function runtimeWord(word: string, args: unknown[]): unknown {
       return { member: 'value', value: at }
     }
   }
-  throw new TentError('T0013', `The room asked the runtime for a word it does not give: ${word.slice(0, 40)}.`)
+  throw new ForjrError('F0013', `The room asked the runtime for a word it does not give: ${word.slice(0, 40)}.`)
 }
 
 /**
@@ -115,7 +115,7 @@ export function waysOf(roomOf: () => Room): Ways {
     db(call, db, member, args) {
       const { open, into, out, atOnce } = crossing(call)
       const members = open.dbs.get(db)
-      if (!members) throw new TentError('T0013', 'The room asked for a `db` its call was not handed.')
+      if (!members) throw new ForjrError('F0013', 'The room asked for a `db` its call was not handed.')
       const handed = into(args)
       const values = Array.isArray(handed) ? handed : []
       const answer = inCall(open, () => Reflect.apply(members[member], members, values), atOnce)
@@ -131,7 +131,7 @@ export function waysOf(roomOf: () => Room): Ways {
     back(call, fn, args) {
       const { open, into, out, atOnce } = crossing(call)
       const kept = open.fns.get(Math.abs(fn))
-      if (!kept) throw new TentError('T0013', 'The room asked for a function its call was not handed.')
+      if (!kept) throw new ForjrError('F0013', 'The room asked for a function its call was not handed.')
       if (fn < 0) return Promise.resolve(kept()).then(out)
       const handed = into(args)
       return out(inCall(open, () => Reflect.apply(kept, undefined, Array.isArray(handed) ? handed : []), atOnce))
@@ -139,7 +139,7 @@ export function waysOf(roomOf: () => Room): Ways {
     async fetch(call, request) {
       const { open, into, out, atOnce } = crossing(call)
       const asked = into(request)
-      if (!(asked instanceof Request)) throw new TentError('T0013', 'The room asked to fetch what is no request.')
+      if (!(asked instanceof Request)) throw new ForjrError('F0013', 'The room asked to fetch what is no request.')
       return out(await inCall(open, () => globalThis.fetch(asked), atOnce))
     },
   }

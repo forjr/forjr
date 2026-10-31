@@ -18,7 +18,7 @@ export const valuesOfEntries = (entries: unknown): unknown[] => listed(entries).
 
 /**
  * Joins text with values inside it, each written as JavaScript writes a value into a text. What it makes is a
- * text of `valueSize` characters at the most, as a word makes one: T0027 beyond it, before the text is joined.
+ * text of `valueSize` characters at the most, as a word makes one: F0027 beyond it, before the text is joined.
  */
 export function textWith(parts: unknown[], values: unknown[]): string {
   const fixed = parts.reduce<number>((sum, part) => sum + (typeof part === 'string' ? part.length : 0), 0)

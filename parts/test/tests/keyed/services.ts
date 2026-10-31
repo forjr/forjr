@@ -1,4 +1,4 @@
-import { get, number, object, secret, service, text } from 'tentjs'
+import { get, number, object, secret, service, text } from 'forjr'
 
 export const github = service('github', {
   url: 'https://api.github.com',

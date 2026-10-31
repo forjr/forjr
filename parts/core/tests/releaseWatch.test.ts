@@ -6,7 +6,7 @@ import { describe } from '../internal.ts'
 /** Describes a project held in memory. */
 const described = (value: object) => describe({ definitions: [{ value }] })
 
-test('[54-8] release.watch.slowerBy is read from tent.ts as a time, and a value that is no time is T1011', () => {
+test('[54-8] release.watch.slowerBy is read from forjr.ts as a time, and a value that is no time is F1011', () => {
   const read = described(project('shop', { release: { gradual: true, watch: { slowerBy: '2 ms', calls: 50 } } }))
   assert.deepEqual(read.findings, [])
   assert.deepEqual(read.description.project.release, { gradual: true, watch: { slowerBy: 2, calls: 50 } })
@@ -16,7 +16,7 @@ test('[54-8] release.watch.slowerBy is read from tent.ts as a time, and a value 
   const bad = described(project('shop', { release: { watch: { slowerBy: 'soon' } } }))
   assert.deepEqual(
     bad.findings.map((one) => one.code),
-    ['T1011'],
+    ['F1011'],
   )
   assert.match(bad.findings[0].message, /release\.watch\.slowerBy/)
 })

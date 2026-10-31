@@ -87,7 +87,7 @@ export function wroteUnder(
 }
 
 /** The name of the store of the browser that holds the states of one caller: a user by their id, and a visitor apart. */
-const storeName = (declared: Declared, page: Page): string => `tent_state.${declared.app}.${page.user?.id ?? ''}`
+const storeName = (declared: Declared, page: Page): string => `forjr_state.${declared.app}.${page.user?.id ?? ''}`
 
 /** Reads the record that the browser's own store keeps for this caller, or an empty one for what is no record. */
 function storeRead(reach: Reach, name: string): Record<string, unknown> {

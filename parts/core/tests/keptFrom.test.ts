@@ -51,7 +51,7 @@ test('[45-3] a kept count, sum, least and most is a value word of `from`: the co
   assert.equal(columns.open.from, undefined)
 })
 
-test('[45-3] a kept count or sum in a column that is no number, and a least or a most in a column of another kind than the column it reads, is T1014', () => {
+test('[45-3] a kept count or sum in a column that is no number, and a least or a most in a column of another kind than the column it reads, is F1014', () => {
   for (const columns of [
     { open: text({ from: count({ of: orders, by: 'customer' }) }) },
     { spent: date({ from: sum({ of: orders, by: 'customer', column: 'total' }) }) },
@@ -60,7 +60,7 @@ test('[45-3] a kept count or sum in a column that is no number, and a least or a
   ]) {
     const { findings } = described(columns)
     assert.ok(
-      findings.some((one) => one.code === 'T1014'),
+      findings.some((one) => one.code === 'F1014'),
       `${Object.keys(columns)[0]} is refused: ${JSON.stringify(findings)}`,
     )
   }

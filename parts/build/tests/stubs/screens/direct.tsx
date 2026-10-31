@@ -1,8 +1,8 @@
-import { read, screen } from 'tentjs/ui'
+import { read, screen } from 'forjr/ui'
 import { slack, sendTasks, tellSales, writer } from '../flows/more'
 import { askAdvice, markPaid, openOrders, paidOrders } from '../functions/orders'
 import { orders } from '../tables/orders'
-import { shop } from '../tent'
+import { shop } from '../forjr'
 import { relayScreen } from './relay'
 
 const handed = () => ({ openOrders, paidOrders, markPaid, askAdvice, tellSales, sendTasks, slack, writer, orders, shop, relayScreen })

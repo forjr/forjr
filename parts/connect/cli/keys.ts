@@ -3,7 +3,7 @@ import { join } from 'node:path'
 import { ownedHere } from './owner.ts'
 import { writeOwnerOnly } from '../../core/internal.ts'
 
-/** What `keys.json` keeps of one server: what a person calls the app with, and what `tent login` keeps for publishing. */
+/** What `keys.json` keeps of one server: what a person calls the app with, and what `forjr login` keeps for publishing. */
 interface Server {
   app?: { key?: string; access?: string; refresh?: string; expiresAt?: number }
   publish?: { key: string; name: string }
@@ -11,11 +11,11 @@ interface Server {
 
 /** `keys.json` of the runner's folder. */
 interface Keys {
-  format: 'tent.keys/1'
+  format: 'forjr.keys/1'
   servers: Record<string, Server>
 }
 
-const empty = (): Keys => ({ format: 'tent.keys/1', servers: {} })
+const empty = (): Keys => ({ format: 'forjr.keys/1', servers: {} })
 
 /** The scheme, the host and the port of an address, in small letters: what a server is kept by. */
 export const serverOf = (address: string): string => new URL(address).origin.toLowerCase()
@@ -40,8 +40,8 @@ function readKeys(home: string): Keys {
       if (theirs) return empty()
       const read: unknown = JSON.parse(readFileSync(opened, 'utf8'))
       const servers: unknown = Reflect.get(Object(read), 'servers')
-      return Reflect.get(Object(read), 'format') === 'tent.keys/1' && typeof servers === 'object' && servers !== null
-        ? { format: 'tent.keys/1', servers: { ...servers } }
+      return Reflect.get(Object(read), 'format') === 'forjr.keys/1' && typeof servers === 'object' && servers !== null
+        ? { format: 'forjr.keys/1', servers: { ...servers } }
         : empty()
     } finally {
       closeSync(opened)

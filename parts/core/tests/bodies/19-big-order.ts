@@ -1,4 +1,4 @@
-import { flow, mail } from 'tentjs'
+import { flow, mail } from 'forjr'
 import { slack } from '../app/shop.ts'
 
 export const bigOrder = flow('bigOrder', {

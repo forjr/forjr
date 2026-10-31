@@ -43,14 +43,14 @@ const cookieRoom = 3500
 const writtenProject = (told: Told): Stored =>
   [...told.all.values()].find((one) => one.kind === 'project')?.options ?? {}
 
-/** Reports an address that no request can reach: one under `/_t/`, and one whose first part is a language. */
+/** Reports an address that no request can reach: one under `/_f/`, and one whose first part is a language. */
 function pathHeld(told: Told, path: unknown): void {
   if (typeof path !== 'string') return
   const why = unreachedWhy(path, projectLanguages(writtenProject(told)))
   if (why !== undefined)
     report(
       told,
-      'T1014',
+      'F1014',
       `its \`path\` ${why}.`,
       path.startsWith('/') ? 'Give it another address.' : 'Start the address with `/`.',
     )
@@ -97,7 +97,7 @@ function imageOf(told: Told, written: unknown): unknown {
   if (size !== undefined && (size.length !== 2 || !size.every((n) => Number.isInteger(n) && n >= 16 && n <= 4096)))
     report(
       told,
-      'T1014',
+      'F1014',
       'its `seo.image.size` is not two whole numbers of pixels from 16 to 4096.',
       'Write `size: [1200, 630]`.',
     )
@@ -120,19 +120,19 @@ function sharedOf(told: Told, kind: 'screen' | 'component', o: Stored, stored: S
 }
 
 /**
- * Takes the options of a screen as they were written. Answers the record of the screen as it is stored. Reports an unknown option (T1003), `path` beside
- * `for` (T1007), a required option that is left out (T1008), a reserved name (T1009), and a state, an address, a
- * `for` or a line of the head that is not allowed (T1014).
+ * Takes the options of a screen as they were written. Answers the record of the screen as it is stored. Reports an unknown option (F1003), `path` beside
+ * `for` (F1007), a required option that is left out (F1008), a reserved name (F1009), and a state, an address, a
+ * `for` or a line of the head that is not allowed (F1014).
  */
 export function screenOf(told: Told, o: Stored): Stored {
   known(told, 'screen', o, screenOptions)
   required(told, 'screen', o, ['view', 'access'])
   if (o.path !== undefined && o.for !== undefined)
-    report(told, 'T1007', 'it states `path` and `for` at once.', 'Keep one of the two.')
+    report(told, 'F1007', 'it states `path` and `for` at once.', 'Keep one of the two.')
   else if (o.path === undefined && o.for === undefined)
-    report(told, 'T1008', 'it states neither `path` nor `for`.', 'State `path`, or `for` for a special screen.')
+    report(told, 'F1008', 'it states neither `path` nor `for`.', 'State `path`, or `for` for a special screen.')
   if (o.for !== undefined && !special.includes(String(o.for)))
-    report(told, 'T1014', '`for` is none of the four special screens.', "Write 'notFound', 'error', 'grant' or 'ask'.")
+    report(told, 'F1014', '`for` is none of the four special screens.', "Write 'notFound', 'error', 'grant' or 'ask'.")
   pathHeld(told, o.path)
   const stored: Stored = {}
   setField(stored, 'path', o.path)
@@ -153,8 +153,8 @@ export function screenOf(told: Told, o: Stored): Stored {
 
 /**
  * Takes the options of a component as they were written. Answers the record of the component as it is stored.
- * Reports an unknown option (T1003), a `view` that is left out (T1008), a reserved name (T1009), and a state that
- * a component may not declare (T1014).
+ * Reports an unknown option (F1003), a `view` that is left out (F1008), a reserved name (F1009), and a state that
+ * a component may not declare (F1014).
  */
 export function componentOf(told: Told, o: Stored): Stored {
   known(told, 'component', o, componentOptions)

@@ -16,12 +16,12 @@ import { command as start } from './start.ts'
 
 type System = 'linux' | 'darwin' | 'win32'
 
-// The words of `tent start` that name a file, which the definition holds by its whole path.
+// The words of `forjr start` that name a file, which the definition holds by its whole path.
 const files = ['secret-key-from', 'key-from']
 // The entries of `--secure` that name a file.
 const secureFiles = ['roots', 'cert', 'key']
 
-/** The words of `tent start` as the definition holds them, from what was typed: `start`, the bundle and the data first. */
+/** The words of `forjr start` as the definition holds them, from what was typed: `start`, the bundle and the data first. */
 function wordsOf(args: Record<string, unknown>, folder: string, bundle: string, data: string): string[] {
   const words = ['start', bundle, '--data', data]
   for (const [name, type] of Object.entries(start.args)) {
@@ -58,18 +58,18 @@ const userNow = (): string =>
 
 /** Where the system reads a definition of that name, or nothing where it is handed to the system's own command. */
 function placeOf(system: System, name: string, machine: boolean): string | undefined {
-  if (system === 'linux') return `/etc/systemd/system/tent-${name}.service`
+  if (system === 'linux') return `/etc/systemd/system/forjr-${name}.service`
   if (system === 'darwin')
     return machine
-      ? `/Library/LaunchDaemons/com.tentjs.${name}.plist`
-      : join(homedir(), 'Library', 'LaunchAgents', `com.tentjs.${name}.plist`)
+      ? `/Library/LaunchDaemons/com.forjr.${name}.plist`
+      : join(homedir(), 'Library', 'LaunchAgents', `com.forjr.${name}.plist`)
   return undefined
 }
 
 /** The definition of that name that the system holds already, or nothing. */
 function heldNow(system: System, name: string, place: string | undefined): string | undefined {
   if (system !== 'win32') return place && existsSync(place) ? readFileSync(place, 'utf8') : undefined
-  const done = spawnSync('schtasks', ['/query', '/tn', `Tent.js\\${name}`, '/xml', 'ONE'], {
+  const done = spawnSync('schtasks', ['/query', '/tn', `Forjr\\${name}`, '/xml', 'ONE'], {
     encoding: 'utf8',
     windowsHide: true,
   })
@@ -90,9 +90,9 @@ function writtenInto(
   // A file of the system is written by root, and on Windows a task of the machine by an administrator.
   const needsRoot = system === 'linux' || o.machine
   const root = runsAsRoot()
-  // The words as `tent service` takes them again: those of `tent start`, without `start` itself.
+  // The words as `forjr service` takes them again: those of `forjr start`, without `start` itself.
   const again = [
-    'tent service --install',
+    'forjr service --install',
     '--user',
     o.user,
     ...(o.machine ? ['--machine'] : []),
@@ -101,12 +101,12 @@ function writtenInto(
   if (needsRoot && !root && system === 'win32')
     return {
       findings: [
-        finding('T0013', `The definition of ${named} is written where only an administrator may write.`, {
+        finding('F0013', `The definition of ${named} is written where only an administrator may write.`, {
           fix: `In a terminal opened as an administrator, type: ${again}`,
         }),
       ],
     }
-  // On macOS and Linux the definition is laid beside the data, and the administrator copies it into place: Tent.js
+  // On macOS and Linux the definition is laid beside the data, and the administrator copies it into place: Forjr
   // itself is never run as root, which runs nothing from a folder that another user owns.
   if (needsRoot && !root && place) {
     const laid = join(o.data, basename(place))
@@ -114,12 +114,12 @@ function writtenInto(
     writeFileSync(laid, o.text)
     const started =
       system === 'linux'
-        ? `sudo systemctl daemon-reload && sudo systemctl enable --now tent-${named}`
+        ? `sudo systemctl daemon-reload && sudo systemctl enable --now forjr-${named}`
         : `sudo launchctl bootstrap system ${place}`
     return {
       findings: [
         finding(
-          'T0013',
+          'F0013',
           `The definition of ${named} is written where only an administrator may write: it lies in ${laid}.`,
           {
             fix: `Type: sudo install -m 644 ${laid} ${place} && ${started}`,
@@ -131,7 +131,7 @@ function writtenInto(
   if (root && !o.typedUser)
     return {
       findings: [
-        finding('T0013', 'tent service --install runs as root here, and the app is never started as root.', {
+        finding('F0013', 'forjr service --install runs as root here, and the app is never started as root.', {
           fix: `Name the user it runs as: --user ${process.env.SUDO_USER ?? '<name>'}`,
         }),
       ],
@@ -140,7 +140,7 @@ function writtenInto(
   if (held !== undefined && held.replace(/\r\n/g, '\n').trim() !== o.text.trim() && !o.yes)
     return {
       findings: [
-        finding('T0013', `A definition of ${named} is there already, and stands as it is:\n${held}`, {
+        finding('F0013', `A definition of ${named} is there already, and stands as it is:\n${held}`, {
           fix: 'Type --yes to write over it.',
         }),
       ],
@@ -155,21 +155,21 @@ function writtenInto(
     return { value: { installed: place } }
   }
   // The task scheduler reads its definitions as text of two bytes a sign, which the mark at the start states.
-  const file = join(tmpdir(), `tent-task-${process.pid}-${randomBytes(6).toString('hex')}.xml`)
+  const file = join(tmpdir(), `forjr-task-${process.pid}-${randomBytes(6).toString('hex')}.xml`)
   writeFileSync(file, Buffer.concat([Buffer.from([0xff, 0xfe]), Buffer.from(o.text, 'utf16le')]))
-  const done = spawnSync('schtasks', ['/create', '/tn', `Tent.js\\${named}`, '/xml', file, ...(o.yes ? ['/f'] : [])], {
+  const done = spawnSync('schtasks', ['/create', '/tn', `Forjr\\${named}`, '/xml', file, ...(o.yes ? ['/f'] : [])], {
     encoding: 'utf8',
     windowsHide: true,
   })
   rmSync(file, { force: true })
   if (done.status !== 0)
-    return { findings: [finding('T0013', `The task scheduler did not take the task: ${done.stderr || done.stdout}`)] }
-  return { value: { installed: `Tent.js\\${named}` } }
+    return { findings: [finding('F0013', `The task scheduler did not take the task: ${done.stderr || done.stdout}`)] }
+  return { value: { installed: `Forjr\\${named}` } }
 }
 
 /**
  * Prints, for the system it runs on, what starts the app and starts it again when it ends: a systemd unit, a launchd
- * file, or a task of the task scheduler of Windows, with the words of `tent start` in it, which it takes without
+ * file, or a task of the task scheduler of Windows, with the words of `forjr start` in it, which it takes without
  * `start` itself. Each file it names is held by its whole path. `--line` prints the one line alone, and `--machine`
  * starts it with the machine. A word with a line break is refused, and so are a launcher or a data folder that the
  * user does not own or that others can write, and a file of the key that others can read. `--install` writes it where
@@ -190,34 +190,34 @@ export const command: Command = {
     const system: System = process.platform === 'win32' ? 'win32' : process.platform === 'darwin' ? 'darwin' : 'linux'
     const home = runnerFolder()
     if (typeof args.bundle !== 'string')
-      return { findings: [finding('T0013', 'tent service names the bundle it starts: tent service /srv/shop.')] }
+      return { findings: [finding('F0013', 'forjr service names the bundle it starts: forjr service /srv/shop.')] }
     const bundle = resolve(folder, args.bundle)
-    // What is no bundle is refused as `tent start` refuses it, before a word of a definition is made.
+    // What is no bundle is refused as `forjr start` refuses it, before a word of a definition is made.
     if (!existsSync(join(bundle, 'description.json')))
       return {
         findings: [
-          finding('T0011', `${bundle} holds no description.json, so it is no bundle.`, {
-            fix: 'Name the folder that `tent build --out` wrote.',
+          finding('F0011', `${bundle} holds no description.json, so it is no bundle.`, {
+            fix: 'Name the folder that `forjr build --out` wrote.',
           }),
         ],
       }
-    const data = resolve(folder, typeof args.data === 'string' ? args.data : '.tent')
+    const data = resolve(folder, typeof args.data === 'string' ? args.data : '.forjr')
     const words = wordsOf(args, folder, bundle, data)
     const broken = words.find((one) => /[\r\n]/.test(one))
     if (broken !== undefined)
       return {
         findings: [
-          finding('T0013', `A word with a line break is refused: ${JSON.stringify(broken).slice(0, 80)}.`, {
+          finding('F0013', `A word with a line break is refused: ${JSON.stringify(broken).slice(0, 80)}.`, {
             fix: 'Type each word on one line.',
           }),
         ],
       }
     // The npm door names its own script, and the Node.js that runs it: the install's own folder holds no launcher then.
     const npmDoor =
-      typeof process.env.TENT_LAUNCHER === 'string' && typeof process.env.TENT_NODE === 'string'
-        ? [process.env.TENT_NODE, process.env.TENT_LAUNCHER]
+      typeof process.env.FORJR_LAUNCHER === 'string' && typeof process.env.FORJR_NODE === 'string'
+        ? [process.env.FORJR_NODE, process.env.FORJR_LAUNCHER]
         : undefined
-    const launcher = npmDoor?.[1] ?? join(home, 'bin', system === 'win32' ? 'tentw.exe' : 'tent')
+    const launcher = npmDoor?.[1] ?? join(home, 'bin', system === 'win32' ? 'forjrw.exe' : 'forjr')
     for (const [what, path] of [
       ['The data folder', data],
       ['The launcher', launcher],
@@ -226,7 +226,7 @@ export const command: Command = {
       if (why)
         return {
           findings: [
-            finding('T0013', `${what} ${path} is refused: ${why}.`, {
+            finding('F0013', `${what} ${path} is refused: ${why}.`, {
               fix: 'Keep it in a folder of the user it runs as, which only that user can write.',
             }),
           ],
@@ -238,7 +238,7 @@ export const command: Command = {
       if (kept.why !== undefined)
         return {
           findings: [
-            finding('T0013', `The file of the key ${keyFile} is refused: ${kept.why}.`, {
+            finding('F0013', `The file of the key ${keyFile} is refused: ${kept.why}.`, {
               fix: `Close it to every other user: ${kept.close}`,
             }),
           ],

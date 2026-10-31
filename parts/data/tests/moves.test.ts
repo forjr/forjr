@@ -15,7 +15,7 @@ const shop = project('shop', {})
 function movesAlone(findings: Finding[], name: string): void {
   assert.deepEqual(
     findings.map((one) => one.code),
-    ['T2001'],
+    ['F2001'],
   )
   assert.match(findings[0].message, new RegExp(`\`${name}\``))
   assert.match(findings[0].message, /tenant/)
@@ -89,15 +89,15 @@ test('[20-4] a stated rename of a table that another table links to is planned: 
     codeOf(() =>
       writing(store, next, system)((w) => at(w, 'members').add({ team: '00000000000000000000000000', name: 'Bob' })),
     ),
-    'T2104',
+    'F2104',
   )
 
   // A link to another table, which no rename of the plan leads to, is never applied by itself.
   const squads = table('squads', { columns: { name: text() }, access })
-  assert.deepEqual(foundIn(store, described([shop, groups, squads, members('squads')])), ['T2001'])
+  assert.deepEqual(foundIn(store, described([shop, groups, squads, members('squads')])), ['F2001'])
   // A table that is new under the name the link had before is no rename: `was` names no table that is asked for.
   const again = table('teams', { columns: { name: text() }, access })
-  assert.deepEqual(foundIn(store, described([shop, groups, again, members('teams')])), ['T2001'])
+  assert.deepEqual(foundIn(store, described([shop, groups, again, members('teams')])), ['F2001'])
 
   // The link is retired, and then held again while the table it names goes on under a third name, the table of
   // the link under a new one, and the column too: each row keeps its link.

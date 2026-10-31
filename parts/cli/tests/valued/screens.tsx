@@ -1,4 +1,4 @@
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 import { greeting } from './words'
 
 export const homeScreen = screen('homeScreen', {

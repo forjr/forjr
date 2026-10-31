@@ -70,27 +70,27 @@ export function tableOf(told: Told, o: Stored): Stored {
   const columns = typesOf(told, 'columns', o.columns, true) ?? {}
   for (const name of Object.keys(columns)) {
     if (reservedColumns.includes(name))
-      report(told, 'T1009', `the column name \`${name}\` is reserved.`, 'Give the column another name.')
+      report(told, 'F1009', `the column name \`${name}\` is reserved.`, 'Give the column another name.')
     else if (!isCamelCase(name))
       report(
         told,
-        'T1013',
+        'F1013',
         `the name of the column \`${name}\` is not camelCase letters and digits.`,
         'Start the name with a small letter, and write letters and digits alone.',
       )
     if (name === 'distance' && Object.values(columns).some((column) => column.kind === 'vector'))
       report(
         told,
-        'T1009',
+        'F1009',
         'a table with a vector column may not have a column named `distance`.',
         'Give the column another name.',
       )
   }
   if (told.name === 'users') {
     const roles = columns.roles
-    if (!roles) report(told, 'T1008', 'the `users` table has no `roles` column.', 'Add `roles: list(text())`.')
+    if (!roles) report(told, 'F1008', 'the `users` table has no `roles` column.', 'Add `roles: list(text())`.')
     else if (roles.kind !== 'list' || optionsOf(roles.of).kind !== 'text')
-      report(told, 'T1014', 'the `roles` column of `users` is no `list(text())`.', 'Write `roles: list(text())`.')
+      report(told, 'F1014', 'the `roles` column of `users` is no `list(text())`.', 'Write `roles: list(text())`.')
   }
   heldFrom(told, columns)
   // The rule of a column is stored as the rules of a table are, under a name of its own for one that is code.
@@ -115,7 +115,7 @@ export function tableOf(told: Told, o: Stored): Stored {
     if (typeof name === 'string' && keptAt(columns, name)?.private === true)
       report(
         told,
-        'T1014',
+        'F1014',
         `\`search\` names the private column \`${name}\`.`,
         'Take the column out of `search`, or make it a column that every reader of the table may read.',
       )
@@ -147,18 +147,18 @@ export function tableOf(told: Told, o: Stored): Stored {
 }
 
 /**
- * Stores `kept` and `lasts` of a table whose rows live in memory. Reports T1014 for a `kept` that is not
+ * Stores `kept` and `lasts` of a table whose rows live in memory. Reports F1014 for a `kept` that is not
  * `'memory'`, for a `lasts` that is no length of time, which a row of memory lasts from its last write, and for
  * what a table of memory cannot hold: a file for each tenant, a search, row history, a vector.
  */
 function inMemory(told: Told, o: Stored, columns: Record<string, Stored>, stored: Stored): void {
   if (o.kept === undefined) return
-  if (o.kept !== 'memory') report(told, 'T1014', "`kept` takes `'memory'` alone.", "Write `kept: 'memory'`.")
+  if (o.kept !== 'memory') report(told, 'F1014', "`kept` takes `'memory'` alone.", "Write `kept: 'memory'`.")
   const lasts = typeof o.lasts === 'string' || typeof o.lasts === 'number' ? ms(told, 'lasts', o.lasts) : undefined
   if (o.lasts !== undefined && (typeof lasts !== 'number' || lasts <= 0))
     report(
       told,
-      'T1014',
+      'F1014',
       '`lasts` of a table kept in memory is no length of time: a row of it lasts from its last write.',
       "Write it as '30 seconds'.",
     )
@@ -169,7 +169,7 @@ function inMemory(told: Told, o: Stored, columns: Record<string, Stored>, stored
   for (const named of held)
     report(
       told,
-      'T1014',
+      'F1014',
       `a table kept in memory holds no ${named}: its rows are gone by themselves.`,
       `Take the ${named} out, or keep the rows in a table that stays.`,
     )
@@ -180,7 +180,7 @@ function inMemory(told: Told, o: Stored, columns: Record<string, Stored>, stored
 /**
  * The stored form of `lasts` of a table that stays: the length of time in milliseconds, the moment it is counted
  * from, which is the last write of a row where `by` is left out, and the rows it names. A length alone is the same
- * as `{ for }`. Reports T1014 for a `by` that names no moment of the table, and for a length that is none.
+ * as `{ for }`. Reports F1014 for a `by` that names no moment of the table, and for a length that is none.
  */
 function lastsOf(told: Told, written: unknown, columns: Record<string, Stored>): Stored | undefined {
   if (written === undefined) return undefined
@@ -191,13 +191,13 @@ function lastsOf(told: Told, written: unknown, columns: Record<string, Stored>):
   if (!moment)
     report(
       told,
-      'T1014',
+      'F1014',
       `\`lasts\` counts from \`${by}\`, which is no moment of the table.`,
       'Name a `date` column of the table, or `createdAt` or `updatedAt`.',
     )
   const length = ms(told, 'lasts.for', o.for)
   if (typeof length !== 'number' || length <= 0)
-    report(told, 'T1014', '`lasts` states no length of time.', "Write it as '90 days'.")
+    report(told, 'F1014', '`lasts` states no length of time.', "Write it as '90 days'.")
   const stored: Stored = { for: length, by }
   if (o.where !== undefined) stored.where = filterOf(o.where)
   return stored

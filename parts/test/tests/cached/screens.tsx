@@ -1,4 +1,4 @@
-import { screen, read, choice, text } from 'tentjs/ui'
+import { screen, read, choice, text } from 'forjr/ui'
 import { allNews, newsById } from './functions'
 
 export const newsScreen = screen('newsScreen', {

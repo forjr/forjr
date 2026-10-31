@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { list } from '../addresses/list.ts'
 import { answering } from '../answering.ts'
 import { bounded } from '../bounded.ts'
@@ -42,19 +42,19 @@ const inOrder = (): Promise<{ address: Address; named: string }[]> => {
 }
 
 /** The error of a request for a name that is none of the app's own. */
-export const wrongName = (host: string): TentError =>
-  new TentError(
-    'T0017',
+export const wrongName = (host: string): ForjrError =>
+  new ForjrError(
+    'F0017',
     `The request names the host ${JSON.stringify(host).slice(0, 80)}, which is none of the names of this app.`,
     {
       fix: 'Reach the app by a name it was given: `address` of `engine.open`, or this computer where it was given none.',
     },
   )
 
-/** Step 1 of the door: the request without every header that starts with `x-tent-`, which no part ever reads from a request. */
+/** Step 1 of the door: the request without every header that starts with `x-forjr-`, which no part ever reads from a request. */
 export function withoutOurs(request: Request): Request {
   const headers = new Headers(request.headers)
-  for (const name of [...headers.keys()]) if (name.toLowerCase().startsWith('x-tent-')) headers.delete(name)
+  for (const name of [...headers.keys()]) if (name.toLowerCase().startsWith('x-forjr-')) headers.delete(name)
   return new Request(request, { headers })
 }
 
@@ -76,7 +76,7 @@ export function ownOrListed(o: Opened, origin: string, about: About): boolean {
 
 /** Whether what is asked is an upload, whose bytes are handed on as they arrive. */
 export const isUpload = (asked: Addressed): boolean =>
-  asked.method === 'POST' && asked.path.split('?')[0] === '/_t/files'
+  asked.method === 'POST' && asked.path.split('?')[0] === '/_f/files'
 
 /**
  * The most bytes that the body of a request may hold, by the address that was asked: `uploadSize` for the address
@@ -95,7 +95,7 @@ export function sizeTaken(o: Opened, asked: Addressed, headers?: Headers): numbe
 /**
  * Step 2 of the door: the size limit and the origin. A body may not pass `callSize`. A request that changes
  * something, and carries an `Origin`, must name the scheme, the host and the port it was sent to, or an entry of
- * `api.origins`: `Origin: null` names no host and is refused. Throws T0003 and T0004.
+ * `api.origins`: `Origin: null` names no host and is refused. Throws F0003 and F0004.
  */
 function sizeAndOrigin(o: Opened, request: Request, about: About, own?: ReturnType<NonNullable<Address['own']>>): void {
   const size = own?.size ?? sizeTaken(o, { method: request.method, path: new URL(request.url).pathname })
@@ -111,8 +111,8 @@ function sizeAndOrigin(o: Opened, request: Request, about: About, own?: ReturnTy
     (Array.isArray(own?.sites) && own.sites.some((one) => one === origin || sameOrigin(origin, one)))
   )
     return
-  throw new TentError(
-    'T0004',
+  throw new ForjrError(
+    'F0004',
     `The request came from ${JSON.stringify(origin).slice(0, 80)}, which is another site than ${about.origin}.`,
     {
       fix: 'Call the app from its own pages, or list the site in `api.origins` of the project.',
@@ -129,8 +129,8 @@ interface Found {
 
 /**
  * Takes an app, a request, and what the engine knows of it. Passes the request through the door: a request that
- * names a host which is none of the app's own is refused with T0017 before anything else is looked at; step 1
- * takes the `x-tent-` headers out; the address is found, and what no address names is not found; and the steps
+ * names a host which is none of the app's own is refused with F0017 before anything else is looked at; step 1
+ * takes the `x-forjr-` headers out; the address is found, and what no address names is not found; and the steps
  * of the web that the address passes are carried out, 2 to 4, before the address answers. A refusal is answered
  * in the wire form with its status, and for an address that passes step 10 it is written into the log. While it
  * is answered the request is held as under way, so that the live hub lets it go first.
@@ -182,8 +182,8 @@ async function passedDoor(o: Opened, asked: Request, taken: Taken, began: number
   /** Finds the address of a request and carries out the steps of the web that it passes, 2 to 4. */
   const passes = async (clean: Request): Promise<Found | Response> => {
     const { pathname } = new URL(clean.url)
-    // Under `tent test`, an address of the app that the test asked, also one that nothing answers.
-    if (!pathname.startsWith('/_t/')) noteTouched('asked', pathname)
+    // Under `forjr test`, an address of the app that the test asked, also one that nothing answers.
+    if (!pathname.startsWith('/_f/')) noteTouched('asked', pathname)
     let found: { address: Address; matched: object; kind: string } | undefined
     for (const { address, named: kind } of await inOrder()) {
       const matched = address.match(clean)
@@ -197,8 +197,8 @@ async function passedDoor(o: Opened, asked: Request, taken: Taken, began: number
       return errorAnswer(
         o,
         'door',
-        new TentError('T0001', `Nothing answers ${clean.method} ${pathname.slice(0, 120)}.`, {
-          fix: 'A call is a `POST` of JSON to `/_t/call/<name>`.',
+        new ForjrError('F0001', `Nothing answers ${clean.method} ${pathname.slice(0, 120)}.`, {
+          fix: 'A call is a `POST` of JSON to `/_f/call/<name>`.',
         }),
       )
     const { address, matched } = found
@@ -258,7 +258,7 @@ async function passedDoor(o: Opened, asked: Request, taken: Taken, began: number
       // The size of a body is held before the code of the builder is handed the request, and while it reads one.
       const size = sizeTaken(o, { method: first.method, path: new URL(first.url).pathname })
       if (Number(first.headers.get('content-length') ?? 0) > size) throw tooLarge(size)
-      // The builder's code is handed no admin token and no `Tent-Caller`, so it cannot send them on.
+      // The builder's code is handed no admin token and no `Forjr-Caller`, so it cannot send them on.
       const own = admin ? withoutAdmin(first) : first
       answer = await visiting(here, () => throughOwn(o, bounded(own, size), about, door))
     }

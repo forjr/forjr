@@ -36,7 +36,7 @@ function linesOf(node: Node, depth: number, lines: string[]): void {
     if (words) lines.push(`${at}- text: ${JSON.stringify(words)}`)
     return
   }
-  if (!(node instanceof Element) || isHidden(node) || node instanceof HTMLScriptElement || node.id === 'tent-overlay')
+  if (!(node instanceof Element) || isHidden(node) || node instanceof HTMLScriptElement || node.id === 'forjr-overlay')
     return
   const role = roleOf(node)
   if (plain.has(role)) {

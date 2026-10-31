@@ -14,7 +14,7 @@ The text, each entry written as `concat` writes it. Handed a reference it answer
 
 ## Errors
 
-`code.T0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
+`code.F0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
 
 ## See also
 

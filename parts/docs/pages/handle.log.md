@@ -5,7 +5,7 @@ Writes a line of the log of the app, with the definition whose code wrote it. It
 ## Example
 
 ```ts
-import { action, log, text } from 'tentjs'
+import { action, log, text } from 'forjr'
 
 export const importOrders = action('importOrders', {
   access: 'signedIn',
@@ -24,11 +24,11 @@ export const importOrders = action('importOrders', {
 | `warn(message, data?)` | Writes a line of the level `warn` |
 | `error(message, data?)` | Writes a line of the level `error` |
 
-Each answers at once. `data` is kept as JSON text beside the message. `tent logs` reads the lines.
+Each answers at once. `data` is kept as JSON text beside the message. `forjr logs` reads the lines.
 
 ## Errors
 
-`code.T0010` when it is used with no engine, and `code.T0013` when no call is under way.
+`code.F0010` when it is used with no engine, and `code.F0013` when no call is under way.
 
 ## See also
 

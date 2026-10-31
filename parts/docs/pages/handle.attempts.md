@@ -5,7 +5,7 @@ Bounds what can be guessed: it counts the tries of a key, and fails once more we
 ## Example
 
 ```ts
-import { action, anyone, attempts, fail, passwords, sessions, text } from 'tentjs'
+import { action, anyone, attempts, fail, passwords, sessions, text } from 'forjr'
 
 export const signIn = action('signIn', {
   access: anyone('a sign-in is open to every visitor'),
@@ -27,7 +27,7 @@ export const signIn = action('signIn', {
 
 | Member | Does |
 |---|---|
-| `attempts.limit(key, { tries, per, address })` | Counts one try for `key`, and fails with `code.T0005` when more than `tries` were counted within `per`. `tries` is a whole number of 1 or more, and `per` a length of time, as `'10 minutes'`. The window starts at the first try, and a count is removed when its window has ended |
+| `attempts.limit(key, { tries, per, address })` | Counts one try for `key`, and fails with `code.F0005` when more than `tries` were counted within `per`. `tries` is a whole number of 1 or more, and `per` a length of time, as `'10 minutes'`. The window starts at the first try, and a count is removed when its window has ended |
 | `attempts.clear(key, { address })` | Empties the count of `key`, as after a sign-in that worked |
 
 **The key** is a text of the project's own choosing, which names what is tried: an account, a code, a coupon.
@@ -38,11 +38,11 @@ export const signIn = action('signIn', {
 
 ## Errors
 
-`code.T0005` for one try more than `tries` within `per`.
+`code.F0005` for one try more than `tries` within `per`.
 
-`code.T0013` when it is used in a query or a change.
+`code.F0013` when it is used in a query or a change.
 
-`code.T0002` when the key is no text, `tries` is no whole number of 1 or more, or `per` is no length of time.
+`code.F0002` when the key is no text, `tries` is no whole number of 1 or more, or `per` is no length of time.
 
 ## See also
 

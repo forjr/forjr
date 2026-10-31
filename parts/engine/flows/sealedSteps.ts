@@ -6,9 +6,9 @@ import { sealedAt } from '../values/seal.ts'
 
 /** What a sealed step result is bound to: its run, its step and its repeat, so that it opens for that step alone. */
 export const stepBound = (at: { run: string; name: string; repeat: number }): string =>
-  `_t_steps.result.${at.run}.${at.name}.${at.repeat}`
+  `_f_steps.result.${at.run}.${at.name}.${at.repeat}`
 
-/** The seal of the key of the data folder of an app. Throws T0019 where no key is at hand. */
+/** The seal of the key of the data folder of an app. Throws F0019 where no key is at hand. */
 export function stepSeal(o: Pick<Opened, 'dataFolder'>): Seal {
   const { seal } = sealedAt(o.dataFolder)
   if (!seal) throw noKeyAtHand('A sealed step result')

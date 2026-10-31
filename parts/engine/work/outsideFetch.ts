@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { storedLimit } from '../limits.ts'
 import type { Opened } from '../opened.ts'
 import { fileRow, fileStore, forgetFile, putFile } from '../stored/files.ts'
@@ -45,7 +45,7 @@ export async function fetchedByWriter(o: Opened, remote: Remote, asked: Paramete
  * the wrap holds to the addresses the app may reach and logs in `outgoing`. A body that the worker posted is sent
  * as it is read, and the file is removed after. Answers its status, its headers and its body: in base64 where it
  * fits in a frame, and else as a file that the writer made for the task as the body arrived, held to
- * `limits.workFileSize` (T0003), which is removed with the task.
+ * `limits.workFileSize` (F0003), which is removed with the task.
  */
 export async function fetchForWorker(o: Opened, out: OutTask | undefined, sent: unknown): Promise<object> {
   const request = isStored(sent) ? sent : {}
@@ -54,7 +54,7 @@ export async function fetchForWorker(o: Opened, out: OutTask | undefined, sent: 
     : []
   const posted = typeof request.file === 'string' ? fileRow(o, request.file) : undefined
   if (typeof request.file === 'string' && (!posted || !out?.posted?.includes(posted.id)))
-    throw new TentError('T5108', 'The file of the body was not posted for this task.')
+    throw new ForjrError('F5108', 'The file of the body was not posted for this task.')
   try {
     const answer = await fetch(String(request.url), {
       method: typeof request.method === 'string' ? request.method : 'GET',
@@ -71,7 +71,7 @@ export async function fetchForWorker(o: Opened, out: OutTask | undefined, sent: 
     if (ended) return { ...head, body: Buffer.from(first).toString('base64') }
     if (!out) {
       await all.cancel().catch(() => undefined)
-      throw new TentError('T5108', 'The task of the fetch is not out to this worker.')
+      throw new ForjrError('F5108', 'The task of the fetch is not out to this worker.')
     }
     const made = await putFile(o, all, {
       name: 'fetched',

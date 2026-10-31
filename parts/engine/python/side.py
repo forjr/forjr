@@ -205,7 +205,7 @@ class Fail(Exception):
 
 
 class Error(Exception):
-    """A call through tent.call that failed: its code, its words and its fields, as the engine told them."""
+    """A call through forjr.call that failed: its code, its words and its fields, as the engine told them."""
 
     def __init__(self, code, message, fields=None, wire=None):
         super().__init__(message)
@@ -285,7 +285,7 @@ class Entry:
 
     def db(self):
         if not self.rows_file:
-            raise Error("T0013", "This python states no `rows`: its `tent.db()` holds no table.")
+            raise Error("F0013", "This python states no `rows`: its `forjr.db()` holds no table.")
         # The address is made here: `as_uri` loads parts of Python late, where a project file may stand in front.
         posix = pathlib.Path(self.rows_file).resolve().as_posix()
         address = "file:" + ("///" if os.name == "nt" else "//") + urllib.parse.quote(posix, safe="/:")
@@ -302,7 +302,7 @@ class Entry:
         return ask(self.call_id, "file", id=id, entry=self.at)
 
 
-class Tent:
+class Forjr:
     """What `run` is handed beside its input."""
 
     Fail, Error, Back = Fail, Error, Back
@@ -317,7 +317,7 @@ class Tent:
 
     def _one(self, member):
         if self._entry is None:
-            raise Error("T0013", f"`tent.{member}` of a batch is the member of an entry: `entry.{member}`.")
+            raise Error("F0013", f"`forjr.{member}` of a batch is the member of an entry: `entry.{member}`.")
         return self._entry
 
     def db(self):
@@ -377,7 +377,7 @@ def loaded_module(file, root):
     if all(piece.isidentifier() for piece in pieces) and not taken:
         module = importlib.import_module(".".join(pieces))
     else:
-        spec = importlib.util.spec_from_file_location("tent_file_" + str(len(modules)), path)
+        spec = importlib.util.spec_from_file_location("forjr_file_" + str(len(modules)), path)
         module = importlib.util.module_from_spec(spec)
         spec.loader.exec_module(module)
     modules[file] = module
@@ -451,7 +451,7 @@ def failure(error, call):
     if isinstance(error, Error) and error.wire is not None:
         return {"kind": "wire", "error": error.wire}
     if isinstance(error, Error):
-        return {"kind": "tent", "code": error.code, "message": error.message}
+        return {"kind": "forjr", "code": error.code, "message": error.message}
     if isinstance(error, Unplain):
         return {"kind": "plain", "field": error.field}
     return {"kind": "error", "message": f"{type(error).__name__}: {error}", "trace": traceback.format_exc()}
@@ -474,15 +474,15 @@ def carried(given):
     try:
         module = load(given["file"], given["root"])
         run = getattr(module, "run")
-        tent = Tent(call, given, batch)
+        forjr = Forjr(call, given, batch)
         handed = [Entry(call, one, at) for at, one in enumerate(given["entries"])] if batch else given.get("input")
         if inspect.iscoroutinefunction(run):
             if loop[0] is None:
                 loop[0] = asyncio.new_event_loop()
                 threading.Thread(target=loop[0].run_forever, daemon=True).start()
-            answer = asyncio.run_coroutine_threadsafe(run(handed, tent), loop[0]).result()
+            answer = asyncio.run_coroutine_threadsafe(run(handed, forjr), loop[0]).result()
         else:
-            answer = run(handed, tent)
+            answer = run(handed, forjr)
         if batch:
             entries = []
             for at, one in enumerate(answer):

@@ -1,4 +1,4 @@
-import { action, anyone, change, files, file, flow, json, list, number, query, table, text } from 'tentjs'
+import { action, anyone, change, files, file, flow, json, list, number, query, table, text } from 'forjr'
 import { counted, remote, signed } from './services'
 
 const open = anyone('a test calls a service')

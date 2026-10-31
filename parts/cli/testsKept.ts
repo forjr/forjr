@@ -2,8 +2,8 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 
 import { join, relative, sep } from 'node:path'
 import type { Prints } from '../build/index.ts'
 import { projectPrints } from '../build/index.ts'
-import type { Description, TestsTouched } from '../core/internal.ts'
-import { fingerprintOf, isStored, touchedOf } from '../core/internal.ts'
+import type { Description } from '../core/internal.ts'
+import { fingerprintOf, isStored } from '../core/internal.ts'
 import { fitsPattern, shippedRelease } from '../engine/index.ts'
 import type { Ran } from './testsRan.ts'
 
@@ -41,14 +41,14 @@ export interface Ground {
 const keptFolders = ['tests/looks', 'tests/heard']
 
 /** The files of a project, beside its test files, whose change any test may stand on. */
-const groundFiles = ['tent.ts', 'seed.ts', 'engine.ts']
+const groundFiles = ['forjr.ts', 'seed.ts', 'engine.ts']
 
 /**
  * Takes the folder of a project and the test files a run covers. Answers what the keys of their tests are made from:
  * the project as it stands now, described with no bundle written, and the room the tests run their code in.
  */
 export async function groundOf(folder: string, files: string[]): Promise<Ground> {
-  const room = process.env.TENT_ROOM === 'apart' ? 'apart' : 'program'
+  const room = process.env.FORJR_ROOM === 'apart' ? 'apart' : 'program'
   const kept: Record<string, string> = {}
   for (const under of keptFolders) {
     if (!existsSync(join(folder, under))) continue
@@ -61,7 +61,7 @@ export async function groundOf(folder: string, files: string[]): Promise<Ground>
   return { prints: await projectPrints(folder, [...files, ...groundFiles]), room, kept }
 }
 
-const fileOf = (folder: string): string => join(folder, '.tent', 'tests.json')
+const fileOf = (folder: string): string => join(folder, '.forjr', 'tests.json')
 
 /** Sets the runs of one test of a record, by its file and its name. */
 function setRuns(tests: Kept['tests'], file: string, name: string, runs: KeptRun[]): void {
@@ -81,7 +81,7 @@ function isRun(value: unknown): value is KeptRun {
   )
 }
 
-/** The record of the tests that `tent test` kept in the engine's own folder of the project, with no test where none is. */
+/** The record of the tests that `forjr test` kept in the engine's own folder of the project, with no test where none is. */
 export function keptTests(folder: string): Kept {
   const kept: Kept = { tests: {} }
   if (!existsSync(fileOf(folder))) return kept
@@ -98,10 +98,6 @@ export function keptTests(folder: string): Kept {
       if (Array.isArray(runs) && runs.every(isRun)) setRuns(kept.tests, file, name, runs)
   return kept
 }
-
-/** What each test touched in its last run, as the record keeps it, or nothing where the tests of the project never ran. */
-export const recordedTouched = (folder: string): TestsTouched | undefined =>
-  existsSync(fileOf(folder)) ? touchedOf(keptTests(folder)) : undefined
 
 // The kinds of a record that name definitions, whose fingerprints a key holds.
 const definitionKinds = [
@@ -295,6 +291,6 @@ export function keepRan(
   const sorted = <Value>(record: Record<string, Value>): Record<string, Value> =>
     Object.fromEntries(Object.entries(record).sort(([a], [b]) => (a < b ? -1 : 1)))
   const written = sorted(Object.fromEntries(Object.entries(tests).map(([file, names]) => [file, sorted(names)])))
-  mkdirSync(join(folder, '.tent'), { recursive: true })
+  mkdirSync(join(folder, '.forjr'), { recursive: true })
   writeFileSync(fileOf(folder), `${JSON.stringify({ tests: written }, null, 2)}\n`)
 }

@@ -21,7 +21,7 @@ export const tidy = flow('tidy', {
 ```
 
 ```ts
-import { event as eventNamed, flow } from 'tentjs'
+import { event as eventNamed, flow } from 'forjr'
 
 export const deliveryWatch = flow('deliveryWatch', {
   on: eventNamed('order.shipped'),

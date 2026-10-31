@@ -29,7 +29,7 @@ async function listening(t: TestContext): Promise<{ port: number; reached: () =>
 
 /** An app of the project `looked` in the mode `test`, ended when the test ends. */
 async function opened(t: TestContext): Promise<App> {
-  const home = mkdtempSync(join(tmpdir(), 'tent-attack-opened-'))
+  const home = mkdtempSync(join(tmpdir(), 'forjr-attack-opened-'))
   const engine = createEngine({ port: 0 })
   t.after(async () => {
     await engine.close()

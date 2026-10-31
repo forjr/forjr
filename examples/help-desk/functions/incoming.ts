@@ -1,4 +1,4 @@
-import { flow, incoming, log, concat } from 'tentjs'
+import { flow, incoming, log, concat } from 'forjr'
 import { readMail } from '../lib/mail'
 import { embedder } from '../models/models'
 import { mailService } from '../services/services'

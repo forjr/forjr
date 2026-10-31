@@ -2,7 +2,7 @@ import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, symlinkSync }
 import { join } from 'node:path'
 import type { GuardedFetch } from '../connect/index.ts'
 import type { Finding } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import { fingerprintOf, write } from '../core/internal.ts'
 import type { Change, History, Point, Writer } from '../history/index.ts'
@@ -75,13 +75,13 @@ export interface PublishOptions {
 /** The pointer that keeps the point that was last published to a target. */
 const publishedAt = (address: string): string => `at:${new URL(address).origin.toLowerCase()}`
 
-/** The branch that `now` follows, which a preview is named by. Throws T0002 where it follows none. */
+/** The branch that `now` follows, which a preview is named by. Throws F0002 where it follows none. */
 function previewBranch(history: History): string {
   const branch = history.pointer('on')
   if (branch === undefined || branch === '')
-    throw new TentError('T0002', 'A preview is of a branch, and the history follows none.', {
+    throw new ForjrError('F0002', 'A preview is of a branch, and the history follows none.', {
       fields: { preview: 'branch' },
-      fix: 'Make a branch with `tent history branch <name>`, and publish its preview from there.',
+      fix: 'Make a branch with `forjr history branch <name>`, and publish its preview from there.',
     })
   return branch
 }
@@ -107,7 +107,7 @@ function filesIn(folder: string): [string, Uint8Array][] {
 async function liveDescription(o: PublishOptions, print: string | undefined): Promise<Description | undefined> {
   if (print === undefined) return undefined
   try {
-    const bytes = await asked({ to: o.to, fetch: o.fetch }, '/_t/sync/blobs', { want: [print] })
+    const bytes = await asked({ to: o.to, fetch: o.fetch }, '/_f/sync/blobs', { want: [print] })
     const [found] = bytes instanceof Uint8Array ? blobsOf(bytes) : []
     return found ? JSON.parse(new TextDecoder().decode(found[1])) : undefined
   } catch {
@@ -116,7 +116,7 @@ async function liveDescription(o: PublishOptions, print: string | undefined): Pr
   }
 }
 
-/** A bundle that was built elsewhere, read as data: its description, its folder and its version id. Throws T9101 for a folder that holds none. */
+/** A bundle that was built elsewhere, read as data: its description, its folder and its version id. Throws F9101 for a folder that holds none. */
 function bundleAt(folder: string): {
   description: Description
   bundleFolder: string
@@ -125,7 +125,7 @@ function bundleAt(folder: string): {
 } {
   const file = join(folder, 'description.json')
   if (!existsSync(file))
-    throw new TentError('T9101', `The folder ${folder} holds no bundle, and nothing is published.`, {
+    throw new ForjrError('F9101', `The folder ${folder} holds no bundle, and nothing is published.`, {
       fields: { reason: 'bundle' },
       fix: 'Hand publish the folder of a bundle that a build wrote.',
     })
@@ -138,14 +138,14 @@ type Npm = (folder: string, words: string[]) => { status: number; said: string }
 
 /** The folder a point is built in, under the engine's own folder of the project, with what it needs to build. */
 function folderOf(o: PublishOptions, point: Point, npm: Npm): string {
-  const folder = join(o.project, '.tent', 'publish', point.id)
+  const folder = join(o.project, '.forjr', 'publish', point.id)
   rmSync(folder, { recursive: true, force: true, maxRetries: 20, retryDelay: 50 })
   mkdirSync(folder, { recursive: true })
   o.history.write(point.id, folder)
   const lock = 'package-lock.json'
   const ours = existsSync(join(o.project, lock)) ? fingerprintOf(readFileSync(join(o.project, lock))) : undefined
   if (point.files?.[lock] !== ours && o.install !== true)
-    throw new TentError('T9101', `The point ${point.id} holds another lock file than the project, and is not built.`, {
+    throw new ForjrError('F9101', `The point ${point.id} holds another lock file than the project, and is not built.`, {
       fields: { point: point.id, reason: 'lock' },
       fix: 'Publish it with `--install`, which installs the lock file of the point into the folder it is built in.',
     })
@@ -153,8 +153,8 @@ function folderOf(o: PublishOptions, point: Point, npm: Npm): string {
     // The runtime's own npm installs the packages of the point's lock file, with the install scripts off.
     const installed = npm(folder, ['ci', '--ignore-scripts', '--no-audit', '--no-fund'])
     if (installed.status !== 0)
-      throw new TentError(
-        'T0016',
+      throw new ForjrError(
+        'F0016',
         `npm could not install the packages of the point:
 ${installed.said}`,
         {
@@ -173,9 +173,9 @@ ${installed.said}`,
  * the publish would do, and with `try` that is answered; and the target checks, adds, asks its health query and
  * switches. With `back` the target goes back to the version before. With `preview` the target runs the point
  * as an app of its own under the name of the branch that `now` follows, and what is live there is not touched.
- * Answers what the target answered, with what would break a caller. Throws T9101 for a point that is unsettled or
- * does not pass, T0002 for a preview with no branch, and what the target refused the publish with: T9103, T9104,
- * T9107.
+ * Answers what the target answered, with what would break a caller. Throws F9101 for a point that is unsettled or
+ * does not pass, F0002 for a preview with no branch, and what the target refused the publish with: F9103, F9104,
+ * F9107.
  */
 export async function publish(o: PublishOptions): Promise<Published> {
   const reaching = { to: o.to, fetch: o.fetch }
@@ -183,31 +183,31 @@ export async function publish(o: PublishOptions): Promise<Published> {
   const flags = { ...(o.stopRuns ? { stopRuns: true } : {}), ...(o.move ? { move: true } : {}) }
   // A release that goes is asked how it stands, widened or taken back: nothing is built or sent.
   if (o.release) {
-    const answer: Published = Object(await asked(reaching, '/_t/publish', { release: o.release }))
+    const answer: Published = Object(await asked(reaching, '/_f/publish', { release: o.release }))
     return { ...answer, breaks: [] }
   }
   if (o.back) {
     const answer: Published = Object(
-      await asked(reaching, '/_t/publish', { back: true, ...flags, ...(o.try ? { try: true } : {}) }),
+      await asked(reaching, '/_f/publish', { back: true, ...flags, ...(o.try ? { try: true } : {}) }),
     )
     if (!o.try && o.history.read(answer.point)) o.history.move(publishedAt(o.to.address), answer.point)
     return { ...answer, breaks: [], impact: noImpact('live') }
   }
   const picked = o.point === undefined ? o.history.record(o.project, { by, kind: 'command' }) : o.history.find(o.point)
   if (!picked)
-    throw new TentError('T9107', `The history holds no point that \`${o.point}\` names.`, {
+    throw new ForjrError('F9107', `The history holds no point that \`${o.point}\` names.`, {
       fields: { point: String(o.point) },
     })
   if (picked.unsettled)
-    throw new TentError(
-      'T9101',
+    throw new ForjrError(
+      'F9101',
       `The point ${picked.id} is a merge with clashes that are not settled, and is not published.`,
       {
         fields: { point: picked.id, reason: 'unsettled' },
-        fix: 'Settle its clashes with `tent history merge --settle` first.',
+        fix: 'Settle its clashes with `forjr history merge --settle` first.',
       },
     )
-  // The build, which holds the npm of the runtime, is loaded where a point is built: `tent start` loads none of it.
+  // The build, which holds the npm of the runtime, is loaded where a point is built: `forjr start` loads none of it.
   const folder = o.bundle === undefined ? folderOf(o, picked, (await import('../build/index.ts')).npm) : undefined
   const built =
     folder === undefined
@@ -216,7 +216,7 @@ export async function publish(o: PublishOptions): Promise<Published> {
         await (await import('./built.ts')).checkedBuild(folder, picked)
   const bundle = filesIn(built.bundleFolder)
   const files = Object.fromEntries(bundle.map(([path, bytes]) => [path, fingerprintOf(bytes)]))
-  const told = Object(await asked(reaching, '/_t/sync/have', { points: [], blobs: [], pointers: true }))
+  const told = Object(await asked(reaching, '/_f/sync/have', { points: [], blobs: [], pointers: true }))
   const live: { point?: string } = Object(told.live)
   const described = write(built.description).bytes
   const description = fingerprintOf(described)
@@ -237,13 +237,13 @@ export async function publish(o: PublishOptions): Promise<Published> {
   await sendBundle(reaching, bundle, files)
   const body = { point: point.id, version: built.versionId, files, ...flags, ...(o.gradual ? { gradual: true } : {}) }
   if (preview !== undefined) {
-    const answer: Published = Object(await asked(reaching, '/_t/publish', { ...body, preview }))
+    const answer: Published = Object(await asked(reaching, '/_f/publish', { ...body, preview }))
     if (folder !== undefined) rmSync(folder, { recursive: true, force: true, maxRetries: 20, retryDelay: 50 })
     return { ...answer, breaks: [], findings: [...built.findings, ...(answer.findings ?? [])] }
   }
   // What the target told of itself beside what it answers, which the impact is worked out with.
   const looked: Published & { facts?: ImpactFacts } = Object(
-    await asked(reaching, '/_t/publish', { ...body, try: true }),
+    await asked(reaching, '/_f/publish', { ...body, try: true }),
   )
   const before = await liveDescription(o, looked.live)
   const breaking = before ? breaks(before, built.description) : []
@@ -269,15 +269,15 @@ export async function publish(o: PublishOptions): Promise<Published> {
     }
   // Wider rights and breaks for callers outside land only where the impact was read: a script cannot land them unread.
   if ((impact.rights.length || impact.breaks.length) && o.acceptImpact !== true)
-    throw new TentError(
-      'T9103',
+    throw new ForjrError(
+      'F9103',
       `The publish widens ${impact.rights.length} rights and breaks ${impact.breaks.length} for callers outside, and its impact was not accepted.`,
       {
         fields: { reason: 'impact', count: String(impact.rights.length + impact.breaks.length) },
-        fix: 'Read the impact that `tent publish` prints, and publish with `--yes --accept-impact`.',
+        fix: 'Read the impact that `forjr publish` prints, and publish with `--yes --accept-impact`.',
       },
     )
-  const answer: Published & { facts?: ImpactFacts } = Object(await asked(reaching, '/_t/publish', body))
+  const answer: Published & { facts?: ImpactFacts } = Object(await asked(reaching, '/_f/publish', body))
   if (point.parents.every((one) => o.history.read(one))) o.history.take({ points: [point] })
   if (o.history.read(point.id)) keepImpact(o.history, point.id, impact)
   o.history.move(publishedAt(o.to.address), o.history.read(point.id) ? point.id : picked.id)

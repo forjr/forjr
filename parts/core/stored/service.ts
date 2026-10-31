@@ -87,13 +87,13 @@ const authForms: Record<string, string[] | undefined> = {
   ],
 }
 
-/** How a service signs its requests, as it is stored: one of the six forms. Any other is T1014. */
+/** How a service signs its requests, as it is stored: one of the six forms. Any other is F1014. */
 function authOf(told: Told, written: unknown): unknown {
   if (written === undefined) return undefined
   const bad = (why: string): undefined => {
     report(
       told,
-      'T1014',
+      'F1014',
       `\`auth\` ${why}.`,
       'Write one of bearer, header, basic, query, oauth and by, with the names of its form.',
     )
@@ -140,7 +140,7 @@ function callOf(told: Told, name: string, written: unknown): Stored {
 
 /**
  * The operations that `use` names, as they are stored: a list of their ids, or a record from the name of a call to
- * an operation, which names one at least. Any other is T1014.
+ * an operation, which names one at least. Any other is F1014.
  */
 function operationsOf(told: Told, written: unknown): unknown {
   if (written === undefined) return undefined
@@ -149,7 +149,7 @@ function operationsOf(told: Told, written: unknown): unknown {
   if (isStored(written) && Object.keys(written).length && textsOf(Object.values(written))) return leanOf(written)
   report(
     told,
-    'T1014',
+    'F1014',
     '`use` is neither a list of the operations of the file nor a record from the name of a call to one.',
     "Write `use: ['PostRefunds']`, or `use: { createRefund: 'PostRefunds' }`.",
   )
@@ -166,7 +166,7 @@ export function serviceOf(told: Told, o: Stored): Stored {
     if (program && o[field] !== undefined)
       report(
         told,
-        'T1014',
+        'F1014',
         `\`${field}\` is stated beside \`mcp.command\`, and a server that is a program has none.`,
         `Take \`${field}\` out: the engine speaks to the program over its input and its output.`,
       )
@@ -177,13 +177,13 @@ export function serviceOf(told: Told, o: Stored): Stored {
   const engines = ['content-length', 'host', ...signedHeaders(o.auth)]
   for (const header of Object.keys(optionsOf(o.headers)))
     if (engines.includes(header.toLowerCase()))
-      report(told, 'T1014', `the header ${header} is the engine's to set.`, 'Take the header out.')
+      report(told, 'F1014', `the header ${header} is the engine's to set.`, 'Take the header out.')
   const calls = Object.entries(optionsOf(o.calls)).map(([name, call]) => [name, callOf(told, name, call)] as const)
   for (const [name, call] of calls)
     for (const { field, place } of unwritableFields(call, o.url))
       report(
         told,
-        'T1014',
+        'F1014',
         `the field ${field} of the call ${name} is of a kind that cannot be written into ${place}.`,
         'Put the field where its kind can be written: into the body of the call, or as a value of its own.',
       )
@@ -215,7 +215,7 @@ function serviceCall(told: Told, option: string, handed: unknown): Stored | unde
   if (!call || told.all.get(service)?.kind !== 'service')
     report(
       told,
-      'T1014',
+      'F1014',
       `\`${option}\` names no call of a service.`,
       'Hand it a call of a service, as decisions.decide.',
     )
@@ -241,7 +241,7 @@ export function modelOf(told: Told, o: Stored): Stored {
     if (check && isStored(stored.call) && check.service !== stored.call.service)
       report(
         told,
-        'T1014',
+        'F1014',
         '`job.check` is a call of another service than `call`.',
         'Name a second call of the same service.',
       )
@@ -251,7 +251,7 @@ export function modelOf(told: Told, o: Stored): Stored {
     setField(made, 'every', ms(told, 'job.every', job.every))
     stored.job = made
     if (optionsOf(o.limits).time === undefined)
-      report(told, 'T1008', 'a model with `job` states no `limits.time`.', 'State how long the whole job may take.')
+      report(told, 'F1008', 'a model with `job` states no `limits.time`.', 'State how long the whole job may take.')
   }
   setField(stored, 'limits', limitsOf(told, o.limits, ['time'], [], { time: 60_000 }))
   setField(stored, 'fallback', namesAt(told, 'fallback', o.fallback))
@@ -272,7 +272,7 @@ function hostedOf(told: Told, o: Stored): string[] | undefined {
     if (ships && !has?.includes(name))
       report(
         told,
-        'T1014',
+        'F1014',
         `\`hosted\` names ${name}, which the provider ${String(o.provider)} does not run.`,
         `Name one of ${(has ?? []).join(', ') || 'none: this provider runs no tool of its own'}.`,
       )

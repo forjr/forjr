@@ -24,7 +24,7 @@ A list of `{ text, at, page }`. Every chunk is a part of the text exactly as it 
 
 ## Errors
 
-`code.T0002`: an option that is not allowed.
+`code.F0002`: an option that is not allowed.
 
 ## See also
 

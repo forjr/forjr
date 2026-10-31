@@ -14,7 +14,7 @@ function pythoned(as: string): string {
   const app = copyOf('pythoned/app', as)
   for (const [path, text] of [
     ['node_modules/pkg/a.py', 'packaged = True\n'],
-    ['.tent/own.py', 'own = True\n'],
+    ['.forjr/own.py', 'own = True\n'],
   ]) {
     mkdirSync(join(app, path, '..'), { recursive: true })
     writeFileSync(join(app, path), text)
@@ -91,7 +91,7 @@ test('[25-12] a python is described as the description format stores it; every .
   assert.deepEqual(readFileSync(join(made.bundleFolder, 'python', 'ml', 'churn.py')), bytesOf('ml/churn.py'))
 })
 
-test('[25-12] [15-1@9d] T7020: the project as it is passes, and a package that the second line of the lock does not name fails with exactly that code, at the lock, with the command as its fix, and writes no bundle', async () => {
+test('[25-12] [15-1@9d] F7020: the project as it is passes, and a package that the second line of the lock does not name fails with exactly that code, at the lock, with the command as its fix, and writes no bundle', async () => {
   const passing = await describeProject(pythoned('python-lock-passes'))
   assert.deepEqual(errorsOf(passing.findings), [])
   const app = pythoned('python-lock-stale')
@@ -102,18 +102,18 @@ test('[25-12] [15-1@9d] T7020: the project as it is passes, and a package that t
     "packages: ['tinyone>=1', 'natone', 'pandas']",
   )
   const made = await buildProject(app, { for: 'dev' })
-  assert.deepEqual([...new Set(made.findings.map((one) => one.code))], ['T7020'])
+  assert.deepEqual([...new Set(made.findings.map((one) => one.code))], ['F7020'])
   const [one] = made.findings
   assert.deepEqual(one?.where, { file: 'python.lock', line: 2 })
   assert.match(one?.message ?? '', /pandas/)
-  assert.match(one?.fix ?? '', /tent python lock/)
-  assert.equal(one?.docs, 'tent docs T7020')
+  assert.match(one?.fix ?? '', /forjr python lock/)
+  assert.equal(one?.docs, 'forjr docs F7020')
   assert.equal(made.bundleFolder, '')
   // So does the check, which reads what the build reads.
-  assert.deepEqual(told((await describeProject(app)).findings, 'T7020').length, 1)
+  assert.deepEqual(told((await describeProject(app)).findings, 'F7020').length, 1)
 })
 
-test('[25-12] [15-1@9d] a line of the lock that is an option, an address or another file is T7020 at its line, and so is a named lock that is not there and a lock made for another Python than the project names', async () => {
+test('[25-12] [15-1@9d] a line of the lock that is an option, an address or another file is F7020 at its line, and so is a named lock that is not there and a lock made for another Python than the project names', async () => {
   for (const [line, why] of [
     ['--index-url https://packages.example.net/simple', 'an option'],
     ['-e .', 'an option'],
@@ -125,23 +125,23 @@ test('[25-12] [15-1@9d] a line of the lock that is an option, an address or anot
   ]) {
     const app = pythoned('python-lock-line')
     changed(app, 'python.lock', 'tinyone==2.0', `${line}\ntinyone==2.0`)
-    const found = told((await describeProject(app)).findings, 'T7020')
+    const found = told((await describeProject(app)).findings, 'F7020')
     assert.equal(found.length, 1, `${why}: ${line}`)
     assert.match(found[0] ?? '', /^python\.lock:6 /, `${why}: ${line}`)
   }
   const unnamed = pythoned('python-lock-gone')
   rmSync(join(unnamed, 'python.old.lock'))
-  const gone = told((await describeProject(unnamed)).findings, 'T7020')
+  const gone = told((await describeProject(unnamed)).findings, 'F7020')
   assert.equal(gone.length, 1)
   assert.match(gone[0] ?? '', /python\.old\.lock/)
   const other = pythoned('python-lock-version')
   changed(other, 'python.lock', '# python 3.15', '# python 3.14')
-  const versions = told((await describeProject(other)).findings, 'T7020')
+  const versions = told((await describeProject(other)).findings, 'F7020')
   assert.equal(versions.length, 1)
   assert.match(versions[0] ?? '', /^python\.lock:1 .*3\.14.*3\.15/)
 })
 
-test('[25-12] an entry of packages that holds an option or an address is T1014 at its definition, and so is an index whose address holds a name and a password or is not https, and an entry of build that is no name', async () => {
+test('[25-12] an entry of packages that holds an option or an address is F1014 at its definition, and so is an index whose address holds a name and a password or is not https, and an entry of build that is no name', async () => {
   for (const [entry, why] of [
     ['--extra-index-url=https://packages.example.net/simple', 'an option'],
     ['natone --hash=sha256:00', 'an option'],
@@ -153,22 +153,22 @@ test('[25-12] an entry of packages that holds an option or an address is T1014 a
     changed(app, 'functions/churn.ts', "'natone']", `'natone', ${JSON.stringify(entry)}]`)
     const made = await describeProject(app)
     const line = lineWith(readFileSync(join(app, 'functions', 'churn.ts'), 'utf8'), "python('churnScore'")
-    assert.ok(placesOf(made.findings, 'T1014').includes(`functions/churn.ts:${line}`), `${why}: ${entry}`)
+    assert.ok(placesOf(made.findings, 'F1014').includes(`functions/churn.ts:${line}`), `${why}: ${entry}`)
   }
   // The standard's own two additions are no option: a part in square brackets and the mark of a system.
   const marked = pythoned('python-entry-marked')
   changed(marked, 'functions/churn.ts', "'natone']", `'natone[fast]>=1.0, <2', "winonly; sys_platform == 'win32'"]`)
-  assert.deepEqual(placesOf((await describeProject(marked)).findings, 'T1014'), [])
+  assert.deepEqual(placesOf((await describeProject(marked)).findings, 'F1014'), [])
   for (const [from, to] of [
     ["url: 'https://packages.example.com/simple'", "url: 'https://reader:s3cret@packages.example.com/simple'"],
     ["url: 'https://packages.example.com/simple'", "url: 'http://packages.example.com/simple'"],
     ["build: ['sdistonly']", "build: ['sdistonly>=1']"],
   ]) {
     const app = pythoned('python-index')
-    changed(app, 'tent.ts', from, to)
+    changed(app, 'forjr.ts', from, to)
     const made = await describeProject(app)
-    const line = lineWith(readFileSync(join(app, 'tent.ts'), 'utf8'), "project('churny'")
-    assert.ok(placesOf(made.findings, 'T1014').includes(`tent.ts:${line}`), to)
+    const line = lineWith(readFileSync(join(app, 'forjr.ts'), 'utf8'), "project('churny'")
+    assert.ok(placesOf(made.findings, 'F1014').includes(`forjr.ts:${line}`), to)
     assert.equal(
       made.findings.some((one) => one.message.includes('s3cret')),
       false,

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { component } from 'tentjs/ui'
+import { component } from 'forjr/ui'
 
 export const Badge = component('Badge', {
   view: () => {

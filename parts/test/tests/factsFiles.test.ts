@@ -24,7 +24,7 @@ test('[15-7] [50-6] readFacts, with no engine, holds a project against the file 
   for (const facts of [running, read]) {
     assert.deepEqual(
       facts.tableFindings.map((one) => [one.code, one.message.includes(north), one.message.includes(south)]),
-      [['T2001', true, false]],
+      [['F2001', true, false]],
     )
     assert.match(facts.tableFindings[0].message, /^1 row of `orders`/)
   }

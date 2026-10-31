@@ -1,4 +1,4 @@
-import { component, screen, boolean, number, text, Link } from 'tentjs/ui'
+import { component, screen, boolean, number, text, Link } from 'forjr/ui'
 
 // The component that the screen is shown inside: it places the screen, and is told which screen it wraps.
 export const Shell = component('Shell', {

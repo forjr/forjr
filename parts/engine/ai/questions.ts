@@ -1,11 +1,11 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { checkValue, fromJsonSchema } from '../../core/internal.ts'
 import type { RunView } from '../../flows/index.ts'
 import type { Opened } from '../opened.ts'
 
 /** The error of an answer to a question that cannot be given: none waits there, or the answer does not fit. */
-const notAnswered = (why: string): TentError =>
-  new TentError('T0002', why, {
+const notAnswered = (why: string): ForjrError =>
+  new ForjrError('F0002', why, {
     fix: 'Answer a question that `working` lists, with `data` that fits its choices or its shape.',
   })
 
@@ -20,7 +20,7 @@ export function questionAt(run: RunView, step: string, repeat?: number): Record<
 
 /**
  * Holds an answer to a question to it: there is one, and it is one of the question's `choices`, or fits its
- * `shape`, a JSON Schema. Throws T0002 otherwise.
+ * `shape`, a JSON Schema. Throws F0002 otherwise.
  */
 export function heldAnswer(question: Record<string, unknown>, data: unknown): void {
   if (data === undefined) throw notAnswered('A question is answered with its answer as `data`.')
@@ -34,7 +34,7 @@ export function heldAnswer(question: Record<string, unknown>, data: unknown): vo
 /**
  * Takes an app, a run, a step and its pass, and the answer, for an approve from code rather than from the starter:
  * `runs.approve` and the program's own. Where the step waits with a question, only a run that the system started
- * is answered so, as an ask of such a run is, and with an answer that fits (T3101 otherwise, and T0002). A step
+ * is answered so, as an ask of such a run is, and with an answer that fits (F3101 otherwise, and F0002). A step
  * that waits with no question is left to the runner.
  */
 export function answeredFromCode(o: Opened, run: string, step: string, data: unknown, repeat?: number): void {
@@ -44,7 +44,7 @@ export function answeredFromCode(o: Opened, run: string, step: string, data: unk
   if (!one || !question) return
   const top = runner?.read(one.top) ?? one
   if (top.startedBy?.kind !== 'system')
-    throw new TentError('T3101', `The question of the run ${run} is answered by the person who started it alone.`, {
+    throw new ForjrError('F3101', `The question of the run ${run} is answered by the person who started it alone.`, {
       fix: 'Let the starter answer it with `approve` of the agent.',
     })
   heldAnswer(question, data)

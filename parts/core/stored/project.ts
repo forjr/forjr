@@ -60,7 +60,7 @@ const projectOptions = [
 
 /**
  * The limits of the project as they are stored: a size in bytes, a length of time in milliseconds and a count as it
- * is, each left out where it equals what holds when it is left out. A name that is no limit is T1003.
+ * is, each left out where it equals what holds when it is left out. A name that is no limit is F1003.
  */
 function projectLimits(told: Told, written: unknown): Stored {
   const o = optionsOf(written)
@@ -86,7 +86,7 @@ function imagesOf(told: Told, written: unknown): Stored {
   return stored
 }
 
-/** A part of the project as it was written, held to the names that the shape gives it: T1003 for any other. */
+/** A part of the project as it was written, held to the names that the shape gives it: F1003 for any other. */
 function part(told: Told, o: Stored, name: string): Stored {
   const written = optionsOf(o[name])
   known(told, name, written, fieldsOf('project', name))
@@ -133,7 +133,7 @@ function workerOf(told: Told, kind: string, written: unknown): Stored {
     ) {
       report(
         told,
-        'T1014',
+        'F1014',
         `\`workers.${kind}.alone\` takes false or a whole number of 1 or more: ${shownAs(value)}.`,
         'Write how many workers of the kind may be kept for tasks that are handed out alone, or false.',
       )
@@ -160,7 +160,7 @@ export function projectOf(told: Told, o: Stored): Stored {
   if (o.currency !== undefined && !/^[A-Z]{3}$/.test(String(o.currency)))
     report(
       told,
-      'T1014',
+      'F1014',
       `\`currency\` is no three letters: ${shownAs(o.currency)}.`,
       "Write three capitals, as 'USD'.",
     )
@@ -179,13 +179,13 @@ export function projectOf(told: Told, o: Stored): Stored {
   if (cookies.sameSite === 'lax') delete cookies.sameSite
   setField(stored, 'cookies', cookies)
   const cli = part(told, o, 'cli')
-  // The name of the app's command: small letters, digits and hyphens, and never `tent`, which is the player's.
+  // The name of the app's command: small letters, digits and hyphens, and never `forjr`, which is the player's.
   const command = appCommand(told.name, cli)
-  if (command === 'tent' || !/^[a-z0-9][a-z0-9-]*$/.test(command))
+  if (command === 'forjr' || !/^[a-z0-9][a-z0-9-]*$/.test(command))
     report(
       told,
-      'T1014',
-      `the command of the app would be named \`${command.slice(0, 40)}\`, which is ${command === 'tent' ? 'the command of the player' : 'no name of a command'}.`,
+      'F1014',
+      `the command of the app would be named \`${command.slice(0, 40)}\`, which is ${command === 'forjr' ? 'the command of the player' : 'no name of a command'}.`,
       "Give it a name of small letters, digits and hyphens in `cli: { name: '...' }`.",
     )
   setField(stored, 'cli', leanOf(cli))
@@ -203,7 +203,7 @@ export function projectOf(told: Told, o: Stored): Stored {
         const setting = optionsOf(one)
         // The runtime takes whatever answers a member named `then` for a promise, so no setting can be read under it.
         if (name === 'then')
-          report(told, 'T1009', 'the setting name `then` is reserved.', 'Give the setting another name.')
+          report(told, 'F1009', 'the setting name `then` is reserved.', 'Give the setting another name.')
         return [
           name,
           {
@@ -277,7 +277,7 @@ export function projectOf(told: Told, o: Stored): Stored {
   if (vitals.share !== undefined && (typeof vitals.share !== 'number' || vitals.share < 0 || vitals.share > 1))
     report(
       told,
-      'T1014',
+      'F1014',
       `\`vitals.share\` takes a number from 0 to 1: ${shownAs(vitals.share)}.`,
       'Write the share of the page views that are measured, as 0.1.',
     )
@@ -289,14 +289,14 @@ export function projectOf(told: Told, o: Stored): Stored {
 
 /**
  * What the project states of its traces, as it is stored: the share that is kept, and where they are sent out. A
- * share that is no number from 0 to 1 is T1014.
+ * share that is no number from 0 to 1 is F1014.
  */
 function traceOf(told: Told, written: unknown): Stored | undefined {
   const o = part(told, { trace: written }, 'trace')
   if (o.share !== undefined && !(typeof o.share === 'number' && o.share >= 0 && o.share <= 1))
     report(
       told,
-      'T1014',
+      'F1014',
       `\`trace.share\` takes a number from 0 to 1: ${shownAs(o.share)}.`,
       'Write the share of the traces that is kept, as 0.1.',
     )
@@ -309,7 +309,7 @@ const ownAttributes = ['lang', 'dir']
 
 /**
  * The attributes that the project sets on `<html>` for a library, as they are stored: a name of small letters,
- * digits and hyphens that is no handler of an event and no attribute the engine writes, and a text. Any other is T1014.
+ * digits and hyphens that is no handler of an event and no attribute the engine writes, and a text. Any other is F1014.
  */
 function htmlOf(told: Told, written: unknown): Stored {
   const stored: Stored = {}
@@ -322,7 +322,7 @@ function htmlOf(told: Told, written: unknown): Stored {
     )
       report(
         told,
-        'T1014',
+        'F1014',
         `\`html\` sets \`${name.slice(0, 40)}\`, which is no attribute a project may set on the page.`,
         'Name an attribute of small letters, digits and hyphens with a text, as `data-shop`: no `on...`, `lang` or `dir`.',
       )

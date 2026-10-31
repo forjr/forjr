@@ -35,10 +35,10 @@ const kinds = {
     shows: (name) => ['Example', name],
   },
   command: {
-    title: (name) => `# ${word(`tent ${name}`)}`,
+    title: (name) => `# ${word(`forjr ${name}`)}`,
     sections: ['Usage', 'Options', 'Example', 'Output', 'Errors', 'See also'],
     needed: ['Usage'],
-    shows: (name) => ['Usage', `tent ${name}`],
+    shows: (name) => ['Usage', `forjr ${name}`],
   },
   code: {
     title: (name) => new RegExp(`^# ${name} [a-z0-9]+(?:-[a-z0-9]+)*$`),

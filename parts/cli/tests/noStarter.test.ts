@@ -6,16 +6,16 @@ import { fileURLToPath } from 'node:url'
 import { root } from './typed.ts'
 
 // What names a starter, as the framework had them: their folder and its file, the command that copied one, the
-// flag of `tent new` that wrote one, the library of their parts, a starter by its name, and their pages.
+// flag of `forjr new` that wrote one, the library of their parts, a starter by its name, and their pages.
 const names: RegExp[] = [
   /parts[\\/]starters/i,
-  /tentjs\/starters/i,
+  /forjr\/starters/i,
   /starter\.json/i,
-  /tent\.starter\//i,
-  /\btent copy\b/i,
+  /forjr\.starter\//i,
+  /\bforjr copy\b/i,
   /copyStarter/,
   /command\.copy\b/,
-  /\btent new\b[^\n]*--with\b/,
+  /\bforjr new\b[^\n]*--with\b/,
   /base-ui/i,
   /\bbase ui\b/i,
   /\b(signIn|teams|chat|search|parts|sign-in|screen)\s+starters?\b/i,
@@ -28,7 +28,7 @@ const names: RegExp[] = [
 // The papers of the build, which tell its history: the documents, the reports and reviews, the keeper's notes and
 // the trials. And what no file of the repository is: what git, a build, an install and a run of the tests leave.
 const papers = ['docs/build', 'docs/reports', 'docs/reviews', 'docs/answers.md', 'docs/keeper.md', 'trials']
-const left = ['.git', 'node_modules', 'results', '.tent', '.claude', '.runtime']
+const left = ['.git', 'node_modules', 'results', '.forjr', '.claude', '.runtime']
 
 // The files that are the keeper's own to write, held by a test of their own.
 const keepers = ['package.json', 'package-lock.json', 'THIRD-PARTY.md', 'biome.json', 'tsconfig.json']
@@ -38,7 +38,7 @@ const itself = [
   relative(root, fileURLToPath(import.meta.url))
     .split('\\')
     .join('/'),
-  'parts/cli/tests/newBare.test.ts',
+  'tests/apps/cli/newBare.test.ts',
 ]
 
 /** Every file of the repository by its path from the root, but the papers, what is left behind, and these two. */

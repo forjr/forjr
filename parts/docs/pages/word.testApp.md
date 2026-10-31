@@ -7,13 +7,13 @@ A fresh copy of the app for a test, in the program of the test itself: the proje
 ```ts
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 
 test('a customer cannot mark an order paid', async () => {
   const app = await testApp()
   const maya = await app.user({ name: 'Maya', roles: [] })
   const [order] = await app.rows('orders')
-  await assert.rejects(app.as(maya).call('markPaid', { order: order.id }), { code: 'T3101' })
+  await assert.rejects(app.as(maya).call('markPaid', { order: order.id }), { code: 'F3101' })
   await app.close()
 })
 ```

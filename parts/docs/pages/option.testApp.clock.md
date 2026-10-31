@@ -13,14 +13,14 @@ A worker with `separate: true`, a Python program and the browser's own timers ru
 ```ts
 const app = await testApp({ clock: 'held' })
 app.clock.set('2030-01-01T09:00:00Z')
-await app.as(maya).call(placeOrder, { item: 'tent' })
+await app.as(maya).call(placeOrder, { item: 'forjr' })
 app.clock.advance('3 days')
 await app.settled()
 ```
 
 ## Errors
 
-`code.T0027`: a length or a moment that does not read.
+`code.F0027`: a length or a moment that does not read.
 
 ## See also
 

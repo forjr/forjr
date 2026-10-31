@@ -3,7 +3,7 @@ import type { IncomingMessage, ServerResponse } from 'node:http'
 import { createServer } from 'node:http'
 import { createServer as createSecure } from 'node:https'
 import type { TestContext } from 'node:test'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Lookup } from '../lookup.ts'
 
 /** What a stand-in server was asked: the method, the path, the headers and the body of each request, in their order. */
@@ -95,13 +95,13 @@ export async function failure(work: Promise<unknown>): Promise<Error> {
 }
 
 /**
- * Holds that a promise is refused with T0022 by one rule, and that the message names the rule's address. Answers
+ * Holds that a promise is refused with F0022 by one rule, and that the message names the rule's address. Answers
  * the error.
  */
-export async function refused(work: Promise<unknown>, rule: string, address?: string): Promise<TentError> {
+export async function refused(work: Promise<unknown>, rule: string, address?: string): Promise<ForjrError> {
   const error = await failure(work)
-  assert.ok(error instanceof TentError, `${error.name}: ${error.message}`)
-  assert.equal(`${error.code} ${error.fields?.rule}`, `T0022 ${rule}`, error.message)
+  assert.ok(error instanceof ForjrError, `${error.name}: ${error.message}`)
+  assert.equal(`${error.code} ${error.fields?.rule}`, `F0022 ${rule}`, error.message)
   if (address !== undefined) {
     assert.ok(error.message.includes(address), `${error.message} does not name ${address}`)
     assert.equal(error.fields?.address, address)

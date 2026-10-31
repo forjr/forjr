@@ -13,7 +13,7 @@ import {
   object,
   role,
   text,
-} from 'tentjs'
+} from 'forjr'
 import { members, visits } from '../tables/tables'
 
 // What every member that is imported passes: its types, the rule of the staff, and the unique name.

@@ -1,4 +1,4 @@
-import { screen, read, useTranslations } from 'tentjs/ui'
+import { screen, read, useTranslations } from 'forjr/ui'
 import { openOrders } from '../functions/orders'
 
 /** The total of an order as money, in the currency of the project. */

@@ -1,6 +1,6 @@
 # Bots
 
-Always-on bots that work for you, on your own computer, built with Tent.js. Each bot has a name, a brief that says what it is for, and a memory of its own that lasts. A bot runs on a routine, on a schedule or when something happens, and you can talk to it. Bots hand work to each other, and one, the chief, routes what you ask to the right bot and tells you when it needs you.
+Always-on bots that work for you, on your own computer, built with Forjr. Each bot has a name, a brief that says what it is for, and a memory of its own that lasts. A bot runs on a routine, on a schedule or when something happens, and you can talk to it. Bots hand work to each other, and one, the chief, routes what you ask to the right bot and tells you when it needs you.
 
 ## What it shows
 
@@ -14,13 +14,13 @@ Always-on bots that work for you, on your own computer, built with Tent.js. Each
 ## Run it
 
 ```sh
-npm install -g tentjs
-git clone https://github.com/tentislabs/tent.js
-cd tent.js/examples/bots
+npm install -g forjr
+git clone https://github.com/forjr/forjr
+cd forjr/examples/bots
 npm install
-tent dev
+forjr dev
 ```
 
 Open `http://localhost:3000` and sign in as `sam@example.com` with the password `a long secret`. The models run through Claude Code, so it must be installed and signed in on the computer.
 
-To keep it running all the time, `tent build --out bundle` and then `tent service bundle --data data --port 4805`. The window in `desktop/` starts the app where it is not running and shows it.
+To keep it running all the time, `forjr build --out bundle` and then `forjr service bundle --data data --port 4805`. The window in `desktop/` starts the app where it is not running and shows it.

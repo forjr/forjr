@@ -26,7 +26,7 @@ test('[27-9] removing a person removes the summaries of their conversations', as
   }
   assert.ok((await rows()).includes('summary'))
   const token = String(JSON.parse(readFileSync(join(run.dataFolder, 'engine.json'), 'utf8')).token)
-  const answered = await send(run.app, `${run.origin}/_t/admin/data`, {
+  const answered = await send(run.app, `${run.origin}/_f/admin/data`, {
     body: JSON.stringify({ args: { what: 'user', do: 'remove', id: String(maya.user?.id), yes: true } }),
     headers: { authorization: `Bearer ${token}` },
   })

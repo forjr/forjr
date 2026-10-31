@@ -16,7 +16,7 @@ What an agent that builds may read, change and call in a workspace, through the 
 | `also` | None | The options that open something wider than one definition, each refused unless it is named: `'engine'` for writing `engine.ts`, whose makers reach past every definition, `'system'` on a definition, `'unlock'`, `'api.origins'`, `'cookies'` and `'framedBy'` of `project`, `'privateHosts'` and `'roots'`, and `'runAsSystem'` for the tool `run` |
 | `mode` | `'build'` | `'propose'` takes away every tool that writes, and `run`; `'frozen'` takes away every tool |
 
-After every tool that writes, the names the file held before are held against the names it holds now: a name that is gone needs `remove`, a new one `create`, and one whose record changed `edit`, each for the kind of that definition. A write that the policy refuses is undone, and the model is answered `code.T9105` with the rule.
+After every tool that writes, the names the file held before are held against the names it holds now: a name that is gone needs `remove`, a new one `create`, and one whose record changed `edit`, each for the kind of that definition. A write that the policy refuses is undone, and the model is answered `code.F9105` with the rule.
 
 The policy is the product's, not the model's: it is read from the description of the product's own app, and nothing in a workspace's files, its rows or a tool's answer can change it. What it does not judge is what a change means: where `edit` names a kind, a planted text may still make the AI give a table `read: anyone('x')` or add a step that mails rows to a host inside `reaches`. Each stands in the changes of the turn, which the product shows its user; a product that wants a person before such a change names `'edit'` in `ask`.
 
@@ -43,7 +43,7 @@ export const builder = agent('builder', {
 
 ## Errors
 
-`code.T9105` where a tool asks for what the policy does not allow.
+`code.F9105` where a tool asks for what the policy does not allow.
 
 ## See also
 

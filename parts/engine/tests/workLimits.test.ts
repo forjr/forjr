@@ -91,16 +91,16 @@ test('[51-10] a step that a limit holds back does not fail by wait though no wor
   await workMoment(50)
   assert.equal(kindIn(app(), 'gpu').heldBack, 0)
   await untilAsync('the run failed for want of a worker', () => app().runs.read(run)?.state === 'failed')
-  assert.equal(app().runs.read(run)?.error?.code, 'T5107')
+  assert.equal(app().runs.read(run)?.error?.code, 'F5107')
 })
 
-test('[51-10] a call at the door that a limit holds back is refused at once with T7102, and with atLimit fail the try of a step fails with it', async (t) => {
+test('[51-10] a call at the door that a limit holds back is refused at once with F7102, and with atLimit fail the try of a step fails with it', async (t) => {
   const { app } = await writerFor(t, { change: [kindLimits('gpu', { perDay: { workSeconds: 100 } })] })
   const ada = await person(app(), 'Ada')
   const gpu = await worker(app(), { atOnce: 3 })
   const first = app().call('encode', { n: 1 }, { as: ada })
   await untilAsync('the first call was handed out', () => tasksOf(gpu).length === 1)
-  assert.equal(await refusal(app().call('encode', { n: 2 }, { as: ada })), 'T7102')
+  assert.equal(await refusal(app().call('encode', { n: 2 }, { as: ada })), 'F7102')
   // A step waits for the reserve to be let go, where nothing is said.
   const { run } = notDropped(await app().start('square', { n: 2 }, { as: ada }))
   await workMoment(50)
@@ -119,17 +119,17 @@ test('[51-10] a call at the door that a limit holds back is refused at once with
   // Each try fails at once, and the step is tried again after its waits, as for any failure.
   await seconds(failing.advance, 240, [other])
   await untilAsync('the held step failed', () => failing.app().runs.read(held.run)?.state === 'failed')
-  assert.equal(failing.app().runs.read(held.run)?.error?.code, 'T7102')
+  assert.equal(failing.app().runs.read(held.run)?.error?.code, 'F7102')
   other.close()
 })
 
-test('[51-10] a step whose own reserve is more than the limit fails at once with T7102', async (t) => {
+test('[51-10] a step whose own reserve is more than the limit fails at once with F7102', async (t) => {
   const { app } = await writerFor(t, { change: [kindLimits('gpu', { perDay: { workSeconds: 30 } })] })
   const ada = await person(app(), 'Ada')
   const { run } = notDropped(await app().start('square', { n: 1 }, { as: ada }))
   await untilAsync('the run failed', () => app().runs.read(run)?.state === 'failed')
   const error = app().runs.read(run)?.error
-  assert.equal(error?.code, 'T7102')
+  assert.equal(error?.code, 'F7102')
   assert.match(String(error?.message), /60/)
   assert.match(String(error?.message), /30/)
 })
@@ -143,7 +143,7 @@ test('[51-10] with a reserve shorter than its time, more tasks go out at once', 
   await workMoment(50)
   assert.equal(tasksOf(gpu).length, 2)
   for (const [i, task] of tasksOf(gpu).entries()) await done(gpu, task, i)
-  assert.deepEqual((await Promise.all(calls)).sort(), ['T7102', 'T7102', 'T7102', 'answered', 'answered'])
+  assert.deepEqual((await Promise.all(calls)).sort(), ['F7102', 'F7102', 'F7102', 'answered', 'answered'])
   gpu.close()
   const short = await writerFor(t, {
     change: [kindLimits('gpu', { perDay: { workSeconds: 130 } }), ownLimits('encode', { reserve: 10_000 })],
@@ -203,7 +203,7 @@ test('[51-10] perCallerPerDay stops one caller and no other, and perDay of an ac
   const gpu = await worker(app(), { atOnce: 5 })
   const first = app().call('encode', { n: 1 }, { as: ada })
   await untilAsync('the first call was handed out', () => tasksOf(gpu).length === 1)
-  assert.equal(await refusal(app().call('encode', { n: 2 }, { as: ada })), 'T7102', 'a second for Ada passes her limit')
+  assert.equal(await refusal(app().call('encode', { n: 2 }, { as: ada })), 'F7102', 'a second for Ada passes her limit')
   // The call of Dee that is not held back is answered once its task was handed out and done.
   const answering = setInterval(() => {
     for (const task of tasksOf(gpu).slice(3)) gpu.send({ t: 'done', task, result: 6, cpuMs: 0 })
@@ -214,7 +214,7 @@ test('[51-10] perCallerPerDay stops one caller and no other, and perDay of an ac
   const [cy, dee] = [await person(app(), 'Cy'), await person(app(), 'Dee')]
   const resized = app().call('resize', { n: 4 }, { as: cy })
   await untilAsync('the first resize was handed out', () => tasksOf(gpu).length === 3)
-  assert.equal(await refusal(app().call('resize', { n: 5 }, { as: dee })), 'T7102', 'resize passes its own limit')
+  assert.equal(await refusal(app().call('resize', { n: 5 }, { as: dee })), 'F7102', 'resize passes its own limit')
   assert.equal(await refusal(app().call('encode', { n: 6 }, { as: dee })), 'answered', 'and encode does not')
   clearInterval(answering)
   for (const [i, task] of tasksOf(gpu).slice(0, 3).entries()) await done(gpu, task, i)
@@ -234,14 +234,14 @@ const usingTool: Provider = {
   },
 }
 
-test('[51-10] a run whose perRun names workSeconds fails with T7102 before a task that would pass it is handed out', async (t) => {
+test('[51-10] a run whose perRun names workSeconds fails with F7102 before a task that would pass it is handed out', async (t) => {
   const { app } = await writerFor(t, { provider: usingTool })
   const ada = await person(app(), 'Ada')
   const gpu = await worker(app())
   const { run } = notDropped(await app().start('helper', { message: 'Encode one.' }, { as: ada }))
   await untilAsync('the run failed', () => app().runs.read(run)?.state === 'failed')
   const error = app().runs.read(run)?.error
-  assert.equal(error?.code, 'T7102', JSON.stringify(error))
+  assert.equal(error?.code, 'F7102', JSON.stringify(error))
   assert.match(String(error?.message), /perRun/)
   await workMoment(50)
   assert.equal(tasksOf(gpu).length, 0, 'no task was handed out')

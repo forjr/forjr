@@ -1,5 +1,5 @@
 import test from 'node:test'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 import { addNote } from '../functions/note'
 
 test('a note is kept', async () => {

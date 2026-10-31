@@ -19,7 +19,7 @@ test('[53-5] a thread that a thread of a test started reads a file of the projec
   const first = tested(project)
   assert.equal(first.ended, 0, first.printed)
   assert.equal(standing(first.printed), 'passed', first.printed)
-  const record: unknown = JSON.parse(readFileSync(join(project, '.tent', 'tests.json'), 'utf8'))
+  const record: unknown = JSON.parse(readFileSync(join(project, '.forjr', 'tests.json'), 'utf8'))
   const kept: unknown = Reflect.get(Object(Reflect.get(Object(Reflect.get(Object(record), 'tests')), file)), name)
   const outside: unknown = Array.isArray(kept) ? Reflect.get(Object(kept[0]), 'outside') : undefined
   assert.ok(Array.isArray(outside) && outside.includes('file nested.txt'), JSON.stringify(kept))

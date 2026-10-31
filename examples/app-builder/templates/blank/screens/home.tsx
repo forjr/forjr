@@ -1,4 +1,4 @@
-import { anyone, screen } from 'tentjs/ui'
+import { anyone, screen } from 'forjr/ui'
 
 export const homeScreen = screen('homeScreen', {
   path: '/',

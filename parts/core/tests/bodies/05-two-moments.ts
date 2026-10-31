@@ -1,4 +1,4 @@
-import { between, later, query } from 'tentjs'
+import { between, later, query } from 'forjr'
 
 export const twoMoments = query('twoMoments', {
   access: 'everyone',

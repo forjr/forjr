@@ -7,11 +7,11 @@ import { copied, typed } from './typed.ts'
 // A change that states its output and fails on one path, as sample app 5 makes a bot, and a form over it whose
 // `then` reads the answer.
 const files: Record<string, string> = {
-  'tables/bots.ts': `import { table, text } from 'tentjs'
+  'tables/bots.ts': `import { table, text } from 'forjr'
 
 export const bots = table('bots', { columns: { name: text() }, access: { read: 'signedIn', add: 'signedIn' } })
 `,
-  'functions/bots.ts': `import { change, fail, link, object, text } from 'tentjs'
+  'functions/bots.ts': `import { change, fail, link, object, text } from 'forjr'
 
 export const addBot = change('addBot', {
   access: 'signedIn',
@@ -23,7 +23,7 @@ export const addBot = change('addBot', {
   },
 })
 `,
-  'screens/make.tsx': `import { Form, screen } from 'tentjs/ui'
+  'screens/make.tsx': `import { Form, screen } from 'forjr/ui'
 import { addBot } from '../functions/bots'
 
 export const makeScreen = screen('makeScreen', {
@@ -54,7 +54,7 @@ test("[32-2] the then of a Form is handed the answer of its change by the type o
   const checked = await typed(folder, 'check', '--json')
   const lines = files['screens/make.tsx'].split('\n')
   const refused = lines.flatMap((line, at) => (line.endsWith('// refused') ? [at + 1] : []))
-  const typeFindings = (checked.answer.findings ?? []).filter((one) => one.code === 'T8000')
+  const typeFindings = (checked.answer.findings ?? []).filter((one) => one.code === 'F8000')
   assert.deepEqual(
     typeFindings.map((one) => `${one.where?.file}:${one.where?.line}`),
     refused.map((line) => `screens/make.tsx:${line}`),

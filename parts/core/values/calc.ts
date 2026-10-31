@@ -5,7 +5,7 @@ import { asValue } from '../written.ts'
 
 /**
  * Takes a sign and two values. Answers what JavaScript works out for the sign: `calc` is the sign it names and
- * nothing more. Handed a reference it answers its record. Throws T0027 for a sign that is none of its own.
+ * nothing more. Handed a reference it answers its record. Throws F0027 for a sign that is none of its own.
  */
 export function calc(op: '+' | '-' | '*' | '/' | '%', a: number, b: number): number
 export function calc(op: '==' | '!=' | '<' | '<=' | '>' | '>=', a: unknown, b: unknown): boolean

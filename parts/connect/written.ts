@@ -1,12 +1,12 @@
 import type { Type } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 
 /** Where a field of the input of a call is written. */
 export type Place = 'path' | 'query' | 'form' | 'header'
 
 /** The error of a value that cannot be written where its call puts it. */
-const unwritable = (call: string, field: string, place: Place): TentError =>
-  new TentError('T1014', `The field ${field} of ${call} is of a kind that cannot be written into the ${place}.`, {
+const unwritable = (call: string, field: string, place: Place): ForjrError =>
+  new ForjrError('F1014', `The field ${field} of ${call} is of a kind that cannot be written into the ${place}.`, {
     fix: 'Put the field where its kind can be written: into the body of the call, or as a value of its own.',
   })
 
@@ -24,7 +24,7 @@ function single(call: string, field: string, place: Place, type: Type, value: un
 /**
  * Takes the name of a call, a field, its type and its value, the place it is written in, and how a list is
  * written after the question mark. Answers the pairs of names and texts it is written as: one for a single value,
- * one for each entry of a list, and for a record a pair for each of its fields, as deep as it goes. Throws T1014
+ * one for each entry of a list, and for a record a pair for each of its fields, as deep as it goes. Throws F1014
  * for a value that the place cannot hold.
  */
 export function pairsOf(

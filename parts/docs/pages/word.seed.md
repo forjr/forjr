@@ -1,11 +1,11 @@
 # `seed`
 
-The starter data of a project, which the file `seed.ts` exports as its default. It is applied to data that is empty: by `tent start --seed`, by `app.seed()`, and for every test app.
+The starter data of a project, which the file `seed.ts` exports as its default. It is applied to data that is empty: by `forjr start --seed`, by `app.seed()`, and for every test app.
 
 ## Example
 
 ```ts
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 import { customers } from './tables/customers'
 
 export default seed([customers.add({ name: 'Maya' }), customers.add({ name: 'Sam' })])
@@ -14,7 +14,7 @@ export default seed([customers.add({ name: 'Maya' }), customers.add({ name: 'Sam
 A list of writes cannot link a row to a row that the same list adds, since the id of a row is made when it is added. For that, the seed is an arrow:
 
 ```ts
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 
 export default seed(({ db, now }) => {
   const maya = db.customers.add({ name: 'Maya' })
@@ -37,9 +37,9 @@ The arrow is handed `{ db, call, now }`:
 
 The arrow may be `async`, where it waits for something of its own, as a `call` of an action.
 
-The seed runs in the program that holds the engine, and a file it reads by a path that is no whole one is read from the working folder of that program: the folder that `tent start` or `tent dev` was typed in, and for a test app the folder of the project, where `tent test` runs each test file. A bundle holds no file of the project but what the build put in it, so a seed that reads files of its own is applied where they lie beside it.
+The seed runs in the program that holds the engine, and a file it reads by a path that is no whole one is read from the working folder of that program: the folder that `forjr start` or `forjr dev` was typed in, and for a test app the folder of the project, where `forjr test` runs each test file. A bundle holds no file of the project but what the build put in it, so a seed that reads files of its own is applied where they lie beside it.
 
-A seed that fails ends with its failure: `tent start --seed` ends, `app.seed()` is refused, and the log of the app holds it. What the code of the seed threw is `code.T0009`, with the words of the failure; a failure of the engine, as a row that a table refuses, stays what it is. Each write that the seed made before it failed stands.
+A seed that fails ends with its failure: `forjr start --seed` ends, `app.seed()` is refused, and the log of the app holds it. What the code of the seed threw is `code.F0009`, with the words of the failure; a failure of the engine, as a row that a table refuses, stays what it is. Each write that the seed made before it failed stands.
 
 ## Returns
 

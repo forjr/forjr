@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Reached } from '../copy/reach.ts'
 import type { Fetched } from './fetched.ts'
 import type { Remote } from './remote.ts'
@@ -33,9 +33,9 @@ export function workerFiles(
       if (kept !== undefined) return JSON.parse(kept)
       const from = writer()
       const answer = await reached(from).request(
-        new Request(`${from}/_t/work/file/${fingerprint}?task=${encodeURIComponent(task)}`, { headers }),
+        new Request(`${from}/_f/work/file/${fingerprint}?task=${encodeURIComponent(task)}`, { headers }),
       )
-      if (!answer.ok) throw new TentError('T5108', `The writer did not give the file ${fingerprint} of this task.`)
+      if (!answer.ok) throw new ForjrError('F5108', `The writer did not give the file ${fingerprint} of this task.`)
       const text = await answer.text()
       fetched?.keep(fingerprint, text)
       return JSON.parse(text)
@@ -43,14 +43,14 @@ export function workerFiles(
     async carry(task, value) {
       const from = writer()
       const answer = await reached(from).request(
-        new Request(`${from}/_t/work/file?task=${encodeURIComponent(task)}&carry=1`, {
+        new Request(`${from}/_f/work/file?task=${encodeURIComponent(task)}&carry=1`, {
           method: 'POST',
           headers: { ...headers, 'content-type': 'application/octet-stream' },
           body: JSON.stringify(value ?? null),
         }),
       )
       const told = Object(await answer.json())
-      if (told.ok !== true) throw new TentError(String(Object(told.error).code ?? 'T0009'), 'The writer took no file.')
+      if (told.ok !== true) throw new ForjrError(String(Object(told.error).code ?? 'F0009'), 'The writer took no file.')
       return String(Object(told.value).id)
     },
     async rows(task) {
@@ -64,23 +64,23 @@ export function workerFiles(
     async bytes(task, id) {
       const from = writer()
       const answer = await reached(from).request(
-        new Request(`${from}/_t/work/file/${encodeURIComponent(id)}?task=${encodeURIComponent(task)}`, { headers }),
+        new Request(`${from}/_f/work/file/${encodeURIComponent(id)}?task=${encodeURIComponent(task)}`, { headers }),
       )
-      if (!answer.ok) throw new TentError('T0001', `No file has the id ${id.slice(0, 60)} for this task.`)
+      if (!answer.ok) throw new ForjrError('F0001', `No file has the id ${id.slice(0, 60)} for this task.`)
       return new Uint8Array(await answer.arrayBuffer())
     },
     async post(task, bytes, kind) {
       const from = writer()
       const query = `task=${encodeURIComponent(task)}${kind ? `&kind=${encodeURIComponent(kind)}` : ''}`
       const answer = await reached(from).request(
-        new Request(`${from}/_t/work/file?${query}`, {
+        new Request(`${from}/_f/work/file?${query}`, {
           method: 'POST',
           headers: { ...headers, 'content-type': 'application/octet-stream' },
           body: bytes.slice(),
         }),
       )
       const told = Object(await answer.json())
-      if (told.ok !== true) throw new TentError(String(Object(told.error).code ?? 'T0009'), 'The writer took no file.')
+      if (told.ok !== true) throw new ForjrError(String(Object(told.error).code ?? 'F0009'), 'The writer took no file.')
       return String(Object(told.value).id)
     },
     of: (task) => ({ bytes: (id) => files.bytes(task, id), post: (bytes, kind) => files.post(task, bytes, kind) }),

@@ -9,9 +9,9 @@ import { isWritten } from './written.ts'
 /** The name of the check that a field failed. */
 type Check = 'required' | 'type' | 'min' | 'max' | 'pattern' | 'values' | 'unknown'
 
-/** Makes the finding of one field that does not fit: T0002, with the dotted name of the field and the check it failed. */
+/** Makes the finding of one field that does not fit: F0002, with the dotted name of the field and the check it failed. */
 export const missOf = (path: string, check: Check, words: string): Finding =>
-  finding('T0002', `${path ? `\`${path}\`` : 'The value'} ${words}.`, { fields: { [path]: check } })
+  finding('F0002', `${path ? `\`${path}\`` : 'The value'} ${words}.`, { fields: { [path]: check } })
 
 /**
  * The way to a field while a value is walked: the name of the field, and the way to what holds it. Its dotted

@@ -14,7 +14,7 @@ function pinnedOf(name: string): string {
 
 /**
  * Lays a part that stands in for a fetched one where the engine looks for it, in a runner's folder of the test that
- * `TENT_HOME` names until the test ends: so nothing is fetched. Each file is a path inside the part and its text.
+ * `FORJR_HOME` names until the test ends: so nothing is fetched. Each file is a path inside the part and its text.
  */
 export function standIn(t: TestContext, name: string, files: Record<string, string>): void {
   const all = join(process.cwd(), 'results', 'test')
@@ -26,11 +26,11 @@ export function standIn(t: TestContext, name: string, files: Record<string, stri
     mkdirSync(dirname(join(place, path)), { recursive: true })
     writeFileSync(join(place, path), text)
   }
-  const before = process.env.TENT_HOME
-  process.env.TENT_HOME = home
+  const before = process.env.FORJR_HOME
+  process.env.FORJR_HOME = home
   t.after(() => {
-    if (before === undefined) delete process.env.TENT_HOME
-    else process.env.TENT_HOME = before
+    if (before === undefined) delete process.env.FORJR_HOME
+    else process.env.FORJR_HOME = before
   })
 }
 

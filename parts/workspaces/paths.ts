@@ -1,14 +1,14 @@
 import { existsSync, lstatSync, realpathSync } from 'node:fs'
 import { dirname, isAbsolute, join, relative, resolve, sep } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 
 // The files that the framework writes itself, which no tool writes, by their paths in lowercase.
-const ours = ['tent.clash.ts', 'tent.d.ts', 'mcp.lock.json']
+const ours = ['forjr.clash.ts', 'forjr.d.ts', 'mcp.lock.json']
 
 /** The error of a path that is no path of the workspace's own project, with the rule it broke. */
-const outside = (path: string, rule: string): TentError =>
-  new TentError(
-    'T9105',
+const outside = (path: string, rule: string): ForjrError =>
+  new ForjrError(
+    'F9105',
     `The path ${JSON.stringify(path).slice(0, 120)} is no path of this workspace's project: ${rule}.`,
     {
       fields: { rule },
@@ -31,10 +31,10 @@ function realOf(place: string): string {
 
 /**
  * Takes the folder of a workspace's project, a path that a tool was handed, and whether the tool writes. Answers
- * where the file lies, which `pathOf` names as the rules know it. Throws T9105 for a path that is not a plain path
+ * where the file lies, which `pathOf` names as the rules know it. Throws F9105 for a path that is not a plain path
  * inside the project, also after every link is followed and whatever its capitals, for a colon and for a name that
- * ends in a dot or a space, for one inside `.tent/`, and for a file the framework writes itself where
- * the tool writes: `tent.clash.ts`, `tent.d.ts`, `mcp.lock.json`; `engine.ts` is written only where `engine` says so.
+ * ends in a dot or a space, for one inside `.forjr/`, and for a file the framework writes itself where
+ * the tool writes: `forjr.clash.ts`, `forjr.d.ts`, `mcp.lock.json`; `engine.ts` is written only where `engine` says so.
  */
 export function pathIn(project: string, path: unknown, o: { writes: boolean; engine?: boolean }): string {
   if (typeof path !== 'string' || path === '' || path.includes('\0') || path.includes('\\'))
@@ -53,7 +53,7 @@ export function pathIn(project: string, path: unknown, o: { writes: boolean; eng
   if (from === '' || from.startsWith('..') || isAbsolute(from)) throw outside(path, 'it leads out of the project')
   const [first = ''] = from.split(sep)
   const lower = from.split(sep).join('/').toLowerCase()
-  if (first.toLowerCase() === '.tent') throw outside(path, "the folder of the engine is the framework's own")
+  if (first.toLowerCase() === '.forjr') throw outside(path, "the folder of the engine is the framework's own")
   if (o.writes && ours.includes(lower)) throw outside(path, 'the framework writes this file itself')
   if (o.writes && lower === 'engine.ts' && !o.engine)
     throw outside(path, '`engine.ts` is written only where the policy names `engine` in `also`')

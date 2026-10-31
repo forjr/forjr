@@ -1,5 +1,5 @@
 import { describeProject } from '../../build/index.ts'
-import { TentError, text } from '../../core/index.ts'
+import { ForjrError, text } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { finding } from '../../core/internal.ts'
 import { openHistory } from '../../history/index.ts'
@@ -55,7 +55,7 @@ export const command: Command = {
         live = await describedAt(history, data, against)
       } catch (error) {
         // A point that is none is an error of what was asked, as a finding.
-        if (!(error instanceof TentError)) throw error
+        if (!(error instanceof ForjrError)) throw error
         return { findings: [finding(error.code, error.message, error.fix === undefined ? {} : { fix: error.fix })] }
       } finally {
         history.close()

@@ -17,7 +17,7 @@ const description: Description = Object({
   commands: {},
 })
 
-// The record of the tests as `tent test` keeps it: one test that ran twice under one name, and one that touched nothing.
+// The record of the tests as `forjr test` keeps it: one test that ran twice under one name, and one that touched nothing.
 const record = {
   tests: {
     'tests/orders.test.ts': {

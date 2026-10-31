@@ -1,4 +1,4 @@
-import { change, flow, list, number, post, service, table, text } from 'tentjs'
+import { change, flow, list, number, post, service, table, text } from 'forjr'
 
 // The address is written anew by the test, with the port of its stand-in server.
 export const ledger = service('ledger', {

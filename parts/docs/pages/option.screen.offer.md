@@ -9,7 +9,7 @@ A list. `['mcp']` offers the screen to programs that speak MCP, which show it to
 ## Example
 
 ```tsx
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 export const ordersScreen = screen('ordersScreen', {
   path: '/orders',

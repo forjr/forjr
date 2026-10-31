@@ -11,7 +11,7 @@ A component that answers each visitor their own - a header that reads `user`, a 
 ## Example
 
 ```tsx
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 export const ordersScreen = screen('ordersScreen', {
   path: '/prices',
@@ -23,7 +23,7 @@ export const ordersScreen = screen('ordersScreen', {
 
 ## Errors
 
-`code.T1011`: the words are no length of time.
+`code.F1011`: the words are no length of time.
 
 ## See also
 

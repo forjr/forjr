@@ -1,4 +1,4 @@
-// Makes a release of Tent.js into `install/out/<version>/`: the layers of each system, `release.json`,
+// Makes a release of Forjr into `install/out/<version>/`: the layers of each system, `release.json`,
 // `systems.json` and `trust.json`, the installers with `install.sh`, the listings for winget and Homebrew, and the
 // packages of the npm door. Each named step can be run alone over what an earlier run wrote, where its key lies.
 // Run: node install/release.mjs --version <x.y.z> [--out <folder>] [--systems <list>] [--settings <file>]
@@ -104,7 +104,7 @@ if (step !== undefined && !Object.hasOwn(steps, step)) {
 try {
   for (const [name, run] of Object.entries(steps)) if (step === undefined || step === name) await run()
   if (step === undefined) rmSync(join(top, '.work'), { recursive: true, force: true })
-  say(`Tent.js ${version} is in ${c.out}.`)
+  say(`Forjr ${version} is in ${c.out}.`)
 } catch (error) {
   console.error(error instanceof Error ? error.message : String(error))
   process.exit(1)

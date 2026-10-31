@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isDoorPath } from '../../core/internal.ts'
 import type { Address } from '../door/address.ts'
 import { refusedCall } from '../door/failure.ts'
@@ -10,11 +10,11 @@ import { errorAnswer, okAnswer } from '../wire.ts'
 import { screenCaller } from '../door/scopes.ts'
 import { namedFor } from '../gradual/served.ts'
 
-const name = '/_t/screen'
+const name = '/_f/screen'
 
 /** The error of a request for a screen again that names no address of the app. */
-const noAddress = (path: unknown): TentError =>
-  new TentError('T0001', `${(JSON.stringify(path) ?? 'Nothing').slice(0, 120)} is no address of the app.`, {
+const noAddress = (path: unknown): ForjrError =>
+  new ForjrError('F0001', `${(JSON.stringify(path) ?? 'Nothing').slice(0, 120)} is no address of the app.`, {
     fix: 'Name an address of the app in `path`: it starts with one slash, and names no other site.',
   })
 
@@ -25,12 +25,12 @@ const noAddress = (path: unknown): TentError =>
 const isOurs = (app: Opened, path: string): boolean => isDoorPath(path) || routeAt(app, 'GET', path) !== undefined
 
 /**
- * `GET /_t/screen?path=<an address of the app>&version=<the page's version>`: what a request for that address
+ * `GET /_f/screen?path=<an address of the app>&version=<the page's version>`: what a request for that address
  * would have answered, as data, in the wire form: the record of the page, with every answer that the draw met and
  * no drawing; `{ goTo }` where that request would have sent the visitor on to another address of the app; and
  * `{ leave }` for an address that another address of the door takes, and for a screen that needs a sign-in where
  * no screen stands at the sign-in path. It passes steps 1 to 4 of the door, counted
- * as a request for a screen, and step 10. A version that can no longer be loaded answers T0007 with the running
+ * as a request for a screen, and step 10. A version that can no longer be loaded answers F0007 with the running
  * one. With `prefetch=1` no action of `data` is called. With `above=1` the screen is drawn to be opened above another.
  */
 export const address: Address = {

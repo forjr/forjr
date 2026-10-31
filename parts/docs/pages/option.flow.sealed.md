@@ -24,7 +24,7 @@ export const charge = flow('charge', {
 
 ## Errors
 
-`code.T0019`: no key of the secrets is at hand, or a sealed result does not open for its step.
+`code.F0019`: no key of the secrets is at hand, or a sealed result does not open for its step.
 
 ## See also
 

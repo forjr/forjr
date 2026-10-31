@@ -25,7 +25,7 @@ export const shop = project('shop', {
 
 ## Errors
 
-`code.T0022`, where an address is reached that no line lists.
+`code.F0022`, where an address is reached that no line lists.
 
 ## See also
 

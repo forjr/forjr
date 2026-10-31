@@ -41,10 +41,10 @@ test('[52-10] [40-20] the live connection of a page of an app of anyone else is 
   const made = await at.workspaces.create({ owner: 'ada', from: 'coded' })
   await at.workspaces.run(made.id)
   assert.equal(sandbox.started.length, 1, 'the workspace is built in its box')
-  const live = await opening(at.port, nameOf(made.id), '/_t/live')
+  const live = await opening(at.port, nameOf(made.id), '/_f/live')
   assert.equal(live.status, 101, 'the live connection is opened')
   live.close()
   // A name that no workspace has opens nothing.
-  const none = await opening(at.port, nameOf('01m0000000000000000000000z'), '/_t/live')
+  const none = await opening(at.port, nameOf('01m0000000000000000000000z'), '/_f/live')
   assert.notEqual(none.status, 101)
 })

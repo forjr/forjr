@@ -1,4 +1,4 @@
-import { screen, read, useField, Form } from 'tentjs/ui'
+import { screen, read, useField, Form } from 'forjr/ui'
 import { homeOf, join } from './moves'
 
 /** A field that `useField` drives, which shows the words of its failed check under it. */

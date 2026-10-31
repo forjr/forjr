@@ -1,4 +1,4 @@
-import { passwords, seed } from 'tentjs'
+import { passwords, seed } from 'forjr'
 
 // One person, the owner of the computer, with the chief, a Calendar bot, and three apps ready to switch on.
 export default seed(async ({ db }) => {

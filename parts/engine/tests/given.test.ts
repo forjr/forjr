@@ -12,7 +12,7 @@ const day = 86_400_000
 /** Sends a command to the admin channel of an app, as a command of this computer does, with no network. */
 async function command(dataFolder: string, app: App, origin: string, name: string, args: object) {
   const token = String(JSON.parse(readFileSync(join(dataFolder, 'engine.json'), 'utf8')).token)
-  return send(app, `${origin}/_t/admin/${name}`, {
+  return send(app, `${origin}/_f/admin/${name}`, {
     body: JSON.stringify({ args }),
     headers: { authorization: `Bearer ${token}` },
   })
@@ -27,7 +27,7 @@ async function until(what: string, holds: () => boolean): Promise<void> {
   assert.fail(`never: ${what}`)
 }
 
-test('[40-3b] engine.give hands the engine an admin command of a part above it: the channel carries it out for the app it was given for, under the token of the engine, and a thing of another form is T0013', async (t) => {
+test('[40-3b] engine.give hands the engine an admin command of a part above it: the channel carries it out for the app it was given for, under the token of the engine, and a thing of another form is F0013', async (t) => {
   const run = await running(t)
   const asked: unknown[] = []
   run.engine.give(
@@ -46,17 +46,17 @@ test('[40-3b] engine.give hands the engine an admin command of a part above it: 
   assert.deepEqual(answered.body.value, { points: 3 })
   assert.deepEqual(asked, [[true, { what: 'list' }]])
   // The command passes what every command of the channel passes: with no token it is refused, and nothing is carried out.
-  const refused = await send(run.app, `${run.origin}/_t/admin/history`, { body: JSON.stringify({ args: {} }) })
-  assert.equal(refused.error.code, 'T0006')
+  const refused = await send(run.app, `${run.origin}/_f/admin/history`, { body: JSON.stringify({ args: {} }) })
+  assert.equal(refused.error.code, 'F0006')
   assert.equal(asked.length, 1)
   // What a given command throws is answered as the failure of a command.
   run.engine.give('admin', 'broken', { run: () => Promise.reject(new Error('the part above failed')) })
   const failed = await command(run.dataFolder, run.app, run.origin, 'broken', {})
   assert.equal(failed.body.ok, false)
   // A command that nobody gave is not there, and a thing of another form is not taken.
-  assert.equal((await command(run.dataFolder, run.app, run.origin, 'nobody-gave-this', {})).error.code, 'T0001')
-  assert.throws(() => run.engine.give('admin', 'formless', { daily: () => undefined }), { code: 'T0013' })
-  assert.throws(() => run.engine.give('upkeep', 'formless', { run: () => undefined }), { code: 'T0013' })
+  assert.equal((await command(run.dataFolder, run.app, run.origin, 'nobody-gave-this', {})).error.code, 'F0001')
+  assert.throws(() => run.engine.give('admin', 'formless', { daily: () => undefined }), { code: 'F0013' })
+  assert.throws(() => run.engine.give('upkeep', 'formless', { run: () => undefined }), { code: 'F0013' })
 })
 
 test('[40-3b] a share of the daily upkeep that was given is carried out when it is given, and then with each daily upkeep of its app, and what it throws is written to the log and stops nothing', async (t) => {
@@ -131,7 +131,7 @@ test('[40-3b] a switch with back retires what the older version does not know wi
 
   // Without `back` the older version is refused: a column that is gone with no statement is no table change.
   const older = await app.add(first.folder)
-  assert.match(String(await codeOf(app.switch(older))), /^T200[2-4]$/)
+  assert.match(String(await codeOf(app.switch(older))), /^F200[2-4]$/)
   assert.equal(app.versions().find((version) => version.running)?.id, wider.versionId)
   // With `back` what was added since is retired, and nothing is dropped.
   const back = await app.switch(older, { back: true })
@@ -154,4 +154,56 @@ test('[40-3b] a switch with back retires what the older version does not know wi
     Object(await app.read({ from: 'labels' }, { as: system })).map((row: Record<string, unknown>) => row.name),
     ['urgent'],
   )
+})
+
+test('[40-3b] a share of the upkeep that is given again under its name takes the place of the first: the first is carried out no more, and the second once with each daily upkeep', async (t) => {
+  const { clock, advance } = testClock()
+  const run = await running(t, { engine: { makers: { clock: () => clock } } })
+  let first = 0
+  let second = 0
+  run.engine.give('upkeep', 'history', { daily: () => void first++ }, run.app)
+  await until('the first share at its giving', () => first === 1)
+  // The history of a project is closed and opened again, and its share is given again under the same name.
+  run.engine.give('upkeep', 'history', { daily: () => void second++ }, run.app)
+  await until('the second share at its giving', () => second === 1)
+  advance(day)
+  await until('the upkeep of the first day', () => second === 2)
+  await new Promise((ended) => setTimeout(ended, 20))
+  assert.equal(first, 1, 'the share that was replaced is carried out no more')
+  assert.equal(second, 2, 'the share is carried out once with each daily upkeep')
+})
+
+test('[40-3b] a switch with back across a column that was renamed with was: the older version reads the values under the old name, and going forward again reads them under the new one', async (t) => {
+  const work = workFolder(t)
+  const first = await bundled(t, { project: 'board' }, work)
+  const renamed = await bundled(
+    t,
+    {
+      project: 'board',
+      change: (d: Description) => {
+        const columns = Object(d.tables.cards.columns)
+        columns.heading = { ...columns.title, was: ['title'] }
+        delete columns.title
+        for (const fn of Object.values(d.functions)) {
+          const text = JSON.stringify(fn).replaceAll('"title"', '"heading"')
+          Object.assign(fn, JSON.parse(text))
+        }
+      },
+    },
+    work,
+  )
+  const engine = engineOf(t)
+  const app = await engine.open(first.folder, { dataFolder: join(work, 'data'), mode: 'development' })
+  await addCard(app, 'a', 1)
+  await app.switch(await app.add(renamed.folder))
+  const read = async (column: string): Promise<unknown> =>
+    Object(await app.read({ from: 'cards', sort: [{ by: 'rank' }] }, { as: system })).map(
+      (row: Record<string, unknown>) => row[column] ?? null,
+    )
+  assert.deepEqual(await read('heading'), ['a'])
+
+  await app.switch(await app.add(first.folder), { back: true })
+  assert.deepEqual(await read('title'), ['a'], 'the older version reads the value it wrote')
+  await app.switch(await app.add(renamed.folder))
+  assert.deepEqual(await read('heading'), ['a'], 'going forward again reads the value under the new name')
 })

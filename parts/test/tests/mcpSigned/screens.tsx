@@ -1,4 +1,4 @@
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 // The screen at `signInPath`, which a person who is sent there sees.
 export const signInScreen = screen('signInScreen', {

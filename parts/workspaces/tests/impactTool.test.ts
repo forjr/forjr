@@ -5,7 +5,7 @@ import { describeProject } from '../../build/index.ts'
 import { join } from 'node:path'
 import { tooled } from './tooled.ts'
 
-test('[44-2] the project tool impact answers what tent impact prints: the project as it stands against the version that runs, in the form of the impact as JSON', async (t) => {
+test('[44-2] the project tool impact answers what forjr impact prints: the project as it stands against the version that runs, in the form of the impact as JSON', async (t) => {
   const { tool, made, workspaces } = await tooled(t)
   // The version that runs, as the tool holds the change against it: taken before the change, so nothing of it is built.
   const app = await workspaces.run(made.id)
@@ -19,7 +19,7 @@ test('[44-2] the project tool impact answers what tent impact prints: the projec
   assert.equal(answered.against, 'running')
   assert.deepEqual(
     answered.rights.map((one: { name: string; change: string }) => [one.name, one.change]),
-    [['whoAmI', 'now callable by anyone']],
+    [['whoAmI', 'now callable by anyone (why: a test widens it)']],
   )
   // The same as the impact of the project as it stands against the description of the running version.
   const { description } = await describeProject(join(made.folder, 'project'))

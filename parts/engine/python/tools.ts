@@ -1,6 +1,6 @@
 import { existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Mode } from '../../data/index.ts'
 import type { FetchedPart } from '../fetchPart.ts'
 import { fetchPart, shippedList } from '../fetchPart.ts'
@@ -40,8 +40,8 @@ export function pinnedPythons(): { versions: string[]; systems: string[] } {
 }
 
 /** The error of a part that stands in its place and holds no program of the kind the engine runs. */
-const noProgram = (name: string, what: string): TentError =>
-  new TentError('T0016', `The part ${name} could not be fetched: it holds no ${what} for this system.`, {
+const noProgram = (name: string, what: string): ForjrError =>
+  new ForjrError('F0016', `The part ${name} could not be fetched: it holds no ${what} for this system.`, {
     fix: 'Remove its folder under `fetched/` of the runner, so that it is fetched anew.',
   })
 
@@ -56,7 +56,7 @@ const fetching = (parts: PythonParts, list?: FetchedPart[]) => ({
 
 /**
  * Takes where the parts are taken from. Answers the program of the installer of packages, fetched once. Its archive
- * holds it at its top on Windows, and in a folder of its own on macOS and Linux. Throws T0016.
+ * holds it at its top on Windows, and in a folder of its own on macOS and Linux. Throws F0016.
  */
 export async function installerOf(parts: PythonParts): Promise<string> {
   const place = await fetchPart('uv', fetching(parts))
@@ -76,7 +76,7 @@ export interface OwnPython {
 
 /**
  * Takes a line of Python, where the parts are taken from, and a Python of the builder's own, where `python.own`
- * names one for that line. Answers the folder of the part and its program, fetched once. Throws T0016.
+ * names one for that line. Answers the folder of the part and its program, fetched once. Throws F0016.
  */
 export async function pythonOf(
   version: string,

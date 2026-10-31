@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Opened } from '../opened.ts'
 import type { Placed } from './mapped.ts'
 import { inSource } from './mapped.ts'
@@ -25,7 +25,7 @@ export interface Failure {
   where?: { file: string; line: number; column: number }
   lines?: { line: number; text: string }[]
   calls: ChainCall[]
-  // The trace the failure happened in, which `tent logs --trace` prints as a tree.
+  // The trace the failure happened in, which `forjr logs --trace` prints as a tree.
   trace?: string
 }
 
@@ -78,7 +78,7 @@ export function shownFailure(
           .map((text, place) => ({ line: place + 1, text }))
           .slice(Math.max(0, first.line - 1 - around), first.line + around)
   return {
-    code: error instanceof TentError ? error.code : 'T0009',
+    code: error instanceof ForjrError ? error.code : 'F0009',
     level: 'error',
     message,
     failed: name,

@@ -70,8 +70,8 @@ test('[31-2] draw with a test read and no engine draws a screen: its query is as
   assert.ok(
     html.includes('<meta name="viewport" content="width=device-width, initial-scale=1">\n<title>Orders</title>\n'),
   )
-  assert.ok(html.includes('<link rel="stylesheet" href="/_t/b/browser/styles.css">\n'))
-  assert.ok(html.includes('<link rel="modulepreload" href="/_t/b/browser/screens.ordersScreen.js">\n'))
+  assert.ok(html.includes('<link rel="stylesheet" href="/_f/b/browser/styles.css">\n'))
+  assert.ok(html.includes('<link rel="modulepreload" href="/_f/b/browser/screens.ordersScreen.js">\n'))
   assert.ok(html.endsWith('</script>\n</body>\n</html>\n'))
 })
 
@@ -91,12 +91,12 @@ test('[31-2] draw draws a screen whose view uses useQuery, after findPageCode wa
   assert.ok(made.html?.includes('<title>Orders of 42</title>'))
   // The view and the page code hold one React, and the six names of the page code are what a module is answered.
   assert.deepEqual(Object.keys(names).sort(), [
+    'forjr/ui',
     'react',
     'react-dom',
     'react-dom/client',
     'react/jsx-dev-runtime',
     'react/jsx-runtime',
-    'tentjs/ui',
   ])
   assert.equal(Reflect.get(names.react, 'useState'), useState)
   // The server file gives the things that an engine and the build take of it: in development, also what tells the
@@ -104,7 +104,7 @@ test('[31-2] draw draws a screen whose view uses useQuery, after findPageCode wa
   assert.deepEqual(Object.keys(server).sort(), ['draw', 'findPageCode', 'names', 'ownersOf'])
   assert.equal(server.draw, draw)
   assert.equal(server.findPageCode, findPageCode)
-  assert.equal(Reflect.get(names['tentjs/ui'], 'screen'), screen)
+  assert.equal(Reflect.get(names['forjr/ui'], 'screen'), screen)
 })
 
 test('[31-3] a heavy query in a useQuery: the first pass answers later, and the page that is drawn with its answer holds its rows', async () => {
@@ -186,7 +186,7 @@ test('[31-2] an entry is asked with its input worked out, is not asked while a v
     needed: true,
     value: null,
   })
-  const error = { code: 'T3101', name: 'not-allowed', message: 'You may not do this.' }
+  const error = { code: 'F3101', name: 'not-allowed', message: 'You may not do this.' }
   const failed = await drawnOf({
     page: { params: { id: 'a' } },
     answers: { openOrders: (told: object) => ({ ...told, error }), getOrder: one },
@@ -269,7 +269,7 @@ test('[31-5] a row whose text holds the end of a script and a line separator is 
   })
   const html = made.html ?? ''
   // No text of a row ends the block or starts a tag: the block holds no `<`, no `>`, no `&` and no line separator.
-  const block = /<script type="application\/json" id="tent-page">([\s\S]*?)<\/script>/.exec(html)?.[1] ?? ''
+  const block = /<script type="application\/json" id="forjr-page">([\s\S]*?)<\/script>/.exec(html)?.[1] ?? ''
   const separators = String.fromCharCode(0x2028, 0x2029)
   assert.ok(
     block.length > 0 && ![...`<>&${separators}`].some((sign) => block.includes(sign)),

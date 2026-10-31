@@ -36,7 +36,7 @@ test('[16-4@4] each request to an address of the link writes one row of calls on
       .filter(([path]) => path === under || path.startsWith(`${under}/`))
       .reduce((sum, [, count]) => sum + count, 0)
   for (const name of ['copy/versions', 'copy/blob', 'copy/data'])
-    assert.equal(rows.filter((row) => row.name === name).length, made(`/_t/${name}`), name)
+    assert.equal(rows.filter((row) => row.name === name).length, made(`/_f/${name}`), name)
   // The link is opened by no request of that kind: each opening is one reader that joined.
   assert.equal(
     rows.filter((row) => row.name === 'copy').length,
@@ -50,17 +50,17 @@ test('[16-4@4] each request to an address of the link writes one row of calls on
   const before = logRows(writerData, 'calls').length
   const asked = (key: string, path: string, method = 'GET'): Promise<Response> =>
     app.request(new Request(`${machineAddress.writer}${path}`, { method, headers: { authorization: `Bearer ${key}` } }))
-  assert.equal((await asked(keys.none, '/_t/copy/versions')).status, 404)
+  assert.equal((await asked(keys.none, '/_f/copy/versions')).status, 404)
   assert.equal(logRows(writerData, 'calls').length, before)
   // A request that is refused past its key is a row too, with its code.
-  assert.equal((await asked(keys.near, '/_t/copy/blob/nothing')).status, 404)
-  assert.equal((await asked(keys.near, '/_t/copy/took', 'POST')).status, 400)
+  assert.equal((await asked(keys.near, '/_f/copy/blob/nothing')).status, 404)
+  assert.equal((await asked(keys.near, '/_f/copy/took', 'POST')).status, 400)
   const refused = logRows(writerData, 'calls').slice(before)
   assert.deepEqual(
     refused.map((row) => [row.name, row.kind, row.callerId, row.ok, row.code]),
     [
-      ['copy/blob', 'copy', idOf(keys.near), 0, 'T0001'],
-      ['copy/took', 'copy', idOf(keys.near), 0, 'T0002'],
+      ['copy/blob', 'copy', idOf(keys.near), 0, 'F0001'],
+      ['copy/took', 'copy', idOf(keys.near), 0, 'F0002'],
     ],
   )
 })

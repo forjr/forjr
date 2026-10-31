@@ -40,7 +40,7 @@ export const synced = flow('synced', {
 
 ## Errors
 
-`code.T1003`: `pace` holds a part that is none of these. `code.T1011`: a length of time that does not read.
+`code.F1003`: `pace` holds a part that is none of these. `code.F1011`: a length of time that does not read.
 
 ## See also
 

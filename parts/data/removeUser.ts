@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import type { Seal } from './context.ts'
 import { createDb } from './createDb.ts'
@@ -14,7 +14,7 @@ const system = { kind: 'system' } as const
 const unopened: Seal = {
   open: (sealed) => sealed,
   close(_value, bound) {
-    throw new TentError('T0019', `The removal of a person holds no key, and was asked to seal ${bound}.`)
+    throw new ForjrError('F0019', `The removal of a person holds no key, and was asked to seal ${bound}.`)
   },
 }
 
@@ -38,7 +38,7 @@ export interface Removal {
  * `owner` is that person, and their row of `users`, following what each link that points at such a row says with
  * `onRemove`: the rows of a link that removes are removed, those of a link that clears are cleared, and a row that
  * a refusing link points at stays, with the rows that link to it, which is reported. It removes the kept earlier
- * versions of every row it removed, and writes `removed` in place of the person where `_t_history` names them as
+ * versions of every row it removed, and writes `removed` in place of the person where `_f_history` names them as
  * who changed a row. It needs no key: a row that it clears is not opened, and its sealed values stand as they are
  * stored. Answers what it removed and what it could not. The rest of a person's removal - their runs,
  * their files, what was counted - is done by the engine in the same write.

@@ -1,4 +1,4 @@
-import { post, secret, service, text } from 'tentjs'
+import { post, secret, service, text } from 'forjr'
 
 export const slack = service('slack', {
   url: 'https://slack.com/api',

@@ -5,7 +5,7 @@ import { withUsers } from './as.ts'
 
 /**
  * `app.user(values)`: adds a row to `users` with those columns, as the system, and answers the caller that is
- * that user. Throws T0014 for an app with no `users` table.
+ * that user. Throws F0014 for an app with no `users` table.
  */
 export const user =
   (app: App) =>

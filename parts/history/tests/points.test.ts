@@ -28,11 +28,11 @@ function clockOf(t: TestContext, now = start): (ms: number) => void {
 
 test('[40-14a] a point holds every file of the project by its path and its fingerprint, with its writer, its kind and its moment, and its parent is the point before', (t) => {
   clockOf(t)
-  const { project, history } = started(t, { 'tent.ts': 'the project\n', 'tables/orders.ts': 'orders\r\n' })
+  const { project, history } = started(t, { 'forjr.ts': 'the project\n', 'tables/orders.ts': 'orders\r\n' })
   const first = history.record(project, { by: ada, kind: 'command' })
   assert.deepEqual(first.files, {
     'tables/orders.ts': fingerprintOf('orders\r\n'),
-    'tent.ts': fingerprintOf('the project\n'),
+    'forjr.ts': fingerprintOf('the project\n'),
   })
   assert.deepEqual(
     { at: first.at, by: first.by, kind: first.kind, parents: first.parents },
@@ -44,7 +44,7 @@ test('[40-14a] a point holds every file of the project by its path and its finge
   assert.equal(history.blob(fingerprintOf('no such bytes')), undefined)
   assert.equal(history.read('0'.repeat(32)), undefined)
 
-  put(project, 'tent.ts', 'the project, changed\n')
+  put(project, 'forjr.ts', 'the project, changed\n')
   const second = history.record(project, {
     by: { kind: 'tool' },
     kind: 'named',
@@ -55,7 +55,7 @@ test('[40-14a] a point holds every file of the project by its path and its finge
   assert.deepEqual(second.by, { kind: 'tool' })
   assert.equal(second.name, 'first release')
   assert.equal(second.note, 'by hand')
-  assert.equal(second.files?.['tent.ts'], fingerprintOf('the project, changed\n'))
+  assert.equal(second.files?.['forjr.ts'], fingerprintOf('the project, changed\n'))
   assert.equal(second.id, idOf(second))
   assert.equal(history.pointer('now'), second.id)
 })
@@ -63,9 +63,9 @@ test('[40-14a] a point holds every file of the project by its path and its finge
 test('[40-14a] no point holds the engine own folder, the clash file, a file that ends in .theirs, what leave names, or a file over historyFileSize, which its note names', (t) => {
   clockOf(t)
   const { project, history } = started(t, {
-    'tent.ts': 'project',
-    '.tent/engine.json': '{}',
-    'tent.clash.ts': 'clash',
+    'forjr.ts': 'project',
+    '.forjr/engine.json': '{}',
+    'forjr.clash.ts': 'clash',
     'assets/logo.png.theirs': 'theirs',
     'node_modules/pkg/index.js': 'code',
     'tools/node_modules/pkg/index.js': 'code',
@@ -84,11 +84,11 @@ test('[40-14a] no point holds the engine own folder, the clash file, a file that
     'big.bin',
     'build/out/c.txt',
     'debug.log',
+    'forjr.ts',
     'logs/deep.log',
     'notes/build/out/d.txt',
     'notes/tmp/b.txt',
     'small.bin',
-    'tent.ts',
     'tmp/a.txt',
   ])
   assert.equal(plain.note, undefined)
@@ -100,10 +100,10 @@ test('[40-14a] no point holds the engine own folder, the clash file, a file that
   })
   const stated = history.record(project, { by: ada, kind: 'command', description, note: 'checked by hand' })
   assert.deepEqual(Object.keys(stated.files ?? {}), [
+    'forjr.ts',
     'node_modules/pkg/index.js',
     'notes/build/out/d.txt',
     'small.bin',
-    'tent.ts',
     'tools/node_modules/pkg/index.js',
   ])
   assert.match(stated.note ?? '', /^checked by hand\n/)
@@ -119,12 +119,12 @@ test('[40-14a] no point holds the engine own folder, the clash file, a file that
 
 test('[40-14a] a file of a root is held as roots/<its place>/<its path there>, and is written back into its root', (t) => {
   clockOf(t)
-  const { project, history } = started(t, { 'tent.ts': 'project' }, 'app')
+  const { project, history } = started(t, { 'forjr.ts': 'project' }, 'app')
   const shared = join(project, '..', 'shared')
   put(shared, 'money/format.ts', 'shared code')
   const description = described({ roots: ['../shared'] })
   const point = history.record(project, { by: ada, kind: 'command', description })
-  assert.deepEqual(Object.keys(point.files ?? {}), ['roots/0/money/format.ts', 'tent.ts'])
+  assert.deepEqual(Object.keys(point.files ?? {}), ['forjr.ts', 'roots/0/money/format.ts'])
 
   put(shared, 'money/format.ts', 'shared code, changed')
   put(shared, 'money/new.ts', 'new')
@@ -153,7 +153,7 @@ test('[40-14a] the same files give the same id on two systems', (t) => {
 
 test('[40-14a] mark writes checked, a description and a note onto a point, and its id stays', (t) => {
   clockOf(t)
-  const { project, history } = started(t, { 'tent.ts': 'project' })
+  const { project, history } = started(t, { 'forjr.ts': 'project' })
   const point = history.record(project, { by: ada, kind: 'save', checked: false })
   assert.equal(point.checked, false)
   history.mark(point.id, { checked: true, note: 'passed here', description: described({ title: 'Shop' }) })
@@ -172,34 +172,34 @@ test('[40-14a] mark writes checked, a description and a note onto a point, and i
   )
 })
 
-test('[16-2@7d] [40-14a] a point that is not there is T9107 for mark, back, write and move', (t) => {
+test('[16-2@7d] [40-14a] a point that is not there is F9107 for mark, back, write and move', (t) => {
   clockOf(t)
-  const { project, history } = started(t, { 'tent.ts': 'project' })
+  const { project, history } = started(t, { 'forjr.ts': 'project' })
   history.record(project, { by: ada, kind: 'save' })
   const missing = 'f'.repeat(32)
   assert.equal(
     codeOf(() => history.mark(missing, { checked: true })),
-    'T9107',
+    'F9107',
   )
   assert.equal(
     codeOf(() => history.back(project, missing, ada)),
-    'T9107',
+    'F9107',
   )
   assert.equal(
     codeOf(() => history.write(missing, join(project, '..', 'out'))),
-    'T9107',
+    'F9107',
   )
   assert.equal(
     codeOf(() => history.move('at:https://shop.example.com', missing)),
-    'T9107',
+    'F9107',
   )
   assert.ok(!existsSync(join(project, '..', 'out')))
 })
 
 test('[40-14a] a point of the kind command is never joined, and a save within historyJoin of the save that is its parent takes its place', (t) => {
   const pass = clockOf(t)
-  const { project, history } = started(t, { 'tent.ts': '0' })
-  const change = (n: number) => put(project, 'tent.ts', String(n))
+  const { project, history } = started(t, { 'forjr.ts': '0' })
+  const change = (n: number) => put(project, 'forjr.ts', String(n))
   const c1 = history.record(project, { by: ada, kind: 'command' })
   change(1)
   const c2 = history.record(project, { by: ada, kind: 'command' })
@@ -247,10 +247,10 @@ test('[40-14a] a point of the kind command is never joined, and a save within hi
 
 test('[40-14a] find takes now, a pointer, a name and the first 8 or more characters of an id, in that order, and list goes along the first parents, newest first', (t) => {
   const pass = clockOf(t)
-  const { project, history } = started(t, { 'tent.ts': '0' })
+  const { project, history } = started(t, { 'forjr.ts': '0' })
   const made = ['command', 'named', 'save', 'named', 'command'].map((kind, n) => {
     pass(10_000)
-    put(project, 'tent.ts', String(n))
+    put(project, 'forjr.ts', String(n))
     return history.record(project, {
       by: ada,
       kind: kind === 'named' ? 'named' : kind === 'save' ? 'save' : 'command',
@@ -295,7 +295,7 @@ test('[40-14a] find takes now, a pointer, a name and the first 8 or more charact
   history.move('main', made[4].id)
   history.move('on', 'main')
   pass(10_000)
-  put(project, 'tent.ts', 'on main')
+  put(project, 'forjr.ts', 'on main')
   const next = history.record(project, { by: ada, kind: 'command' })
   assert.equal(history.pointer('main'), next.id)
   assert.equal(history.pointer('now'), next.id)
@@ -304,10 +304,10 @@ test('[40-14a] find takes now, a pointer, a name and the first 8 or more charact
 
 test('[40-14a] a save point older than its time is dropped, keeps its row, and its child still names it; a named one stays, and so does one a pointer stands on', (t) => {
   const pass = clockOf(t)
-  const { project, history } = started(t, { 'tent.ts': '0', 'kept.txt': 'in every point' })
+  const { project, history } = started(t, { 'forjr.ts': '0', 'kept.txt': 'in every point' })
   const record = (kind: 'save' | 'command' | 'named', n: number) => {
     pass(10_000)
-    put(project, 'tent.ts', String(n))
+    put(project, 'forjr.ts', String(n))
     return history.record(project, { by: ada, kind, ...(kind === 'named' ? { name: `n${n}` } : {}), note: 'a note' })
   }
   const c1 = record('command', 1)
@@ -346,16 +346,16 @@ test('[40-14a] a save point older than its time is dropped, keeps its row, and i
   assert.deepEqual(history.tidy(Date.now(), { kept: 30 * day }), { points: 0, blobs: 0 }, 'a second tidy finds nothing')
 })
 
-test('[16-2@7d] [40-14a] a dropped point is taken by another history, and going back to it and writing it is T9107', (t) => {
+test('[16-2@7d] [40-14a] a dropped point is taken by another history, and going back to it and writing it is F9107', (t) => {
   const pass = clockOf(t)
-  const { project, history } = started(t, { 'tent.ts': '0' })
+  const { project, history } = started(t, { 'forjr.ts': '0' })
   const old = history.record(project, { by: ada, kind: 'save' })
   pass(31 * day)
-  put(project, 'tent.ts', '1')
+  put(project, 'forjr.ts', '1')
   const named = history.record(project, { by: ada, kind: 'named', name: 'kept', checked: true })
   assert.equal(history.tidy(Date.now(), { kept: 30 * day }).points, 1)
 
-  const other = started(t, { 'tent.ts': 'another computer' }, 'other')
+  const other = started(t, { 'forjr.ts': 'another computer' }, 'other')
   const dropped = history.read(old.id)
   assert.ok(dropped && !dropped.files)
   const blobs = Object.fromEntries(
@@ -368,25 +368,25 @@ test('[16-2@7d] [40-14a] a dropped point is taken by another history, and going 
 
   assert.equal(
     codeOf(() => other.history.back(other.project, old.id, ada)),
-    'T9107',
+    'F9107',
   )
   assert.equal(
     codeOf(() => other.history.write(old.id, join(other.project, '..', 'out'))),
-    'T9107',
+    'F9107',
   )
-  assert.deepEqual(filesIn(other.project)['tent.ts'], Buffer.from('another computer').toString('hex'))
+  assert.deepEqual(filesIn(other.project)['forjr.ts'], Buffer.from('another computer').toString('hex'))
   assert.equal(
     codeOf(() => history.back(project, old.id, ada)),
-    'T9107',
+    'F9107',
   )
 })
 
 test('[40-14a] the point two branches share outlives its time', (t) => {
   const pass = clockOf(t)
-  const { project, history } = started(t, { 'tent.ts': '0' })
+  const { project, history } = started(t, { 'forjr.ts': '0' })
   const record = (n: number) => {
     pass(10_000)
-    put(project, 'tent.ts', String(n))
+    put(project, 'forjr.ts', String(n))
     return history.record(project, { by: ada, kind: 'save' })
   }
   const before = record(1)
@@ -413,7 +413,7 @@ test('[40-14a] the point two branches share outlives its time', (t) => {
 
 test('[40-14a] have says which points and blobs are here, and take stores what another history sends, so that each history writes the same files', (t) => {
   const pass = clockOf(t)
-  const { project, history } = started(t, { 'tent.ts': '0', 'assets/logo.png': new Uint8Array([0, 255, 10, 13]) })
+  const { project, history } = started(t, { 'forjr.ts': '0', 'assets/logo.png': new Uint8Array([0, 255, 10, 13]) })
   const description = described({ title: 'Shop' })
   const points = [1, 2, 3].map((n) => {
     pass(10_000)
@@ -457,15 +457,15 @@ test('[40-14a] have says which points and blobs are here, and take stores what a
   assert.deepEqual(filesIn(there), filesIn(here))
   assert.deepEqual(Object.keys(filesIn(here)), [
     'assets/logo.png',
+    'forjr.ts',
     'tables/t1.ts',
     'tables/t2.ts',
     'tables/t3.ts',
-    'tent.ts',
   ])
   assert.equal(filesIn(here)['assets/logo.png'], '00ff0a0d')
 })
 
-test('[16-2@7d] [40-14a] take checks every fingerprint and every id: a blob whose bytes differ, a point whose id does not fit, one whose parent or whose file is not here, and one with a path that leaves the folder are T9107, and nothing of that take is stored', (t) => {
+test('[16-2@7d] [40-14a] take checks every fingerprint and every id: a blob whose bytes differ, a point whose id does not fit, one whose parent or whose file is not here, and one with a path that leaves the folder are F9107, and nothing of that take is stored', (t) => {
   clockOf(t)
   const { history } = started(t)
   const bytes = new TextEncoder().encode('a file')
@@ -474,7 +474,7 @@ test('[16-2@7d] [40-14a] take checks every fingerprint and every id: a blob whos
   const refused = (o: Parameters<typeof history.take>[0]) => {
     assert.equal(
       codeOf(() => history.take(o)),
-      'T9107',
+      'F9107',
     )
     assert.deepEqual(history.have({ points: [good.id], blobs: [print] }), { points: [], blobs: [] })
   }
@@ -492,7 +492,7 @@ test('[16-2@7d] [40-14a] take checks every fingerprint and every id: a blob whos
     'a/../../b.txt',
     'a\\b.txt',
     'C:/a.txt',
-    '.tent/history.db',
+    '.forjr/history.db',
     'a//b.txt',
     '',
   ])
@@ -516,7 +516,7 @@ test('[16-2@7d] [40-14a] take checks every fingerprint and every id: a blob whos
 
 test('[40-14a] the history is one file, history.db, in the folder it was opened in, and it opens again with every point', (t) => {
   clockOf(t)
-  const { project, history, data } = started(t, { 'tent.ts': 'project' })
+  const { project, history, data } = started(t, { 'forjr.ts': 'project' })
   assert.ok(existsSync(join(data, 'history.db')))
   const point = history.record(project, { by: ada, kind: 'named', name: 'kept' })
   history.close()

@@ -1,4 +1,4 @@
-import { screen, Form } from 'tentjs/ui'
+import { screen, Form } from 'forjr/ui'
 import { addNote } from '../functions/notes'
 
 // A function of its own draws the form: the build reads what the file imports, not where it is drawn.

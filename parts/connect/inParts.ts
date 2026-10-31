@@ -13,7 +13,7 @@ const quoted = (name: string): string =>
  * content that names its boundary.
  */
 export function inParts(parts: Part[]): { pieces: Piece[]; type: string } {
-  const boundary = `tent-${randomBytes(16).toString('hex')}`
+  const boundary = `forjr-${randomBytes(16).toString('hex')}`
   const pieces: Piece[] = []
   const text = (line: string): void => void pieces.push(new TextEncoder().encode(line))
   for (const part of parts) {

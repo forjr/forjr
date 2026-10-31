@@ -4,7 +4,7 @@ import type { Opened } from '../opened.ts'
 import type { About } from '../web/proxy.ts'
 
 /** Whether a path is one where a token given for `/mcp` is a caller: `/mcp`, and the two addresses of files. */
-const forMcp = (path: string): boolean => path === '/mcp' || path === '/_t/files' || path.startsWith('/_t/files/')
+const forMcp = (path: string): boolean => path === '/mcp' || path === '/_f/files' || path.startsWith('/_f/files/')
 
 /**
  * The way of telling who calls that is the token of a program: asked after a key, and before the pass of a frame.

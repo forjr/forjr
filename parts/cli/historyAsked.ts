@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { openHistory } from '../history/index.ts'
 import { startDev } from './dev.ts'
 import { writes } from './historyBranches.ts'
@@ -15,7 +15,7 @@ function valueOf(answered: { value?: unknown; findings?: { code: string; message
     typeof answered.value === 'object' && answered.value !== null ? Reflect.get(answered.value, 'refused') : undefined
   const [refused] = typeof sent === 'object' && sent !== null ? [Object(sent)] : (answered.findings ?? [])
   if (refused)
-    throw new TentError(
+    throw new ForjrError(
       String(refused.code),
       String(refused.message),
       typeof refused.fix === 'string' ? { fix: refused.fix } : {},
@@ -25,7 +25,7 @@ function valueOf(answered: { value?: unknown; findings?: { code: string; message
 
 /**
  * Takes the folder of a project with the data folder that `--data` named, if any, and the words of a command of
- * `tent history` by their names. Where `tent dev` runs the project, it holds the history open, and the command
+ * `forjr history` by their names. Where `forjr dev` runs the project, it holds the history open, and the command
  * asks it over the admin channel. Where none runs, the command opens the history itself. Going back, a switch, a
  * merge and a settle with none running start a session of development for the length of the command, since the
  * data follows the files and what was written is built and checked.
@@ -38,7 +38,7 @@ export async function historyAsked(
   const running = await askedOfRunning(o, 'history', args)
   // An engine that is no session of development has no command of the history, and holds none open.
   const holdsNone = running?.findings?.some(
-    (one) => one.code === 'T0001' && one.message.startsWith('The engine has no command "history'),
+    (one) => one.code === 'F0001' && one.message.startsWith('The engine has no command "history'),
   )
   if (running && !holdsNone) return valueOf(running)
   if (args.what === 'back' || writes(args)) {

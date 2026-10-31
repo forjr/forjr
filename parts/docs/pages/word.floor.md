@@ -14,7 +14,7 @@ const whole = floor(total / count)
 
 ## Errors
 
-`code.T0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
+`code.F0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
 
 ## See also
 

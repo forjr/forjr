@@ -1,4 +1,4 @@
-import { flow, text } from 'tentjs'
+import { flow, text } from 'forjr'
 
 // A run waits for a person, so that a version published meanwhile leaves it on the code it started with.
 export const waiting = flow('waiting', {

@@ -1,4 +1,4 @@
-import type { Makers } from 'tentjs/engine'
+import type { Makers } from 'forjr/engine'
 
 // A provider that writes, with reasoning, and a typed answer where one is asked for; and one whose server is down,
 // whose error counts as an error of its server.

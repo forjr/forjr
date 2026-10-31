@@ -161,7 +161,7 @@ const described: [string, () => { definitions: object[]; named: string; bodies?:
   ],
 ]
 
-test('[12-1] a definition that is written with a value which holds itself is T1014, at every walk of describe, and the other definitions are described', {
+test('[12-1] a definition that is written with a value which holds itself is F1014, at every walk of describe, and the other definitions are described', {
   timeout: 60_000,
 }, () => {
   for (const [what, write] of described) {
@@ -182,7 +182,7 @@ test('[12-1] a definition that is written with a value which holds itself is T10
     const words = what.startsWith('heldValue')
       ? 'it could not be described: (Maximum call stack size exceeded|A value that holds itself cannot be stored)'
       : '`[a-zA-Z0-9.]+` holds itself'
-    assert.match(found[0], new RegExp(`^T1014 ${named}: ${words}`), what)
+    assert.match(found[0], new RegExp(`^F1014 ${named}: ${words}`), what)
     assert.equal(findings[0].name, 'bad-value', what)
     // The definition is left out, and the table beside it is described as it is without it.
     assert.deepEqual(Object.keys(description.tables), named === 'orders' ? [] : ['orders'], what)
@@ -249,7 +249,7 @@ test('[12-1] a definition that is written with a value which holds itself is T10
   set(options, 'self', options)
   assert.deepEqual(
     checkDescription(fine.description).map((one) => [one.code, one.message, one.fields]),
-    [['T0002', '`models.writer.options.self` holds itself.', { 'models.writer.options.self': 'type' }]],
+    [['F0002', '`models.writer.options.self` holds itself.', { 'models.writer.options.self': 'type' }]],
   )
   Reflect.deleteProperty(Object(options), 'self')
   set(fine.description.messages, 'en', fine.description.messages)
@@ -291,7 +291,7 @@ test('[12-1] a word and a check that walk a written value which holds itself fai
   ]
   for (const [what, work] of refused) {
     const error = thrownBy(work)
-    assert.equal(error.code, 'T1014', `${what}: ${error.name} ${error.message}`)
+    assert.equal(error.code, 'F1014', `${what}: ${error.name} ${error.message}`)
     assert.equal(error.message, 'A value that holds itself cannot be stored.', what)
   }
 
@@ -314,7 +314,7 @@ test('[12-1] a word and a check that walk a written value which holds itself fai
   const misses = checkValue(endless, circleOf())
   assert.deepEqual(
     misses.map((one) => [one.code, one.message, one.fields]),
-    [['T0002', '`0` holds itself.', { '0': 'type' }]],
+    [['F0002', '`0` holds itself.', { '0': 'type' }]],
   )
   const record = object({ n: number() })
   set(record.shape, 'self', record)
@@ -334,7 +334,7 @@ test('[12-1] a word and a check that walk a written value which holds itself fai
   // A type that holds itself has no schema.
   for (const type of [endless, record]) {
     const error = thrownBy(() => toJsonSchema(type))
-    assert.equal(error.code, 'T1014', `${error.name} ${error.message}`)
+    assert.equal(error.code, 'F1014', `${error.name} ${error.message}`)
   }
   const shared = number()
   assert.deepEqual(Reflect.get(toJsonSchema(object({ a: shared, b: shared })), 'required'), ['a', 'b'])

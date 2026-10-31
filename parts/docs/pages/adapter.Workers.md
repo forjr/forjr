@@ -25,7 +25,7 @@ interface Workers {
 
 ```ts
 // engine.ts
-import type { Makers, Workers } from 'tentjs/engine'
+import type { Makers, Workers } from 'forjr/engine'
 
 const machines = (key: string): Workers => ({
   need: ({ kind, waiting }) => {

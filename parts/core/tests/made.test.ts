@@ -16,7 +16,7 @@ import {
   route,
   service,
   table,
-  TentError,
+  ForjrError,
   text,
 } from '../index.ts'
 import { checkDescription, checkValue, describe, finish, toJsonSchema, write } from '../internal.ts'
@@ -208,7 +208,7 @@ test('[13-7] every option of every word, handed each kind of value that no store
   )
   for (const depth of [201, 100_000]) {
     const [miss, ...more] = checkValue(json(), nested(depth))
-    assert.equal(miss.code, 'T0002', String(depth))
+    assert.equal(miss.code, 'F0002', String(depth))
     assert.match(miss.message, /^`(0\.)+0` is nested more than 200 deep\.$/, String(depth))
     assert.deepEqual(Object.values(miss.fields ?? {}), ['type'], String(depth))
     assert.deepEqual(more, [], String(depth))
@@ -222,7 +222,7 @@ test('[13-7] every option of every word, handed each kind of value that no store
   at.of = text()
   assert.throws(
     () => Reflect.apply(toJsonSchema, undefined, [deepType]),
-    (error) => Reflect.get(Object(error), 'code') === 'T1014',
+    (error) => Reflect.get(Object(error), 'code') === 'F1014',
   )
 })
 
@@ -242,7 +242,7 @@ test('[13-7] a required text that is handed a list or a record is a finding and 
     const one = made(model, 'one', { provider: 'anthropic', name: 'claude', [option]: value })
     const { description, findings } = describe({ definitions: [shop, { value: one }] })
     assert.equal(findings.length, 1, `${option}: ${findings.map((finding) => finding.message).join(' | ')}`)
-    assert.match(`${findings[0].code} ${findings[0].message}`, new RegExp(`^T1014 one: \`${names}\` `), option)
+    assert.match(`${findings[0].code} ${findings[0].message}`, new RegExp(`^F1014 one: \`${names}\` `), option)
     assert.deepEqual(checkDescription(description), [], option)
     // A model with no provider or no name is no model: it is left out, whole.
     assert.equal('one' in description.models, option === 'url' || option === 'takes', option)
@@ -306,13 +306,13 @@ test('[12-1] no word that index.ts gives ends with an error of the runtime, hand
       // error that `textOf` makes (`12`, section 2): it is the one that is no failure with a code.
       const forNothing =
         error instanceof TypeError && / was handed (undefined|null) where a text is needed$/.test(error.message)
-      if (!(error instanceof TentError) && !forNothing)
+      if (!(error instanceof ForjrError) && !forNothing)
         ended.push(`${what}: ${Object(error).name} ${Object(error).message}`)
     }
   }
   for (const [name, word] of Object.entries(all))
     for (const [what, values] of given) {
-      if (typeof word !== 'function' || word === TentError) continue
+      if (typeof word !== 'function' || word === ForjrError) continue
       await tried(`${name}, ${what}`, () => Reflect.apply(word, undefined, values))
     }
   // The members of a table, which store what they are handed.
@@ -323,20 +323,20 @@ test('[12-1] no word that index.ts gives ends with an error of the runtime, hand
         await tried(`orders.${name}, ${what}`, () => Reflect.apply(member, orders, values))
   assert.deepEqual(ended, [])
   assert.ok(calls > 1200, String(calls))
-  // A value word says so with its own code, and a word that stores a value with T1014.
-  assert.throws(() => all.concat('a', Object(deep)), { code: 'T0027' })
-  assert.throws(() => orders.where(Object(not)), { code: 'T1014' })
-  assert.throws(() => orders.add(Object({ total: deep })), { code: 'T1014' })
+  // A value word says so with its own code, and a word that stores a value with F1014.
+  assert.throws(() => all.concat('a', Object(deep)), { code: 'F0027' })
+  assert.throws(() => orders.where(Object(not)), { code: 'F1014' })
+  assert.throws(() => orders.add(Object({ total: deep })), { code: 'F1014' })
   // A word that is handed a value of the wrong kind in the place of a name or of its options says so.
-  assert.throws(() => Reflect.apply(all.action, undefined, [5]), { code: 'T1014' })
-  assert.throws(() => Reflect.apply(all.model, undefined, ['m', 'options']), { code: 'T1014' })
-  assert.throws(() => Reflect.apply(all.query, undefined, ['q', []]), { code: 'T1014' })
-  assert.throws(() => Reflect.apply(orders.sort, orders, [5]), { code: 'T1014' })
-  assert.throws(() => Reflect.apply(orders.group, orders, []), { code: 'T1014' })
-  assert.throws(() => Reflect.apply(orders.group, orders, ['total', 5]), { code: 'T1014' })
-  assert.throws(() => Reflect.apply(orders.near, orders, ['total', [1], null]), { code: 'T1014' })
+  assert.throws(() => Reflect.apply(all.action, undefined, [5]), { code: 'F1014' })
+  assert.throws(() => Reflect.apply(all.model, undefined, ['m', 'options']), { code: 'F1014' })
+  assert.throws(() => Reflect.apply(all.query, undefined, ['q', []]), { code: 'F1014' })
+  assert.throws(() => Reflect.apply(orders.sort, orders, [5]), { code: 'F1014' })
+  assert.throws(() => Reflect.apply(orders.group, orders, []), { code: 'F1014' })
+  assert.throws(() => Reflect.apply(orders.group, orders, ['total', 5]), { code: 'F1014' })
+  assert.throws(() => Reflect.apply(orders.near, orders, ['total', [1], null]), { code: 'F1014' })
   for (const none of [5, 'text', null, undefined, { kind: 'list', of: 5 }])
-    assert.throws(() => Reflect.apply(toJsonSchema, undefined, [none]), { code: 'T1014' }, String(none))
+    assert.throws(() => Reflect.apply(toJsonSchema, undefined, [none]), { code: 'F1014' }, String(none))
   // A row is a record of values, and the options of a trigger are a record or nothing.
   for (const [what, work] of [
     ['add(null)', () => Reflect.apply(orders.add, orders, [null])],
@@ -351,7 +351,7 @@ test('[12-1] no word that index.ts gives ends with an error of the runtime, hand
     ['removed(null)', () => Reflect.apply(orders.removed, orders, [null])],
     ['added(columns that are no list)', () => Reflect.apply(orders.added, orders, [{ columns: 5 }])],
   ] as const)
-    assert.throws(work, { code: 'T1014' }, what)
+    assert.throws(work, { code: 'F1014' }, what)
   assert.deepEqual(Object(orders.added()), { table: 'orders', when: 'added' })
 })
 
@@ -375,15 +375,15 @@ test('[13-7] one walk decides what a written value may hold: 200 deep and no dee
   ]
   for (const [what, work] of taken) work(nested(200)) ?? assert.ok(true, what)
   const refused: [string, (value: unknown) => unknown, string][] = [
-    ['a write', (value) => orders.add(Object({ total: value })), 'T1014'],
-    ['a value of a filter', (value) => orders.where(Object({ total: value })), 'T1014'],
-    ['a value of a filter under an operator', (value) => orders.where(Object({ total: { not: value } })), 'T1014'],
-    ['a value word', (value) => all.contains(Object(value), 5), 'T0027'],
-    ['a value word with a reference', (value) => all.concat(Object(value), all.input('more')), 'T0027'],
+    ['a write', (value) => orders.add(Object({ total: value })), 'F1014'],
+    ['a value of a filter', (value) => orders.where(Object({ total: value })), 'F1014'],
+    ['a value of a filter under an operator', (value) => orders.where(Object({ total: { not: value } })), 'F1014'],
+    ['a value word', (value) => all.contains(Object(value), 5), 'F0027'],
+    ['a value word with a reference', (value) => all.concat(Object(value), all.input('more')), 'F0027'],
   ]
   for (const depth of [201, 100_000]) {
     for (const [what, work, code] of refused) assert.throws(() => work(nested(depth)), { code }, `${what}, ${depth}`)
-    assert.equal(checkValue(json(), nested(depth))[0].code, 'T0002', String(depth))
+    assert.equal(checkValue(json(), nested(depth))[0].code, 'F0002', String(depth))
     const { description, findings } = withOptions({ deep: nested(depth) })
     assert.equal(findings.length, 1, String(depth))
     assert.match(findings[0].message, /^one: `options\.deep(\.0)+` is nested more than 200 deep, and such a value/)
@@ -398,14 +398,14 @@ test('[13-7] one walk decides what a written value may hold: 200 deep and no dee
   for (let depth = 0; depth < 150; depth++) far = [far]
   const both = [twice, far]
   assert.match(checkValue(json(), both)[0].message, /is nested more than 200 deep/)
-  assert.throws(() => orders.add(Object({ total: both })), { code: 'T1014' })
-  assert.throws(() => all.contains(Object(both), 5), { code: 'T0027' })
+  assert.throws(() => orders.add(Object({ total: both })), { code: 'F1014' })
+  assert.throws(() => all.contains(Object(both), 5), { code: 'F0027' })
   // Twenty-two levels, each holding the level below twice, would be stored as some eight million values. They
   // stand before the forty, so that a walk which takes every place fails here, where it still ends.
   let some22: unknown[] = [1]
   for (let level = 0; level < 22; level++) some22 = [some22, some22]
   assert.match(checkValue(json(), some22)[0]?.message ?? '', /stands in so many places/)
-  assert.throws(() => all.concat(Object(some22)), { code: 'T0027' })
+  assert.throws(() => all.concat(Object(some22)), { code: 'F0027' })
   // Forty levels would be stored as more values than a description holds: each of the walks says so at once,
   // where a walk into every place would not end.
   let wide: unknown[] = [1]
@@ -415,9 +415,9 @@ test('[13-7] one walk decides what a written value may hold: 200 deep and no dee
     checkValue(json(), wide)[0].message,
     /stands in so many places that it would be stored as more than 1000000 values/,
   )
-  assert.throws(() => orders.add(Object({ total: wide })), { code: 'T1014' })
-  assert.throws(() => orders.where(Object({ total: wide })), { code: 'T1014' })
-  assert.throws(() => all.concat(Object(wide)), { code: 'T0027' })
+  assert.throws(() => orders.add(Object({ total: wide })), { code: 'F1014' })
+  assert.throws(() => orders.where(Object({ total: wide })), { code: 'F1014' })
+  assert.throws(() => all.concat(Object(wide)), { code: 'F0027' })
   const many = withOptions({ wide })
   assert.match(many.findings[0].message, /^one: `options\.wide\.\d+(\.\d+)*` stands in so many places/)
   assert.equal(many.findings.length, 1)
@@ -427,7 +427,7 @@ test('[13-7] one walk decides what a written value may hold: 200 deep and no dee
   for (let level = 0; level < 10; level++) some = [some, some]
   assert.deepEqual(withOptions({ some }).findings, [])
 
-  // A body is what the build read, and holds no function and no symbol: T1014, with the way to the place.
+  // A body is what the build read, and holds no function and no symbol: F1014, with the way to the place.
   for (const [what, value, words] of [
     ['a function', () => 1, 'is a function where the option takes none'],
     ['a symbol', Symbol('a'), 'is a symbol'],
@@ -438,14 +438,14 @@ test('[13-7] one walk decides what a written value may hold: 200 deep and no dee
     })
     assert.deepEqual(
       findings.map((finding) => `${finding.code} ${finding.message}`),
-      [`T1014 q: \`bodies.run.0.return\` ${words}, and such a value has no stored form.`],
+      [`F1014 q: \`bodies.run.0.return\` ${words}, and such a value has no stored form.`],
       what,
     )
     assert.equal('q' in description.functions, false, what)
   }
 })
 
-test('[13-7] an error that is thrown while one definition is described is T1014 on that definition, which is left out, and the definition beside it is described as ever', () => {
+test('[13-7] an error that is thrown while one definition is described is F1014 on that definition, which is left out, and the definition beside it is described as ever', () => {
   const shop = { value: project('shop', {}) }
   const beside = { value: made(query, 'beside', { access, run, about: 'Stands beside' }) }
   // A member that throws when it is read: at once, so that the walk meets it, and at the third reading, so that
@@ -463,7 +463,7 @@ test('[13-7] an error that is thrown while one definition is described is T1014 
     const { description, findings } = describe({ definitions: [shop, { value: made(query, 'one', options) }, beside] })
     assert.deepEqual(
       findings.map((finding) => `${finding.code} ${finding.message}`),
-      ['T1014 one: it could not be described: the reading failed'],
+      ['F1014 one: it could not be described: the reading failed'],
       String(first),
     )
     assert.deepEqual(Object.keys(description.functions), ['beside'], String(first))
@@ -499,7 +499,7 @@ test('[13-7] an error that is thrown while one definition is described is T1014 
     failed++
     assert.deepEqual(
       findings.map((finding) => `${finding.code} ${finding.message}`),
-      ['T1014 shop: it could not be described: the reading failed'],
+      ['F1014 shop: it could not be described: the reading failed'],
       String(first),
     )
     assert.deepEqual(description.project, {}, String(first))
@@ -512,7 +512,7 @@ test('[13-7] an error that is thrown while one definition is described is T1014 
     const { findings } = describe({ definitions: [{ value: made(project, 'shop', { cookies }) }] })
     assert.deepEqual(
       findings.map((finding) => `${finding.code} ${finding.message}`),
-      ['T1014 shop: `cookies` takes a record, and what it was handed is none: it is left out.'],
+      ['F1014 shop: `cookies` takes a record, and what it was handed is none: it is left out.'],
       String(cookies),
     )
   }

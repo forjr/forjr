@@ -1,13 +1,13 @@
-# `tent settings`
+# `forjr settings`
 
 Sets, removes and lists the values of the settings that the project states. A setting is a value that whoever runs the app may set, with no build.
 
 ## Usage
 
 ```
-tent settings set <name> <value> [--live] [--data <folder>] [--to <name or address>]
-tent settings remove <name> [--live] [--data <folder>] [--to <name or address>]
-tent settings list [--live] [--data <folder>] [--to <name or address>]
+forjr settings set <name> <value> [--live] [--data <folder>] [--to <name or address>]
+forjr settings remove <name> [--live] [--data <folder>] [--to <name or address>]
+forjr settings list [--live] [--data <folder>] [--to <name or address>]
 ```
 
 `set` holds the value to the type of the setting: a text is taken as it is typed, and any other type is read as JSON, as `20`, `true` or `'["new","sale"]'`. `remove` puts the default of the type back.
@@ -21,17 +21,17 @@ With an engine running on the data folder, the command hands the value to it: th
 | Option | Means |
 |---|---|
 | `--live` | The settings of live data, in place of those of test data |
-| `--to <name or address>` | Hands the value to the engine of a far server, with the key of the right `publish` that `tent login` kept for it, or lists the names that are set there, and never a value. With `--insecure <host>` over a plain connection |
-| `--data <folder>` | The data folder. Left out, it is `.tent/` of the project |
+| `--to <name or address>` | Hands the value to the engine of a far server, with the key of the right `publish` that `forjr login` kept for it, or lists the names that are set there, and never a value. With `--insecure <host>` over a plain connection |
+| `--data <folder>` | The data folder. Left out, it is `.forjr/` of the project |
 
-The values are kept in the data folder, in `settings.test` and `settings.live`, not encrypted: what must be kept from a reader of the folder is a secret, and is set with `tent secrets`.
+The values are kept in the data folder, in `settings.test` and `settings.live`, not encrypted: what must be kept from a reader of the folder is a secret, and is set with `forjr secrets`.
 
 ## Example
 
 ```
-tent settings set shopName "The other shop"
-tent settings set maxItems 20 --live
-tent settings list
+forjr settings set shopName "The other shop"
+forjr settings set maxItems 20 --live
+forjr settings list
 ```
 
 ## Output
@@ -47,7 +47,7 @@ With `--json`, `set` and `remove` print the setting with the value it has now, a
 
 ## Errors
 
-`code.T0002` when the project states no setting of that name, and when the value does not fit the type of the setting.
+`code.F0002` when the project states no setting of that name, and when the value does not fit the type of the setting.
 
 ## See also
 

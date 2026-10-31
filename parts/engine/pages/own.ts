@@ -60,7 +60,7 @@ export function ownPage(o: {
   kind: OwnKind
   error?: { code: string; message: string; where?: { file: string; line: number } }
 }): string {
-  const words = ownWord(o.description, o.language, `tent.${o.kind}.title`)
+  const words = ownWord(o.description, o.language, `forjr.${o.kind}.title`)
   const error = o.error
   const place = error?.where ? `${error.where.file}:${error.where.line}\n` : ''
   // A refusal tells its code alone: its words could name a screen that the caller may not know of.
@@ -70,8 +70,8 @@ export function ownPage(o: {
   const first = projectLanguages(o.description.project)[0]
   const link =
     pageLink(o.kind) === 'start'
-      ? `<a href="${o.language === first ? '/' : `/${asText(o.language)}`}">${asText(ownWord(o.description, o.language, 'tent.page.start'))}</a>`
-      : `<a href="">${asText(ownWord(o.description, o.language, 'tent.page.again'))}</a>`
+      ? `<a href="${o.language === first ? '/' : `/${asText(o.language)}`}">${asText(ownWord(o.description, o.language, 'forjr.page.start'))}</a>`
+      : `<a href="">${asText(ownWord(o.description, o.language, 'forjr.page.again'))}</a>`
   return [
     '<!doctype html>',
     `<html lang="${asText(o.language)}">`,

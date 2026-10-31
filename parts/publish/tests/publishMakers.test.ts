@@ -10,7 +10,7 @@ const system = { as: { kind: 'system' } } as const
 
 /** The makers of a project of these tests: a reader of texts of a kind of its own, which says which one read. */
 const makers = (said: string): string =>
-  `import type { Makers } from 'tentjs/engine'\n\nexport default {\n  textReaders: () => [{ kinds: ['text/x-shop'], read: async () => '${said}' }],\n} satisfies Makers\n`
+  `import type { Makers } from 'forjr/engine'\n\nexport default {\n  textReaders: () => [{ kinds: ['text/x-shop'], read: async () => '${said}' }],\n} satisfies Makers\n`
 
 const running = (server: Server): string | undefined => server.app.versions().find((one) => one.running)?.id
 
@@ -52,14 +52,14 @@ test('[22-23] a publish that changes engine.ts opens the app again, and calls th
   // Makers that fail to make what they make: the app is not opened again, and the old version runs.
   writeFileSync(
     join(here.project, 'engine.ts'),
-    "import type { Makers } from 'tentjs/engine'\n\nexport default {\n  textReaders: () => {\n    throw new Error('these makers make nothing')\n  },\n} satisfies Makers\n",
+    "import type { Makers } from 'forjr/engine'\n\nexport default {\n  textReaders: () => {\n    throw new Error('these makers make nothing')\n  },\n} satisfies Makers\n",
   )
   await here.save()
   const refused = await publish({ project: here.project, history: here.history, to, fetch: fetched }).then(
     () => undefined,
     (error: { code?: string }) => error,
   )
-  assert.equal(refused?.code, 'T9103')
+  assert.equal(refused?.code, 'F9103')
   assert.equal(running(server), second.version)
   assert.equal(String(await server.app.call('openOrders', { limit: 5 }, system).then(() => 'answered')), 'answered')
 })
@@ -73,7 +73,7 @@ test("[22-23] a program's own makers win over a bundle's: a version whose mailer
   const to = server.key(['read', 'push', 'publish'])
   writeFileSync(
     join(here.project, 'engine.ts'),
-    "import type { Makers } from 'tentjs/engine'\n\nexport default {\n  mailer: () => {\n    throw new Error('these makers make nothing')\n  },\n} satisfies Makers\n",
+    "import type { Makers } from 'forjr/engine'\n\nexport default {\n  mailer: () => {\n    throw new Error('these makers make nothing')\n  },\n} satisfies Makers\n",
   )
   await here.save()
   const done = await publish({ project: here.project, history: here.history, to, fetch: fetched })
@@ -89,5 +89,5 @@ test("[22-23] a program's own makers win over a bundle's: a version whose mailer
     () => undefined,
     (error: { code?: string }) => error,
   )
-  assert.equal(refused?.code, 'T9103')
+  assert.equal(refused?.code, 'F9103')
 })

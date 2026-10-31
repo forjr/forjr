@@ -56,7 +56,7 @@ let applied = 0
 for (const change of keptChanges(second.shared, 0)) {
   if (!change.file) continue
   const store = second.of(change.file, { make: true })
-  const held = read(store, { from: '_t_meta', one: 'get', id: 'n' })?.value ?? 0
+  const held = read(store, { from: '_f_meta', one: 'get', id: 'n' })?.value ?? 0
   if (change.n <= held) continue
   applyChange(store, change, { only: 'file' })
   applied++
@@ -71,8 +71,8 @@ function held(files) {
       file,
       orders: rows('orders'),
       tasks: rows('tasks'),
-      n: read(store, { from: '_t_meta', one: 'get', id: 'n' })?.value,
-      here: read(store, { from: '_t_here' }),
+      n: read(store, { from: '_f_meta', one: 'get', id: 'n' })?.value,
+      here: read(store, { from: '_f_here' }),
     }
   })
 }

@@ -1,4 +1,4 @@
-import { agent } from 'tentjs'
+import { agent } from 'forjr'
 import { botList, readBrief } from '../functions/bots'
 import { quick } from '../models/models'
 import { memories } from '../tables/memories'

@@ -1,6 +1,6 @@
 import { builtinModules } from 'node:module'
 import { posix } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 
 /** What a name that a module of a version imports stands for. */
 export type Found =
@@ -15,9 +15,9 @@ export type Found =
 
 // The entries of the framework that an app's code may import, by their names.
 const framework: Record<string, string> = {
-  tentjs: new URL('../../core/index.ts', import.meta.url).href,
-  'tentjs/engine': new URL('../index.ts', import.meta.url).href,
-  'tentjs/data': new URL('../../data/index.ts', import.meta.url).href,
+  forjr: new URL('../../core/index.ts', import.meta.url).href,
+  'forjr/engine': new URL('../index.ts', import.meta.url).href,
+  'forjr/data': new URL('../../data/index.ts', import.meta.url).href,
 }
 
 // The names by which a module built against the page code finds it.
@@ -27,7 +27,7 @@ const pageNames = new Set([
   'react/jsx-dev-runtime',
   'react-dom',
   'react-dom/client',
-  'tentjs/ui',
+  'forjr/ui',
 ])
 
 /** The address of the file of an entry of the framework that an app's code may import, by its name, or nothing. */
@@ -36,15 +36,15 @@ export const frameworkEntry = (name: string): string | undefined =>
 
 const runtimeNames = new Set(builtinModules)
 
-const outside = (name: string, why: string): TentError =>
-  new TentError('T0011', `The module ${name.slice(0, 120)} cannot be loaded: ${why}.`, {
+const outside = (name: string, why: string): ForjrError =>
+  new ForjrError('F0011', `The module ${name.slice(0, 120)} cannot be loaded: ${why}.`, {
     fix: 'Build the project again, and run the bundle as the build wrote it.',
   })
 
 /**
  * Takes the path of the module that imports, inside its version, or nothing for a module that the description
- * names, and the name it imports. Answers what the name stands for: the framework's entry for `tentjs`, a path
- * inside the version, a name of the page code, or a module of the runtime. Throws T0011 for anything else, and for
+ * names, and the name it imports. Answers what the name stands for: the framework's entry for `forjr`, a path
+ * inside the version, a name of the page code, or a module of the runtime. Throws F0011 for anything else, and for
  * a path that leaves the version.
  */
 export function resolveIn(from: string | undefined, name: string): Found {

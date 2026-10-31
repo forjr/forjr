@@ -10,7 +10,7 @@ import {
   writeFileSync,
 } from 'node:fs'
 import { basename, dirname, join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fingerprintOf } from '../../core/internal.ts'
 import type { Change, FileName, Store } from '../../data/index.ts'
 import { ageOut, applyChange, backup, bringUp, layoutOf, metaTable, restore } from '../../data/index.ts'
@@ -37,9 +37,9 @@ interface Entry {
 
 /** The list of a backup: every file of the directory, with the name of the backup folder that holds its copy. */
 function listOf(folder: string): Entry[] {
-  const none = (why: string): TentError =>
-    new TentError('T0009', `The folder at ${folder} is no backup of the files of tenants: ${why}.`, {
-      fix: 'Hand over a folder that `tent data backup` made.',
+  const none = (why: string): ForjrError =>
+    new ForjrError('F0009', `The folder at ${folder} is no backup of the files of tenants: ${why}.`, {
+      fix: 'Hand over a folder that `forjr data backup` made.',
     })
   if (!existsSync(join(folder, 'files.json'))) throw none('it holds no `files.json`')
   let list: unknown
@@ -81,7 +81,7 @@ function countedIn(make: () => Store, file: string): number {
   try {
     let rows = 0
     for (const table of store.layout())
-      if (!table.retired && !table.name.startsWith('_t_'))
+      if (!table.retired && !table.name.startsWith('_f_'))
         rows += Number(store.read({ from: table.name, count: true }, system).value)
     return rows
   } finally {
@@ -96,7 +96,7 @@ function tested(make: () => Store, folder: string): number {
     const from = join(dirname(folder), entry.backup)
     const place = placeIn(from, entry.id)
     if (place === undefined)
-      throw new TentError('T0009', `The backup \`${entry.backup}\` does not hold the data file of ${entry.id}.`)
+      throw new ForjrError('F0009', `The backup \`${entry.backup}\` does not hold the data file of ${entry.id}.`)
     rows += countedIn(make, join(from, place))
   }
   return rows
@@ -212,7 +212,7 @@ export async function restoreFiles(
   startPass(o, tenantFiles)
 }
 
-/** Writes one value of `_t_meta` of a data file that nothing else holds open. */
+/** Writes one value of `_f_meta` of a data file that nothing else holds open. */
 function setMeta(store: Store, key: string, value: unknown): void {
   store.write((tx) => {
     const there = tx.read({ from: metaTable.name, one: 'get', id: key }, system) !== undefined
@@ -233,8 +233,8 @@ function rowBack(o: Opened, tenantFiles: TenantFiles, folder: string, file: File
     store.close()
   }
   if (typeof row !== 'object' || row === null || Array.isArray(row))
-    throw new TentError(
-      'T2104',
+    throw new ForjrError(
+      'F2104',
       `\`${file.table}\` holds no row under the id ${file.id}, and neither does the backup: the data file of a tenant is put back for a tenant that is there.`,
     )
   const values: Record<string, unknown> = { ...row }
@@ -247,7 +247,7 @@ function rowBack(o: Opened, tenantFiles: TenantFiles, folder: string, file: File
  * the same backup. The copy is brought up before it is put in place, and, where the changes are kept or archived,
  * takes the number of the change that has every reader fetch the file. Then the file is put in place, its row of
  * the directory is written, the change is kept and handed on, the archive is told the moment of the put-back, and
- * the file is swept. Throws T0009, with nothing put back, for a backup that holds no file of that tenant and for a copy
+ * the file is swept. Throws F0009, with nothing put back, for a backup that holds no file of that tenant and for a copy
  * that names another tenant as its own, and the finding of a table change that the copy is refused for.
  */
 export async function restoreOne(o: Opened, tenantFiles: TenantFiles, folder: string, id: string): Promise<void> {
@@ -255,7 +255,7 @@ export async function restoreOne(o: Opened, tenantFiles: TenantFiles, folder: st
   const source = entry ? join(dirname(folder), entry.backup) : folder
   const place = entry ? placeIn(source, id) : undefined
   if (!entry || place === undefined)
-    throw new TentError('T0009', `The backup at ${folder} holds no data file of the tenant ${id.slice(0, 60)}.`, {
+    throw new ForjrError('F0009', `The backup at ${folder} holds no data file of the tenant ${id.slice(0, 60)}.`, {
       fix: '`files.json` of the backup lists the tenants that it holds a file of.',
     })
   const file: FileName = { table: entry.table, id }
@@ -274,8 +274,8 @@ export async function restoreOne(o: Opened, tenantFiles: TenantFiles, folder: st
       const said = saidBy(store)
       // A file holds its table and its tenant: under the name of another it is not put in place.
       if (said.tenant !== id || said.table !== file.table)
-        throw new TentError(
-          'T0009',
+        throw new ForjrError(
+          'F0009',
           `The file that the backup holds under ${file.table} ${id} is the data file of another tenant: nothing was put back.`,
         )
       if (o.store.read({ from: file.table, one: 'get', id }, system).value === undefined)

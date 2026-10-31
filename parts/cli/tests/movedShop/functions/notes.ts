@@ -1,4 +1,4 @@
-import { anyone, change, file, input, query, text } from 'tentjs'
+import { anyone, change, file, input, query, text } from 'forjr'
 import { notes } from '../tables/notes.ts'
 
 const open = anyone('the notes are open to anyone')

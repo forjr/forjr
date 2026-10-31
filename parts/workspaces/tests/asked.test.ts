@@ -72,11 +72,11 @@ test('[40-17] run of a function that sends asks the person, and a no tells the m
   assert.deepEqual(await at.workspaces.mail(at.made.id), [])
 })
 
-test('[40-17] shot is a picture of a screen of the workspace by a path of it, and a full address is T0002', async (t) => {
+test('[40-17] shot is a picture of a screen of the workspace by a path of it, and a full address is F0002', async (t) => {
   const at = await tooled(t)
   const picture = Object(await at.tool('shot', { path: '/' }))
   assert.ok(picture.width > 0 && picture.height > 0)
   assert.equal(picture.status, 200)
   for (const path of ['http://example.com/', '//example.com/x', 'file:///etc/passwd'])
-    await assert.rejects(at.tool('shot', { path }), { code: 'T0002' }, path)
+    await assert.rejects(at.tool('shot', { path }), { code: 'F0002' }, path)
 })

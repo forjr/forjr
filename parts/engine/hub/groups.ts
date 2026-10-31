@@ -1,5 +1,5 @@
 import type { Caller, WireError } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Touched } from '../../data/index.ts'
 import { answeringSince, nextRequest } from '../answering.ts'
 import { called } from '../door/call.ts'
@@ -71,13 +71,13 @@ export interface Telling {
 const deepest = 64
 
 /**
- * A value written as JSON with the keys of every record in one order, so that one input is one text. Throws T0002
+ * A value written as JSON with the keys of every record in one order, so that one input is one text. Throws F0002
  * for a value that is nested deeper than an input may be.
  */
 function ordered(value: unknown, depth = 0): string {
   if (typeof value !== 'object' || value === null) return JSON.stringify(value) ?? 'null'
   if (depth >= deepest)
-    throw new TentError('T0002', `The input of a watch is nested more than ${deepest} deep.`, {
+    throw new ForjrError('F0002', `The input of a watch is nested more than ${deepest} deep.`, {
       fix: 'Watch a query with the input that it takes.',
     })
   if (Array.isArray(value)) return `[${value.map((one) => ordered(one, depth + 1)).join(',')}]`
@@ -106,7 +106,7 @@ function touches(reads: TablesRead, touched: Touched[]): boolean {
   return false
 }
 
-const refusal = (code: string, words: string, fix: string): TentError => new TentError(code, words, { fix })
+const refusal = (code: string, words: string, fix: string): ForjrError => new ForjrError(code, words, { fix })
 
 /** Takes what the engine holds of an app, and what the hub does for the groups. Answers the groups of the app, which hold none yet. */
 export function groupsOf(o: Opened, { tell, changed }: Telling): Groups {
@@ -338,11 +338,11 @@ export function groupsOf(o: Opened, { tell, changed }: Telling): Groups {
   }
 
   /** Answers why a watch cannot be, before anything is run for it, or nothing where it can. */
-  const refusedFor = (c: Connected, asked: Watching, served: Opened | undefined): TentError | undefined => {
+  const refusedFor = (c: Connected, asked: Watching, served: Opened | undefined): ForjrError | undefined => {
     const most = storedLimit(o.description, 'watches')
     if (c.watches.size >= most)
       return refusal(
-        'T0005',
+        'F0005',
         `One live connection holds ${most} watches, and one more was asked for.`,
         'Watch fewer queries on one page, or raise `watches` in `project.limits`.',
       )
@@ -350,7 +350,7 @@ export function groupsOf(o: Opened, { tell, changed }: Telling): Groups {
     const { query } = asked
     // A frame of a chat app watches only what its screen's answer read.
     if (c.opened.only && !(typeof query === 'string' && c.opened.only.includes(query)))
-      return refusal('T0006', 'The pass of this frame watches no other query.', 'Watch what the screen reads.')
+      return refusal('F0006', 'The pass of this frame watches no other query.', 'Watch what the screen reads.')
     const record =
       typeof query === 'string' && Object.hasOwn(served.description.functions, query)
         ? served.description.functions[query]
@@ -359,9 +359,9 @@ export function groupsOf(o: Opened, { tell, changed }: Telling): Groups {
     if (typeof query === 'string' && isLiveMember(served, query)) return undefined
     if (record?.kind !== 'query' || record.live === false)
       return refusal(
-        'T0001',
+        'F0001',
         `No live query named ${(JSON.stringify(query) ?? 'nothing').slice(0, 80)} can be watched.`,
-        'Watch a query of the app that does not state `live: false`: `tent map` lists them.',
+        'Watch a query of the app that does not state `live: false`: `forjr map` lists them.',
       )
     return undefined
   }
@@ -409,7 +409,7 @@ export function groupsOf(o: Opened, { tell, changed }: Telling): Groups {
         if (groups.size >= all) {
           refuse(
             refusal(
-              'T0005',
+              'F0005',
               `The app holds ${all} groups of watches, and one more was asked for.`,
               'Raise `groups` in `project.limits`.',
             ),

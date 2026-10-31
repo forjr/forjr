@@ -1,15 +1,15 @@
 # Workspaces: apps that your users build
 
-A product is an app whose users build apps inside it, by hand or with an AI. Each of them works in a workspace: one person's project, with its own data and its own history, which runs beside the product in the same engine and is tried while it is built. `tentjs/workspaces` makes them.
+A product is an app whose users build apps inside it, by hand or with an AI. Each of them works in a workspace: one person's project, with its own data and its own history, which runs beside the product in the same engine and is tried while it is built. `forjr/workspaces` makes them.
 
 ## Making the workspaces
 
 The product is an app like any other, with one small program around it that makes the engine, opens the product's app and makes its workspaces:
 
 ```ts
-import { guardedFetch } from 'tentjs/connect'
-import { createEngine } from 'tentjs/engine'
-import { createWorkspaces } from 'tentjs/workspaces'
+import { guardedFetch } from 'forjr/connect'
+import { createEngine } from 'forjr/engine'
+import { createWorkspaces } from 'forjr/workspaces'
 
 const engine = createEngine({ port: 3000 })
 const app = await engine.open('./bundle', { dataFolder: './data', address: 'builder.example', mode: 'live' })
@@ -46,6 +46,6 @@ const workspaces = createWorkspaces({
 | `may(caller, workspace)` | Lets a caller who is not the owner into a workspace |
 | `turnsKept` | How many turns keep their snapshot of the data for an undo: 20 where it is left out |
 
-**The person of a workspace.** `identify` is handed the request as the app of the workspace sees it: every cookie of the product's own app, its session among them, is taken out of it, since the code of a workspace is not the product's. So the product names its person to it by a mark of its own, under a name that does not start with `tent_`: a token that the product makes and signs for that person and that workspace, which it hands the browser as a cookie of its own for a parent name that the names of the workspaces share, set by an answer of its `onRequest` or of a route, or in the address of the frame, and which `identify` reads, checks and turns into the id of a user of the workspace's app. The program's `onRequest` learns whose request of the product it holds with `app.caller(request)` of the product's app, which reads its session as the door does (`topic.engine.web`), before it makes that token.
+**The person of a workspace.** `identify` is handed the request as the app of the workspace sees it: every cookie of the product's own app, its session among them, is taken out of it, since the code of a workspace is not the product's. So the product names its person to it by a mark of its own, under a name that does not start with `forjr_`: a token that the product makes and signs for that person and that workspace, which it hands the browser as a cookie of its own for a parent name that the names of the workspaces share, set by an answer of its `onRequest` or of a route, or in the address of the frame, and which `identify` reads, checks and turns into the id of a user of the workspace's app. The program's `onRequest` learns whose request of the product it holds with `app.caller(request)` of the product's app, which reads its session as the door does (`topic.engine.web`), before it makes that token.
 
 **A faked model in a program.** A program that holds the product fakes the model of its agent by handing the engine a provider of its own under the name of the model's provider, `createEngine({ makers: { providers: () => ({ anthropic: fake }) } })`, where `fake` is a `Provider` whose `reply` gives the parts of each answer (`adapter.Provider`). A test app fakes one with `app.fake` (`topic.tests.model`).

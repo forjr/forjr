@@ -1,4 +1,4 @@
-import { screen, Form, Link } from 'tentjs/ui'
+import { screen, Form, Link } from 'forjr/ui'
 import { addNote } from './functions'
 
 // A form over a change.

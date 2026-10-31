@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 import { tags, users } from './tables.ts'
 
 export default seed([

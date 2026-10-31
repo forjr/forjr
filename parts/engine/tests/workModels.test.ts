@@ -86,7 +86,7 @@ test('[51-10] a model call that the work on a worker makes is counted by the wri
     key: 'k',
     nth: 2,
   })
-  assert.equal(Object(again.error).code, 'T7102', JSON.stringify(again))
+  assert.equal(Object(again.error).code, 'F7102', JSON.stringify(again))
   gpu.close()
 })
 

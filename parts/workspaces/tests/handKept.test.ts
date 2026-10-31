@@ -56,7 +56,7 @@ test('[40-12] a row added by hand once the run of the turn ended, while the turn
       !added &&
       state !== undefined &&
       !['queued', 'running', 'waiting'].includes(state) &&
-      command.startsWith('tent build')
+      command.startsWith('forjr build')
     ) {
       added = true
       await byHand(at)
@@ -82,7 +82,7 @@ test('[40-12] a row added by hand once the run of the turn ended, while the turn
   assert.deepEqual(bodiesOf(await notesOf(at)), ['by hand', 'note of turn 1'])
 })
 
-test('[40-12] an undo whose data the disk does not let back fails with T0009 and leaves the app of the workspace on its data as it was, and the workspaces close', {
+test('[40-12] an undo whose data the disk does not let back fails with F0009 and leaves the app of the workspace on its data as it was, and the workspaces close', {
   timeout: 180_000,
 }, async (t) => {
   const at = await turned(t, {}, await product(t, folderOf(t), 'builder'))
@@ -94,7 +94,7 @@ test('[40-12] an undo whose data the disk does not let back fails with T0009 and
   mkdirSync(coming)
   writeFileSync(join(coming, 'held'), '')
   const refused = await at.workspaces.undo(at.made.id, turn.id, { caller: at.caller }).catch((error: unknown) => error)
-  assert.equal(Reflect.get(Object(refused), 'code'), 'T0009', String(refused))
+  assert.equal(Reflect.get(Object(refused), 'code'), 'F0009', String(refused))
   assert.deepEqual(bodiesOf(await notesOf(at)), ['note of turn 1'])
   rmSync(coming, { recursive: true, force: true })
   const app = await at.workspaces.run(at.made.id)

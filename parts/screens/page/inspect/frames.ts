@@ -36,7 +36,7 @@ export function framesIn(document: Document): Frames {
       clear()
       for (const element of elements) {
         const frame = document.createElement('div')
-        frame.setAttribute('data-t-highlight', '')
+        frame.setAttribute('data-f-highlight', '')
         frame.style.cssText = look
         frame.style.outlineColor = color
         document.body.append(frame)

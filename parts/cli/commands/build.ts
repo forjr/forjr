@@ -7,7 +7,7 @@ import { launchProject } from '../launcher.ts'
 import { withText } from '../print.ts'
 
 /**
- * Writes a bundle into `.tent/build/` of the project, or into the folder that `--out` names: a release, or with
+ * Writes a bundle into `.forjr/build/` of the project, or into the folder that `--out` names: a release, or with
  * `--dev` a development build, which the inspect mode reads the places of a page from.
  */
 export const command: Command = {
@@ -23,7 +23,7 @@ export const command: Command = {
     })
     // With an error among the findings no bundle is written, and there is no version to name.
     if (!versionId) return { findings }
-    // A project that has commands is given its launcher in `.tent/bin/`, which runs them with no `tent cli`.
+    // A project that has commands is given its launcher in `.forjr/bin/`, which runs them with no `forjr cli`.
     launchProject(folder, bundleFolder)
     // What each of the project's own packages weighs in the page is told, and never refused.
     const packages = Object.fromEntries(

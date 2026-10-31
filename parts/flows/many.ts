@@ -1,5 +1,5 @@
 import type { Type } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Plan } from '../core/internal.ts'
 import { checkValue, isPlan, isWritten } from '../core/internal.ts'
 import type { Tx } from '../data/index.ts'
@@ -45,7 +45,7 @@ function planIn(entries: unknown): Plan | undefined {
 /**
  * Reads the next entries: a page of a list, or of a plan with neither an order nor a `limit`, in the order of
  * its ids, after the place where the count stands; and a plan that states either whole, once. Answers the entries
- * and where the next page begins, or nothing where none follows. Throws T5101 for an ordered plan past `manyOrdered`.
+ * and where the next page begins, or nothing where none follows. Throws F5101 for an ordered plan past `manyOrdered`.
  */
 async function pageOf(
   pass: Pass,
@@ -72,8 +72,8 @@ async function pageOf(
     const rows: unknown = await db.read({ ...plan, ...picked, limit })
     const list = Array.isArray(rows) ? rows : []
     if (list.length > most)
-      throw new TentError(
-        'T5101',
+      throw new ForjrError(
+        'F5101',
         `The plan of the step.many answers more than ${most} rows, past \`limits.manyOrdered\`.`,
         { fix: 'Leave the order and the `limit` out, so that the plan is read page by page, or raise `manyOrdered`.' },
       )
@@ -105,7 +105,7 @@ interface Adding {
 
 /**
  * Adds the runs of one page in one write, which also moves the count on: past the page, by its entries, and to
- * `read` where it was the last. An entry that does not fit the flow's input counts as failed, with T0002, and is
+ * `read` where it was the last. An entry that does not fit the flow's input counts as failed, with F0002, and is
  * left out. A run that ended well on an earlier try is not added again; it was counted when the try began.
  */
 function addPage(pass: Pass, reached: Reached, many: Many, page: { entries: Entry[]; after?: string | number }): Many {
@@ -167,7 +167,7 @@ function addPage(pass: Pass, reached: Reached, many: Many, page: { entries: Entr
     }
     if (!moved.passed && pastMayFail(moved)) {
       moved.passed = true
-      moved.error = keptError(new TentError('T0002', 'An entry of the step.many does not fit the input of its flow.'))
+      moved.error = keptError(new ForjrError('F0002', 'An entry of the step.many does not fit the input of its flow.'))
     }
     writeStep(tx, run.id, reached.at, { many: { ...moved } }, false)
   })

@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { bytesAt } from './files.ts'
 import type { Makers } from './makers.ts'
 import type { Opening } from './opening/frame.ts'
@@ -27,7 +27,7 @@ const makerNames = [
 /**
  * Takes what an opening works on and the room of the app. Answers the makers that `engine.ts` of the bundle gives,
  * loaded by the room from the module that the description names as `server.makers`, each an entry of the room, or
- * none for a bundle that has no such file. Throws T0011 for a module that cannot be loaded, and for one that gives
+ * none for a bundle that has no such file. Throws F0011 for a module that cannot be loaded, and for one that gives
  * `room`: the code of an app never chooses its own walls.
  */
 async function bundleMakers(w: Opening, room: Room): Promise<Makers> {
@@ -46,7 +46,7 @@ async function bundleMakers(w: Opening, room: Room): Promise<Makers> {
     }
   }
   if (made('room'))
-    throw new TentError('T0011', `The module ${module} of the bundle gives \`room\`, which a program alone gives.`, {
+    throw new ForjrError('F0011', `The module ${module} of the bundle gives \`room\`, which a program alone gives.`, {
       fix: 'Take `room` out of `engine.ts`: where the code of an app runs is the choice of the program that holds it.',
     })
   const found: Record<string, unknown> = {}

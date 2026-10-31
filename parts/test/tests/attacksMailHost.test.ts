@@ -31,11 +31,11 @@ test("[05-10.16] a mail secret that names a host inside its host's network, whic
   )
   const port = Number(Reflect.get(Object(server.address()), 'port'))
   const project = copyOf(t, 'mailed')
-  const file = join(project, 'tent.ts')
+  const file = join(project, 'forjr.ts')
   writeFileSync(
     file,
     readFileSync(file, 'utf8')
-      .replace("import { project } from 'tentjs'", "import { project, secret } from 'tentjs'")
+      .replace("import { project } from 'forjr'", "import { project, secret } from 'forjr'")
       .replace("address: 'shop@example.com' } },", "address: 'shop@example.com' }, send: secret('SMTP_URL') },"),
   )
   const made = await buildProject(project, { for: 'dev', out: join(project, 'bundle') })
@@ -64,7 +64,7 @@ test("[05-10.16] a mail secret that names a host inside its host's network, whic
       () => 'ok',
       (error) => String(error.code),
     )
-    assert.equal(code, 'T0022', host)
+    assert.equal(code, 'F0022', host)
   }
   assert.equal(sockets.size, 0, 'a connection reached the server of this computer')
 })

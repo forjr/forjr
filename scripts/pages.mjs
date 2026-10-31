@@ -50,7 +50,7 @@ if (existsSync(join(folder, 'parts'))) {
     const { program, errors } = parseSync(file, readFileSync(join(folder, file), 'utf8'))
     for (const error of errors) found.push(`${file}  the reader of source cannot read the file: ${error.message}`)
     for (const text of strings(program))
-      for (const [code] of text.matchAll(/\bT\d{4}\b/g))
+      for (const [code] of text.matchAll(/\bF\d{4}\b/g))
         if (!asked.has(`code.${code}`)) asked.set(`code.${code}`, `${file} names the code in a string`)
   }
 

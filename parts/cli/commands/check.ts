@@ -1,13 +1,14 @@
+import { join } from 'node:path'
 import { describeProject } from '../../build/index.ts'
 import { checkProject } from '../../check/index.ts'
-import { TentError, text } from '../../core/index.ts'
+import { ForjrError, text } from '../../core/index.ts'
 import type { Description, Facts } from '../../core/internal.ts'
 import { finding } from '../../core/internal.ts'
 import { readFacts } from '../../engine/index.ts'
+import { touchedIn } from '../../publish/index.ts'
 import { markChecked } from '../checkMarked.ts'
 import type { Command } from '../command.ts'
 import { askedOfRunning, dataFolderOf } from '../reach.ts'
-import { recordedTouched } from '../testsKept.ts'
 
 /** Whether what an engine answered are the facts of the check. */
 const isFacts = (value: unknown): value is Facts =>
@@ -19,7 +20,8 @@ const isFacts = (value: unknown): value is Facts =>
  * none runs by reading the data itself, with no engine started. Beside it, what each test touched in its last run.
  */
 async function factsFor(o: { folder: string; data?: unknown }, description: Description): Promise<Facts> {
-  const touched = recordedTouched(o.folder)
+  // `forjr test` keeps the record in the project's own `.forjr/`, whatever data folder the check names.
+  const touched = touchedIn(join(o.folder, '.forjr'))
   const tested = touched ? { touched } : {}
   const running = await askedOfRunning(o, 'facts', { description })
   if (!running) return { ...(await readFacts(dataFolderOf(o), description)), ...tested }
@@ -33,7 +35,7 @@ async function factsFor(o: { folder: string; data?: unknown }, description: Desc
 
 /**
  * Builds the description, carries out every rule and the type checker, and answers every finding at once. The
- * project is held against its data too: `--data` names the data folder, and `.tent/` holds where none is named.
+ * project is held against its data too: `--data` names the data folder, and `.forjr/` holds where none is named.
  * It needs no bundle, and starts no engine. `now` of the history is marked with what it found.
  */
 export const command: Command = {
@@ -48,11 +50,11 @@ export const command: Command = {
       facts = await factsFor({ folder, data: args.data }, description)
     } catch (error) {
       // Data that cannot be opened is a finding, with what mends it, and not a failure of the command.
-      if (!(error instanceof TentError) || error.code !== 'T0018') throw error
+      if (!(error instanceof ForjrError) || error.code !== 'F0018') throw error
       return { findings: [finding(error.code, error.message, error.fix === undefined ? {} : { fix: error.fix })] }
     }
     const { findings, forms, why } = await checkProject(folder, { facts })
-    // A point keeps the description as it was before the build added what it made, as `tent dev` keeps it.
+    // A point keeps the description as it was before the build added what it made, as `forjr dev` keeps it.
     markChecked(folder, described, !findings.some((one) => one.level === 'error'))
     // Each definition with its form, `plain` or `code` and no more, and for a code one what made it code, in a
     // field of its own.

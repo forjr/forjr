@@ -1,4 +1,4 @@
-import { screen, read, Link, Form } from 'tentjs/ui'
+import { screen, read, Link, Form } from 'forjr/ui'
 import { press, pressCount } from './functions'
 import { Badge } from './badge'
 

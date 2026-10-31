@@ -13,10 +13,10 @@ const tool: Packed[] = [
   { path: 'package/bin/run', text: '#!/bin/sh\n', mode: 0o755 },
 ]
 
-/** Holds that a fetch of a part is refused with T0016, and that the message names the part. */
+/** Holds that a fetch of a part is refused with F0016, and that the message names the part. */
 async function notFetched(work: Promise<unknown>, name: string): Promise<void> {
   const error = await refusal(work)
-  assert.equal(error.code, 'T0016', error.message)
+  assert.equal(error.code, 'F0016', error.message)
   assert.ok(error.message.includes(name), `${error.message} does not name ${name}`)
 }
 
@@ -160,7 +160,7 @@ test('[22-6] a download with a wrong fingerprint, and an archive with a path or 
   }
 })
 
-test('[22-6] [21-14@6b] [16-2@6b] with the server switched off the call fails with T0016, with the status 500 at the door, and the app keeps answering', async (t) => {
+test('[22-6] [21-14@6b] [16-2@6b] with the server switched off the call fails with F0016, with the status 500 at the door, and the app keeps answering', async (t) => {
   const bytes = tgzOf(tool)
   const server = await partServer(t, { '/reader-2.0.0.tgz': bytes })
   const folder = workFolder(t)
@@ -176,14 +176,14 @@ test('[22-6] [21-14@6b] [16-2@6b] with the server switched off the call fails wi
 
   await notFetched(fetchPart('reader', o), 'reader')
   await notFetched(app.call('readsPart', {}, { as: nobody }), 'reader')
-  const answered = await send(app, `${origin}/_t/call/readsPart`)
+  const answered = await send(app, `${origin}/_f/call/readsPart`)
   assert.equal(answered.status, 500)
-  assert.equal(`${answered.error.code} ${answered.error.name}`, 'T0016 part-not-fetched')
+  assert.equal(`${answered.error.code} ${answered.error.name}`, 'F0016 part-not-fetched')
   assert.ok(String(answered.error.message).includes('reader'))
 
   // Nothing else of the app is affected.
   assert.equal(await app.call('still', {}, { as: nobody }), 'still here')
-  assert.deepEqual((await send(app, `${origin}/_t/call/still`)).body, { ok: true, value: 'still here' })
+  assert.deepEqual((await send(app, `${origin}/_f/call/still`)).body, { ok: true, value: 'still here' })
   assert.deepEqual(everythingIn(folder), ['fetched', 'fetched/.tmp'])
 
   // A failed fetch is not remembered: once the part can be reached, the next call that needs it is answered.
@@ -192,13 +192,13 @@ test('[22-6] [21-14@6b] [16-2@6b] with the server switched off the call fails wi
   assert.equal(await app.call('readsPart', {}, { as: nobody }), placeOf(folder, 'reader', '2.0.0'))
 })
 
-test('[21-14@6b] on live data a caller is sent the general sentence of T0016', async (t) => {
+test('[21-14@6b] on live data a caller is sent the general sentence of F0016', async (t) => {
   const { app, origin } = await needing(t, 'live')
   Reflect.set(globalThis, 'partOfTheTest', () => fetchPart('reader', { list: [], folder: workFolder(t), mode: 'live' }))
   t.after(() => Reflect.deleteProperty(globalThis, 'partOfTheTest'))
-  const answered = await send(app, `${origin}/_t/call/readsPart`)
+  const answered = await send(app, `${origin}/_f/call/readsPart`)
   assert.equal(answered.status, 500)
-  assert.equal(answered.error.code, 'T0016')
+  assert.equal(answered.error.code, 'F0016')
   assert.equal(answered.error.message, 'A part that is needed could not be fetched.')
 })
 
@@ -218,12 +218,12 @@ test("[22-6] an address of the builder's own serves every part, with the fingerp
   )
 
   // The same address, read from the environment.
-  const kept = process.env.TENT_PARTS
+  const kept = process.env.FORJR_PARTS
   t.after(() => {
-    if (kept === undefined) delete process.env.TENT_PARTS
-    else process.env.TENT_PARTS = kept
+    if (kept === undefined) delete process.env.FORJR_PARTS
+    else process.env.FORJR_PARTS = kept
   })
-  process.env.TENT_PARTS = `${mirror.origin}/mirror/`
+  process.env.FORJR_PARTS = `${mirror.origin}/mirror/`
   const second = workFolder(t)
   assert.equal(await fetchPart('tool', { list, folder: second, mode: 'live' }), placeOf(second, 'tool', '1.2.0'))
 

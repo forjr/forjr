@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { askFor } from './asking.ts'
 import { never, noteEnded } from './branches.ts'
 import type { GoneOn, StepAt, StepOptions, Working } from './face.ts'
@@ -45,8 +45,8 @@ function workingOf(pass: Pass, at: StepAt): Working {
     progress,
     stopping: () => pass.stopped,
     back: () => {
-      throw new TentError(
-        'T0013',
+      throw new ForjrError(
+        'F0013',
         'Work that runs in the program of its app has no machine to hand itself back from.',
         {
           fix: 'Call `back` in work that states `worker`.',
@@ -88,7 +88,7 @@ export async function stepTool(
         ask: null,
         wakeAt: null,
         endedAt: endedAt(pass),
-        error: keptError(new TentError('T7111', `Nobody agreed to ${row.ask.name ?? 'the call'} in time.`)),
+        error: keptError(new ForjrError('F7111', `Nobody agreed to ${row.ask.name ?? 'the call'} in time.`)),
       })
       tellStep(pass, at, { state: 'failed' })
       return refused(pass, reached, row, goOn)
@@ -120,7 +120,7 @@ export async function stepTool(
       ? undefined
       : large
         ? typeof o.worker === 'string'
-          ? new TentError('T5102', `The task of the step ${JSON.stringify(name)} would pass \`taskSize\`.`, {
+          ? new ForjrError('F5102', `The task of the step ${JSON.stringify(name)} would pass \`taskSize\`.`, {
               fix: 'Hand the work less: put large data into a file and pass its id, or raise `taskSize` of the project.',
             })
           : undefined
@@ -163,8 +163,8 @@ export async function stepTool(
         : env.inside(cx, () => work(workingOf(pass, at))))
       saved = asSaved(result)
       if (saved.size > pass.of.limits.result)
-        throw new TentError(
-          'T5102',
+        throw new ForjrError(
+          'F5102',
           `The result of the step ${JSON.stringify(name)} is ${saved.size} bytes, past \`limits.result\` of ${pass.of.limits.result}.`,
           { fix: 'Put large data into a file and answer its id, or raise `limits.result` of the flow.' },
         )

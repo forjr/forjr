@@ -5,7 +5,7 @@ import { refusedPush } from './merged.ts'
 
 /** The blobs that a server took and that no point names yet, which it holds to `syncLooseSize`. */
 export interface Loose {
-  // Takes blobs that were sent. Throws T9103 where they would pass the bound.
+  // Takes blobs that were sent. Throws F9103 where they would pass the bound.
   add(app: App, blobs: [string, Uint8Array][]): void
   // Points that arrived name their blobs, which are loose no more.
   named(points: Point[]): void

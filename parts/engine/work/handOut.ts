@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { rowIds } from '../../data/index.ts'
 import type { By, Carried, Runner, Waiting } from '../../flows/index.ts'
 import type { Link } from '../copy/link.ts'
@@ -100,8 +100,8 @@ export async function handOut(h: HandingOut, entries: InQueue[], j: Joined): Pro
     j.out.delete(task)
     freePlaces(o, task)
     // An error of the engine itself, where the rows were read, is no refusal of rights: it is written into the log.
-    const failed = error instanceof TentError ? error : new TentError('T0009', 'An error occurred.')
-    if (!(error instanceof TentError)) failureOf(o, 'a hand-out of work', error)
+    const failed = error instanceof ForjrError ? error : new ForjrError('F0009', 'An error occurred.')
+    if (!(error instanceof ForjrError)) failureOf(o, 'a hand-out of work', error)
     await runner.ended(task, [{ failed }])
     return
   }

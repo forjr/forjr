@@ -1,5 +1,5 @@
 // A program of the tests for a clean machine with no Python, which reaches the sites the parts and the packages come
-// from, as a person's first app does: node clean.ts <project> <what>, in the runner's folder of TENT_HOME.
+// from, as a person's first app does: node clean.ts <project> <what>, in the runner's folder of FORJR_HOME.
 //   first   locks and builds the project, opens it, and says the time and the bytes of its first call of a `python`,
 //           and what a crash of Python and the call after it answered;
 //   apps    opens five copies of the project, which share their lock, calls each once, and says the disk they use.
@@ -9,7 +9,7 @@ import { buildProject } from '../../../build/index.ts'
 import type { Caller } from '../../../core/index.ts'
 import type { App, Engine } from '../../../engine/index.ts'
 import { createEngine } from '../../../engine/index.ts'
-import { tent } from '../../shell.ts'
+import { forjr } from '../../shell.ts'
 
 const [project = '', what = ''] = process.argv.slice(2)
 const say = (value: object): void => void process.stdout.write(`${JSON.stringify(value)}\n`)
@@ -34,11 +34,11 @@ async function openedApp(engine: Engine, folder: string, data: string): Promise<
   return { app, as: { kind: 'user', user: { id, roles: [] } } }
 }
 
-if ((await tent(['python', 'lock'], { folder: project, out: () => {} })) !== 0) throw new Error('no lock was made')
+if ((await forjr(['python', 'lock'], { folder: project, out: () => {} })) !== 0) throw new Error('no lock was made')
 const engine = createEngine({ port: 0 })
-const home = process.env.TENT_HOME ?? ''
+const home = process.env.FORJR_HOME ?? ''
 if (what === 'first') {
-  const { app, as } = await openedApp(engine, project, join(project, '.tent'))
+  const { app, as } = await openedApp(engine, project, join(project, '.forjr'))
   const began = performance.now()
   const answer = await app.call('mean', { values: 10 }, { as })
   const ms = performance.now() - began
@@ -49,7 +49,7 @@ if (what === 'first') {
   for (let n = 0; n < 5; n++) {
     const copy = `${project}-${n}`
     cpSync(project, copy, { recursive: true })
-    const { app, as } = await openedApp(engine, copy, join(copy, '.tent'))
+    const { app, as } = await openedApp(engine, copy, join(copy, '.forjr'))
     await app.call('mean', { values: 10 }, { as })
   }
   say({ disk: bytesUnder(join(home, 'fetched')) })

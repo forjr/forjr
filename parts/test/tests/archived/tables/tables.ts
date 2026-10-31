@@ -1,4 +1,4 @@
-import { anyone, boolean, link, number, table, text } from 'tentjs'
+import { anyone, boolean, link, number, table, text } from 'forjr'
 
 const open = anyone('a test reads and writes it')
 const all = { read: open, add: open, change: open, remove: open }

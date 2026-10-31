@@ -9,7 +9,7 @@ A list of lines, each one of three: `{ meta: { name, property, content, media } 
 ## Example
 
 ```tsx
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 export const ordersScreen = screen('ordersScreen', {
   path: '/prices',
@@ -21,7 +21,7 @@ export const ordersScreen = screen('ordersScreen', {
 
 ## Errors
 
-`code.T1014`: a line that is none of the three, a name its kind does not take, or a script from a host that was not opened.
+`code.F1014`: a line that is none of the three, a name its kind does not take, or a script from a host that was not opened.
 
 ## See also
 

@@ -220,7 +220,7 @@ test('[20-17a] a write that fails leaves the copy as it was, and a search inside
       at(db, 'articles').add({ kind: 'a', title: 'no rank' })
     }),
   )
-  assert.equal(failed, 'T2107')
+  assert.equal(failed, 'F2107')
   assert.deepEqual(search(reading(store, library, system)), before)
   assert.deepEqual(search(reading(store, library, system)), truth(kept, to, { limit: 5 }))
 
@@ -264,7 +264,7 @@ test('[20-17a] a write that fails leaves the copy as it was, and a search inside
   assert.ok(!search(reading(store, library, system), 300).some((row) => row.id === kept[7].id))
 })
 
-test('[20-18a] [16-2@3] T2105 and T2106: a vector of the wrong length or with a number that is not finite is refused, a vector of zeros is kept, and a near plan made in code is held to what it joins with', (t) => {
+test('[20-18a] [16-2@3] F2105 and F2106: a vector of the wrong length or with a number that is not finite is refused, a vector of zeros is kept, and a near plan made in code is held to what it joins with', (t) => {
   const store = libraryStore(t)
   const make = generator(1)
   const kept = addArticles(store, 'articles', make, 20)
@@ -290,17 +290,17 @@ test('[20-18a] [16-2@3] T2105 and T2106: a vector of the wrong length or with a 
   for (const meaning of wrong) {
     assert.equal(
       codeOf(() => write((db) => at(db, 'articles').add({ ...row, meaning }))),
-      'T2105',
+      'F2105',
       JSON.stringify(meaning).slice(0, 40),
     )
     assert.equal(
       codeOf(() => write((db) => at(db, 'articles').change(kept[0].id, { meaning }))),
-      'T2105',
+      'F2105',
     )
     // The store itself refuses it too.
     assert.equal(
       codeOf(() => store.write((tx) => tx.add('articles', { ...row, meaning }, system))),
-      'T2105',
+      'F2105',
     )
   }
   const db = reading(store, library, system)
@@ -313,7 +313,7 @@ test('[20-18a] [16-2@3] T2105 and T2106: a vector of the wrong length or with a 
   for (const to of wrong.filter((one) => typeof one !== 'object' || Array.isArray(one)))
     assert.equal(
       codeOf(() => near(to)),
-      'T2105',
+      'F2105',
       JSON.stringify(to).slice(0, 40),
     )
   assert.equal(near(good).length, 3)
@@ -332,7 +332,7 @@ test('[20-18a] [16-2@3] T2105 and T2106: a vector of the wrong length or with a 
   assert.deepEqual([straight[0].id, straight[0].distance], [zero.id, 0])
   assert.equal(
     codeOf(() => at(db, 'articles').near('meaning', zeros).limit(3).all()),
-    'T2105',
+    'F2105',
   )
 
   // A plan made in code with `near` and no `limit`, joined with what it does not join with, or standing inside `in`.
@@ -352,7 +352,7 @@ test('[20-18a] [16-2@3] T2105 and T2106: a vector of the wrong length or with a 
     () => articles().near('title', good).limit(3).all(),
     () => articles().near('nothing', good).limit(3).all(),
   ]
-  for (const [i, plan] of refused.entries()) assert.equal(codeOf(plan), 'T2106', `plan ${i}`)
+  for (const [i, plan] of refused.entries()) assert.equal(codeOf(plan), 'F2106', `plan ${i}`)
   // What it joins with: `where`, `with`, `pick`, `limit` and `first()`.
   assert.equal(articles().where({ kind: 'a' }).near('meaning', good).pick(['id', 'title']).limit(3).all().length, 3)
   assert.ok(articles().near('meaning', good, { measure: 'straight', within: 1e9 }).first())

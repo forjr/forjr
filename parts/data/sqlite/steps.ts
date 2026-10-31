@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isSealed } from '../keptType.ts'
 import type { ColumnType, TableLayout, TableStep } from '../store.ts'
 import {
@@ -26,8 +26,8 @@ import { toStored } from './values.ts'
 // The steps that a write takes which did not say it holds table steps: what a file makes with a first row.
 export const withARow: TableStep['do'][] = ['addTable', 'addIndex', 'addUnique']
 
-const wrong = (step: TableStep, why: string): TentError =>
-  new TentError('T0013', `The table step \`${step.do}\` of \`${step.table}\` ${why}.`)
+const wrong = (step: TableStep, why: string): ForjrError =>
+  new ForjrError('F0013', `The table step \`${step.do}\` of \`${step.table}\` ${why}.`)
 
 /** The table that a step names, as the file holds it. */
 function tableOf(work: Stepping, step: TableStep, name = step.table): TableLayout {
@@ -304,7 +304,7 @@ const does: Record<TableStep['do'], (work: Stepping, step: TableStep) => void> =
 /**
  * Takes the connection, the layouts the file holds, the steps of a table change, and whether the write said that
  * it holds table steps. Carries each step out in its order, changes the layouts in place, and writes down the
- * layout of each table that a step touched. Throws T0013 for a step that the write may not hold, and for a step
+ * layout of each table that a step touched. Throws F0013 for a step that the write may not hold, and for a step
  * that does not fit the file.
  */
 export function runSteps(work: Stepping, steps: TableStep[], said: boolean): void {

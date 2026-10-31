@@ -150,7 +150,7 @@ test('[50-6] a file that a thread brought up while the changes of the app began 
   )
 })
 
-/** One file of a tenant as `tent data files` lists it, as far as these tests read it. */
+/** One file of a tenant as `forjr data files` lists it, as far as these tests read it. */
 interface Listed {
   id: string
   open: boolean
@@ -158,10 +158,10 @@ interface Listed {
   layout: string
 }
 
-/** `tent data files`, asked of a running app with no network. */
+/** `forjr data files`, asked of a running app with no network. */
 async function listed(one: Running): Promise<Listed[]> {
   const { token } = JSON.parse(readFileSync(join(one.dataFolder, 'engine.json'), 'utf8'))
-  const request = new Request(`${one.origin}/_t/admin/data`, {
+  const request = new Request(`${one.origin}/_f/admin/data`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
     body: JSON.stringify({ args: { what: 'files' } }),

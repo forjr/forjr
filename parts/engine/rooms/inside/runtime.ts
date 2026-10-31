@@ -1,4 +1,4 @@
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import type { Runtime } from '../../../core/internal.ts'
 import type { Bounds } from '../callables.ts'
 import { intoLater, outList } from '../callables.ts'
@@ -11,11 +11,11 @@ export interface Carry {
   current(): number | undefined
 }
 
-/** Answers the call that is under way. Throws T0013 where none is, as the runtime slot does in the program. */
+/** Answers the call that is under way. Throws F0013 where none is, as the runtime slot does in the program. */
 function callOf(carry: Carry, used: string): number {
   const call = carry.current()
   if (call === undefined)
-    throw new TentError('T0013', `${used} was used with no call under way.`, {
+    throw new ForjrError('F0013', `${used} was used with no call under way.`, {
       fix: 'A definition and a handle work inside a call: in the `run` of a function, and never in a maker of `engine.ts`.',
     })
   return call

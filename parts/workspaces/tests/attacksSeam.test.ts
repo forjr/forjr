@@ -21,14 +21,14 @@ async function echoed(port: number, id: string, headers: Record<string, string>)
   return JSON.parse(answer.body) as { cookie: string; caller: string; user: string }
 }
 
-// [05-19.10] A stranger's workspace tries the paths of the old box - Tent-Caller, the admin channel, the token of a
+// [05-19.10] A stranger's workspace tries the paths of the old box - Forjr-Caller, the admin channel, the token of a
 // box - and none exists: the app is a caller of nobody but by the door, and the old box is gone.
-test('[05-19.10] a workspace of anyone else that tries the paths of the old box reaches none: Tent-Caller is nobody there, and the admin channel is not reached at the name of the workspace', async (t) => {
+test('[05-19.10] a workspace of anyone else that tries the paths of the old box reaches none: Forjr-Caller is nobody there, and the admin channel is not reached at the name of the workspace', async (t) => {
   const at = await boxedEcho(t)
-  // Tent-Caller and an Authorization of the visitor's own making name nobody inside the workspace.
+  // Forjr-Caller and an Authorization of the visitor's own making name nobody inside the workspace.
   const sent: Record<string, string>[] = [
-    { 'tent-caller': 'system', authorization: 'Bearer made-up' },
-    { 'Tent-Caller': 'system', authorization: `Bearer ${'0'.repeat(43)}` },
+    { 'forjr-caller': 'system', authorization: 'Bearer made-up' },
+    { 'Forjr-Caller': 'system', authorization: `Bearer ${'0'.repeat(43)}` },
   ]
   for (const headers of sent) {
     const seen = await echoed(at.port, at.made.id, headers)
@@ -38,10 +38,10 @@ test('[05-19.10] a workspace of anyone else that tries the paths of the old box 
   // The admin channel of the product's engine - the one the old box was reached over - answers nothing at the name
   // of a workspace: there is no box, and no token of one.
   for (const name of ['asleep', 'logs', 'values', 'run']) {
-    const answer = await asked(at.port, nameOf(at.made.id), `/_t/admin/${name}`, {
+    const answer = await asked(at.port, nameOf(at.made.id), `/_f/admin/${name}`, {
       method: 'POST',
       body: '{"args":{}}',
-      headers: { 'tent-caller': 'system' },
+      headers: { 'forjr-caller': 'system' },
     })
     assert.notEqual(Object(JSON.parse(answer.body || '{}')).ok, true, `${name} answered at the name of the workspace`)
   }

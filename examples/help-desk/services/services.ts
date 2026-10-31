@@ -1,4 +1,4 @@
-import { get, number, object, post, secret, service, text } from 'tentjs'
+import { get, number, object, post, secret, service, text } from 'forjr'
 
 export const mailService = service('mailService', {
   url: 'https://mail.example.com',

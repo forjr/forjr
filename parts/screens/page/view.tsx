@@ -145,7 +145,7 @@ function ChildPlace(o: { name: string; children: Drawable }): Drawable {
   const mark = useContext(PartContext)
   return mark === undefined
     ? o.children
-    : createElement('div', { style: { display: 'contents' }, 'data-t-child': `${mark}:${o.name}` }, o.children)
+    : createElement('div', { style: { display: 'contents' }, 'data-f-child': `${mark}:${o.name}` }, o.children)
 }
 
 /** A use of a component that is drawn on the server alone: a part of the page code, which a page loads with such a use. */

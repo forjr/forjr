@@ -3,7 +3,7 @@ import { tmpdir } from 'node:os'
 import { join, relative, resolve, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
 import { describeProject } from '../../build/index.ts'
-import { boolean, choice, list, number, TentError, text } from '../../core/index.ts'
+import { boolean, choice, list, number, ForjrError, text } from '../../core/index.ts'
 import type { Finding } from '../../core/index.ts'
 import { finding } from '../../core/internal.ts'
 import { findPage } from '../../docs/index.ts'
@@ -20,11 +20,11 @@ import { watchTests } from '../testWatch.ts'
 import { withText } from '../print.ts'
 
 /** How the command is typed: the line under Usage of its page, which is the one place that holds it. */
-const usage = (): string => /## Usage\n+```\n(.+)\n```/.exec(findPage('command.test')?.text ?? '')?.[1] ?? 'tent test'
+const usage = (): string => /## Usage\n+```\n(.+)\n```/.exec(findPage('command.test')?.text ?? '')?.[1] ?? 'forjr test'
 
 /** A finding for words that the command does not take as they were typed, with how it is typed. */
-const misused = (words: string, code = 'T0038'): Finding =>
-  finding(code, `${words} It is typed: ${usage()}`, { fix: 'See `tent docs command.test`.' })
+const misused = (words: string, code = 'F0038'): Finding =>
+  finding(code, `${words} It is typed: ${usage()}`, { fix: 'See `forjr docs command.test`.' })
 
 /**
  * Takes the folder of the project, its test files, the word that names what to run, and whether the tests of AI
@@ -66,7 +66,7 @@ function untilEnded(): { stopped: Promise<void>; done(): void } {
  * a program of its own in the folder of the project, where `testApp()` gives it a fresh temporary copy of the
  * app. A test whose result stands on nothing that changed since it passed is replayed, and not run: `--all` runs
  * every test. Answers how many tests passed, failed and were replayed, the tests not run, and the files, and keeps
- * that report in `results/tests/report.json`; what each test touched is kept in `.tent/tests.json`. A word after the
+ * that report in `results/tests/report.json`; what each test touched is kept in `.forjr/tests.json`. A word after the
  * name runs one test file, or the tests of that name. A test that failed is an error, named with its whole failure:
  * what it threw and where, and what that test wrote out. `--shard <n>/<of>` runs a share of the files, split by their
  * names, and `--join <folders>` answers the one report of the shares that those folders kept. `--plan <screen>`
@@ -101,7 +101,7 @@ export const command: Command = {
       (name) => args[name] !== undefined,
     )
     if (typeof args.only === 'string' && beside !== undefined)
-      return { findings: [misused(`tent test runs one file or the tests of one name, and no --${beside} beside it.`)] }
+      return { findings: [misused(`forjr test runs one file or the tests of one name, and no --${beside} beside it.`)] }
     // The kept runs that people rated are written as a file of evals, and no test is run.
     if (typeof args['from-runs'] === 'string')
       return {
@@ -124,7 +124,7 @@ export const command: Command = {
         return { value: { file: plannedTest(folder, description, args.plan) } }
       }
     } catch (error) {
-      if (!(error instanceof TentError)) throw error
+      if (!(error instanceof ForjrError)) throw error
       return { findings: [finding(error.code, error.message, error.fix === undefined ? {} : { fix: error.fix })] }
     }
     // The room the tests of the app run their code in, for every test the command starts.
@@ -164,26 +164,27 @@ async function testsOf(
     try {
       files = shareOf(files, args.shard)
     } catch (error) {
-      if (!(error instanceof TentError)) throw error
+      if (!(error instanceof ForjrError)) throw error
       return { findings: [finding(error.code, error.message, error.fix === undefined ? {} : { fix: error.fix })] }
     }
   if (!ai) return recorded(folder, files, every, { all: args.all === true, ...only })
   // The tests of AI behaviour run one after another, with the keys of the project's test data, under one budget
   // for the whole command, and each `evals` writes what it used and what it gave where the command reads it.
-  const kept = mkdtempSync(join(tmpdir(), 'tent-ai-'))
+  const kept = mkdtempSync(join(tmpdir(), 'forjr-ai-'))
   const results = join(kept, 'results.jsonl')
   const budget = budgetOf(Array.isArray(args.budget) ? args.budget.map(String) : undefined)
-  process.env.TENT_AI_BUDGET = budget === 'none' ? 'none' : JSON.stringify(budget)
-  process.env.TENT_AI_LEDGER = join(kept, 'used.jsonl')
-  process.env.TENT_AI_RESULTS = results
-  process.env.TENT_AI_DATA = join(folder, '.tent')
+  process.env.FORJR_AI_BUDGET = budget === 'none' ? 'none' : JSON.stringify(budget)
+  process.env.FORJR_AI_LEDGER = join(kept, 'used.jsonl')
+  process.env.FORJR_AI_RESULTS = results
+  process.env.FORJR_AI_DATA = join(folder, '.forjr')
   const ran = await testsRan(folder, files, { ai, ...(only.name === undefined ? {} : { only: [only.name] }) })
   const { passed, findings, notRun } = ran
   if (only.name !== undefined && passed + findings.length + notRun.length === 0)
     return {
-      findings: [misused(`No test file and no test of the project is named "${only.name.slice(0, 120)}".`, 'T0001')],
+      findings: [misused(`No test file and no test of the project is named "${only.name.slice(0, 120)}".`, 'F0001')],
     }
-  for (const name of ['TENT_AI_BUDGET', 'TENT_AI_LEDGER', 'TENT_AI_RESULTS', 'TENT_AI_DATA']) delete process.env[name]
+  for (const name of ['FORJR_AI_BUDGET', 'FORJR_AI_LEDGER', 'FORJR_AI_RESULTS', 'FORJR_AI_DATA'])
+    delete process.env[name]
   // The evaluation is kept in `evals/`, and set against the one before where `--compare` asks for it.
   const gave = resultsIn(results)
   const version = String(gave.find((one) => one.version !== undefined)?.version ?? 'unbuilt')
@@ -195,7 +196,7 @@ async function testsOf(
 }
 
 /**
- * `tent test --declared`: runs the cases made from the declarations of the app, in a program of their own in the
+ * `forjr test --declared`: runs the cases made from the declarations of the app, in a program of their own in the
  * folder of the project, as a test file of it runs: what each caller gets of each definition, held to
  * `tests/declared/access.json`, which `update` keeps anew, the edges of each input, and each form. Nothing of it is
  * kept in the record of the tests, and nothing is replayed. Answers what a run of the tests answers.
@@ -203,7 +204,7 @@ async function testsOf(
 async function declaredOf(folder: string, update: boolean): Promise<{ value?: unknown; findings?: Finding[] }> {
   const program = fileURLToPath(new URL('../declaredTests.ts', import.meta.url))
   const label = 'tests/declared'
-  process.env.TENT_DECLARED = update ? 'update' : 'run'
+  process.env.FORJR_DECLARED = update ? 'update' : 'run'
   try {
     const ran = await testsRan(folder, [program], { as: label })
     const { passed, findings, notRun } = ran
@@ -221,7 +222,7 @@ async function declaredOf(folder: string, update: boolean): Promise<{ value?: un
     ]
     return { value: withText(value, lines.join('\n')), findings }
   } finally {
-    delete process.env.TENT_DECLARED
+    delete process.env.FORJR_DECLARED
   }
 }
 
@@ -261,7 +262,7 @@ async function recorded(
   )
   if (o.name !== undefined && passed + findings.length + notRun.length + replayed.length === 0)
     return {
-      findings: [misused(`No test file and no test of the project is named "${o.name.slice(0, 120)}".`, 'T0001')],
+      findings: [misused(`No test file and no test of the project is named "${o.name.slice(0, 120)}".`, 'F0001')],
     }
   keepRan(folder, {
     kept,

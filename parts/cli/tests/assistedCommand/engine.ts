@@ -1,4 +1,4 @@
-import type { Makers } from 'tentjs/engine'
+import type { Makers } from 'forjr/engine'
 
 // A provider of the project's own, which says what the person said, in two parts.
 export default {

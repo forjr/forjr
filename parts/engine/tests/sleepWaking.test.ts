@@ -8,7 +8,7 @@ const minutes = (n: number): number => n * 60_000
 
 /** A call of the app over the network, and the code of its error where it is one. */
 async function called(port: number): Promise<{ status: number; code?: string }> {
-  const answer = await fetch(`http://localhost:${port}/_t/call/allMarks`, {
+  const answer = await fetch(`http://localhost:${port}/_f/call/allMarks`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: '{"input":{}}',
@@ -17,7 +17,7 @@ async function called(port: number): Promise<{ status: number; code?: string }> 
   return { status: answer.status, ...(body.ok === false ? { code: String(Object(body.error).code) } : {}) }
 }
 
-test('[21-24] a request that arrives during a waking waits within web.openTime, and is answered T0008 past it; one after the waking is answered', async (t) => {
+test('[21-24] a request that arrives during a waking waits within web.openTime, and is answered F0008 past it; one after the waking is answered', async (t) => {
   const bundle = await bundled(t, { project: 'sleepy' })
   const { clock, advance } = testClock()
   // The waking waits for the first yes of the lease, which the test holds back for a second and a half.
@@ -40,7 +40,7 @@ test('[21-24] a request that arrives during a waking waits within web.openTime, 
   slow = true
   const began = performance.now()
   const first = await called(port)
-  assert.deepEqual(first, { status: 500, code: 'T0008' })
+  assert.deepEqual(first, { status: 500, code: 'F0008' })
   assert.ok(performance.now() - began < 1400, 'the request waited past web.openTime')
   await untilWithin(() => heard.includes('woke'), 'the waking ended')
   assert.equal((await called(port)).status, 200)

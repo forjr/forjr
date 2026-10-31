@@ -1,10 +1,10 @@
 # A screen with its data, and a link
 
-A screen names its address, who may see it, and its `data`: each entry is asked as the caller and handed to the view. The view is React: elements of HTML, and the tags of `tentjs/ui`. A `Link` is a link to another screen, and `with` gives the values of its address. The look is the project's CSS (`topic.look`).
+A screen names its address, who may see it, and its `data`: each entry is asked as the caller and handed to the view. The view is React: elements of HTML, and the tags of `forjr/ui`. A `Link` is a link to another screen, and `with` gives the values of its address. The look is the project's CSS (`topic.look`).
 
 ```tsx
 // screens/orders.tsx
-import { read, role, screen, Link } from 'tentjs/ui'
+import { read, role, screen, Link } from 'forjr/ui'
 import { openOrders } from '../functions/orders'
 import { orderScreen } from './order'
 
@@ -35,7 +35,7 @@ A value of the address is read from `params`. `needed: true` makes a row that is
 
 ```tsx
 // screens/order.tsx
-import { read, role, screen, useTranslations, Form } from 'tentjs/ui'
+import { read, role, screen, useTranslations, Form } from 'forjr/ui'
 import { getOrder, markDone } from '../functions/orders'
 
 export const orderScreen = screen('orderScreen', {

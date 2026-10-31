@@ -14,7 +14,7 @@ files: { store: s3({ url: 'https://storage.example.com', bucket: 'shop-files', k
 
 ## Errors
 
-`code.T0019` where the secret holds no value.
+`code.F0019` where the secret holds no value.
 
 ## See also
 

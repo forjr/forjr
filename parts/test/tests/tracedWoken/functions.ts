@@ -1,4 +1,4 @@
-import { change, flow, start, table, text } from 'tentjs'
+import { change, flow, start, table, text } from 'forjr'
 
 export const orders = table('orders', { columns: { title: text() }, access: { read: 'anyone', add: 'anyone' } })
 

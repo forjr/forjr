@@ -1,5 +1,5 @@
-import { number, query, table } from 'tentjs'
-import { Link } from 'tentjs/ui'
+import { number, query, table } from 'forjr'
+import { Link } from 'forjr/ui'
 
 export const orders = table('orders', { columns: { total: number() }, access: { read: 'signedIn' } })
 

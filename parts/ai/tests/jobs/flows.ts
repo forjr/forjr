@@ -1,4 +1,4 @@
-import { flow, model, text } from 'tentjs'
+import { flow, model, text } from 'forjr'
 
 // A model whose server does its work by itself: its provider, made by the program, begins a job and checks it.
 export const maker = model('maker', {
@@ -10,5 +10,5 @@ export const maker = model('maker', {
 })
 
 export const makeIt = flow('makeIt', {
-  run: async ({ step }) => step('make', () => maker({ prompt: 'a tent' })),
+  run: async ({ step }) => step('make', () => maker({ prompt: 'a house' })),
 })

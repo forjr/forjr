@@ -5,7 +5,7 @@ Hashes a password and checks one against what was stored, for a sign-in of the p
 ## Example
 
 ```ts
-import { action, anyone, change, passwords, sessions, text } from 'tentjs'
+import { action, anyone, change, passwords, sessions, text } from 'forjr'
 
 export const addUser = change('addUser', {
   access: 'nobody',
@@ -52,7 +52,7 @@ A sign-in also bounds how often a password may be guessed: see `handle.attempts`
 
 ## Errors
 
-`code.T0013` when `hash` or `check` is used in a query or a change, which wait for nothing.
+`code.F0013` when `hash` or `check` is used in a query or a change, which wait for nothing.
 
 ## See also
 

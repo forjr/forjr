@@ -12,18 +12,18 @@ const openToNobody = [
   },
 ]
 
-test('[05-8.26@8a] `{ run }` and `{ run, stop: true }` sent at /mcp to a flow that is offered to MCP, by another caller than its starter: T0001', async (t) => {
+test('[05-8.26@8a] `{ run }` and `{ run, stop: true }` sent at /mcp to a flow that is offered to MCP, by another caller than its starter: F0001', async (t) => {
   const app = await mcpApp(t)
   const { ada, bob } = await people(app)
   const late = await app.mcp({ as: ada }).call('slowJob', { word: 'late' })
-  assert.equal(errorOf(late).code, 'T0008', JSON.stringify(late))
+  assert.equal(errorOf(late).code, 'F0008', JSON.stringify(late))
   const run = String(Object(errorOf(late).fields).run)
   const other = app.mcp({ as: bob })
   const waited = await other.call('slowJob', { run })
-  assert.equal(errorOf(waited).code, 'T0001', JSON.stringify(waited))
+  assert.equal(errorOf(waited).code, 'F0001', JSON.stringify(waited))
   assert.doesNotMatch(JSON.stringify(waited), /late/)
   const stopped = await other.call('slowJob', { run, stop: true })
-  assert.equal(errorOf(stopped).code, 'T0001', JSON.stringify(stopped))
+  assert.equal(errorOf(stopped).code, 'F0001', JSON.stringify(stopped))
   assert.equal(app.runs.read(run)?.state, 'waiting', 'the run of the other caller goes on')
 })
 
@@ -40,7 +40,7 @@ test('[05-13.22] a yes for a tool that asks, sent five times at once: the functi
   assert.equal((await app.rows('notes')).length, 1)
 })
 
-test('[05-13.23] a body that holds a thousand calls is T0002, and none of them runs', async (t) => {
+test('[05-13.23] a body that holds a thousand calls is F0002, and none of them runs', async (t) => {
   const app = await mcpApp(t)
   const { ada } = await people(app)
   const calls = Array.from({ length: 1000 }, (_, n) => ({
@@ -50,7 +50,7 @@ test('[05-13.23] a body that holds a thousand calls is T0002, and none of them r
     params: { name: 'addNote', arguments: { words: `call ${n}` } },
   }))
   const answered = await app.mcp({ as: ada }).send(calls)
-  assert.match(JSON.stringify(answered.body), /T0002/, JSON.stringify(answered.body).slice(0, 300))
+  assert.match(JSON.stringify(answered.body), /F0002/, JSON.stringify(answered.body).slice(0, 300))
   assert.equal(Array.isArray(answered.body), false, 'no answer is given for each call')
   assert.equal((await app.rows('notes')).length, 0)
 })

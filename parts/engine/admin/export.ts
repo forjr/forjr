@@ -2,7 +2,7 @@ import type { Admin } from '../admin.ts'
 import { wordOf } from '../admin.ts'
 
 /**
- * `tent export`: takes the folder of a release bundle that the command built, makes it a loadable version, writes
+ * `forjr export`: takes the folder of a release bundle that the command built, makes it a loadable version, writes
  * the site out from it into `out`, and drops the version again, also where the export failed.
  */
 export const admin: Admin = {

@@ -16,7 +16,7 @@ const moment = (ms = 20): Promise<void> => new Promise((done) => setTimeout(done
 /** What the provider of the project was asked, made anew for each test: the test hears each `embed`. */
 function seenAnew(t: TestContext): { embeds: { model: string; texts: number }[] } {
   const made: { embeds: { model: string; texts: number }[] } = { embeds: [] }
-  listened(t, 'tentjs.test.vectors', (told) => {
+  listened(t, 'forjr.test.vectors', (told) => {
     made.embeds.push({
       model: String(Reflect.get(Object(told), 'model')),
       texts: Number(Reflect.get(Object(told), 'texts')),
@@ -85,7 +85,7 @@ async function addRows(app: TestApp, table: string, count: number): Promise<void
 
 /** The rows of the counts, by the shared file. */
 const countRows = (dataFolder: string): Record<string, unknown>[] =>
-  readFile(join(dataFolder, 'data.db'), 'SELECT * FROM "_t_counts"')
+  readFile(join(dataFolder, 'data.db'), 'SELECT * FROM "_f_counts"')
 
 const amount = (dataFolder: string, name: string, caller: string, unit: string): number =>
   countRows(dataFolder)
@@ -113,13 +113,13 @@ test('[51-14] a vector column that states its model is filled from the column it
   assert.ok(sizes.filter((one) => one === 32).length >= 2, JSON.stringify(sizes))
 })
 
-test('[51-14] a change of the model of a vector column is refused with T2001 where it states no old, and with old drop it is emptied in the switch and filled anew, never holding the vectors of two models', async (t) => {
+test('[51-14] a change of the model of a vector column is refused with F2001 where it states no old, and with old drop it is emptied in the switch and filled anew, never holding the vectors of two models', async (t) => {
   const { app, dataFolder, switched } = await vectors(t)
   await addRows(app, 'docs', 40)
   await until(app, 'every vector is made', async () =>
     (await vectorsOf(dataFolder, 'docs')).every((one) => one === '1,0,0'),
   )
-  await assert.rejects(switched(docsColumn, docsColumn.replace('embedderA', 'embedderB')), { code: 'T2001' })
+  await assert.rejects(switched(docsColumn, docsColumn.replace('embedderA', 'embedderB')), { code: 'F2001' })
   await switched(
     docsColumn.replace('embedderA', 'embedderB'),
     docsColumn.replace('embedderA', 'embedderB').replace('optional: true', "optional: true, old: 'drop'"),
@@ -168,7 +168,7 @@ test('[51-14] what a fill used is counted under the starter of its column, and p
   assert.ok(amount(dataFolder, 'embedderA', 'system:fill:notes.vec', 'calls') >= 1, 'and not the notes')
   const held = readFile(
     join(dataFolder, 'data.db'),
-    `SELECT * FROM "_t_filled" WHERE "tableName" = 'docs' AND "state" = 'due'`,
+    `SELECT * FROM "_f_filled" WHERE "tableName" = 'docs' AND "state" = 'due'`,
   )
   assert.equal(held.length, 5 - made)
   assert.ok(
@@ -191,7 +191,7 @@ test('[51-14] what a fill used is counted under the starter of its column, and p
   )
 })
 
-test('[51-14] tent filled shows the limit of a by, or that it has none', async (t) => {
+test('[51-14] forjr filled shows the limit of a by, or that it has none', async (t) => {
   const { app, dataFolder } = await vectors(t, (folder) =>
     edited(
       folder,

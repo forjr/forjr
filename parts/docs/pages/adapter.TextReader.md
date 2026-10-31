@@ -17,7 +17,7 @@ interface TextReader {
 
 ```ts
 // engine.ts
-import type { Makers, TextReader } from 'tentjs/engine'
+import type { Makers, TextReader } from 'forjr/engine'
 
 const scans = (key: string): TextReader => ({
   kinds: ['image/*'],
@@ -35,4 +35,4 @@ export default { textReaders: ({ secrets }) => [scans(secrets.SCAN_KEY.reveal())
 
 ## See also
 
-`handle.files`, `code.T0015`, `option.project.limits`
+`handle.files`, `code.F0015`, `option.project.limits`

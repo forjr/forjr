@@ -1,4 +1,4 @@
-import { action, anyone, project, query, text } from 'tentjs'
+import { action, anyone, project, query, text } from 'forjr'
 
 // A fetch of a part is waited for as long as the project says, which is far less here than the two minutes.
 export const needs = project('needs', { backups: { every: false }, limits: { fetchTime: '400 ms' } })

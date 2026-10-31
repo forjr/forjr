@@ -8,7 +8,7 @@ import { opened, workFolder } from './work.ts'
 
 /** The tables of an app that a store holds: every one but the engine's own. */
 export const appTables = (store: Store): TableLayout[] =>
-  store.layout().filter((table) => !table.name.startsWith('_t_'))
+  store.layout().filter((table) => !table.name.startsWith('_f_'))
 
 /** Answers the steps that lead from what a store holds to what a description asks for, with what was found. */
 export function planned(store: Store, description: Description) {

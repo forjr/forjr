@@ -14,9 +14,9 @@ The day, as `'2026-10-08'`. A day answers itself, and nothing answers nothing. W
 
 ## Errors
 
-`code.T0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
+`code.F0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
 
-`code.T1014`: a zone that is written and that the runtime does not know, when the project is described.
+`code.F1014`: a zone that is written and that the runtime does not know, when the project is described.
 
 ## See also
 

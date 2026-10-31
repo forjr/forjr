@@ -1,11 +1,11 @@
 # `component`
 
-A part of a screen that is written once and used as a tag, with typed properties, data or declared state of its own, a component it sits inside, or drawn on the server alone. Its name starts with a capital letter, and it is written in a `.tsx` file that imports `tentjs/ui`.
+A part of a screen that is written once and used as a tag, with typed properties, data or declared state of its own, a component it sits inside, or drawn on the server alone. Its name starts with a capital letter, and it is written in a `.tsx` file that imports `forjr/ui`.
 
 ## Example
 
 ```tsx
-import { component, number, text, useTranslations } from 'tentjs/ui'
+import { component, number, text, useTranslations } from 'forjr/ui'
 
 export const PriceTag = component('PriceTag', {
   props: { amount: number(), currency: text({ default: 'USD' }) },
@@ -19,7 +19,7 @@ export const PriceTag = component('PriceTag', {
 A screen imports the component from its file and writes it as a tag: `<PriceTag amount={o.total} />`. The properties of the tag are the `props` of the component, each checked against its type by the type checker: one that is optional or has a default may be left out. Elements are handed to the component as its `children`, as React does: what stands between the two tags of a use reaches the view as `children`, which it places where it wants:
 
 ```tsx
-import { component, text } from 'tentjs/ui'
+import { component, text } from 'forjr/ui'
 
 export const Card = component('Card', {
   props: { title: text() },
@@ -55,21 +55,21 @@ Something that is written as a tag, which carries the name, the kind `'component
 
 ## Errors
 
-`code.T1003`: an option that `component` does not have.
+`code.F1003`: an option that `component` does not have.
 
-`code.T1008`: `view` is left out.
+`code.F1008`: `view` is left out.
 
-`code.T1009`: a name of `props`, of `data` or of `state` is one of the names every view is handed.
+`code.F1009`: a name of `props`, of `data` or of `state` is one of the names every view is handed.
 
-`code.T1013`: the name does not start with a capital letter, or holds more than letters and digits.
+`code.F1013`: the name does not start with a capital letter, or holds more than letters and digits.
 
-`code.T1014`: a value that is not allowed: a state kept `in: 'device'`, which a component declares none of.
+`code.F1014`: a value that is not allowed: a state kept `in: 'device'`, which a component declares none of.
 
-`code.T6012`: a component that holds itself, straight or through others.
+`code.F6012`: a component that holds itself, straight or through others.
 
-`code.T6018`: a component drawn on the server alone that holds what lives in the browser.
+`code.F6018`: a component drawn on the server alone that holds what lives in the browser.
 
-`code.T6022`: a use of a component that keeps state in the address, with no `id` written in place.
+`code.F6022`: a use of a component that keeps state in the address, with no `id` written in place.
 
 ## See also
 

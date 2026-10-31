@@ -20,7 +20,7 @@ interface TreeSpan {
   rows: { table: string; row: Record<string, unknown> }[]
 }
 
-/** A trace as `tent logs --trace` reads it: its id, and its spans as a tree from those whose parent it does not hold. */
+/** A trace as `forjr logs --trace` reads it: its id, and its spans as a tree from those whose parent it does not hold. */
 export interface Tree {
   trace: string
   spans: TreeSpan[]
@@ -102,7 +102,7 @@ export function treeOf(o: Opened, trace: string): Tree | undefined {
   return { trace, spans: top }
 }
 
-/** One trace as `tent logs --slow` lists it: its id, its first span, when it began and how long it took. */
+/** One trace as `forjr logs --slow` lists it: its id, its first span, when it began and how long it took. */
 export interface SlowTrace {
   trace: string
   name: string

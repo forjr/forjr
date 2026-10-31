@@ -1,5 +1,5 @@
 import type { Signer, Verifier } from '../../connect/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import type { Opened } from '../opened.ts'
 import { isStored } from '../../core/internal.ts'
@@ -36,7 +36,7 @@ function needed(description: Description): { signers: [string, string][]; verifi
 
 /**
  * Takes an app, its description, and what its makers made of auths and checks. Keeps them for the app. Throws
- * T7113 where a service or an incoming call names one that nobody made: the app does not open.
+ * F7113 where a service or an incoming call names one that nobody made: the app does not open.
  */
 export function keepSigning(o: Opened, description: Description, made: Signing): void {
   const { signers, verifiers } = needed(description)
@@ -46,7 +46,7 @@ export function keepSigning(o: Opened, description: Description, made: Signing):
   ] as const)
     for (const [name, by] of names)
       if (typeof Reflect.get(given, name) !== 'function')
-        throw new TentError('T7113', `${by} names the ${kind} ${name}, which nobody made in \`engine.ts\`.`, {
+        throw new ForjrError('F7113', `${by} names the ${kind} ${name}, which nobody made in \`engine.ts\`.`, {
           fix: `Make it in \`${kind === 'signer' ? 'signers' : 'verifiers'}\` of the makers of \`engine.ts\`, by that name.`,
         })
   held.set(o.handles, made)

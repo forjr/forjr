@@ -14,9 +14,9 @@ The moment or the day, in the kind it was handed, and nothing for nothing. Hande
 
 ## Errors
 
-`code.T0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
+`code.F0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
 
-`code.T1011`: a length that is written and does not read, when the project is described.
+`code.F1011`: a length that is written and does not read, when the project is described.
 
 ## See also
 

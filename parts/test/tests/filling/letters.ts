@@ -1,4 +1,4 @@
-import { action, change, table, text } from 'tentjs'
+import { action, change, table, text } from 'forjr'
 import { noted } from './helpers/seen.ts'
 
 // Work that fills a column on a thread: each value is a run of its own, found again by the pass that starts again.
@@ -20,7 +20,7 @@ export const letters = table('letters', {
   access: { read: 'signedIn', add: 'signedIn', change: 'signedIn', remove: 'signedIn' },
 })
 
-// An order written in raw SQL, which sets no mark: `tent filled --look` finds it.
+// An order written in raw SQL, which sets no mark: `forjr filled --look` finds it.
 export const rawOrder = change('rawOrder', {
   access: 'nobody',
   system: 'writes an order in raw SQL',

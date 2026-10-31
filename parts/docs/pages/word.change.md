@@ -37,7 +37,7 @@ A function, `markPaid(input)`, which answers at once. A call is handed to the en
 
 ## Errors
 
-`code.T0010`: it was called with no engine: nothing stands in the runtime slot.
+`code.F0010`: it was called with no engine: nothing stands in the runtime slot.
 
 ## See also
 

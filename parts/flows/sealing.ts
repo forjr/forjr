@@ -1,10 +1,10 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { RunnerEnv } from './face.ts'
 import { asSaved } from './kept.ts'
 import { isWritten } from '../core/internal.ts'
 
 // The one member of what a sealed step saves: the sealed text, which nothing but its run opens.
-const sealedKey = 'tent.sealed'
+const sealedKey = 'forjr.sealed'
 
 /** Where a saved result stands: its run, its step and its repeat, which a sealed one is bound to. */
 interface Place {
@@ -13,9 +13,9 @@ interface Place {
   repeat: number
 }
 
-const noSeal = (): TentError =>
-  new TentError('T0019', 'A sealed step result needs the key of the secrets, and the runner was handed none.', {
-    fix: 'Give the engine the key of the secrets, as `TENT_SECRET_KEY` or as `secret.key` of its data folder.',
+const noSeal = (): ForjrError =>
+  new ForjrError('F0019', 'A sealed step result needs the key of the secrets, and the runner was handed none.', {
+    fix: 'Give the engine the key of the secrets, as `FORJR_SECRET_KEY` or as `secret.key` of its data folder.',
   })
 
 /** Whether a saved result is sealed. */
@@ -28,7 +28,7 @@ export const sealedTextOf = (saved: unknown): string | undefined =>
 
 /**
  * Takes what a step answered, as it is saved. Answers what is saved of it where the step is sealed: the sealed
- * text alone, bound to its run, its step and its repeat, with its size. Throws T0019 with no key at hand.
+ * text alone, bound to its run, its step and its repeat, with its size. Throws F0019 with no key at hand.
  */
 export function sealedResult(env: RunnerEnv, at: Place, value: unknown): { value: unknown; size: number } {
   if (!env.seal) throw noSeal()

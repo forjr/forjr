@@ -27,7 +27,7 @@ const quoted = (text: string): string => text.replaceAll('&', '&amp;').replaceAl
 /**
  * The pages a site of a tool, or of an attacker, serves. `/frame?src=` shows an address in a frame, and a second
  * frame of the address `evil=` where it is given; `/open?src=` opens it in a window of its own; `/listen` answers
- * the first window that posts to it with `tent.tree`; `/poster` posts what its parent hands it to the first frame
+ * the first window that posts to it with `forjr.tree`; `/poster` posts what its parent hands it to the first frame
  * of its parent; `/seen` is a page that is only looked at.
  */
 const pages: Pages = {
@@ -58,7 +58,7 @@ const pages: Pages = {
         'addEventListener("message", (event) => {',
         '  if (window.answered || !event.source) return',
         '  window.answered = true',
-        '  event.source.postMessage({ t: "tent.tree" }, "*")',
+        '  event.source.postMessage({ t: "forjr.tree" }, "*")',
         '})',
       ].join('\n'),
     ),

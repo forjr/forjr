@@ -155,7 +155,7 @@ export function rawLink(
   key: string,
   scheme = 'https',
 ): { link: Link; got: Record<string, unknown>[]; closed: () => boolean } {
-  const link = app.link(new Request(`${scheme}://writer.test/_t/copy`, { headers: { authorization: `Bearer ${key}` } }))
+  const link = app.link(new Request(`${scheme}://writer.test/_f/copy`, { headers: { authorization: `Bearer ${key}` } }))
   const got: Record<string, unknown>[] = []
   let closed = false
   link.each(

@@ -3,7 +3,7 @@ import { readdirSync, statSync } from 'node:fs'
 import { join } from 'node:path'
 
 // What no save of a project lies in: the engine's own folder, the packages, git, and the type list a build writes.
-const passed = new Set(['.tent', 'node_modules', '.git', 'tent.d.ts'])
+const passed = new Set(['.forjr', 'node_modules', '.git', 'forjr.d.ts'])
 
 /** What the disk says of each file of a project's folders, by where it lies: what tells that its entry changed. */
 export type Lying = Map<string, string>

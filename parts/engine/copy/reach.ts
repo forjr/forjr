@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Link } from './link.ts'
 import { linkLater } from './link.ts'
 
@@ -12,8 +12,8 @@ export interface Reached {
 export type Reach = (address: string) => Reached | undefined
 
 /** The error of an address that a machine may not reach, or cannot. */
-export const notReached = (address: string, why: string, sent = false): TentError =>
-  new TentError('T0029', `The machine at ${address} was not reached: ${why}.`, {
+export const notReached = (address: string, why: string, sent = false): ForjrError =>
+  new ForjrError('F0029', `The machine at ${address} was not reached: ${why}.`, {
     fix: 'See that the machine runs and that this one may reach it. The caller may ask again.',
     ...(sent ? { fields: { sent: 'true' } } : {}),
   })
@@ -30,8 +30,8 @@ export function reachedBy(reach: Reach | undefined, insecure: boolean): (address
     const secure = address.startsWith('https://')
     const held = (): void => {
       if (!secure && !insecure)
-        throw new TentError(
-          'T0013',
+        throw new ForjrError(
+          'F0013',
           `The address ${address} is not secure, and this machine was not told \`insecure\`.`,
           {
             fix: 'Name an address that starts with `https://`, or start the machine with `--insecure` on a network of its own.',

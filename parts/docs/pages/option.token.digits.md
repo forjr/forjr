@@ -14,7 +14,7 @@ const code = token({ digits: 6 })
 
 ## Errors
 
-`code.T0027`: `digits` that is no whole number from 1 up, or more digits than the limit `valueSize` lets a value hold.
+`code.F0027`: `digits` that is no whole number from 1 up, or more digits than the limit `valueSize` lets a value hold.
 
 ## See also
 

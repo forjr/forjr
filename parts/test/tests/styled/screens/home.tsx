@@ -1,4 +1,4 @@
-import { Link, screen } from 'tentjs/ui'
+import { Link, screen } from 'forjr/ui'
 
 // The home screen draws neither component.
 export const homeScreen = screen('homeScreen', {

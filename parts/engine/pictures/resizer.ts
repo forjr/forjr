@@ -19,7 +19,7 @@ const again = 600_000
 
 /** What is known of the resizer for an app, by the folder of its parts. */
 function knownFor(o: Opened): Known {
-  const key = partsOf(o).folder ?? process.env.TENT_HOME ?? ''
+  const key = partsOf(o).folder ?? process.env.FORJR_HOME ?? ''
   const found = known.get(key) ?? {}
   known.set(key, found)
   return found
@@ -37,7 +37,7 @@ const fetching = new Map<string, Promise<void>>()
 /** Starts the fetch of the resizer for an app, one at a time, where none failed a while ago, and answers it. */
 function started(o: Opened): Promise<void> | undefined {
   const state = knownFor(o)
-  const key = partsOf(o).folder ?? process.env.TENT_HOME ?? ''
+  const key = partsOf(o).folder ?? process.env.FORJR_HOME ?? ''
   if (state.fetching) return fetching.get(key)
   if (state.failedAt !== undefined && performance.now() - state.failedAt < again) return undefined
   state.fetching = true

@@ -5,7 +5,7 @@ import { scripted, tooled } from './tooled.ts'
 
 // A plain flow that mails what a query read, as the coding agent of the small builder writes one, and states
 // nothing of sending: what it calls says that it sends.
-const mailFlow = `import { anyone, each, flow, join, mail, query, text } from 'tentjs'
+const mailFlow = `import { anyone, each, flow, join, mail, query, text } from 'forjr'
 import { notes } from '../tables/users'
 
 export const allTasks = query('allTasks', {

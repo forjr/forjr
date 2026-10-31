@@ -8,7 +8,7 @@ const printOf = (text: unknown): Buffer =>
 /**
  * Takes two texts. Answers whether they are the same: it compares their fingerprints in constant time, so the time
  * it takes does not tell where they differ. It answers false where either is nothing or empty text. Handed a
- * reference it answers its record. Throws T0027 for anything else that is no text.
+ * reference it answers its record. Throws F0027 for anything else that is no text.
  */
 export function sameSecret(a: string | undefined, b: string | undefined): boolean
 export function sameSecret(...values: unknown[]): unknown {

@@ -18,7 +18,7 @@ async function within(ms: number, holds: () => boolean): Promise<boolean> {
 
 // A program of an outside server of MCP that stays running, and writes the folder it was started in each time.
 const program =
-  "require('fs').appendFileSync(process.env.TENT_SAID, process.cwd() + '\\n'); setInterval(() => {}, 1000)"
+  "require('fs').appendFileSync(process.env.FORJR_SAID, process.cwd() + '\\n'); setInterval(() => {}, 1000)"
 
 test('[21-17] a program of an outside server of MCP is started again from the folder of the version a save switched to, and the folder it left is tidied', async (t) => {
   let started: Dev | undefined
@@ -28,10 +28,10 @@ test('[21-17] a program of an outside server of MCP is started again from the fo
   writeFileSync(said, '')
   writeFileSync(
     join(folder, 'services.ts'),
-    `import { service } from 'tentjs'
+    `import { service } from 'forjr'
 
 export const local = service('local', {
-  mcp: { command: ['node', '-e', ${JSON.stringify(program)}], env: { TENT_SAID: ${JSON.stringify(said)} } },
+  mcp: { command: ['node', '-e', ${JSON.stringify(program)}], env: { FORJR_SAID: ${JSON.stringify(said)} } },
 })
 `,
   )

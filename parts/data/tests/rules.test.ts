@@ -102,7 +102,7 @@ test('[20-3] a row the caller may not read is absent, under each rule', (t) => {
     () => at(read(ada), 'users').sort('salary').all(),
     () => at(read(ada), 'users').count({ not: { salary: 5000 } }),
   ])
-    assert.equal(codeOf(wrong), 'T0013')
+    assert.equal(codeOf(wrong), 'F0013')
   // A db that was made without `system` has none of what needs full access.
   for (const name of ['system', 'sql', 'n']) assert.ok(!(name in read(ada)), name)
   // For a caller that is the system, `db` itself is not limited.
@@ -124,46 +124,46 @@ test('[20-3] a row the caller may not change gives the named error', (t) => {
   // A role: the error names the table, what was tried and the role.
   refused(
     () => as(bob)((db) => at(db, 'customers').add({ name: 'Cog', team: s.south })),
-    'T3101',
+    'F3101',
     /customers\.add needs role 'staff'; the caller is signed in and has no such role/,
   )
   assert.deepEqual(noted.at(-1), { kind: 'refused', table: 'customers', what: 'add', rule: 'role' })
   assert.equal(as(ada)((db) => at(db, 'customers').add({ name: 'Cog', team: s.north })).name, 'Cog')
   refused(
     () => as(nobody)((db) => at(db, 'orders').add({ customer: s.acme, placedBy: s.ada, net: 1 })),
-    'T3101',
+    'F3101',
     /orders\.add/,
   )
 
-  // A row the caller may read and may not touch is T3101. One they may not read is not found for them.
+  // A row the caller may read and may not touch is F3101. One they may not read is not found for them.
   refused(
     () => as(bob)((db) => at(db, 'orders').change(s.bobs, { net: 41 })),
-    'T3101',
+    'F3101',
     /orders\.change needs role 'staff'/,
   )
-  refused(() => as(bob)((db) => at(db, 'orders').remove(s.bobs)), 'T3101', /orders\.remove/)
-  refused(() => as(bob)((db) => at(db, 'customers').change(s.bolt, { name: 'x' })), 'T3101')
-  refused(() => as(cy)((db) => at(db, 'orders').change(s.first, { net: 11 })), 'T2103')
-  refused(() => as(bob)((db) => at(db, 'customers').change(s.acme, { name: 'x' })), 'T2103')
-  refused(() => as(ada)((db) => at(db, 'orders').change('00000000000000000000000000', { net: 11 })), 'T2103')
-  refused(() => as(cy)((db) => at(db, 'orders').remove(s.bobs)), 'T2103')
+  refused(() => as(bob)((db) => at(db, 'orders').remove(s.bobs)), 'F3101', /orders\.remove/)
+  refused(() => as(bob)((db) => at(db, 'customers').change(s.bolt, { name: 'x' })), 'F3101')
+  refused(() => as(cy)((db) => at(db, 'orders').change(s.first, { net: 11 })), 'F2103')
+  refused(() => as(bob)((db) => at(db, 'customers').change(s.acme, { name: 'x' })), 'F2103')
+  refused(() => as(ada)((db) => at(db, 'orders').change('00000000000000000000000000', { net: 11 })), 'F2103')
+  refused(() => as(cy)((db) => at(db, 'orders').remove(s.bobs)), 'F2103')
   assert.equal(as(ada)((db) => at(db, 'orders').change(s.first, { net: 11 })).net, 11)
 
   // `owner` on `users` is the caller's own row, and `nobody` is what a table has for what it does not state.
   assert.equal(as(bob)((db) => at(db, 'users').change(s.bob, { name: 'Robert' })).name, 'Robert')
-  refused(() => as(bob)((db) => at(db, 'users').change(s.ada, { name: 'x' })), 'T3101', /users\.change/)
+  refused(() => as(bob)((db) => at(db, 'users').change(s.ada, { name: 'x' })), 'F3101', /users\.change/)
   refused(
     () => as(cy)((db) => at(db, 'members').change(String(at(db, 'members').first()?.id), { team: s.north })),
-    'T3101',
+    'F3101',
     /nobody/,
   )
   // The owner of a new row is the caller where the row names none, and may be no one else.
   const placed = as(bob)((db) => at(db, 'orders').add({ customer: s.bolt, net: 5 }))
   assert.equal(placed.placedBy, s.bob)
   // A column that is guarded is written by no `db` without full access: a change whatever it gives, an add that gives one.
-  refused(() => as(bob)((db) => at(db, 'users').change(s.bob, { roles: ['admin'] })), 'T3101', /roles/)
-  refused(() => as(bob)((db) => at(db, 'users').change(s.bob, { roles: [] })), 'T3101')
-  refused(() => as(cy)((db) => at(db, 'users').add({ name: 'Di', email: 'di@example.com', roles: ['admin'] })), 'T3101')
+  refused(() => as(bob)((db) => at(db, 'users').change(s.bob, { roles: ['admin'] })), 'F3101', /roles/)
+  refused(() => as(bob)((db) => at(db, 'users').change(s.bob, { roles: [] })), 'F3101')
+  refused(() => as(cy)((db) => at(db, 'users').add({ name: 'Di', email: 'di@example.com', roles: ['admin'] })), 'F3101')
   // On `users` a row that is added without roles has none.
   assert.deepEqual(as(cy)((db) => at(db, 'users').add({ name: 'Di', email: 'di@example.com' })).roles, [])
   assert.deepEqual(
@@ -220,11 +220,11 @@ test('[20-3] a where rule through a second table is one database question, writt
   // A rule that is code and was not handed in lets nobody in.
   assert.equal(
     codeOf(() => at(reading(store, withNotes, user(s.ada)), 'notes').all()),
-    'T0009',
+    'F0009',
   )
 })
 
-test('[16-2@3] T0013: the db of a where rule that is code gives plans alone, so an arrow that calls db.sql, db.n or db.system is refused, for a read and for a write', (t) => {
+test('[16-2@3] F0013: the db of a where rule that is code gives plans alone, so an arrow that calls db.sql, db.n or db.system is refused, for a read and for a write', (t) => {
   const notes = table('notes', {
     columns: { team: link('teams'), body: text() },
     access: { read: where(myTeams), add: where(myTeams) },
@@ -250,8 +250,8 @@ test('[16-2@3] T0013: the db of a where rule that is code gives plans alone, so 
     ['system', (_who, db) => ({ team: { in: at(Reflect.get(db, 'system'), 'members').pick(['team']) } })],
   ]
   for (const [name, rule] of wrong) {
-    assert.equal(codeOf(reads(rule)), 'T0013', name)
-    assert.equal(codeOf(adds(rule)), 'T0013', name)
+    assert.equal(codeOf(reads(rule)), 'F0013', name)
+    assert.equal(codeOf(adds(rule)), 'F0013', name)
     assert.throws(reads(rule), new RegExp(`db\\.${name}`))
   }
   // The plans that it gives are read as ever, and nothing was added.
@@ -352,7 +352,7 @@ test('[20-10] read reports exactly the tables a plan read, and write every touch
   })
   assert.deepEqual(stated.touched, [{ table: 'teams', ids: [] }])
   // The earlier versions that were kept are rows of a table like any other.
-  assert.equal(touched._t_history.length, 2)
+  assert.equal(touched._f_history.length, 2)
 
   assert.ok(wrote.every((one) => one.inside))
   assert.deepEqual(
@@ -376,7 +376,7 @@ test('[20-10] read reports exactly the tables a plan read, and write every touch
   assert.deepEqual(wrote[5].columns, ['product'])
 })
 
-test('[16-2@3] T2102, T0008, T2108 and T0012: a link in use, a db past its time, one row too many, and a write through a db that only reads', async (t) => {
+test('[16-2@3] F2102, F0008, F2108 and F0012: a link in use, a db past its time, one row too many, and a write through a db that only reads', async (t) => {
   const store = shopStore(t)
   const s = seedShop(store, description)
 
@@ -384,7 +384,7 @@ test('[16-2@3] T2102, T0008, T2108 and T0012: a link in use, a db past its time,
   const as = writing(store, description, system, { seal })
   assert.equal(
     codeOf(() => as((db) => at(db, 'customers').remove(s.acme))),
-    'T2102',
+    'F2102',
   )
   assert.throws(() => as((db) => at(db, 'customers').remove(s.acme)), /orders/)
   assert.equal(at(reading(store, description, system, { seal }), 'orders').count(), 4)
@@ -398,11 +398,11 @@ test('[16-2@3] T2102, T0008, T2108 and T0012: a link in use, a db past its time,
   clock += 1
   assert.equal(
     codeOf(() => at(timed, 'teams').count()),
-    'T0008',
+    'F0008',
   )
   assert.equal(
     codeOf(() => at(timed, 'teams').get(s.north)),
-    'T0008',
+    'F0008',
   )
   assert.equal(
     codeOf(() =>
@@ -413,7 +413,7 @@ test('[16-2@3] T2102, T0008, T2108 and T0012: a link in use, a db past its time,
         at(db, 'teams').add({ name: 'West' })
       }),
     ),
-    'T0008',
+    'F0008',
   )
   assert.equal(at(reading(store, description, system), 'teams').count(), 2, 'the change was undone')
   // A read that passed the time is told, with the table, the time it took and its rows.
@@ -433,11 +433,11 @@ test('[16-2@3] T2102, T0008, T2108 and T0012: a link in use, a db past its time,
   assert.equal(at(bound, 'orders').count(), 4)
   assert.equal(
     codeOf(() => at(bound, 'orders').all()),
-    'T2108',
+    'F2108',
   )
   assert.equal(
     codeOf(() => at(bound, 'orders').limit(4).all()),
-    'T2108',
+    'F2108',
   )
 
   // A `db` that only reads writes nothing: in a query, and in an action, whose reads are promises.
@@ -447,7 +447,7 @@ test('[16-2@3] T2102, T0008, T2108 and T0012: a link in use, a db past its time,
     () => at(query, 'teams').change(s.north, { name: 'x' }),
     () => at(query, 'teams').remove(s.north),
   ])
-    assert.equal(codeOf(write), 'T0012')
+    assert.equal(codeOf(write), 'F0012')
   const action = createDb(store, description, system, 'async', {}, { system: true })
   const all: unknown = at(action, 'teams').all()
   assert.ok(all instanceof Promise)
@@ -456,7 +456,7 @@ test('[16-2@3] T2102, T0008, T2108 and T0012: a link in use, a db past its time,
   assert.equal(Reflect.get(Object(await at(action, 'teams').get(s.north)), 'name'), 'North')
   assert.equal(
     codeOf(() => at(action, 'teams').add({ name: 'East' })),
-    'T0012',
+    'F0012',
   )
   await assert.rejects(async () => at(action, 'teams').where({ nope: 1 }).all())
   assert.deepEqual(await sqlOf(action)('SELECT count(*) AS "n" FROM "teams"', []), [{ n: 2 }])

@@ -3,12 +3,12 @@ import test from 'node:test'
 import { writeKey } from '../../engine/index.ts'
 import { served } from './served.ts'
 
-test('[05-4.23] a key is nobody at /_t/part/, as at the screen it draws for: a key of the role a screen asks is told nothing of its part, and one with the scope screens is drawn it', async () => {
+test('[05-4.23] a key is nobody at /_f/part/, as at the screen it draws for: a key of the role a screen asks is told nothing of its part, and one with the scope screens is drawn it', async () => {
   const { address, app } = await served('parted')
   const first = await (await fetch(`${address}/parted`)).text()
-  const version = String(JSON.parse(/id="tent-page">(.*?)<\/script>/s.exec(first)?.[1] ?? '{}').version)
+  const version = String(JSON.parse(/id="forjr-page">(.*?)<\/script>/s.exec(first)?.[1] ?? '{}').version)
   const asked = (key: string) =>
-    fetch(`${address}/_t/part/Notes`, {
+    fetch(`${address}/_f/part/Notes`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', authorization: `Bearer ${key}` },
       body: JSON.stringify({ props: { heading: 'Staff' }, path: '/staff', version }),

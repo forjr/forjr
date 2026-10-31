@@ -10,7 +10,7 @@ import { untilWithin } from './remotes.ts'
 
 // The news of each team stand in a data file of that team, and the page of a team is public.
 const functions = `
-import { anyone, change, input, link, query, table, text } from 'tentjs'
+import { anyone, change, input, link, query, table, text } from 'forjr'
 
 const open = anyone('the news of a team are public')
 
@@ -34,7 +34,7 @@ export const addPost = change('addPost', {
 `
 
 const screens = `
-import { screen, read } from 'tentjs/ui'
+import { screen, read } from 'forjr/ui'
 import { postsOf } from './teamPosts'
 
 export const teamScreen = screen('teamScreen', {

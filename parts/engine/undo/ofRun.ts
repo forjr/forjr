@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { CallContext } from '../context.ts'
 import type { Opened } from '../opened.ts'
 import type { Undone } from './undone.ts'
@@ -25,7 +25,7 @@ function outsideOf(o: Opened, trace: unknown, runs: Set<string>): Undone['outsid
 /**
  * Takes an app, the call that undoes, the id of a run, and whether the runs it started go with it and whether it
  * is dry. Takes back every row that the run wrote, from the moment it was made, and names in `outside` what the
- * runs did outside the app, from their trace. Throws T0001 for a run that is not there, and what an undo throws.
+ * runs did outside the app, from their trace. Throws F0001 for a run that is not there, and what an undo throws.
  */
 export async function undoneOfRun(
   o: Opened,
@@ -33,11 +33,11 @@ export async function undoneOfRun(
   run: string,
   how: { started?: boolean; dry?: boolean },
 ): Promise<Undone> {
-  const row: unknown = o.store.read({ from: '_t_runs', one: 'get', id: run }, system).value
+  const row: unknown = o.store.read({ from: '_f_runs', one: 'get', id: run }, system).value
   const created: unknown = Reflect.get(Object(row), 'createdAt')
   if (!(created instanceof Date))
-    throw new TentError('T0001', `No run ${JSON.stringify(run).slice(0, 80)} is there.`, {
-      fix: 'Name a run by its id, as `tent runs` lists it.',
+    throw new ForjrError('F0001', `No run ${JSON.stringify(run).slice(0, 80)} is there.`, {
+      fix: 'Name a run by its id, as `forjr runs` lists it.',
     })
   // The runs it started stand under it, with it as their top.
   const runs = new Set([run])

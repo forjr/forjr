@@ -19,8 +19,8 @@ function machine(t: { after(fn: () => void): void }): Store {
   return store
 }
 
-test('[16-4@9b] `_t_oauth` exists in code with exactly its columns and its key, and a row of it reaches a second store through `applyChange`', (t) => {
-  assert.equal(oauth.name, '_t_oauth')
+test('[16-4@9b] `_f_oauth` exists in code with exactly its columns and its key, and a row of it reaches a second store through `applyChange`', (t) => {
+  assert.equal(oauth.name, '_f_oauth')
   assert.deepEqual(Object.keys(oauth.columns), [
     'id',
     'user',
@@ -59,7 +59,7 @@ test('[16-4@9b] `_t_oauth` exists in code with exactly its columns and its key, 
     usedAt: at,
     expiresAt: at,
   }
-  writer.write((tx) => tx.add('_t_oauth', row, system))
+  writer.write((tx) => tx.add('_f_oauth', row, system))
   for (const change of keptChanges(writer, 0)) applyChange(reader, change)
-  assert.deepEqual(reader.read({ from: '_t_oauth' }, system).value, [row])
+  assert.deepEqual(reader.read({ from: '_f_oauth' }, system).value, [row])
 })

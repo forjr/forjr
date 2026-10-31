@@ -1,4 +1,4 @@
-import { later, now, number, query, random } from 'tentjs'
+import { later, now, number, query, random } from 'forjr'
 import { notes } from '../tables/notes'
 
 const cutoff = later(now(), '7 days')

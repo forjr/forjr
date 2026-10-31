@@ -1,4 +1,4 @@
-import { day, screen } from 'tentjs/ui'
+import { day, screen } from 'forjr/ui'
 
 // A state kept in the address whose default is today: the address need not name a day for the screen to draw.
 export const datedScreen = screen('datedScreen', {

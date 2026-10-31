@@ -13,7 +13,7 @@ import type { Authority } from './authority.ts'
 import { startAuthority } from './authority.ts'
 import { builtShop, endedBeforeFolders, freePort, plainly, rootsIn, served, workOf } from './secured.ts'
 
-// The attacks of the reviewer on an app that serves secure names itself.
+// Attacks on an app that serves secure names itself.
 
 /** The ports of one test, its authority, and the file of its root. */
 async function standing(
@@ -55,7 +55,7 @@ function crossed(port: number, name: string, host: string, roots: string): Promi
 }
 
 test('[41-12.30] certs/ is read by no other user; the proof address with a path that climbs, and with a token the engine was not given, answers no proof; a route of the app on that path does not win over the engine', async (t) => {
-  const folder = workOf(t, 'review-proof')
+  const folder = workOf(t, 'secure-proof')
   const { bundle } = await builtShop(folder)
   const s = await standing(t, folder)
   const data = join(folder, 'data')
@@ -81,13 +81,13 @@ test('[41-12.30] certs/ is read by no other user; the proof address with a path 
     assert.notEqual(answer.status, 200, path)
     assert.notEqual(answer.body, 'the route', path)
   }
-  // An address of the proof that names no listed name is T0017, and the route of the app is not asked.
+  // An address of the proof that names no listed name is F0017, and the route of the app is not asked.
   const other = await plainly(s.plain, 'elsewhere.test', '/.well-known/acme-challenge/not-given')
-  assert.equal(JSON.parse(other.body).error.code, 'T0017')
+  assert.equal(JSON.parse(other.body).error.code, 'F0017')
 })
 
-test('[41-12.31] a secure connection that names a listed name at its start and another Host inside is T0017', async (t) => {
-  const folder = workOf(t, 'review-crossed')
+test('[41-12.31] a secure connection that names a listed name at its start and another Host inside is F0017', async (t) => {
+  const folder = workOf(t, 'secure-crossed')
   const { bundle } = await builtShop(folder)
   const s = await standing(t, folder)
   await secureEngine(t, bundle, join(folder, 'data'), {
@@ -99,12 +99,12 @@ test('[41-12.31] a secure connection that names a listed name at its start and a
   for (const host of ['elsewhere.test', `127.0.0.1:${s.port}`, `localhost:${s.port}`]) {
     const answer = await crossed(s.port, 'shop.test', host, s.authority.root)
     assert.equal(answer.status, 421, host)
-    assert.equal(JSON.parse(answer.body).error.code, 'T0017', host)
+    assert.equal(JSON.parse(answer.body).error.code, 'F0017', host)
   }
 })
 
 test('[41-12.32] over the newer form of the web, a connection that opens and drops requests without end is closed, whatever code it drops them with', async (t) => {
-  const folder = workOf(t, 'review-drops')
+  const folder = workOf(t, 'secure-drops')
   const { bundle } = await builtShop(folder)
   const s = await standing(t, folder)
   await secureEngine(t, bundle, join(folder, 'data'), {
@@ -152,7 +152,7 @@ test('[41-12.32] over the newer form of the web, a connection that opens and dro
 })
 
 test('[41-12.37] --secure from= an address over plain http is refused: nothing is asked of it', async (t) => {
-  const folder = workOf(t, 'review-from')
+  const folder = workOf(t, 'secure-from')
   const { bundle } = await builtShop(folder)
   const [port, plain] = [await freePort(), await freePort()]
   const asked: string[] = []

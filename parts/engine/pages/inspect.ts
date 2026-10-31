@@ -2,7 +2,7 @@ import { inspectHeld } from '../inspected.ts'
 import type { Opened } from '../opened.ts'
 
 /** The name of the address that carries a token of the inspect mode. */
-export const inspectName = 't-inspect'
+export const inspectName = 'f-inspect'
 
 /** A request for a page that carries a good token: the token, and the origin of the tool it is for. */
 export interface Inspected {

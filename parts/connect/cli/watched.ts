@@ -28,7 +28,7 @@ function rowsPut(held: unknown, message: Record<string, unknown>): { value: unkn
 
 /** The version that runs now, as the list of commands names it, or the one that was named where it is still the one. */
 async function runningVersion(reach: Reach, version: string): Promise<string> {
-  const listed = await asked(reach, `/_t/cli?have=${encodeURIComponent(version)}`)
+  const listed = await asked(reach, `/_f/cli?have=${encodeURIComponent(version)}`)
   const named: unknown = listed.ok && isStored(listed.value) ? listed.value.version : undefined
   return typeof named === 'string' ? named : version
 }
@@ -59,7 +59,7 @@ export function watched(
     version,
     ...(marked && held?.mark !== undefined ? { have: held.mark } : {}),
   })
-  const opening = reach.live(new Request('http://localhost/_t/live')).then((opened) => {
+  const opening = reach.live(new Request('http://localhost/_f/live')).then((opened) => {
     line = opened
     if (stopped) return opened.close()
     opened.each((message) => {

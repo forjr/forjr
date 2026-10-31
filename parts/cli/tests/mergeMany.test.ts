@@ -41,7 +41,7 @@ const edits: ((project: string, word: string, draw: () => number) => void)[] = [
     mkdirSync(join(project, 'functions'), { recursive: true })
     writeFileSync(
       join(project, 'functions', `${word}.ts`),
-      `import { query } from 'tentjs'\nimport { orders } from '../tables/orders'\n\nexport const ${word} = query('${word}', { access: 'signedIn', rows: orders.limit(5) })\n`,
+      `import { query } from 'forjr'\nimport { orders } from '../tables/orders'\n\nexport const ${word} = query('${word}', { access: 'signedIn', rows: orders.limit(5) })\n`,
     )
   },
   (project, word, draw) =>
@@ -75,7 +75,7 @@ function allText(project: string, at = ''): string {
   let found = ''
   for (const entry of readdirSync(join(project, at), { withFileTypes: true })) {
     const path = at ? `${at}/${entry.name}` : entry.name
-    if (path === '.tent' || path === 'node_modules') continue
+    if (path === '.forjr' || path === 'node_modules') continue
     if (entry.isDirectory()) found += allText(project, path)
     else found += readFileSync(join(project, path), 'utf8')
   }
@@ -108,7 +108,7 @@ test('[40-4] two branches with 30 mixed edits each on a project: every clean mer
   let history: History | undefined
   t.after(() => history?.close())
   const project = copied(t, 'merge-many', 'merging')
-  history = openHistory(join(project, '.tent'))
+  history = openHistory(join(project, '.forjr'))
   history.record(project, { by: ada, kind: 'save', description: await describedNow(project) })
   history.branch('side')
   const seen = { clean: 0, clashed: 0 }
@@ -123,13 +123,13 @@ test('[40-4] two branches with 30 mixed edits each on a project: every clean mer
       assert.ok(text.includes(word), `seed ${seed}, round ${round}: ${word} is not lost`)
     if (merged.clashes.length) {
       seen.clashed++
-      assert.ok(existsSync(join(project, 'tent.clash.ts')), `seed ${seed}, round ${round}: the clash file is written`)
-      const clash = readFileSync(join(project, 'tent.clash.ts'), 'utf8')
+      assert.ok(existsSync(join(project, 'forjr.clash.ts')), `seed ${seed}, round ${round}: the clash file is written`)
+      const clash = readFileSync(join(project, 'forjr.clash.ts'), 'utf8')
       const numbered = clash.split('\n').filter((line) => /^\/\/ \d+\. /.test(line))
       assert.ok(numbered.length > 0, 'each clash has its numbered line')
       for (const [k, line] of numbered.entries()) assert.match(line, new RegExp(`^// ${k + 1}\\. `))
       // A person settles: ours is kept, and the clash file and what was kept beside a file go.
-      rmSync(join(project, 'tent.clash.ts'))
+      rmSync(join(project, 'forjr.clash.ts'))
       for (const left of history.list({ newest: 1 })[0].clashes ?? [])
         rmSync(join(project, `${left.name}.theirs`), { force: true })
       history.settle(project, ada)

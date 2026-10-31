@@ -7,7 +7,7 @@ interface Runs {
   approve(run: string, step: string, data?: unknown, o?: object): Promise<void>
   refuse(run: string, step: string, data?: unknown, o?: object): Promise<void>
   stop(run: string): Promise<void>
-  // Every run that the filter fits, stopped or replayed, each as `stop` and `tent runs replay` do one: their count and ids.
+  // Every run that the filter fits, stopped or replayed, each as `stop` and `forjr runs replay` do one: their count and ids.
   stopAll(filter: Many): Promise<{ count: number; runs: string[] }>
   replayAll(filter: Many & { from?: string }): Promise<{ count: number; runs: string[]; started: string[] }>
   // A paused flow keeps its new starts and its runs that come due, until it is resumed.

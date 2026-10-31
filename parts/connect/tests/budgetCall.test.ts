@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
 import type { Caller } from '../../core/index.ts'
-import { list, number, project, query, TentError, text } from '../../core/index.ts'
+import { list, number, project, query, ForjrError, text } from '../../core/index.ts'
 import { describe, toolList } from '../../core/internal.ts'
 import type { McpEnv } from '../mcp/env.ts'
 import { mcpServer } from '../mcp/server.ts'
@@ -32,7 +32,7 @@ test('[25-4] `callFunction` refuses an input that does not fit as `call` of an a
     wire: (error) => ({
       status: 400,
       error: {
-        code: error instanceof TentError ? error.code : 'T0009',
+        code: error instanceof ForjrError ? error.code : 'F0009',
         name: 'failed',
         message: error instanceof Error ? error.message : String(error),
       },
@@ -51,9 +51,9 @@ test('[25-4] `callFunction` refuses an input that does not fit as `call` of an a
   })
   const answer = await mcpServer(env).handle(request, { caller: ada, origin: 'http://localhost' })
   const result = Object(Object(await answer.json()).result)
-  const error = Object(Object(result._meta)['tent.error'])
+  const error = Object(Object(result._meta)['forjr.error'])
   assert.equal(result.isError, true)
-  assert.equal(error.code, 'T0002')
+  assert.equal(error.code, 'F0002')
   assert.match(String(error.message), /count/)
   assert.ok(String(error.message).endsWith(toolList(description, ['order07']).own), String(error.message))
   assert.equal(ran, 0, 'the function is not called')

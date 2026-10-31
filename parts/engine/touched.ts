@@ -192,7 +192,7 @@ function written(
   name: string,
   all: Iterable<Written>,
   modules: ReadonlyMap<string, string>,
-  apart: boolean,
+  whole: boolean,
 ): void {
   const tested: Record<
     string,
@@ -208,7 +208,7 @@ function written(
   mkdirSync(folder, { recursive: true })
   writeFileSync(
     join(folder, `${name}.json`),
-    JSON.stringify({ tests: tested, loaded: Object.fromEntries(modules), ...(apart ? { whole: true } : {}) }),
+    JSON.stringify({ tests: tested, loaded: Object.fromEntries(modules), ...(whole ? { whole: true } : {}) }),
   )
 }
 
@@ -228,7 +228,7 @@ export function writeToldNotes(folder: string, name: string, lines: string): voi
     }
   >()
   const modules = new Map<string, string>()
-  let apart = false
+  let whole = false
   const of = (test: string) => {
     const held = told.get(test) ?? { test, touched: new Map(), outside: new Set(), unheld: new Set(), env: new Map() }
     told.set(test, held)
@@ -239,7 +239,7 @@ export function writeToldNotes(folder: string, name: string, lines: string): voi
     const note: unknown = JSON.parse(line)
     if (!Array.isArray(note)) continue
     const [kind, test, first, second] = note.map((one) => (typeof one === 'string' ? one : null))
-    if (kind === 'whole') apart = true
+    if (kind === 'whole') whole = true
     else if (kind === 'loaded' && test !== null && first !== null) modules.set(test, first)
     else if (test === null) continue
     else if (kind === 'test') of(test)
@@ -251,5 +251,5 @@ export function writeToldNotes(folder: string, name: string, lines: string): voi
       touched.set(first, (touched.get(first) ?? new Set()).add(second))
     }
   }
-  written(folder, name, told.values(), modules, apart)
+  written(folder, name, told.values(), modules, whole)
 }

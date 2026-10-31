@@ -1,2 +1,2 @@
-def run(input, tent):
-    return tent.call("selfie", {})
+def run(input, forjr):
+    return forjr.call("selfie", {})

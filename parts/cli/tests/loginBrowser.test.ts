@@ -24,7 +24,7 @@ async function served(t: TestContext): Promise<{ app: App; address: string; home
     built.findings.filter((one) => one.level === 'error'),
     [],
   )
-  const data = join(project, '.tent')
+  const data = join(project, '.forjr')
   const app = await engine.open(built.bundleFolder, { dataFolder: data, mode: 'test' })
   const { port } = JSON.parse(readFileSync(join(data, 'engine.json'), 'utf8'))
   const home = join(project, '..', 'home')
@@ -86,7 +86,7 @@ function person(app: App, address: string, user: string, seen: string[]): (url: 
     const html = await page.text()
     seen.push(html)
     const text = /name="t" value="([^"]+)"/.exec(html)?.[1] ?? ''
-    const allowed = await fetch(`${address}/_t/oauth/decide`, {
+    const allowed = await fetch(`${address}/_f/oauth/decide`, {
       method: 'POST',
       headers: { cookie, origin: address, 'content-type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ t: text, answer: 'allow' }).toString(),
@@ -163,7 +163,7 @@ test('[25-8b] [05-13.25] two commands at once renew once, and `logout` ends the 
   const before = JSON.parse(readFileSync(kept, 'utf8')).servers[address].app
   // The access token is made to end, as an hour later: each command is answered 401 and renews.
   const ended = { ...before, access: `${before.access.slice(0, -2)}xx`, expiresAt: 0 }
-  writeFileSync(kept, JSON.stringify({ format: 'tent.keys/1', servers: { [address]: { app: ended } } }))
+  writeFileSync(kept, JSON.stringify({ format: 'forjr.keys/1', servers: { [address]: { app: ended } } }))
   const [one, two] = await Promise.all([run('who-am-i'), run('who-am-i')])
   assert.deepEqual([one.code, two.code], [0, 0], `${one.err} ${two.err}`)
   const after = JSON.parse(readFileSync(kept, 'utf8')).servers[address].app
@@ -174,10 +174,10 @@ test('[25-8b] [05-13.25] two commands at once renew once, and `logout` ends the 
   const out = await run('logout')
   assert.equal(out.code, 0, out.err)
   assert.equal(existsSync(kept) ? JSON.parse(readFileSync(kept, 'utf8')).servers[address] : undefined, undefined)
-  const renewed = await fetch(`${address}/_t/oauth/token`, {
+  const renewed = await fetch(`${address}/_f/oauth/token`, {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
-    body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: after.refresh, client_id: 'tent-cli' }),
+    body: new URLSearchParams({ grant_type: 'refresh_token', refresh_token: after.refresh, client_id: 'forjr-cli' }),
   })
   assert.equal(renewed.status, 400, 'logout ended the grant')
 })

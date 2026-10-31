@@ -12,7 +12,7 @@ const tokenOf = (dataFolder: string): string =>
 
 /** Asks an engine to prove that it holds its token, as a command of this computer does, with no token sent. */
 const proved = (run: Running, body: unknown, o: { from?: string; method?: string } = {}): Promise<Answered> =>
-  send(run.app, `${run.origin}/_t/admin`, { body: JSON.stringify(body), ...o })
+  send(run.app, `${run.origin}/_f/admin`, { body: JSON.stringify(body), ...o })
 
 const drawn = (): string => randomBytes(32).toString('hex')
 
@@ -30,7 +30,7 @@ test('[15-6@4] an engine proves that it holds its token to whoever asks from thi
   assert.deepEqual(Object.keys(Object(answered.body.value)), ['proof'])
   assert.equal(JSON.stringify(answered.body).includes(token), false)
   // No token is asked, and one that is sent changes nothing.
-  const withToken = await send(run.app, `${run.origin}/_t/admin`, {
+  const withToken = await send(run.app, `${run.origin}/_f/admin`, {
     body: JSON.stringify({ number }),
     headers: { authorization: 'Bearer wrong' },
   })
@@ -70,12 +70,12 @@ test('[15-6@4] what an engine answered for one number helps nobody with another:
   ]
   for (const body of refused) {
     const answered = await proved(run, body)
-    assert.deepEqual([answered.status, answered.error.code], [400, 'T0002'], JSON.stringify(body))
+    assert.deepEqual([answered.status, answered.error.code], [400, 'F0002'], JSON.stringify(body))
     assert.equal(JSON.stringify(answered.body).includes(token), false)
   }
   // It is asked from this computer alone, and by a POST alone.
   const far = await proved(run, { number: numbers[0] }, { from: '203.0.113.9' })
-  assert.deepEqual([far.status, far.error.code], [401, 'T0006'])
-  const got = await send(run.app, `${run.origin}/_t/admin`, { method: 'GET' })
+  assert.deepEqual([far.status, far.error.code], [401, 'F0006'])
+  const got = await send(run.app, `${run.origin}/_f/admin`, { method: 'GET' })
   assert.equal(got.status, 404)
 })

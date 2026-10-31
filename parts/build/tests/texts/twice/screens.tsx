@@ -1,4 +1,4 @@
-import { screen, message } from 'tentjs/ui'
+import { screen, message } from 'forjr/ui'
 
 export const ordersScreen = screen('ordersScreen', {
   path: '/orders',

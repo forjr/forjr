@@ -60,7 +60,7 @@ function namedBy(list: string): string[] {
  * leaves of the versions that can no longer be loaded.
  */
 export async function storeTidied(folder: string, others: string[]): Promise<void> {
-  const build = join(folder, '.tent', 'build')
+  const build = join(folder, '.forjr', 'build')
   const store = join(build, 'files')
   const named = new Set<string>()
   for (const at of [build, ...others]) {
@@ -115,13 +115,13 @@ export const step: Step = {
     const errors = () => work.findings.some((one) => one.level === 'error')
     if (!errors())
       work.findings.push(
-        ...checkDescription(description).map((one) => ({ ...one, code: 'T0011', name: 'bad-description' })),
+        ...checkDescription(description).map((one) => ({ ...one, code: 'F0011', name: 'bad-description' })),
       )
     if (errors() || !work.writes) return
     const written = write(description)
     work.versionId = written.versionId
     work.bundle.set('description.schema.json', schemaOf())
-    const build = join(work.folder, '.tent', 'build')
+    const build = join(work.folder, '.forjr', 'build')
     if (ofSession() && work.options.out === undefined) {
       // A version of a session of development is the list of its files, each kept once by its fingerprint.
       const store = join(build, 'files')

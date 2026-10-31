@@ -30,14 +30,14 @@ const changes: [what: string, change: (changed: Description) => void, found: [st
     (changed) => {
       delete columns(changed, 'notes').secret
     },
-    [['T2002', 'The column `notes.secret` is gone, and `removed` does not name it.']],
+    [['F2002', 'The column `notes.secret` is gone, and `removed` does not name it.']],
   ],
   [
     'a table that is gone',
     (changed) => {
       delete changed.tables.uses
     },
-    [['T2003', 'The table `uses` is gone, and `removed` of the project does not name it.']],
+    [['F2003', 'The table `uses` is gone, and `removed` of the project does not name it.']],
   ],
   [
     'a column under a new name',
@@ -45,14 +45,14 @@ const changes: [what: string, change: (changed: Description) => void, found: [st
       columns(changed, 'tags').label = { ...columns(changed, 'tags').name, optional: true }
       delete columns(changed, 'tags').name
     },
-    [['T2004', 'The column `tags.name` is gone and `label` is new, with no `was`.']],
+    [['F2004', 'The column `tags.name` is gone and `label` is new, with no `was`.']],
   ],
   [
     'a column that becomes required, with a row that holds nothing in it',
     (changed) => {
       delete columns(changed, 'users').salary.optional
     },
-    [['T2001', '1 row of `users` does not fit what `users.salary` becomes.']],
+    [['F2001', '1 row of `users` does not fit what `users.salary` becomes.']],
   ],
 ]
 
@@ -70,7 +70,7 @@ test('[15-7] app.facts answers what the data of a running app says of a table ch
     assert.deepEqual(told(facts), found, what)
     for (const one of facts.tableFindings) {
       assert.ok(one.fix, what)
-      assert.deepEqual([one.level, one.docs], ['error', `tent docs ${one.code}`])
+      assert.deepEqual([one.level, one.docs], ['error', `forjr docs ${one.code}`])
     }
     assert.deepEqual(facts.waitingStepNames, {})
   }
@@ -83,7 +83,7 @@ test('[15-7] app.facts answers what the data of a running app says of a table ch
     told(await run.app.facts(several))
       .map(([code]) => code)
       .sort(),
-    ['T2001', 'T2002', 'T2003', 'T2004'],
+    ['F2001', 'F2002', 'F2003', 'F2004'],
   )
   const added = later(run.app.description, (changed) => {
     columns(changed, 'tags').note = { kind: 'text', optional: true }
@@ -94,10 +94,10 @@ test('[15-7] app.facts answers what the data of a running app says of a table ch
   assert.equal(Object(await run.app.call('addTag', { name: 'new' }, { as: system })).name, 'new')
 
   // What is no description is refused, and reads nothing.
-  assert.throws(() => run.app.facts(Object('a description')), { code: 'T0013' })
+  assert.throws(() => run.app.facts(Object('a description')), { code: 'F0013' })
 
   await run.engine.close()
-  assert.throws(() => run.app.facts(), { code: 'T0013' })
+  assert.throws(() => run.app.facts(), { code: 'F0013' })
 
   // With no engine running, the data folder is opened to read alone for the length of the call.
   const files = readdirSync(run.dataFolder).sort()
@@ -148,7 +148,7 @@ test('[15-6@4] the command `facts` of the admin channel answers the Facts of the
   await addUser(run.app, 'Ada')
   const token = String(JSON.parse(readFileSync(join(run.dataFolder, 'engine.json'), 'utf8')).token)
   const command = (args: object) =>
-    send(run.app, `${run.origin}/_t/admin/facts`, {
+    send(run.app, `${run.origin}/_f/admin/facts`, {
       body: JSON.stringify({ args }),
       headers: { authorization: `Bearer ${token}` },
     })
@@ -163,8 +163,8 @@ test('[15-6@4] the command `facts` of the admin channel answers the Facts of the
   }
   // What is no description is a word of another kind than the command takes.
   const wrong = await command({ description: 'the shop' })
-  assert.deepEqual([wrong.status, wrong.error.code], [400, 'T0002'])
+  assert.deepEqual([wrong.status, wrong.error.code], [400, 'F0002'])
   // Without the token the command answers nobody.
-  const closed = await send(run.app, `${run.origin}/_t/admin/facts`, { body: JSON.stringify({ args: {} }) })
-  assert.deepEqual([closed.status, closed.error.code], [401, 'T0006'])
+  const closed = await send(run.app, `${run.origin}/_f/admin/facts`, { body: JSON.stringify({ args: {} }) })
+  assert.deepEqual([closed.status, closed.error.code], [401, 'F0006'])
 })

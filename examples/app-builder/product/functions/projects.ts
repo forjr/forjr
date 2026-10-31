@@ -1,4 +1,4 @@
-import { action, change, fail, input, link, number, object, query, text, workspaces } from 'tentjs'
+import { action, change, fail, input, link, number, object, query, text, workspaces } from 'forjr'
 import { messages } from '../tables/messages'
 import { projects } from '../tables/projects'
 

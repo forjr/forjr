@@ -6,18 +6,18 @@ A screen looks as its CSS makes it: the framework draws no look of its own, so a
 
 The way these docs recommend for an app of screens: Tailwind CSS through its plugin for Vite, daisyUI for the components, which are written in Tailwind's classes and are CSS alone, Recharts for a chart, `lucide-react` for icons, and Inter from Fontsource. Light and dark follow the device, and every screen shares one style file, one type scale and one spacing scale.
 
-**1. The packages.** Each is installed with `tent add`, which writes it into the project's `package.json` and its lock file, `package-lock.json`, with its install scripts off:
+**1. The packages.** Each is installed with `forjr add`, which writes it into the project's `package.json` and its lock file, `package-lock.json`, with its install scripts off:
 
 ```sh
-tent add tailwindcss
-tent add @tailwindcss/vite
-tent add daisyui
-tent add recharts
-tent add lucide-react
-tent add @fontsource-variable/inter
+forjr add tailwindcss
+forjr add @tailwindcss/vite
+forjr add daisyui
+forjr add recharts
+forjr add lucide-react
+forjr add @fontsource-variable/inter
 ```
 
-`node_modules/` stays out of git, as the `.gitignore` of `tent new` says. A copy of the project that holds the two files and no `node_modules/` - a clone on another computer, a run of the tests in CI, a sample app of a repository - installs exactly what the lock names with `npm ci --ignore-scripts` in the folder of the project, before `tent check`, `tent build` or `tent test`. Without it the build ends at the first import it cannot find (`code.T1014`).
+`node_modules/` stays out of git, as the `.gitignore` of `forjr new` says. A copy of the project that holds the two files and no `node_modules/` - a clone on another computer, a run of the tests in CI, a sample app of a repository - installs exactly what the lock names with `npm ci --ignore-scripts` in the folder of the project, before `forjr check`, `forjr build` or `forjr test`. Without it the build ends at the first import it cannot find (`code.F1014`).
 
 **2. The settings and the one style file.** Tailwind's plugin goes into `vite.config.ts`, and daisyUI into the style file as a plugin of Tailwind's:
 
@@ -57,7 +57,7 @@ daisyUI names its colors by what they are for - `base-100`, `base-200`, `base-30
 // components/AppFrame.tsx
 import '@fontsource-variable/inter'
 import '../screens/app.css'
-import { component } from 'tentjs/ui'
+import { component } from 'forjr/ui'
 
 export const AppFrame = component('AppFrame', {
   view: ({ children }) => <div className="min-h-dvh bg-base-200 text-base-content">{children}</div>,
@@ -97,7 +97,7 @@ export function SalesChart({ rows }: { rows: { month: string; amount: number }[]
 ```tsx
 // screens/sales.tsx
 import { ShoppingBag } from 'lucide-react'
-import { Form, read, role, screen } from 'tentjs/ui'
+import { Form, read, role, screen } from 'forjr/ui'
 import { AppFrame, Waiting } from '../components/AppFrame'
 import { SalesChart } from '../components/SalesChart'
 import { addSale, allSales } from '../functions/sales'
@@ -166,6 +166,6 @@ export const salesScreen = screen('salesScreen', {
 | Focus | daisyUI's buttons and fields show a ring for the keyboard (`:focus-visible`); Tailwind's `focus-visible:` gives one to anything else |
 | Hover | daisyUI's buttons have their own; a row of the table takes `hover:bg-base-200` |
 
-**What draws where.** Tailwind CSS and daisyUI are CSS, and the icons of `lucide-react` are SVG that the view writes: all of it is in the first HTML, so the page is whole before its code has loaded and with no script. Recharts draws in the browser alone: the first HTML holds its empty box and no bar, and neither a search engine nor a visitor with no script sees the chart, so the table beside it holds the same numbers. A chart that must stand in the first HTML is SVG that the view writes itself, or a library that draws on the server, in a component with `browser: false` so the browser loads none of it (`option.component.browser`). Recharts is heavy, about 480 KB of the page before it is packed: `tent build` and `tent map` tell what each package weighs.
+**What draws where.** Tailwind CSS and daisyUI are CSS, and the icons of `lucide-react` are SVG that the view writes: all of it is in the first HTML, so the page is whole before its code has loaded and with no script. Recharts draws in the browser alone: the first HTML holds its empty box and no bar, and neither a search engine nor a visitor with no script sees the chart, so the table beside it holds the same numbers. A chart that must stand in the first HTML is SVG that the view writes itself, or a library that draws on the server, in a component with `browser: false` so the browser loads none of it (`option.component.browser`). Recharts is heavy, about 480 KB of the page before it is packed: `forjr build` and `forjr map` tell what each package weighs.
 
 `topic.screens.lists` shows a screen with a search and pages, and the sections below say how each piece comes in on its own.

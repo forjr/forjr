@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 
 export default seed(({ db }) => {
   const ada = db.users.add({ name: 'Ada', roles: ['staff'] })

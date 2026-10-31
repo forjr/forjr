@@ -20,7 +20,7 @@ A guard to stand in `guards.in` or `guards.out` of an agent. It looks for the va
 
 ## Errors
 
-`code.T7131`: the answer held a personal or private value.
+`code.F7131`: the answer held a personal or private value.
 
 ## See also
 

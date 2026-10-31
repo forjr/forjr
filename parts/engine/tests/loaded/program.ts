@@ -34,15 +34,15 @@ if (how === 'alone') {
   said.read = await app.read({ from: 'tags' }, { as: system })
   said.called = await app.call('publicTags', {}, { as: system })
   const post = { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"input":{}}' }
-  said.asked = (await app.request(new Request(`http://localhost:${port}/_t/call/publicTags`, post))).status
-  said.health = (await fetch(`http://localhost:${port}/_t/health`)).status
+  said.asked = (await app.request(new Request(`http://localhost:${port}/_f/call/publicTags`, post))).status
+  said.health = (await fetch(`http://localhost:${port}/_f/health`)).status
   // The addresses of the link are not found on an app that lets no reader join, with a key and with none.
   const keyed = { headers: { authorization: `Bearer ${key}` } }
-  said.link = (await fetch(`http://localhost:${port}/_t/copy/data`, keyed)).status
-  said.versions = (await fetch(`http://localhost:${port}/_t/copy/versions`)).status
+  said.link = (await fetch(`http://localhost:${port}/_f/copy/data`, keyed)).status
+  said.versions = (await fetch(`http://localhost:${port}/_f/copy/versions`)).status
   // A header that only a reader sets is refused, as on any writer.
-  const made = { ...post, headers: { ...post.headers, 'tent-for': '1.2.3.4; https; x' } }
-  said.made = (await app.request(new Request(`http://localhost:${port}/_t/call/publicTags`, made))).status
+  const made = { ...post, headers: { ...post.headers, 'forjr-for': '1.2.3.4; https; x' } }
+  said.made = (await app.request(new Request(`http://localhost:${port}/_f/call/publicTags`, made))).status
   said.role = app.role
   said.at = app.at()
   said.machines = app.machines()
@@ -70,7 +70,7 @@ if (how === 'alone') {
   const fields = {
     kept: { kept: true as const },
     near: { near: ['01m4tsszkrfvcb90stjjyhadr1'] },
-    took: { took: { from: 'https://old.tent.test', answered: true } },
+    took: { took: { from: 'https://old.forjr.test', answered: true } },
     back: { back: { reader: '01m4tsszkrfvcb90stjjyhadr1', n: 99 } },
   }
   const store = sqliteStore()

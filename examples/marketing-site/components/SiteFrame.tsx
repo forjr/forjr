@@ -1,6 +1,6 @@
 import '@fontsource-variable/inter'
 import { useEffect, useRef } from 'react'
-import { component, Link, message, useTranslations } from 'tentjs/ui'
+import { component, Link, message, useTranslations } from 'forjr/ui'
 import './site.css'
 
 export const SiteFrame = component('SiteFrame', {

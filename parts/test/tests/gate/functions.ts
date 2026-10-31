@@ -1,4 +1,4 @@
-import { action, anyone, change, input, list, query, role, table, text } from 'tentjs'
+import { action, anyone, change, input, list, query, role, table, text } from 'forjr'
 
 const open = anyone('an attack reads and writes it')
 

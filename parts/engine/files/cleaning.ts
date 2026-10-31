@@ -4,7 +4,7 @@ import type { TenantFiles } from './face.ts'
 import { passOver } from './pass.ts'
 
 const system = { kind: 'system' } as const
-const meta = '_t_meta'
+const meta = '_f_meta'
 const key = 'clean'
 
 /**

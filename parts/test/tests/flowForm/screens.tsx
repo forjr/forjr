@@ -1,4 +1,4 @@
-import { screen, text, Form } from 'tentjs/ui'
+import { screen, text, Form } from 'forjr/ui'
 import { welcome } from './flows.ts'
 
 // A form over a flow: its named controls are fields of the flow's `input`, and `then` is handed the flow's answer.

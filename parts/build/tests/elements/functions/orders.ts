@@ -1,4 +1,4 @@
-import { boolean, change, choice, input, link, number, query, table, text } from 'tentjs'
+import { boolean, change, choice, input, link, number, query, table, text } from 'forjr'
 
 export const customers = table('customers', { columns: { name: text() }, access: { read: 'anyone' } })
 

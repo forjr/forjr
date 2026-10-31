@@ -37,7 +37,7 @@ app.standIn('decisions', {
   },
 })
 const [run] = app.runs.find({ flow: 'paintIt' })
-const id = run ? run.id : (await app.start('paintIt', { prompt: 'a tent' }, { as: { kind: 'system' } })).run
+const id = run ? run.id : (await app.start('paintIt', { prompt: 'a house' }, { as: { kind: 'system' } })).run
 const answer = await app.runs.wait(id)
 writeSync(1, `answer: ${JSON.stringify(answer)}\n`)
 await engine.close()

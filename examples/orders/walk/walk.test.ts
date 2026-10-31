@@ -99,7 +99,7 @@ for (const engine of asked) {
       page = await (await contextOf(browser)).newPage()
       page.setDefaultTimeout(15_000)
       page.on('request', (request) => {
-        if (new URL(request.url()).pathname.startsWith('/_t/call/')) calls.push(request.url())
+        if (new URL(request.url()).pathname.startsWith('/_f/call/')) calls.push(request.url())
       })
       // The staff user Sam signs this browser in through the sign-in screen, which leads it to the orders.
       await signedInAt(page, app.address, SAM, '/orders')
@@ -342,7 +342,7 @@ for (const engine of asked) {
       assert.deepEqual(await readFile(saved), await readFile(RECEIPT))
       await picture(adaPage, 13)
       const address = (await link.getAttribute('href')) ?? ''
-      assert.match(address, /^\/_t\/files\//)
+      assert.match(address, /^\/_f\/files\//)
       const grace = await contextOf(usable())
       const gracePage = await grace.newPage()
       await signedInAt(gracePage, running().address, GRACE, '/mine')
@@ -368,7 +368,7 @@ for (const engine of asked) {
     })
   })
 
-  describe(`the walk of sample app 1 under tent dev, in ${engine}`, () => {
+  describe(`the walk of sample app 1 under forjr dev, in ${engine}`, () => {
     let temp: { path: string; remove: () => Promise<void> } | undefined
     let folder = ''
     let app: RunningApp | undefined
@@ -408,9 +408,9 @@ for (const engine of asked) {
       )
       page.on('request', (request) => {
         const url = new URL(request.url())
-        if (url.pathname.startsWith('/_t/read/')) {
+        if (url.pathname.startsWith('/_f/read/')) {
           const body: unknown = request.postData()?.startsWith('{') ? JSON.parse(request.postData() ?? '{}') : {}
-          note(url.pathname.slice('/_t/read/'.length), Object(body).input ?? body)
+          note(url.pathname.slice('/_f/read/'.length), Object(body).input ?? body)
         }
       })
       await signedInAt(page, app.address, SAM, '/orders?tab=paid')

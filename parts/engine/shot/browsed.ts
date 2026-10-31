@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { drawnAt } from './routes.ts'
 import type { App } from '../app.ts'
 import { openedOf } from '../app.ts'
@@ -25,7 +25,7 @@ export interface BrowserOpening {
 /**
  * A page of a browser that the engine drives for a program, on one app: Chromium over its own channel, Firefox and
  * WebKit over WebDriver BiDi. Every request of it that leaves for another place than the app is made by the engine,
- * held to the rule of the guarded fetch. It carries the cookie `tent_test`, by which an app in the mode `test` knows
+ * held to the rule of the guarded fetch. It carries the cookie `forjr_test`, by which an app in the mode `test` knows
  * that a test drives the page.
  */
 export interface Browsed {
@@ -61,13 +61,13 @@ export interface Browsed {
 
 /**
  * Takes an app that this program holds, and how the page is opened. Starts a browser of that engine with no window,
- * in a folder of its own, and answers a page of it on the app, at no address yet. Throws T0016 where no browser of
+ * in a folder of its own, and answers a page of it on the app, at no address yet. Throws F0016 where no browser of
  * the engine can be had, and with `fields.engine` set to `notRun` where the engine does not speak the protocol it
  * is driven by on this computer.
  */
 export async function browsed(app: App, opening: BrowserOpening): Promise<Browsed> {
   const o = openedOf(app)
-  if (!o) throw new TentError('T0013', 'A page of a browser is opened on an app that this program holds.')
+  if (!o) throw new ForjrError('F0013', 'A page of a browser is opened on an app that this program holds.')
   heldOpen(o)
   const at = drawnAt(o)
   if (opening.engine === 'chromium') {

@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { allOf, firstOf, never, worksOf } from './branches.ts'
 import type { StepOptions, StepTools, Working } from './face.ts'
 import { asSaved } from './kept.ts'
@@ -24,7 +24,7 @@ function drawn(pass: Pass, name: string, draw: () => string | number): unknown {
 
 /**
  * `step.done`: ends the whole run as done, with the value as the flow's answer, from wherever it is called. It is
- * saved as a step named `done`, so that a later pass ends at the same place. Ends the run with T5102 for an
+ * saved as a step named `done`, so that a later pass ends at the same place. Ends the run with F5102 for an
  * answer that is larger than the flow allows.
  */
 function doneTool(pass: Pass, value: unknown): Promise<never> {
@@ -39,8 +39,8 @@ function doneTool(pass: Pass, value: unknown): Promise<never> {
   if (saved.size > pass.of.limits.result) {
     fatal(
       pass,
-      new TentError(
-        'T5102',
+      new ForjrError(
+        'F5102',
         `The answer of a run of ${pass.of.run.flow} is ${saved.size} bytes, past \`limits.result\` of ${pass.of.limits.result}.`,
         { fix: 'Put large data into a file and answer its id, or raise `limits.result` of the flow.' },
       ),
@@ -62,8 +62,8 @@ function doneTool(pass: Pass, value: unknown): Promise<never> {
 /**
  * `step.again`: ends the run as done and, in the write that ends it, starts a new run of the same flow with the
  * input, the same key and starter, which names this run as `from`. It is saved as a step named `again`, with the
- * input as its result, so that a later pass ends at the same place. Ends the run with T0002 for an input that does
- * not fit the flow, and with T5102 for one that is larger than its limit.
+ * input as its result, so that a later pass ends at the same place. Ends the run with F0002 for an input that does
+ * not fit the flow, and with F5102 for one that is larger than its limit.
  */
 function againTool(pass: Pass, input: unknown): Promise<never> {
   const reached = reach(pass, 'again')
@@ -80,14 +80,14 @@ function againTool(pass: Pass, input: unknown): Promise<never> {
   try {
     given = asSaved(held.env.input ? held.env.input(held.live ?? run.version, run.flow, handed) : handed)
   } catch (error) {
-    fatal(pass, error instanceof TentError ? error : new TentError('T0002', String(error)))
+    fatal(pass, error instanceof ForjrError ? error : new ForjrError('F0002', String(error)))
     return never()
   }
   if (given.size > pass.of.limits.result) {
     fatal(
       pass,
-      new TentError(
-        'T5102',
+      new ForjrError(
+        'F5102',
         `The input of the run that ${run.flow} goes on as is ${given.size} bytes, past \`limits.result\`.`,
         {
           fix: 'Put large data into a file and hand its id, or raise `limits.result` of the flow.',
@@ -114,7 +114,7 @@ export function toolsOf(pass: Pass): StepTools {
     stepTool(pass, name, work, o)
   const none = (): Promise<never> =>
     Promise.reject(
-      new TentError('T0027', '`step.first` was handed no entry, so none of them can be the first to end.', {
+      new ForjrError('F0027', '`step.first` was handed no entry, so none of them can be the first to end.', {
         fix: 'Hand `step.first` a list that holds an entry.',
       }),
     )

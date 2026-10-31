@@ -22,7 +22,7 @@ export function rangeWith(tick: Tick, ...values: unknown[]): unknown {
 /**
  * Takes where the numbers start, the number they lie before, and the step between two of them, which is 1 where
  * none is given and below zero for a list that falls. Answers the numbers. Handed a reference it answers its
- * record. Throws T0027 for a step of zero, and for a list past the limit.
+ * record. Throws F0027 for a step of zero, and for a list past the limit.
  */
 export function range(from: number, to: number, by?: number): number[]
 export function range(...values: unknown[]): unknown {

@@ -37,9 +37,9 @@ test('[25-6] [32-7@9b] the two describing documents hold each value of the table
   const { body } = await read(app, '/.well-known/oauth-authorization-server')
   assert.deepEqual(body, {
     issuer: 'http://localhost',
-    authorization_endpoint: 'http://localhost/_t/oauth/authorize',
-    token_endpoint: 'http://localhost/_t/oauth/token',
-    revocation_endpoint: 'http://localhost/_t/oauth/end',
+    authorization_endpoint: 'http://localhost/_f/oauth/authorize',
+    token_endpoint: 'http://localhost/_f/oauth/token',
+    revocation_endpoint: 'http://localhost/_f/oauth/end',
     response_types_supported: ['code'],
     grant_types_supported: ['authorization_code', 'refresh_token'],
     code_challenge_methods_supported: ['S256'],
@@ -49,7 +49,7 @@ test('[25-6] [32-7@9b] the two describing documents hold each value of the table
     authorization_response_iss_parameter_supported: true,
   })
   // Without `anyone(...)` among the clients, no client registers itself.
-  assert.equal((await read(app, '/_t/oauth/register')).status, 404)
+  assert.equal((await read(app, '/_f/oauth/register')).status, 404)
 })
 
 test('[25-6] [32-7@9b] a person who is not signed in is sent to signInPath and comes back, nothing is fetched before, and a key is nobody there', async (t) => {
@@ -63,7 +63,7 @@ test('[25-6] [32-7@9b] a person who is not signed in is sent to signInPath and c
   const to = new URL(String(away.headers.get('location')), 'http://localhost')
   assert.equal(to.pathname, '/sign-in')
   const back = String(to.searchParams.get('back'))
-  assert.match(back, /^\/_t\/oauth\/authorize\?r=[^/]+$/)
+  assert.match(back, /^\/_f\/oauth\/authorize\?r=[^/]+$/)
   assert.equal(chat.remote.heard.length, 0, 'the document of a client is fetched once a person is signed in')
   const { key } = await app.key({ user: callerIdOf(ada), scopes: ['*'] })
   const keyed = await app.request(
@@ -81,7 +81,7 @@ test('[25-6] [32-7@9b] a person who is not signed in is sent to signInPath and c
   app.clock.advance('61 minutes')
   const late = await browser.request('GET', back)
   assert.equal(late.status, 400, 'a text past its hour is the error screen, and no return')
-  assert.match(await late.text(), /T0002/)
+  assert.match(await late.text(), /F0002/)
 })
 
 test('[25-6] a request with no proof, a return address the document does not list, and a document that names another address are refused; one on this computer fits with another port', async (t) => {
@@ -92,7 +92,7 @@ test('[25-6] a request with no proof, a return address the document does not lis
     const answer = await browser.request('GET', path)
     assert.equal(answer.status, 400, path)
     assert.equal(answer.headers.get('location'), null, 'nobody is sent anywhere')
-    assert.match(await answer.text(), /T0002/)
+    assert.match(await answer.text(), /F0002/)
   }
   await refused(authorizeAt({ client: chat.id, redirect: 'https://chat.example/callback' }))
   await refused(
@@ -159,7 +159,7 @@ test('[25-6] [05-13.7] [05-13.21] a code works once and not after a minute, its 
   assert.equal(tokens.body.token_type, 'Bearer')
   assert.equal(tokens.body.expires_in, 3600)
   const access = String(tokens.body.access_token)
-  assert.match(access, /^tent_[0-9a-z]+_[A-Za-z0-9_-]{43}$/)
+  assert.match(access, /^forjr_[0-9a-z]+_[A-Za-z0-9_-]{43}$/)
   assert.equal(await mcpWith(app, access), 200)
   const again = await change(second)
   assert.equal(again.status, 400)
@@ -218,7 +218,7 @@ test('[25-6] [05-13.33] a renewal token used again within ten seconds is given a
   assert.equal(await mcpWith(app, String(second.body.access_token)), 401)
 })
 
-test('[25-6] grants.list shows a grant, grants.end ends it, and grants.list of another user without full access is T0013', async (t) => {
+test('[25-6] grants.list shows a grant, grants.end ends it, and grants.list of another user without full access is F0013', async (t) => {
   const { app, ada } = await signedApp(t)
   const bob = await app.user({ email: 'bob@example.com' })
   const chat = await chatApp(t, { name: 'Chat' })
@@ -226,7 +226,7 @@ test('[25-6] grants.list shows a grant, grants.end ends it, and grants.list of a
   const [grant] = Object(await app.as(ada).call('myGrants', {}))
   assert.deepEqual(Object.keys(grant).sort(), ['client', 'createdAt', 'for', 'id', 'name', 'scopes', 'usedAt'])
   assert.deepEqual([grant.client, grant.name, grant.for, grant.scopes], [chat.id, 'Chat', 'mcp', ['read']])
-  await assert.rejects(app.as(bob).call('grantsOf', { user: callerIdOf(ada) }), { code: 'T0013' })
+  await assert.rejects(app.as(bob).call('grantsOf', { user: callerIdOf(ada) }), { code: 'F0013' })
   assert.equal((Object(await app.as('nobody').call('everyGrantOf', { user: callerIdOf(ada) })) as unknown[]).length, 1)
   // Another person's grant is no grant of theirs to end.
   await app.as(bob).call('endGrant', { id: String(grant.id) })
@@ -265,7 +265,7 @@ test('[25-6] [05-13.20] [05-13.28] the text of the page does nothing for another
     authorizeAt({ client: chat.id, redirect: 'https://chat.example/callback', proof: proof() }),
   )
   const { text } = decideFormOf(await page.text())
-  const looked = await asAda.request('GET', `/_t/oauth/decide?t=${encodeURIComponent(text)}&answer=allow`)
+  const looked = await asAda.request('GET', `/_f/oauth/decide?t=${encodeURIComponent(text)}&answer=allow`)
   assert.equal(looked.status, 405)
   const byBob = await decided(app.browser({ as: bob }), text)
   assert.equal(returned(byBob).code, '', 'another person gains nothing')
@@ -277,19 +277,19 @@ test('[25-6] [05-13.20] [05-13.28] the text of the page does nothing for another
   assert.deepEqual(await app.as(ada).call('myGrants', {}), [])
 })
 
-test('[25-6] [05-13.29] [05-13.30] with anyone(...) among the clients a client registers itself and signs in, nothing is written for it, a changed id is refused, and the 11th of a minute is T0005', async (t) => {
+test('[25-6] [05-13.29] [05-13.30] with anyone(...) among the clients a client registers itself and signs in, nothing is written for it, a changed id is refused, and the 11th of a minute is F0005', async (t) => {
   const { app, ada } = await signedApp(t, [
     {
       from: "for: 'app',\n      },\n    ],",
       to: "for: 'app',\n      },\n      anyone('programs register themselves'),\n    ],",
     },
-    { from: "import { project } from 'tentjs'", to: "import { anyone, project } from 'tentjs'" },
+    { from: "import { project } from 'forjr'", to: "import { anyone, project } from 'forjr'" },
   ])
   const { body: described } = await read(app, '/.well-known/oauth-authorization-server')
-  assert.equal(described.registration_endpoint, 'http://localhost/_t/oauth/register')
+  assert.equal(described.registration_endpoint, 'http://localhost/_f/oauth/register')
   const register = (from = '203.0.113.9') =>
     app.request(
-      new Request('http://localhost/_t/oauth/register', {
+      new Request('http://localhost/_f/oauth/register', {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ client_name: 'Famous Chat', redirect_uris: ['https://famous.example/back'] }),
@@ -325,7 +325,7 @@ test('[25-6] [05-13.29] [05-13.30] with anyone(...) among the clients a client r
   assert.equal((await register('198.51.100.7')).status, 201)
   const eleventh = await register('198.51.100.7')
   assert.equal(eleventh.status, 429)
-  assert.equal(Object(await eleventh.json()).error?.code, 'T0005')
+  assert.equal(Object(await eleventh.json()).error?.code, 'F0005')
 })
 
 test("[25-6] a client that the builder states with `for: 'app'` is given a token for the app, and a client of a document that asks for the app is given /mcp", async (t) => {
@@ -337,7 +337,7 @@ test("[25-6] a client that the builder states with `for: 'app'` is given a token
     scope: 'read write',
   })
   const called = await app.request(
-    new Request('http://localhost/_t/call/addOrder', {
+    new Request('http://localhost/_f/call/addOrder', {
       method: 'POST',
       headers: { authorization: `Bearer ${signed.access}`, 'content-type': 'application/json' },
       body: JSON.stringify({ input: { title: 'by the reports app' } }),

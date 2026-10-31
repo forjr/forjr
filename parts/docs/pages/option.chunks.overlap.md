@@ -14,7 +14,7 @@ const parts = chunks(text, { size: 800, overlap: 100 })
 
 ## Errors
 
-`code.T0002`: a value that is not allowed.
+`code.F0002`: a value that is not allowed.
 
 ## See also
 

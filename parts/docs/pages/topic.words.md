@@ -15,7 +15,7 @@ A definition is one use of one word: a top-level `export const`, made by calling
 | `word.service` | An outside service and its calls |
 | `word.model` | A model of any kind of AI |
 
-`screen` and `component` are the two words of a screen file, which imports `tentjs/ui`.
+`screen` and `component` are the two words of a screen file, which imports `forjr/ui`.
 
 ## The helper words
 
@@ -49,12 +49,12 @@ Each answers the plain record that is stored for it, but `start`, `emit`, `fail`
 
 Every word takes `was`, the old name of a definition that was renamed: nothing is ever guessed to be a rename. `table`, `query`, `change`, `action` and `flow` take `plain: true`, which holds the definition to the plain form. An option that a word does not list is refused: by the types, and when the project is described.
 
-Every definition has a name of its own across all kinds, the project's among them (`code.T1004`), written in camelCase, and a component's with a capital first (`code.T1013`). `mail`, `files` and every name that starts with `_t_` are the framework's own, and a table is not named `system`, `sql`, `n`, `read` or `write`, the members of `db` (`code.T1009`).
+Every definition has a name of its own across all kinds, the project's among them (`code.F1004`), written in camelCase, and a component's with a capital first (`code.F1013`). `mail`, `files` and every name that starts with `_f_` are the framework's own, and a table is not named `system`, `sql`, `n`, `read` or `write`, the members of `db` (`code.F1009`).
 
 ## What a definition carries
 
-Every definition carries `.definition`, its name, and `.kind`. A member of a definition or of a handle, as `slack.postMessage` and `mail.send`, is a value that carries its name too: reading it does no work, and only a call is handed to the engine. A call with no engine fails with `code.T0010`.
+Every definition carries `.definition`, its name, and `.kind`. A member of a definition or of a handle, as `slack.postMessage` and `mail.send`, is a value that carries its name too: reading it does no work, and only a call is handed to the engine. A call with no engine fails with `code.F0010`.
 
 ## The handles
 
-`sessions`, `attempts`, `roles`, `connections`, `keys`, `grants`, `settings`, `secrets`, `log`, `passwords`, `mail`, `files`, `runs` and `verified` are imported from `tentjs`. A member of one forwards to the working object of the engine. `settings.name` and `secrets.NAME` are values.
+`sessions`, `attempts`, `roles`, `connections`, `keys`, `grants`, `settings`, `secrets`, `log`, `passwords`, `mail`, `files`, `runs` and `verified` are imported from `forjr`. A member of one forwards to the working object of the engine. `settings.name` and `secrets.NAME` are values.

@@ -1,4 +1,4 @@
-import { change, table, text } from 'tentjs'
+import { change, table, text } from 'forjr'
 
 export const things = table('things', {
   columns: { name: text() },

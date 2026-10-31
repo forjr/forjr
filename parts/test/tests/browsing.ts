@@ -36,13 +36,13 @@ async function servedApp(change?: (written: string) => string): Promise<Served> 
   cpSync(join(import.meta.dirname, 'pages'), folder, { recursive: true })
   // Three engines ask from one address within a minute: the counts of a minute are set far above what they ask,
   // so that no test is answered by a count.
-  const written = readFileSync(join(folder, 'tent.ts'), 'utf8')
+  const written = readFileSync(join(folder, 'forjr.ts'), 'utf8')
   assert.match(written, /project\('shop', \{/)
   const counted = written.replace(
     "project('shop', {",
     "project('shop', {\n  limits: { anyonePerMinute: 100000, screensPerMinute: 100000 },",
   )
-  writeFileSync(join(folder, 'tent.ts'), change ? change(counted) : counted)
+  writeFileSync(join(folder, 'forjr.ts'), change ? change(counted) : counted)
   const made = await buildProject(folder, { for: 'dev' })
   assert.deepEqual(made.findings, [])
   const engine = createEngine({ port: 0 })
@@ -71,7 +71,7 @@ export const shop = (): Promise<string> => {
 /** Opens an address of the app, and waits until the page has come alive: from then on a press is taken. */
 export async function openedAlive(page: Page, address: string): Promise<void> {
   await page.goto(address)
-  await page.locator('#tent[data-t-alive]').waitFor()
+  await page.locator('#forjr[data-f-alive]').waitFor()
 }
 
 /**
@@ -87,7 +87,7 @@ export async function held(
   let calls = 0
   let free = false
   const waiting: (() => void)[] = []
-  await page.route(`**/_t/${door}/${name}`, async (route) => {
+  await page.route(`**/_f/${door}/${name}`, async (route) => {
     calls += 1
     if (!free) await new Promise<void>((done) => waiting.push(done))
     await route.continue()

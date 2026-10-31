@@ -1,4 +1,4 @@
-import { boolean, change, fail, link, role, text } from 'tentjs'
+import { boolean, change, fail, link, role, text } from 'forjr'
 
 // The two changes of the rent app that state `system`, with their checks by hand taken out: any renter may
 // tell of any rent, and any landlord may mark the rent of a home that is not theirs.

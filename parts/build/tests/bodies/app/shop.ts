@@ -1,6 +1,6 @@
 // The app that the twenty bodies are written in: what they import. It is the app of the trial, written with the
 // words of the part. No `run` here does anything: the test runtime answers each of these.
-import { action, agent, change, flow, get, model, post, project, query, service, table } from 'tentjs'
+import { action, agent, change, flow, get, model, post, project, query, service, table } from 'forjr'
 
 export const shop = project('shop', {
   title: 'Shop',

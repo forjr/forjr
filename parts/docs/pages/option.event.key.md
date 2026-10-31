@@ -14,7 +14,7 @@ stopOn: event('order.cancelled', { key: ({ data }) => data.order })
 
 ## Errors
 
-`code.T1014`: an event in `stopOn` with no `key`.
+`code.F1014`: an event in `stopOn` with no `key`.
 
 ## See also
 

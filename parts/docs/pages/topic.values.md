@@ -29,8 +29,8 @@ In backend code a moment is a `Date`, and in a view it is text in the standard f
 
 ## Nothing, and a wrong kind
 
-`later`, `earlier`, `between` and `dayOf` answer nothing where the moment or the day they are handed is nothing, so an optional date passes through them. A word that takes a list fails with `code.T0027` where it is handed nothing in its place. A value of another kind than a word works with, as a length of time that does not read, is `code.T0027` too.
+`later`, `earlier`, `between` and `dayOf` answer nothing where the moment or the day they are handed is nothing, so an optional date passes through them. A word that takes a list fails with `code.F0027` where it is handed nothing in its place. A value of another kind than a word works with, as a length of time that does not read, is `code.F0027` too.
 
 ## How large
 
-A value word makes a list or a text of 1,000,000 entries or characters at most, or of as many as `limits.valueSize` of the project says: a word asks the engine for the limit of the app whose call is under way. Beyond that it fails with `code.T0027`, which names the limit, `valueSize`.
+A value word makes a list or a text of 1,000,000 entries or characters at most, or of as many as `limits.valueSize` of the project says: a word asks the engine for the limit of the app whose call is under way. Beyond that it fails with `code.F0027`, which names the limit, `valueSize`.

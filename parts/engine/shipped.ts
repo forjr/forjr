@@ -32,7 +32,7 @@ export function shippedRelease(): Shipped | undefined {
   }
   const version: unknown = Reflect.get(Object(read), 'version')
   const releases: unknown = Reflect.get(Object(read), 'releases')
-  if (Reflect.get(Object(read), 'format') !== 'tent.shipped/1' || typeof version !== 'string') return undefined
+  if (Reflect.get(Object(read), 'format') !== 'forjr.shipped/1' || typeof version !== 'string') return undefined
   const tools = join(dirname(player), 'tools')
   return {
     version,
@@ -43,11 +43,11 @@ export function shippedRelease(): Shipped | undefined {
 }
 
 /**
- * Where releases are served for this install: what `TENT_RELEASES` names, which a person typed and so counts as
+ * Where releases are served for this install: what `FORJR_RELEASES` names, which a person typed and so counts as
  * listed for the fetch, or else the one address that ships in the install. Nothing where neither is there.
  */
 export function releasesOf(): { from: string; typed: boolean } | undefined {
-  const typed = process.env.TENT_RELEASES
+  const typed = process.env.FORJR_RELEASES
   if (typed) return { from: typed.endsWith('/') ? typed : `${typed}/`, typed: true }
   const shipped = shippedRelease()?.releases
   return shipped ? { from: shipped.endsWith('/') ? shipped : `${shipped}/`, typed: false } : undefined

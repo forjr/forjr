@@ -6,7 +6,7 @@ import { filePathFault } from '../core/internal.ts'
 export const isGitName = (name: string): boolean => name.toLowerCase() === '.git'
 
 /** Whether a name is that of the engine's own folder, in any case: a disk may hold the two as one. */
-export const isEngineName = (name: string): boolean => name.toLowerCase() === '.tent'
+export const isEngineName = (name: string): boolean => name.toLowerCase() === '.forjr'
 
 /**
  * Whether a text is a path that a point may hold a file under: names with `/` between them, none of them empty,

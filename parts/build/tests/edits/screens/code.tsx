@@ -1,4 +1,4 @@
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 const shout = (words: string): string => words.toUpperCase()
 

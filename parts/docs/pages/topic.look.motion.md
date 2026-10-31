@@ -7,7 +7,7 @@ A component that draws on a `<canvas>` holds it by a ref, and draws in an effect
 ```tsx
 // components/Stars.tsx
 import { useEffect, useRef } from 'react'
-import { component } from 'tentjs/ui'
+import { component } from 'forjr/ui'
 
 export const Stars = component('Stars', {
   view: () => {
@@ -27,4 +27,4 @@ export const Stars = component('Stars', {
 })
 ```
 
-Such a component lives in the browser, so it never states `browser: false` (`code.T6018`). One that should stand still for a viewer who asked for less motion reads `matchMedia('(prefers-reduced-motion: reduce)')` in its effect and draws one frame.
+Such a component lives in the browser, so it never states `browser: false` (`code.F6018`). One that should stand still for a viewer who asked for less motion reads `matchMedia('(prefers-reduced-motion: reduce)')` in its effect and draws one frame.

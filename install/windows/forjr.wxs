@@ -1,0 +1,67 @@
+<!-- The per-user installer of Forjr @VERSION@ for @SYSTEM@, made with the WiX tools by install/release.mjs.
+     It needs no administrator. It lays the release into FORJR_HOME, or %LOCALAPPDATA%\Forjr, puts bin\ on the path
+     of the current user, and writes its own entry among the programs that the person can remove, which runs
+     `forjr uninstall`. The feature Tools is the box that picks the build tools: ADDLOCAL=Tools picks it. -->
+<Wix xmlns="http://wixtoolset.org/schemas/v4/wxs">
+  <Package Name="Forjr" Manufacturer="Forjr" Version="@VERSION@" UpgradeCode="5d7c2f2e-6a3b-4f0e-9a2c-7b1e8d4f3a60" Scope="perUser" Compressed="yes">
+    <MediaTemplate EmbedCab="yes" CompressionLevel="high" />
+    <MajorUpgrade DowngradeErrorMessage="A newer Forjr is installed." AllowSameVersionUpgrades="yes" />
+    <!-- The folder of the install is what FORJR_HOME names, where it is set. -->
+    <SetProperty Id="FORJRHOME" Value="[%FORJR_HOME]\" Before="CostInitialize" Sequence="both" Condition="%FORJR_HOME AND NOT FORJRHOME" />
+    <!-- The installer's own entry is hidden: the entry the person removes Forjr by runs forjr uninstall. -->
+    <Property Id="ARPSYSTEMCOMPONENT" Value="1" />
+
+    <StandardDirectory Id="LocalAppDataFolder">
+      <Directory Id="FORJRHOME" Name="Forjr">
+        <Directory Id="BIN" Name="bin" />
+        <Directory Id="VERSIONS" Name="versions">
+          <Directory Id="VERSION" Name="@VERSION@">
+            <Directory Id="RUNTIME" Name="runtime" />
+            <Directory Id="PLAYER" Name="player" />
+            <Directory Id="TOOLS" Name="tools" />
+          </Directory>
+        </Directory>
+      </Directory>
+    </StandardDirectory>
+
+    <Feature Id="Player" Title="Forjr" Level="1" AllowAbsent="no">
+      <ComponentGroupRef Id="Launchers" />
+      <ComponentGroupRef Id="Layers" />
+    </Feature>
+    <Feature Id="Tools" Title="The build tools" Level="1000">
+      <Files Directory="TOOLS" Include="@TOOLS@\**" />
+    </Feature>
+
+    <ComponentGroup Id="Layers">
+      <Files Directory="RUNTIME" Include="@RUNTIME@\**" />
+      <Files Directory="PLAYER" Include="@PLAYER@\**" />
+    </ComponentGroup>
+
+    <ComponentGroup Id="Launchers" Directory="BIN">
+      <Component Id="Launcher">
+        <File Source="@BIN@\forjr.exe" />
+        <File Source="@BIN@\forjrw.exe" />
+        <!-- bin\ goes onto the path of the current user, and the system tells open programs that it changed. -->
+        <Environment Id="Path" Name="Path" Value="[BIN]" Part="last" Action="set" System="no" Permanent="no" />
+        <RegistryValue Root="HKCU" Key="Software\Forjr" Name="current" Value="@VERSION@" Type="string" KeyPath="yes" />
+        <RegistryKey Root="HKCU" Key="Software\Microsoft\Windows\CurrentVersion\Uninstall\Forjr">
+          <RegistryValue Name="DisplayName" Value="Forjr" Type="string" />
+          <RegistryValue Name="DisplayVersion" Value="@VERSION@" Type="string" />
+          <RegistryValue Name="Publisher" Value="Forjr" Type="string" />
+          <RegistryValue Name="UninstallString" Value="&quot;[BIN]forjr.exe&quot; uninstall" Type="string" />
+          <RegistryValue Name="NoModify" Value="1" Type="integer" />
+        </RegistryKey>
+      </Component>
+      <Component Id="Current" Directory="FORJRHOME">
+        <File Source="@CURRENT@" Name="current" />
+      </Component>
+      <!-- The keys of a fresh install are those its release brings. Over an install the keys it holds stay, and no
+           removal of a version takes them: a newer list comes by forjr update, which takes it only where a key the
+           install holds signed it. -->
+      <Component Id="Trust" Directory="FORJRHOME" NeverOverwrite="yes" Permanent="yes">
+        <File Source="@TRUST@" Name="trust.json" />
+      </Component>
+    </ComponentGroup>
+
+  </Package>
+</Wix>

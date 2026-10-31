@@ -1,13 +1,14 @@
 import type { Description } from '../../core/internal.ts'
-import { testsTouching } from '../../core/internal.ts'
+import { testedKinds, testsTouching } from '../../core/internal.ts'
 import type { Change } from '../../history/index.ts'
 import { changesOf } from '../../history/index.ts'
 import { breaks } from '../breaks.ts'
 import { dataOf } from './data.ts'
 import type { ImpactLine, Impact, ImpactFacts } from './face.ts'
 import { outOf } from './out.ts'
+import { placedIn } from './placed.ts'
 import { countOf, reachedBy } from './reaches.ts'
-import { fileOf, kindOf, wholeOf } from './read.ts'
+import { wholeOf } from './read.ts'
 import { widerRights } from './rights.ts'
 import { workOf } from './work.ts'
 
@@ -56,10 +57,8 @@ export function impactOf(o: { against: string; live: Description; next: Descript
   const [live, next] = [wholeOf(o.live), wholeOf(o.next)]
   const facts = o.facts ?? {}
   const changes = changesOf(live, next)
-  const reachesOf = (name: string): number => {
-    const counted = countOf(reachedBy(next, name))
-    return counted.functions + counted.screens
-  }
+  const reachesOf = (name: string): number =>
+    Object.values(countOf(reachedBy(next, name)).kinds).reduce((sum, n) => sum + n, 0)
   const withReach = (one: ImpactLine): ImpactLine => {
     const reaches = reachesOf(one.name)
     return reaches ? { ...one, reaches } : one
@@ -70,7 +69,7 @@ export function impactOf(o: { against: string; live: Description; next: Descript
     return {
       name: change.name,
       kind: change.what,
-      file: fileOf(side, change.name),
+      file: placedIn(side, change.name).file,
       change: brokenBy(change),
       ...(callers ? { callers } : {}),
     }
@@ -80,9 +79,10 @@ export function impactOf(o: { against: string; live: Description; next: Descript
     const tree = reachedBy(next, name)
     return tree.length ? [{ name, tree }] : []
   })
-  // The tests of each changed definition, by what each test touched in its last run: a column by its table.
+  // The tests of each changed definition of a kind a test's record names, by what each test touched in its last
+  // run: a column by its table. A backfill, an event and a package no test names.
   const definitions = changed.filter(
-    (name) => kindOf(next, name.split('.')[0]) !== 'definition' || kindOf(live, name.split('.')[0]) !== 'definition',
+    (name) => testedKinds.has(placedIn(next, name).kind) || testedKinds.has(placedIn(live, name).kind),
   )
   const tests = definitions.flatMap((name) => {
     const by = testsTouching(facts.touched ?? {}, name.split('.')[0])

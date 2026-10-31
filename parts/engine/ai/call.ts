@@ -1,5 +1,5 @@
 import type { Method } from '../../ai/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { CallContext } from '../context.ts'
 import { atOf } from '../flows/inside.ts'
 import { aiEnvOf } from './env.ts'
@@ -34,7 +34,7 @@ function signalOf(cx: CallContext): { signal: AbortSignal; done(): void } {
   const timer = setTimeout(
     () =>
       time.abort(
-        new TentError('T0008', `The time of ${cx.work.name} ended while a model call waited.`, {
+        new ForjrError('F0008', `The time of ${cx.work.name} ended while a model call waited.`, {
           fix: 'Give the work more time in its `limits`, or call the model in a step of a flow.',
         }),
       ),
@@ -47,16 +47,16 @@ function signalOf(cx: CallContext): { signal: AbortSignal; done(): void } {
 /**
  * Takes the call context of code, the model call and what it was handed. Carries the call out through the model
  * layer of `ai`, in the call context's version, for its caller, where it stands in a run, and held to the time of
- * the work it is made in: in a query, a change and the arrow of a rule it is T0013. A long job of it is kept under
+ * the work it is made in: in a query, a change and the arrow of a rule it is F0013. A long job of it is kept under
  * the once-only key of its place inside a step. Answers what the call answers: a promise, and for `stream` the
  * parts as they arrive.
  */
 export function callModel(cx: CallContext, name: string, args: unknown[]): unknown {
   const asked = modelCallOf(cx, name)
-  if (!asked) throw new TentError('T0001', `No model call named ${JSON.stringify(name).slice(0, 80)} can be reached.`)
+  if (!asked) throw new ForjrError('F0001', `No model call named ${JSON.stringify(name).slice(0, 80)} can be reached.`)
   const { kind } = cx.work
   if (kind === 'query' || kind === 'change' || kind === 'rule')
-    throw new TentError('T0013', `The model call ${name} was made in the ${kind} ${cx.work.name}.`, {
+    throw new ForjrError('F0013', `The model call ${name} was made in the ${kind} ${cx.work.name}.`, {
       fix: 'Call a model from an action, a route or a step of a flow.',
     })
   const at = atOf(cx)

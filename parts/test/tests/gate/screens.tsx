@@ -1,4 +1,4 @@
-import { screen, read, role, text, Form } from 'tentjs/ui'
+import { screen, read, role, text, Form } from 'forjr/ui'
 import {
   addNote,
   allNotes,

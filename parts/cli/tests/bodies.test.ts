@@ -152,24 +152,24 @@ test('[12-5] through the door, a query, a change and an action whose run was rea
   const before = (await rowsOf(app, 'items')).length
   assert.equal(await codeOf(call('failsLast', { title: 'never' })), 'not-kept')
   // And so does one whose `each` is handed an arrow that answers a promise.
-  assert.equal(await codeOf(call('waitsInEach', { title: 'never' })), 'T0013')
+  assert.equal(await codeOf(call('waitsInEach', { title: 'never' })), 'F0013')
   assert.equal((await rowsOf(app, 'items')).length, before)
 
   // A body that walks a long list is ended at its next entry, and the engine still answers.
   const began = performance.now()
-  assert.equal(await codeOf(call('walks', {})), 'T0008')
+  assert.equal(await codeOf(call('walks', {})), 'F0008')
   assert.ok(performance.now() - began < 5000, 'it was ended long before it had walked the list')
   assert.deepEqual(await call('listCode', { min: 99 }), { count: 0, titles: [], top: 'none' })
 
   // Two plain queries that call each other end at the depth of calls.
-  assert.equal(await codeOf(call('ping', { n: 0 })), 'T0028')
+  assert.equal(await codeOf(call('ping', { n: 0 })), 'F0028')
 
   // A rule made with `allow` that reads `db` lets a member of the team in, and refuses another caller.
   const seen = Object(await call('teamItems', { team: core.id }))
   assert.deepEqual([seen.length, seen[0].title], [1, 'seeded'])
-  assert.equal(await codeOf(call('teamItems', { team: core.id }, bob)), 'T3101')
+  assert.equal(await codeOf(call('teamItems', { team: core.id }, bob)), 'F3101')
   // One whose arrow calls a change is refused, and nothing is written.
-  assert.equal(await codeOf(call('ruleWrites', {})), 'T0013')
+  assert.equal(await codeOf(call('ruleWrites', {})), 'F0013')
   assert.equal((await rowsOf(app, 'items')).filter((row) => row.title === 'touched').length, 0)
 
   await engine.close()

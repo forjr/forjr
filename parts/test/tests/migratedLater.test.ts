@@ -10,7 +10,7 @@ import { copyOf } from './projects.ts'
 const system = { as: { kind: 'system' } } as const
 
 // A backfill over the tenant table, which counts its runs on each row.
-const backfills = `import { backfill } from 'tentjs'
+const backfills = `import { backfill } from 'forjr'
 import { tasks } from '../tables/tables'
 
 export const stampTasks = backfill('stampTasks', {

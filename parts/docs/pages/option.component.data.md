@@ -9,7 +9,7 @@ A record of entries, each a `read(query or action, input, options)`, or an arrow
 ## Example
 
 ```tsx
-import { component, read, text } from 'tentjs/ui'
+import { component, read, text } from 'forjr/ui'
 import { currencyRate } from '../functions/rates'
 
 export const PriceTag = component('PriceTag', {
@@ -21,9 +21,9 @@ export const PriceTag = component('PriceTag', {
 
 ## Errors
 
-`code.T1009`: a name of `data` is one of the names every view is handed.
+`code.F1009`: a name of `data` is one of the names every view is handed.
 
-`code.T1014`: an entry that is no `read(...)`.
+`code.F1014`: an entry that is no `read(...)`.
 
 ## See also
 

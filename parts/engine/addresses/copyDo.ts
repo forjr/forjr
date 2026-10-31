@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { admin as runs } from '../admin/runs.ts'
 import { noLink } from '../noLink.ts'
 import type { Address } from '../door/address.ts'
@@ -16,13 +16,13 @@ import { isWritten } from '../../core/internal.ts'
 const members = ['call', 'write', 'seed', 'read', 'page', 'start', 'runs', 'session']
 
 /**
- * `POST /_t/copy/do`: on test data only, and not found on live data. `{ member, args, as }`: a member of an app
+ * `POST /_f/copy/do`: on test data only, and not found on live data. `{ member, args, as }`: a member of an app
  * that code asked a reader for and that only the writer carries out. The writer carries it out as `app.<member>`
  * does, as the caller that the code named, and answers what it answers, in the wire form with the full message.
  */
 export const address: Address = {
   order: 1,
-  match: (request) => request.method === 'POST' && new URL(request.url).pathname === '/_t/copy/do' && {},
+  match: (request) => request.method === 'POST' && new URL(request.url).pathname === '/_f/copy/do' && {},
   steps: [1, 2, 3, 10],
   handle: (reached) =>
     keyed(
@@ -39,7 +39,7 @@ export const address: Address = {
           !members.includes(told.member) ||
           !Array.isArray(told.args)
         )
-          throw new TentError('T0002', 'A member that a reader sends on is { "member", "args", "as" }.', {
+          throw new ForjrError('F0002', 'A member that a reader sends on is { "member", "args", "as" }.', {
             fields: { member: 'type' },
           })
         const as = { as: callerNamed(told.as) }
@@ -62,10 +62,10 @@ export const address: Address = {
       },
       (error) => {
         // An address that is not there is told as one, as it is to a request with no key.
-        if (error instanceof TentError && error.code === 'T0001') return errorAnswer(reached.app, 'copy/do', error)
+        if (error instanceof ForjrError && error.code === 'F0001') return errorAnswer(reached.app, 'copy/do', error)
         // A reader throws to its own code what its writer threw: the code and the words travel as they are, since
         // whoever holds the key of a reader holds the data.
-        if (!(error instanceof TentError)) return jsonAnswer(500, { ok: false, error: wireError(error, true).error })
+        if (!(error instanceof ForjrError)) return jsonAnswer(500, { ok: false, error: wireError(error, true).error })
         const { code, name, message, fix, fields } = error
         return jsonAnswer(409, { ok: false, error: { code, name, message, fix, fields } })
       },

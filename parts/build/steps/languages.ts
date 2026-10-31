@@ -89,7 +89,7 @@ function readFile(
     if (!(error instanceof NoMessage)) throw error
     found(
       work,
-      'T1010',
+      'F1010',
       file,
       error.node,
       `The language file ${file.path} holds something that is not a message written in place. A language file holds \`export default messages('<code>', { ... })\` with messages only.`,
@@ -101,7 +101,7 @@ function readFile(
 
 /**
  * Joins the language files of the project, wherever they lie: every message of a language is stored under its names
- * joined with dots, and a key that two of its files give is T1014. A language file holds messages only (T1010).
+ * joined with dots, and a key that two of its files give is F1014. A language file holds messages only (F1010).
  */
 export const step: Step = {
   order: 4.5,
@@ -122,7 +122,7 @@ export const step: Step = {
         if (before) {
           found(
             work,
-            'T1014',
+            'F1014',
             file,
             node,
             `The key ${key} of the language \`${read.language}\` is given twice: in ${before.file.path} and in ${file.path}.`,

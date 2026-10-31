@@ -19,14 +19,14 @@ const system = { as: { kind: 'system' } } as const
 async function archivedApp(t: TestContext, store?: S3StandIn) {
   const project = copyOf(t, 'archived')
   if (store) {
-    const file = join(project, 'tent.ts')
+    const file = join(project, 'forjr.ts')
     writeFileSync(
       file,
       readFileSync(file, 'utf8')
-        .replace("import { project } from 'tentjs'", "import { project, s3, secret } from 'tentjs'")
+        .replace("import { project } from 'forjr'", "import { project, s3, secret } from 'forjr'")
         .replace(
           'backups: { every: false, keep: 8 },',
-          `backups: { every: false, keep: 8, store: s3({ url: '${store.url}', bucket: 'tent', key: secret('storeKey') }) },`,
+          `backups: { every: false, keep: 8, store: s3({ url: '${store.url}', bucket: 'forjr', key: secret('storeKey') }) },`,
         ),
     )
   }
@@ -82,7 +82,7 @@ test('[45-19.2] a restore to a moment asked with no admin token, with a wrong on
   const { port, token } = JSON.parse(readFileSync(join(held.dataFolder, 'engine.json'), 'utf8'))
   const asked = async (headers: Record<string, string>, host = '127.0.0.1') =>
     held.app.request(
-      new Request(`http://${host}:${port}/_t/admin/data`, {
+      new Request(`http://${host}:${port}/_f/admin/data`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', ...headers },
         body: JSON.stringify({ args: { what: 'restore', at: before } }),

@@ -1,4 +1,4 @@
-import { change, flow, input, text } from 'tentjs'
+import { change, flow, input, text } from 'forjr'
 import { notes } from './tables.ts'
 
 // A flow and nothing that reaches outside: no service, no worker, no model.

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Ended } from '../../flows/index.ts'
 import type { Frame, Link } from '../copy/link.ts'
 import { messageOf, tell } from '../copy/link.ts'
@@ -25,11 +25,11 @@ const major = '1'
 const textsOf = (value: unknown): string[] => (Array.isArray(value) ? value.map(String) : [])
 
 /** An error as a worker sends it in the wire form, read back as one. */
-function errorOf(sent: unknown): TentError {
+function errorOf(sent: unknown): ForjrError {
   const held = Object(sent)
   const place = placeOfSent(sent)
-  return new TentError(
-    typeof held.code === 'string' ? held.code : 'T0009',
+  return new ForjrError(
+    typeof held.code === 'string' ? held.code : 'F0009',
     typeof held.message === 'string' ? held.message : 'The work failed.',
     { ...(typeof held.fix === 'string' ? { fix: held.fix } : {}), ...(place ? { place } : {}) },
   )
@@ -39,7 +39,7 @@ function errorOf(sent: unknown): TentError {
  * Takes the app, its hub, the key that the opening of a link carried, and the writer's end of that link. Takes
  * every message of the worker on it: `here` joins it, `ready` makes a version its own, `alive` keeps it joined and
  * is answered with the tasks to stop, and the end of each task is saved and confirmed. A message of a task that is
- * not out to that worker is refused with T5108, and nothing of it is taken.
+ * not out to that worker is refused with F5108, and nothing of it is taken.
  */
 export function takeWorker(o: Opened, hub: WorkHub, key: WorkerKey, link: Link): void {
   let joined: Joined | undefined
@@ -69,7 +69,7 @@ export function takeWorker(o: Opened, hub: WorkHub, key: WorkerKey, link: Link):
     const id = String(task)
     const j = joined
     if (!j || !outTo(id)) {
-      tell(link, { t: 'refused', task: id, what, code: 'T5108' })
+      tell(link, { t: 'refused', task: id, what, code: 'F5108' })
       return
     }
     const out = j.out.get(id)
@@ -83,7 +83,7 @@ export function takeWorker(o: Opened, hub: WorkHub, key: WorkerKey, link: Link):
       .then(
         () => tell(link, { t: 'saved', task: id, what }),
         (error: unknown) =>
-          tell(link, { t: 'refused', task: id, what, code: error instanceof TentError ? error.code : 'T0009' }),
+          tell(link, { t: 'refused', task: id, what, code: error instanceof ForjrError ? error.code : 'F0009' }),
       )
       .finally(() => {
         if (j.released && j.out.size === 0) o.raise('worker.empty', { app: o.app, worker: j.id })
@@ -121,7 +121,7 @@ export function takeWorker(o: Opened, hub: WorkHub, key: WorkerKey, link: Link):
         [...hub.all.values()].filter((one) => one.joined && one.key.id === key.id && one.id !== id).length >=
           key.workers
       ) {
-        no('T5109')
+        no('F5109')
         return
       }
       const before = hub.joinedOf(id)
@@ -182,7 +182,7 @@ export function takeWorker(o: Opened, hub: WorkHub, key: WorkerKey, link: Link):
             ? { lost: 'said' }
             : memory
               ? {
-                  failed: new TentError('T5110', 'The system of the worker ended the work for want of memory.', {
+                  failed: new ForjrError('F5110', 'The system of the worker ended the work for want of memory.', {
                     fix: 'Give the work a kind of worker with more memory, with `next` after `memory`.',
                   }),
                   cause: 'memory',
@@ -286,7 +286,7 @@ export function takeWorker(o: Opened, hub: WorkHub, key: WorkerKey, link: Link):
                 t: 'refused',
                 task: String(message.task),
                 what: 'done',
-                code: error instanceof TentError ? error.code : 'T0009',
+                code: error instanceof ForjrError ? error.code : 'F0009',
               }),
           )
           return
@@ -316,14 +316,14 @@ export function takeWorker(o: Opened, hub: WorkHub, key: WorkerKey, link: Link):
       case 'progress': {
         const id = String(message.task)
         if (!outTo(id)) {
-          tell(link, { t: 'refused', task: id, what: 'progress', n: message.n, code: 'T5108' })
+          tell(link, { t: 'refused', task: id, what: 'progress', n: message.n, code: 'F5108' })
           return
         }
-        // A progress may name the files that its task posted, and those its caller may download: any other is T2104.
+        // A progress may name the files that its task posted, and those its caller may download: any other is F2104.
         const out = j.out.get(id)
         const run = out?.steps[0] ? o.flows?.runner.read(out.steps[0].run) : undefined
         if (out && run && !holdsFiles(o, out, hub.callerOfRun(run), textsOf(message.files))) {
-          tell(link, { t: 'refused', task: id, what: 'progress', n: message.n, code: 'T2104' })
+          tell(link, { t: 'refused', task: id, what: 'progress', n: message.n, code: 'F2104' })
           return
         }
         const kept = out && run ? keptOfTask(o, out, run.id, message.value) : undefined
@@ -340,7 +340,7 @@ export function takeWorker(o: Opened, hub: WorkHub, key: WorkerKey, link: Link):
                 task: id,
                 what: 'progress',
                 n: message.n,
-                code: error instanceof TentError ? error.code : failureOf(o, 'a progress of work', error).code,
+                code: error instanceof ForjrError ? error.code : failureOf(o, 'a progress of work', error).code,
               })
             },
           )
@@ -352,7 +352,7 @@ export function takeWorker(o: Opened, hub: WorkHub, key: WorkerKey, link: Link):
         const id = message.task === undefined ? undefined : String(message.task)
         const out = id === undefined ? undefined : j.out.get(id)
         if (id !== undefined && !out) {
-          tell(link, { t: 'refused', task: id, what: 'log', code: 'T5108' })
+          tell(link, { t: 'refused', task: id, what: 'log', code: 'F5108' })
           return
         }
         const [first] = out?.steps ?? []

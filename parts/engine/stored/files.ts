@@ -1,7 +1,7 @@
 import { createHash, randomBytes } from 'node:crypto'
 import { createReadStream, createWriteStream, mkdirSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
-import { fingerprint as fingerprintOf, TentError } from '../../core/index.ts'
+import { fingerprint as fingerprintOf, ForjrError } from '../../core/index.ts'
 import type { Row, Tx } from '../../data/index.ts'
 import { storedLimit } from '../limits.ts'
 import type { FileStore } from '../makers.ts'
@@ -21,7 +21,7 @@ import { addTo, endSpan, insideSpan, openSpan, spanned } from '../trace/span.ts'
 
 const system = { kind: 'system' } as const
 
-/** One file as its row of `_t_files` holds it. */
+/** One file as its row of `_f_files` holds it. */
 export interface StoredFile {
   id: string
   fingerprint: string
@@ -78,7 +78,7 @@ function storeNamed(o: Opened, named: unknown): FileStore {
     remove: (fingerprint) => namedStore(o, named).remove(fingerprint),
     async direct(name, info, seconds) {
       const store = namedStore(o, named)
-      if (!store.direct) throw new TentError('T0009', 'The store of files hands out no address for an upload.')
+      if (!store.direct) throw new ForjrError('F0009', 'The store of files hands out no address for an upload.')
       return store.direct(name, info, seconds)
     },
   }
@@ -136,7 +136,7 @@ export interface Putting {
   by: string
   // The address of a caller who is nobody, for the count of their loose bytes.
   address?: string
-  // The most bytes that the file may hold: one more is T0003.
+  // The most bytes that the file may hold: one more is F0003.
   most?: number
 }
 
@@ -145,7 +145,7 @@ export interface Putting {
  * their own first, since their fingerprint is known only at their end, takes the kind from the bytes, reads the
  * width and the height of a picture, hands the bytes to the file store under their fingerprint, where the same
  * bytes are kept once, and adds the row of the file, which is loose from that moment. Answers the file. Throws
- * T0003 for one byte more than `most`.
+ * F0003 for one byte more than `most`.
  */
 export async function putFile(o: Opened, bytes: ReadableStream<Uint8Array>, how: Putting): Promise<StoredFile> {
   // A file that is written is a span of the trace under way, with its size and its kind.
@@ -184,7 +184,7 @@ async function putOnce(o: Opened, bytes: ReadableStream<Uint8Array>, how: Puttin
         if (done) break
         size += value.byteLength
         if (how.most !== undefined && size > how.most)
-          throw new TentError('T0003', `The file is larger than ${how.most} bytes, the most that is taken.`, {
+          throw new ForjrError('F0003', `The file is larger than ${how.most} bytes, the most that is taken.`, {
             fix: 'Send a smaller file, or raise `uploadSize` in `project.limits`.',
           })
         hash.update(value)
@@ -253,7 +253,7 @@ export async function holdsBytes(o: Opened, fingerprint: string): Promise<boolea
 /**
  * Has the bytes of a file lie on this machine before they are read. A reader whose file store is not one that
  * every machine reaches fetches the bytes it lacks from its writer, and keeps them: a near reader fetched them
- * as their row came, and a far reader fetches them the first time it is asked for them. Throws T0029 where the
+ * as their row came, and a far reader fetches them the first time it is asked for them. Throws F0029 where the
  * writer cannot be reached.
  */
 export async function bytesFor(o: Opened, file: StoredFile): Promise<void> {

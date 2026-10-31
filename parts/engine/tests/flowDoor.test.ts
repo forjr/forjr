@@ -11,13 +11,13 @@ const browserOf = (app: App, user: Caller): { cookie: string; as: string } => ({
   as: String(user.user?.id),
 })
 
-test('[23-30a] a flow that states `access` is called at `/_t/call/`: the call starts a run, waits, and answers the answer of the flow through its `output`', async (t) => {
+test('[23-30a] a flow that states `access` is called at `/_f/call/`: the call starts a run, waits, and answers the answer of the flow through its `output`', async (t) => {
   const { app, origin } = await flowing(t)
   const ada = await addUser(app, 'Ada')
   const bob = await addUser(app, 'Bob', ['staff'])
   const [asAda, asBob] = [browserOf(app, ada), browserOf(app, bob)]
   const call = (flow: string, input: unknown, by?: { cookie: string; as: string }) =>
-    send(app, `${origin}/_t/call/${flow}`, {
+    send(app, `${origin}/_f/call/${flow}`, {
       input,
       ...(by ? { body: JSON.stringify({ input, as: by.as }), headers: { cookie: by.cookie } } : {}),
     })
@@ -33,38 +33,38 @@ test('[23-30a] a flow that states `access` is called at `/_t/call/`: the call st
   // A flow that states no `output` answers its caller nothing.
   assert.deepEqual((await call('staffWelcome', { name: 'Bob' }, asBob)).body, { ok: true })
   // A caller that the rule of the flow refuses, and one that is nobody.
-  assert.equal((await call('staffWelcome', { name: 'Ada' }, asAda)).error.code, 'T3101')
-  assert.equal((await call('welcome', { name: 'x' })).error.code, 'T0006')
+  assert.equal((await call('staffWelcome', { name: 'Ada' }, asAda)).error.code, 'F3101')
+  assert.equal((await call('welcome', { name: 'x' })).error.code, 'F0006')
   // An input that does not fit, and a flow that states no `access`, which is not found.
-  assert.equal((await call('welcome', { name: 7 }, asAda)).error.code, 'T0002')
-  assert.equal((await call('greet', { name: 'Ada' }, asAda)).error.code, 'T0001')
+  assert.equal((await call('welcome', { name: 7 }, asAda)).error.code, 'F0002')
+  assert.equal((await call('greet', { name: 'Ada' }, asAda)).error.code, 'F0001')
   assert.equal(app.runs.find({ flow: 'greet' }).length, 0)
 })
 
-test('[23-30a] [16-2@7b] a run that outlasts `actionTime` answers T0008 with `fields.run`: the same call with `{ run }` waits again, with `stop` it stops the run, and another caller is answered T0001', async (t) => {
+test('[23-30a] [16-2@7b] a run that outlasts `actionTime` answers F0008 with `fields.run`: the same call with `{ run }` waits again, with `stop` it stops the run, and another caller is answered F0001', async (t) => {
   const { app, origin, dataFolder } = await flowing(t)
   const ada = await addUser(app, 'Ada')
   const bob = await addUser(app, 'Bob')
   const [asAda, asBob] = [browserOf(app, ada), browserOf(app, bob)]
   const call = (input: unknown, by: { cookie: string; as: string }) =>
-    send(app, `${origin}/_t/call/welcome`, {
+    send(app, `${origin}/_f/call/welcome`, {
       body: JSON.stringify({ input, as: by.as }),
       headers: { cookie: by.cookie },
     })
 
   const late = await call({ name: 'Ada', wait: true }, asAda)
   assert.equal(late.status, 500)
-  assert.equal(late.error.code, 'T0008')
+  assert.equal(late.error.code, 'F0008')
   const run = String(Object(late.error.fields).run)
   assert.equal(app.runs.read(run)?.state, 'waiting', 'the run goes on')
   // The same call with `{ run }` alone waits for that run again.
   const again = await call({ run }, asAda)
-  assert.equal(again.error.code, 'T0008')
+  assert.equal(again.error.code, 'F0008')
   assert.equal(Object(again.error.fields).run, run)
   assert.equal(app.runs.find({ flow: 'welcome' }).length, 1, 'no second run was started')
   // Another caller reaches neither the run nor its stop.
-  assert.equal((await call({ run }, asBob)).error.code, 'T0001')
-  assert.equal((await call({ run, stop: true }, asBob)).error.code, 'T0001')
+  assert.equal((await call({ run }, asBob)).error.code, 'F0001')
+  assert.equal((await call({ run, stop: true }, asBob)).error.code, 'F0001')
   assert.equal(app.runs.read(run)?.state, 'waiting')
   // Once the run has ended, the call with `{ run }` answers its answer.
   app.runs.approve(run, 'go on')
@@ -76,25 +76,25 @@ test('[23-30a] [16-2@7b] a run that outlasts `actionTime` answers T0008 with `fi
   assert.equal(app.runs.read(stopped)?.state, 'stopped')
   assert.equal(
     (await call({ run: stopped }, asAda)).error.code,
-    'T0009',
-    'a stopped run answers T5106, which no caller is shown',
+    'F0009',
+    'a stopped run answers F5106, which no caller is shown',
   )
   const kinds = logRows(dataFolder, 'calls').filter((row) => row.name === 'welcome')
   assert.ok(kinds.length >= 7 && kinds.every((row) => row.kind === 'flow'), 'each call of the flow is a row of the log')
 })
 
-test('[23-31] an action that states `system` and reads `runs.read`, read by a page, answers, and one that calls `runs.stop` there is T0013', async (t) => {
+test('[23-31] an action that states `system` and reads `runs.read`, read by a page, answers, and one that calls `runs.stop` there is F0013', async (t) => {
   const { app, origin, dataFolder } = await flowing(t)
   const run = await started(app, 'waitsForPerson')
   await untilState(app, run, 'waiting')
-  const read = (name: string) => send(app, `${origin}/_t/read/${name}`, { input: { run } })
+  const read = (name: string) => send(app, `${origin}/_f/read/${name}`, { input: { run } })
   assert.deepEqual((await read('runOf')).body, { ok: true, value: 'waiting' })
   // An action that a page reads is called read-only: what does more than read is refused.
   const refused = await read('stopRun')
-  assert.equal(refused.error.code, 'T0009')
+  assert.equal(refused.error.code, 'F0009')
   assert.equal(app.runs.read(run)?.state, 'waiting', 'nothing was stopped')
   const [failed] = logRows(dataFolder, 'calls').filter((row) => row.name === 'stopRun')
-  assert.equal(failed.code, 'T0013')
+  assert.equal(failed.code, 'F0013')
   // Called by a press, the same action stops the run.
   await app.call('stopRun', { run }, { as: nobody })
   assert.equal(app.runs.read(run)?.state, 'stopped')
@@ -110,7 +110,7 @@ test('[11-2@7b] a function that a step calls runs as the caller of its run, and 
 
   // A flow that runs as its starter: each function it calls passes its own rule as that caller, and `db` is theirs.
   const asAda = await app.runs.wait(await started(app, 'asStarter', undefined, ada))
-  assert.deepEqual(asAda, { user: ada.user?.id, mine: 1, staff: 'T3101', direct: 1 })
+  assert.deepEqual(asAda, { user: ada.user?.id, mine: 1, staff: 'F3101', direct: 1 })
   const asBob = await app.runs.wait(await started(app, 'asStarter', undefined, bob))
   assert.deepEqual(asBob, { user: bob.user?.id, mine: 2, staff: 0, direct: 2 })
   // A flow that does not state `as: 'starter'` has full access, whoever started it: it passes every rule.
@@ -121,7 +121,7 @@ test('[11-2@7b] a function that a step calls runs as the caller of its run, and 
   // The `runs` handle: a function that states no `system` has no full access, whoever calls it.
   const waiting = await started(app, 'waitsForPerson')
   await untilState(app, waiting, 'waiting')
-  assert.equal(await codeOf(app.call('findRuns', { flow: 'waitsForPerson' }, { as: ada })), 'T0013')
+  assert.equal(await codeOf(app.call('findRuns', { flow: 'waitsForPerson' }, { as: ada })), 'F0013')
   // Called by the system, the same function is code of the system, which has full access.
   assert.equal(await app.call('findRuns', { flow: 'waitsForPerson' }, { as: system }), 1)
   // One that states `system` reads the runs and answers a step that waits for a person.
@@ -138,14 +138,14 @@ test('[11-2@7b] a function that a step calls runs as the caller of its run, and 
   assert.deepEqual(await app.runs.wait(refusedOne), { approved: false, shown: { ask: 'May it go on?' } })
 })
 
-test('[23-5] [16-2@7b] work outside a step is refused with T5001 and its fix, and reading is allowed there', async (t) => {
+test('[23-5] [16-2@7b] work outside a step is refused with F5001 and its fix, and reading is allowed there', async (t) => {
   const { app } = await flowing(t)
   await app.call('addMark', { what: 'one' }, { as: system })
   // Between two steps a flow reads through `db` and calls a query.
   assert.equal(await app.runs.wait(await started(app, 'outsideStep', { what: 'nothing' })), 2)
   for (const what of ['change', 'action', 'flow', 'start', 'now', 'handle']) {
     const refused = await refusal(app.runs.wait(await started(app, 'outsideStep', { what })))
-    assert.equal(refused.code, 'T5001', what)
+    assert.equal(refused.code, 'F5001', what)
     assert.match(String(refused.fix), /inside a step/, what)
   }
   await settle()

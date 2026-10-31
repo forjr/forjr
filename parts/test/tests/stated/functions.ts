@@ -1,4 +1,4 @@
-import { choice, input, number, query, table, text } from 'tentjs'
+import { choice, input, number, query, table, text } from 'forjr'
 
 export const items = table('items', {
   columns: { name: text(), kind: choice(['tool', 'toy']), place: number() },

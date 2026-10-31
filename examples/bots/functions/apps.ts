@@ -1,4 +1,4 @@
-import { boolean, change, choice, fail, link, object, query, text } from 'tentjs'
+import { boolean, change, choice, fail, link, object, query, text } from 'forjr'
 import { apps } from '../tables/apps'
 
 export const appList = query('appList', {

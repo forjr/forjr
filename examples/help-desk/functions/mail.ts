@@ -1,4 +1,4 @@
-import { flow, link, text, concat } from 'tentjs'
+import { flow, link, text, concat } from 'forjr'
 import { mailService } from '../services/services'
 
 export const mailAnswer = flow('mailAnswer', {

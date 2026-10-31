@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 
 // Past tickets, each with what the customer wrote and what the desk answered, where it answered.
 const PAST = [

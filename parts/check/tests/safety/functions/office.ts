@@ -15,17 +15,17 @@ import {
   roles,
   sum,
   text,
-} from 'tentjs'
+} from 'forjr'
 import { audit, guestbook, orders, speakers, teams, users } from '../tables/office'
 
-// T2005: a link of an input to a table that is not there.
+// F2005: a link of an input to a table that is not there.
 export const byProject = query('byProject', {
   access: 'signedIn',
   input: { project: link('projects') },
   rows: teams.limit(5),
 })
 
-// T3002: bare 'anyone' on a change and on an action.
+// F3002: bare 'anyone' on a change and on an action.
 export const sign = change('sign', {
   access: 'anyone',
   input: { line: text() },
@@ -44,7 +44,7 @@ export const guests = query('guests', { access: 'anyone', rows: guestbook.limit(
 
 export const names = query('names', { access: 'anyone', rows: speakers.pick(['id', 'name']).limit(20) })
 
-// T3003: bare 'anyone' on a query that reads personal data.
+// F3003: bare 'anyone' on a query that reads personal data.
 export const phoneBook = query('phoneBook', { access: 'anyone', rows: speakers.limit(20) })
 
 export const phones = query('phones', { access: 'anyone', rows: speakers.pick(['id', 'phone']).limit(20) })
@@ -54,7 +54,7 @@ export const bodyPhones = query('bodyPhones', {
   run: ({ db }) => db.speakers.limit(5).all(),
 })
 
-// T3004: full access used by a function that states no `system`.
+// F3004: full access used by a function that states no `system`.
 export const peek = query('peek', {
   access: role('staff'),
   run: ({ db }) => db.system.orders.limit(5).all(),
@@ -91,7 +91,7 @@ export const addLine = change('addLine', {
   set: audit.add({ line: input('line') }),
 })
 
-// T3006: a private column in `pick`, in a `group`, in a value that a group works out, and in an output.
+// F3006: a private column in `pick`, in a `group`, in a value that a group works out, and in an output.
 export const pay = query('pay', { access: role('hr'), rows: users.pick(['id', 'salary']).limit(20) })
 
 export const payGroups = query('payGroups', { access: role('hr'), rows: users.group('salary', { n: count() }) })
@@ -111,7 +111,7 @@ export const paidBy = query('paidBy', {
 
 export const staffNames = query('staffNames', { access: role('hr'), rows: users.pick(['id', 'name']).limit(20) })
 
-// T3009: a function that any signed-in caller may call, that states `system` and writes a table whose rule is 'owner'.
+// F3009: a function that any signed-in caller may call, that states `system` and writes a table whose rule is 'owner'.
 export const markPaid = change('markPaid', {
   access: 'signedIn',
   system: 'an order is marked paid when its payment arrives',

@@ -1,4 +1,4 @@
-import { given, query } from 'tentjs'
+import { given, query } from 'forjr'
 
 const PAGE = 3
 

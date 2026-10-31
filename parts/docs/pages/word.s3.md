@@ -24,7 +24,7 @@ The record `{ s3: { url, bucket, key, region } }`, which is stored as it is. The
 
 ## Errors
 
-`code.T0019` where the secret of `key` holds no value, and `code.T0009` where the store refuses a request.
+`code.F0019` where the secret of `key` holds no value, and `code.F0009` where the store refuses a request.
 
 ## See also
 

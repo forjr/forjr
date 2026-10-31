@@ -38,7 +38,7 @@ test('[50-7] an app that opens with move on a bundle in which a table gains tena
     () => undefined,
     (error: { code?: string }) => error,
   )
-  assert.equal(refused?.code, 'T2001')
+  assert.equal(refused?.code, 'F2001')
 
   const moved = await engine.open(kept, { dataFolder, mode: 'test', move: true })
   const running = moved.versions().find((one) => one.running)

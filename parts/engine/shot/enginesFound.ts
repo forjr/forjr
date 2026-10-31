@@ -1,7 +1,7 @@
 import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fetchPart } from '../fetchPart.ts'
 
 /** The folder in which a tool of tests installs its browsers for this user. */
@@ -41,7 +41,7 @@ const inPart = (folder: string, insides: string[][]): string | undefined =>
  * Takes the name of a browser's part, the name of its folders that a tool of tests installs, the places of its
  * program inside, and the name a person knows it by. Answers the program of the build of the version that the list
  * pins: the one the tool of tests installed, else the part, fetched on first use. A browser installed on the
- * computer, or named by a variable, is never taken: what a test sees is the same on every computer. Throws T0016,
+ * computer, or named by a variable, is never taken: what a test sees is the same on every computer. Throws F0016,
  * naming the part, where neither can be had.
  */
 async function ofPinnedBuild(part: string, folder: string, insides: string[][], known: string): Promise<string> {
@@ -57,8 +57,8 @@ async function ofPinnedBuild(part: string, folder: string, insides: string[][], 
     },
   )
   if (fetched) return fetched
-  const error = new TentError(
-    'T0016',
+  const error = new ForjrError(
+    'F0016',
     `No ${known} of the build ${version ?? 'that is pinned'} is installed by the tool of tests, and the part ${part} could not be had.`,
     {
       fix: 'Install the browsers of the tool of tests at the version the project pins, or let the part be fetched once.',
@@ -85,7 +85,7 @@ export interface Wanted {
 /**
  * Takes whether the program is for a test, and what a browser is found by. Answers its program: for a test, the
  * build of the pinned version alone. Else the one that its variable names, else one that is installed on the
- * computer or by a tool of tests, else the one that is fetched on first use. Throws T0016, naming the part, where
+ * computer or by a tool of tests, else the one that is fetched on first use. Throws F0016, naming the part, where
  * none is found and none can be fetched.
  */
 export async function browserProgram(o: { test?: boolean }, wanted: Wanted): Promise<string> {
@@ -98,9 +98,9 @@ export async function browserProgram(o: { test?: boolean }, wanted: Wanted): Pro
     const program = inPart(await fetchPart(wanted.part), wanted.insides)
     if (program) return program
   } catch (error) {
-    if (error instanceof TentError) throw error
+    if (error instanceof ForjrError) throw error
   }
-  throw new TentError('T0016', wanted.none.message, { fix: wanted.none.fix })
+  throw new ForjrError('F0016', wanted.none.message, { fix: wanted.none.fix })
 }
 
 /** Where the program of Firefox lies in a folder of its build, on each system. */
@@ -124,20 +124,20 @@ function firefoxPlaces(): string[] {
 
 /**
  * Answers the program of a Firefox to drive over WebDriver BiDi. For a test, the build of the pinned version alone.
- * Else the one that `TENT_FIREFOX` names, else one that is installed on the computer or by a tool of tests, else the
- * one that is fetched on first use. Throws T0016, naming the part, where none is found and none can be fetched.
+ * Else the one that `FORJR_FIREFOX` names, else one that is installed on the computer or by a tool of tests, else the
+ * one that is fetched on first use. Throws F0016, naming the part, where none is found and none can be fetched.
  */
 export const firefoxFound = (o: { test?: boolean } = {}): Promise<string> =>
   browserProgram(o, {
     part: 'firefox',
     insides: firefoxInsides,
     tests: { folder: 'firefox', named: /^firefox-\d+$/, insides: firefoxInsides },
-    variable: 'TENT_FIREFOX',
+    variable: 'FORJR_FIREFOX',
     places: firefoxPlaces(),
     known: 'Firefox',
     none: {
       message: 'No Firefox was found on the computer, and the one of the engine could not be fetched.',
-      fix: 'Install Firefox, or name its program in TENT_FIREFOX.',
+      fix: 'Install Firefox, or name its program in FORJR_FIREFOX.',
     },
   })
 
@@ -150,13 +150,13 @@ const driverIn = async (): Promise<string | undefined> =>
 
 /**
  * Answers the WebDriver program of WebKit that speaks WebDriver BiDi, where one is. For a test, that of a pinned
- * WebKit alone, and never one of the computer. Else the one that `TENT_WEBKIT` names, else the one of WebKitGTK on
+ * WebKit alone, and never one of the computer. Else the one that `FORJR_WEBKIT` names, else the one of WebKitGTK on
  * Linux or of Safari on macOS, else the one that is fetched on first use. Nothing where none is had: then a test in
  * WebKit is not run.
  */
 export async function webkitFound(o: { test?: boolean } = {}): Promise<string | undefined> {
   if (o.test) return pinnedOf('webkit') === undefined ? undefined : driverIn()
-  const named = process.env.TENT_WEBKIT
+  const named = process.env.FORJR_WEBKIT
   if (named && existsSync(named)) return named
   const places =
     process.platform === 'darwin'

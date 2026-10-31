@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Change, FileName } from '../../data/index.ts'
 import { applyChange, keptChanges } from '../../data/index.ts'
 import type { Opened } from '../opened.ts'
@@ -16,7 +16,7 @@ import { fetchNow } from './reading.ts'
 const raises = (change: Change): boolean => change.layout?.steps.some((step) => step.do !== 'addTable') === true
 
 /** Whether an error says that a change does not fit the file it is applied to. */
-const isUnfit = (error: unknown): boolean => error instanceof TentError && error.code === 'T0033'
+const isUnfit = (error: unknown): boolean => error instanceof ForjrError && error.code === 'F0033'
 
 // How many pieces of work on each file wait to be done, by the files of each app: a kept change that is put into
 // the file, and a file that is fetched.

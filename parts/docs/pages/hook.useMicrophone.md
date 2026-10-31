@@ -5,7 +5,7 @@ Records the voice of the person from the code of a view, and uploads the recordi
 ## Example
 
 ```tsx
-import { screen, useAgent, useMicrophone } from 'tentjs/ui'
+import { screen, useAgent, useMicrophone } from 'forjr/ui'
 import { helper } from '../functions/helper'
 
 export const talkScreen = screen('talkScreen', {

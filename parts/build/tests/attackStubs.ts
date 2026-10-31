@@ -7,7 +7,7 @@ import { copyOf } from './projects.ts'
 export type Way = Record<string, string>
 
 // Every screen of a way starts so, and ends with a view that uses what the way reached.
-const head = "import { screen } from 'tentjs/ui'\n"
+const head = "import { screen } from 'forjr/ui'\n"
 const tail = (uses: string): string =>
   `\nexport const wayScreen = screen('wayScreen', { path: '/way', access: 'anyone', view: () => <span>{String(${uses})}</span> })\n`
 
@@ -20,14 +20,14 @@ export const packageOf = (name: string, text: string, type = 'module'): Way => (
   [`node_modules/${name}/index.js`]: text,
 })
 
-// A package named `tentjs` in the project, as a project that installed the framework holds one. It stands in for
+// A package named `forjr` in the project, as a project that installed the framework holds one. It stands in for
 // the words: each is a thing that takes any call and any read, so that a backend file can be loaded with it.
 const standIn =
   "const any = () => new Proxy(function () {}, { get: (_, key) => (key === 'then' || typeof key === 'symbol' ? undefined : any()), apply: () => any() })\n" +
   'export const action = any(), change = any(), input = any(), number = any(), query = any(), table = any(), text = any(), where = any()\n'
 
-/** The package `tentjs` in the folder of a project, which the builder finds by its name. */
-export const installed: Way = packageOf('tentjs', standIn)
+/** The package `forjr` in the folder of a project, which the builder finds by its name. */
+export const installed: Way = packageOf('forjr', standIn)
 
 const filesIn = (folder: string, path = ''): string[] => {
   const found: string[] = []

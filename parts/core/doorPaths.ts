@@ -10,13 +10,13 @@ export function sitemapFile(path: string): number | undefined {
 
 /**
  * Takes the path of an address. Answers whether the door takes it before any language, redirect or screen, for
- * every app alike: the engine's own addresses under `/_t/`, the API, MCP, sign-in for programs, the sitemap and
+ * every app alike: the engine's own addresses under `/_f/`, the API, MCP, sign-in for programs, the sitemap and
  * `/robots.txt`. A `route` is the app's own, and is held beside this by whoever knows the routes.
  */
 export function isDoorPath(path: string): boolean {
   return (
-    path === '/_t' ||
-    path.startsWith('/_t/') ||
+    path === '/_f' ||
+    path.startsWith('/_f/') ||
     path.startsWith('/api/') ||
     path === '/mcp' ||
     path.startsWith('/.well-known/oauth-') ||

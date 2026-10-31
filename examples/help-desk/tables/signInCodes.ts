@@ -1,4 +1,4 @@
-import { date, table, text } from 'tentjs'
+import { date, table, text } from 'forjr'
 
 export const signInCodes = table('signInCodes', {
   columns: { email: text({ personal: true }), code: text({ sealed: true, private: true }), until: date() },

@@ -1,4 +1,4 @@
-import { screen, component, read, useTranslations, Form } from 'tentjs/ui'
+import { screen, component, read, useTranslations, Form } from 'forjr/ui'
 import { markPaid, openOrders } from '../functions/orders'
 
 export const Button = component('Button', {

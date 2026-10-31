@@ -15,7 +15,7 @@ import {
   query,
   service,
   text,
-} from 'tentjs'
+} from 'forjr'
 import { notes } from './tables.ts'
 
 /** The processor time of this thread so far, in milliseconds. */

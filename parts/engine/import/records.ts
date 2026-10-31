@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fetchPart } from '../fetchPart.ts'
 
 /** One record of a file: where it stands, as a person finds it there, and its fields by the names of the header. */
@@ -10,7 +10,7 @@ export interface FileRecord {
 /** The forms of a file that an import reads. */
 export type Form = 'csv' | 'tsv' | 'json' | 'jsonl' | 'xlsx'
 
-/** The form of a file, by the ending of its name, and by its kind where the name says none. Throws T0002 for any other. */
+/** The form of a file, by the ending of its name, and by its kind where the name says none. Throws F0002 for any other. */
 export function fileFormOf(name: string, kind?: string): Form {
   const ending = /\.([a-z]+)$/i.exec(name)?.[1]?.toLowerCase()
   const byName: Record<string, Form> = {
@@ -32,7 +32,7 @@ export function fileFormOf(name: string, kind?: string): Form {
   }
   const form = (ending ? byName[ending] : undefined) ?? (kind ? byKind[kind.split(';')[0].trim()] : undefined)
   if (form) return form
-  throw new TentError('T0002', `An import reads CSV, TSV, JSON, JSON lines and spreadsheets, and ${name} is none.`, {
+  throw new ForjrError('F0002', `An import reads CSV, TSV, JSON, JSON lines and spreadsheets, and ${name} is none.`, {
     fields: { file: 'kind' },
     fix: 'Name the file by its form: `.csv`, `.tsv`, `.json`, `.jsonl` or `.xlsx`.',
   })
@@ -107,8 +107,8 @@ function separated(text: string, form: 'csv' | 'tsv'): FileRecord[] {
 }
 
 /** The error of a file whose text does not read as its form. */
-const unread = (what: string, line: string): TentError =>
-  new TentError('T0002', `The file does not read as ${what} at line ${line}.`, { fields: { file: 'format' } })
+const unread = (what: string, line: string): ForjrError =>
+  new ForjrError('F0002', `The file does not read as ${what} at line ${line}.`, { fields: { file: 'format' } })
 
 /** A record of JSON: an object, whose fields are its members. */
 function recordOf(value: unknown, line: string, what: string): FileRecord {
@@ -119,14 +119,14 @@ function recordOf(value: unknown, line: string, what: string): FileRecord {
 /**
  * Takes the bytes of a file and its form. Answers its records in order, each with its line: of a spreadsheet the
  * sheet's name and its row, as `Members:12`, every sheet read by its name with its first row as its header. Throws
- * T0002 for a file that does not read as its form, and T0016 where the reader of spreadsheets cannot be fetched.
+ * F0002 for a file that does not read as its form, and F0016 where the reader of spreadsheets cannot be fetched.
  */
 export async function recordsOf(bytes: Uint8Array, form: Form): Promise<FileRecord[]> {
   if (form === 'xlsx') {
     const folder = await fetchPart('xlsx')
     const { sheetReaderIn } = await import('../borrowed/xlsx.ts')
     const reader = await sheetReaderIn(folder).catch((error) => {
-      throw new TentError('T0016', `The part xlsx does not give what reads a spreadsheet: ${String(error)}`)
+      throw new ForjrError('F0016', `The part xlsx does not give what reads a spreadsheet: ${String(error)}`)
     })
     let sheets: Awaited<ReturnType<typeof reader>>
     try {
@@ -147,7 +147,7 @@ export async function recordsOf(bytes: Uint8Array, form: Form): Promise<FileReco
       try {
         return [recordOf(JSON.parse(one), String(at + 1), 'JSON lines')]
       } catch (error) {
-        throw error instanceof TentError ? error : unread('JSON lines', String(at + 1))
+        throw error instanceof ForjrError ? error : unread('JSON lines', String(at + 1))
       }
     })
   let read: unknown

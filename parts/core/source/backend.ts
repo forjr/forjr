@@ -106,7 +106,7 @@ const plansByName: Form = (w, rows) =>
     ]),
   )
 
-/** The options of a query, a change or an action, in the order they are written. Throws T0013 for one that is code. */
+/** The options of a query, a change or an action, in the order they are written. Throws F0013 for one that is code. */
 export function functionEntries(w: Writing, name: string, fn: Stored): Doc[] {
   if (fn.form !== 'plain' || isStored(fn.python)) throw noText(`The function \`${name}\``)
   const waits = fn.kind === 'action'
@@ -173,7 +173,7 @@ const triggers: Form = (w, on) => {
 }
 
 /**
- * The options of a flow, in the order they are written. Throws T0013 for one whose `run` or `onFail` is code, and
+ * The options of a flow, in the order they are written. Throws F0013 for one whose `run` or `onFail` is code, and
  * for an agent whose `key`, `onStop` or `order` of `pace` is code.
  */
 export function flowEntries(w: Writing, name: string, flow: Stored): Doc[] {

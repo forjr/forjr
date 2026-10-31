@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { addressWith, settled } from '../guardedAddress.ts'
 import { fetchWith } from '../guardedFetch.ts'
 import { failure, names, refused, standIn } from './servers.ts'
@@ -318,7 +318,7 @@ test('[22-19] a size, a time or a number of redirects that is no number, or a ne
         Reflect.set(init, name, stated)
         for (const address of [`${server.origin}/`, 'https://far.test/']) {
           const error = await failure(fetch(address, init))
-          assert.ok(error instanceof TypeError && !(error instanceof TentError), `${name} ${String(stated)}: ${error}`)
+          assert.ok(error instanceof TypeError && !(error instanceof ForjrError), `${name} ${String(stated)}: ${error}`)
           assert.match(error.message, new RegExp(name))
         }
       }
@@ -329,7 +329,7 @@ test('[22-19] a size, a time or a number of redirects that is no number, or a ne
   // Zero is a number that is not negative: it is held as it is stated.
   const fetch = fetchWith(o, asks.lookup)
   const cut = await failure((async () => (await fetch(`${server.origin}/`, { size: 0 })).text())())
-  assert.ok(cut instanceof TentError && cut.code === 'T0023', cut.message)
+  assert.ok(cut instanceof ForjrError && cut.code === 'F0023', cut.message)
   const whole = await fetch(`${server.origin}/`, { size: 5000, time: 60_000, redirects: 0 })
   assert.equal((await whole.arrayBuffer()).byteLength, 5000)
 })

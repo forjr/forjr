@@ -142,15 +142,15 @@ test('[31-8] a device state is kept in the one cookie of the app, a state of the
   const at = browser()
   const page = alive(at)
   page.set({ mode: 'dark' })
-  assert.deepEqual(deviceRead(at.cookies.get('tent_state.shop') ?? ''), { mode: 'dark' })
+  assert.deepEqual(deviceRead(at.cookies.get('forjr_state.shop') ?? ''), { mode: 'dark' })
   page.set({ seen: true })
-  assert.deepEqual(deviceRead(at.cookies.get('tent_state.shop') ?? ''), { mode: 'dark', 'deskScreen.seen': true })
+  assert.deepEqual(deviceRead(at.cookies.get('forjr_state.shop') ?? ''), { mode: 'dark', 'deskScreen.seen': true })
   page.set({ mode: 'auto', seen: false })
-  assert.equal(at.cookies.has('tent_state.shop'), false)
+  assert.equal(at.cookies.has('forjr_state.shop'), false)
   // What the cookie holds of another screen stays as it is.
-  at.cookies.set('tent_state.shop', deviceText({ 'otherScreen.closed': true }))
+  at.cookies.set('forjr_state.shop', deviceText({ 'otherScreen.closed': true }))
   alive(at).set({ seen: true })
-  assert.deepEqual(deviceRead(at.cookies.get('tent_state.shop') ?? ''), {
+  assert.deepEqual(deviceRead(at.cookies.get('forjr_state.shop') ?? ''), {
     'otherScreen.closed': true,
     'deskScreen.seen': true,
   })
@@ -163,7 +163,7 @@ test('[31-8] a state kept in the browser is put in when the page comes alive, is
   // The first HTML does not know it: the page starts with the default.
   assert.equal(page.state.draft, undefined)
   page.set({ draft: 'Dear all', cart: ['a', 'b'] })
-  assert.deepEqual([...at.kept.keys()], ['tent_state.shop.u1'])
+  assert.deepEqual([...at.kept.keys()], ['forjr_state.shop.u1'])
   // The same user at this browser is shown it again, a state of the project and one of the screen.
   const again = alive(at, {}, ann)
   assert.deepEqual([again.state.draft, again.state.cart], ['Dear all', ['a', 'b']])
@@ -172,13 +172,13 @@ test('[31-8] a state kept in the browser is put in when the page comes alive, is
   const visitor = alive(at)
   assert.equal(visitor.state.draft, undefined)
   visitor.set({ draft: 'A visitor' })
-  assert.deepEqual([...at.kept.keys()].sort(), ['tent_state.shop.', 'tent_state.shop.u1'])
+  assert.deepEqual([...at.kept.keys()].sort(), ['forjr_state.shop.', 'forjr_state.shop.u1'])
   assert.equal(alive(at, {}, ann).state.draft, 'Dear all')
   // A kept value that no longer fits its type is taken as the default, and what is no record at all as nothing.
-  at.kept.set('tent_state.shop.u1', JSON.stringify({ 'deskScreen.draft': 7, cart: ['c'] }))
+  at.kept.set('forjr_state.shop.u1', JSON.stringify({ 'deskScreen.draft': 7, cart: ['c'] }))
   const misfit = alive(at, {}, ann)
   assert.deepEqual([misfit.state.draft, misfit.state.cart], [undefined, ['c']])
-  at.kept.set('tent_state.shop.u1', 'no json')
+  at.kept.set('forjr_state.shop.u1', 'no json')
   assert.equal(alive(at, {}, ann).state.cart, undefined)
 })
 
@@ -189,4 +189,12 @@ test('[31-8] a page with no browser behind it keeps its state in the page alone'
   })
   page.set({ tab: 'paid', mode: 'dark', draft: 'x' }, { press: true })
   assert.deepEqual([page.state.tab, page.state.mode, page.state.draft], ['paid', 'dark', 'x'])
+})
+
+test('[58-4] the page keeps its state under a key of storage and a cookie named forjr, and under no other name', () => {
+  const at = browser()
+  const page = alive(at, {}, { id: 'u1', roles: [] })
+  page.set({ mode: 'dark', draft: 'Dear all' })
+  const names = [...at.cookies.keys(), ...at.kept.keys()]
+  assert.deepEqual(names, ['forjr_state.shop', 'forjr_state.shop.u1'])
 })

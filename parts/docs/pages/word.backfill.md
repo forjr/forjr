@@ -27,11 +27,11 @@ export const splitNames = backfill('splitNames', {
 
 ## Returns
 
-The definition, which records its options. At the switch to its version, on the writer, the engine carries it out once over every row of its table, by the one walk of a switch, a page at a time: each page is one write as the system, which moves the note of the backfill in that file, `walk.<name>` of `_t_meta`, on to the last row it walked, so a stop goes on from where it stood. Over a table of the shared file it runs before the version answers. Over a tenant table it runs in the pass that brings each file of a tenant up, so no file is read by the version before it ran there, and a file that the version makes is marked done at once: its rows were written by the version. A column that it fills is required in a file once it ran in that file. It is marked done in each file in the write of its last page, so it never runs twice on a row and never again in a file. A reader runs none of it: it is handed the rows as changes. It is a change: the rules of a write, the triggers and the kept counts hold for it as for any change.
+The definition, which records its options. At the switch to its version, on the writer, the engine carries it out once over every row of its table, by the one walk of a switch, a page at a time: each page is one write as the system, which moves the note of the backfill in that file, `walk.<name>` of `_f_meta`, on to the last row it walked, so a stop goes on from where it stood. Over a table of the shared file it runs before the version answers. Over a tenant table it runs in the pass that brings each file of a tenant up, so no file is read by the version before it ran there, and a file that the version makes is marked done at once: its rows were written by the version. A column that it fills is required in a file once it ran in that file. It is marked done in each file in the write of its last page, so it never runs twice on a row and never again in a file. A reader runs none of it: it is handed the rows as changes. It is a change: the rules of a write, the triggers and the kept counts hold for it as for any change.
 
 ## Errors
 
-`code.T2001`: a column that it fills, and that its version makes required, still holds nothing in a row once it ran.
+`code.F2001`: a column that it fills, and that its version makes required, still holds nothing in a row once it ran.
 
 ## See also
 

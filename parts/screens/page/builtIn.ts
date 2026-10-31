@@ -49,13 +49,13 @@ function Status(o: { kind: 'notFound' | 'error'; status: number; error: unknown 
       'div',
       null,
       createElement('h1', { style: styles.status }, String(o.status)),
-      createElement('h2', { style: styles.words }, said(`tent.${o.kind}.title`)),
+      createElement('h2', { style: styles.words }, said(`forjr.${o.kind}.title`)),
       told ? createElement('span', { style: styles.code }, String(told.code)) : null,
       // A refusal tells its code alone, the same for every address that is not found.
       told && o.kind === 'error'
         ? createElement('pre', { style: styles.told }, `${place}${String(told.message)}`)
         : null,
-      createElement('a', { style: styles.link, href }, said(again ? 'tent.page.again' : 'tent.page.start')),
+      createElement('a', { style: styles.link, href }, said(again ? 'forjr.page.again' : 'forjr.page.start')),
     ),
   )
 }
@@ -66,16 +66,16 @@ function Status(o: { kind: 'notFound' | 'error'; status: number; error: unknown 
  * pages, which each element carries in its own style, so the project's CSS changes nothing of it.
  */
 export const builtIn: Record<string, ViewRecord> = {
-  'tent.notFound': {
-    name: 'tent.notFound',
+  'forjr.notFound': {
+    name: 'forjr.notFound',
     kind: 'screen',
-    title: { message: 'tent.notFound.title' },
+    title: { message: 'forjr.notFound.title' },
     view: ({ error }) => createElement(Status, { kind: 'notFound', status: 404, error }),
   },
-  'tent.error': {
-    name: 'tent.error',
+  'forjr.error': {
+    name: 'forjr.error',
     kind: 'screen',
-    title: { message: 'tent.error.title' },
+    title: { message: 'forjr.error.title' },
     view: ({ error }) => createElement(ErrorStatus, { error }),
   },
 }

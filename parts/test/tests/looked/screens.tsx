@@ -1,4 +1,4 @@
-import { screen, read, boolean, component, text, Link, Form } from 'tentjs/ui'
+import { screen, read, boolean, component, text, Link, Form } from 'forjr/ui'
 import { allDeals, never } from './functions'
 
 // A view that counts the days to the end of each deal by the time of the page.

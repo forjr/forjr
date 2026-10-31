@@ -75,7 +75,7 @@ export function useMicrophone(): Microphone {
       const sound = await now.stop()
       setState('idle')
       if (!sound) return undefined
-      const answer = await uploaded(named(store.page, '/_t/files?name=recording'), sound, () => undefined)
+      const answer = await uploaded(named(store.page, '/_f/files?name=recording'), sound, () => undefined)
       return 'id' in answer ? answer.id : undefined
     },
     cancel() {

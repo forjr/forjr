@@ -12,7 +12,7 @@ import { copied, typed } from './typed.ts'
 
 const role = choice(['writer', 'reader'])
 
-// What `tent machines --json` and `tent take-over --json` print, as their value.
+// What `forjr machines --json` and `forjr take-over --json` print, as their value.
 const shapes = {
   machines: object({
     epoch: text(),
@@ -38,14 +38,14 @@ const wire = (value: Type) => object({ ok: boolean(), value, findings: list(json
 
 /** Holds what a command printed with `--json` to its stored shape, and answers its value. */
 function shaped(name: keyof typeof shapes, output: Typed): Record<string, unknown> {
-  assert.equal(output.ended, 0, `tent ${name} ends with 0: ${output.printed}`)
-  assert.deepEqual(checkValue(wire(shapes[name]), output.answer), [], `the shape of tent ${name} --json`)
+  assert.equal(output.ended, 0, `forjr ${name} ends with 0: ${output.printed}`)
+  assert.deepEqual(checkValue(wire(shapes[name]), output.answer), [], `the shape of forjr ${name} --json`)
   return Object(output.answer.value)
 }
 
 const key = 'k'.repeat(48)
 
-test('[15-6@4] `tent machines` and `tent take-over` print their stored shapes, on the writer and on a reader, and start no engine', async (t) => {
+test('[15-6@4] `forjr machines` and `forjr take-over` print their stored shapes, on the writer and on a reader, and start no engine', async (t) => {
   // The engines are closed before the folder of the test is removed: what ends a test is done in the order it was said.
   const [one, two] = [createEngine({ port: 0 }), createEngine({ port: 0 })]
   t.after(async () => {
@@ -58,7 +58,7 @@ test('[15-6@4] `tent machines` and `tent take-over` print their stored shapes, o
   // With no engine on the data folder, each of the two says so, and starts none.
   for (const command of ['machines', 'take-over']) {
     const none = await typed(project, command, '--data', writerData, '--json')
-    assert.deepEqual([none.ended, none.answer.findings?.[0].code], [1, 'T0013'], command)
+    assert.deepEqual([none.ended, none.answer.findings?.[0].code], [1, 'F0013'], command)
   }
   const writer = await one.open(built.bundleFolder, {
     dataFolder: writerData,
@@ -68,7 +68,7 @@ test('[15-6@4] `tent machines` and `tent take-over` print their stored shapes, o
   })
   const { port } = JSON.parse(readFileSync(join(writerData, 'engine.json'), 'utf8'))
   const from = `http://127.0.0.1:${port}`
-  // The reader is started as `tent start --reads` starts one: by the address of its writer and the file of its key.
+  // The reader is started as `forjr start --reads` starts one: by the address of its writer and the file of its key.
   const keyFile = join(project, '..', 'reader.key')
   writeFileSync(keyFile, `${key}\n`)
   const reader = await two.read({
@@ -97,15 +97,15 @@ test('[15-6@4] `tent machines` and `tent take-over` print their stored shapes, o
   assert.equal(text.ended, 0)
   assert.match(text.printed, /writer/)
 
-  // `tent take-over` without `--yes` says what the machine knows, and changes nothing.
+  // `forjr take-over` without `--yes` says what the machine knows, and changes nothing.
   const looked = shaped('take-over', await typed(project, 'take-over', '--data', readerData, '--json'))
   assert.deepEqual([looked.role, looked.took, looked.current, looked.far], ['reader', false, true, false])
   assert.equal(reader.role, 'reader')
   // On a reader that is current it is refused: its writer runs. And on the writer it is refused too.
   const early = await typed(project, 'take-over', '--data', readerData, '--yes', '--json')
-  assert.deepEqual([early.ended, early.answer.findings?.[0].code], [1, 'T0032'])
+  assert.deepEqual([early.ended, early.answer.findings?.[0].code], [1, 'F0032'])
   const onWriter = await typed(project, 'take-over', '--data', writerData, '--yes', '--json')
-  assert.deepEqual([onWriter.ended, onWriter.answer.findings?.[0].code], [1, 'T0030'])
+  assert.deepEqual([onWriter.ended, onWriter.answer.findings?.[0].code], [1, 'F0030'])
   // With the writer stopped, and the reader current no more, it takes over, and answers the epoch and its number.
   await one.close()
   for (let i = 0; i < 1500 && reader.at().current; i++) await new Promise((done) => setTimeout(done, 10))

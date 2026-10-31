@@ -180,7 +180,7 @@ test('[24-1a] a body in parts holds a part of text, a part for each entry of a l
   assert.match(one.body, /filename="a %22b%22%0Ac\.txt"/)
 })
 
-test('[24-1a] a file of a body in parts that the caller may not download is T2104, and nothing is sent', async (t) => {
+test('[24-1a] a file of a body in parts that the caller may not download is F2104, and nothing is sent', async (t) => {
   const server = await standIn(t, ok)
   const shop = service('shop', {
     url: server.origin,
@@ -191,7 +191,7 @@ test('[24-1a] a file of a body in parts that the caller may not download is T210
   })
   assert.equal(
     await codeOf(call('shop', 'send', { doc: 'f1' }, { caller: { kind: 'user', user: { id: 'deniz', roles: [] } } })),
-    'T2104',
+    'F2104',
   )
   assert.equal(server.asked.length, 0)
 })
@@ -223,7 +223,7 @@ test('[24-1a] the headers of the service, the lines a request carries by itself,
   const [tagged, xml, raw, look] = server.asked
   assert.equal(tagged.headers['stripe-version'], '2026-06-30')
   assert.equal(tagged.headers['x-key'], 'header-key-value')
-  assert.equal(tagged.headers['user-agent'], 'tentjs/1.0')
+  assert.equal(tagged.headers['user-agent'], 'forjr/1.0')
   assert.equal(tagged.headers.accept, 'application/json')
   assert.equal(tagged.headers['x-tenant'], 't1')
   assert.equal(tagged.headers['x-on'], 'a,b')
@@ -269,18 +269,18 @@ test('[24-1a] each form of auth is on the request: bearer, header, basic and que
   assert.equal(query.path, '/s?key=literal-key')
 })
 
-test('[24-1a] a secret that a sign-in needs and that has no value is T0019, and nothing is sent', async (t) => {
+test('[24-1a] a secret that a sign-in needs and that has no value is F0019, and nothing is sent', async (t) => {
   const server = await standIn(t, ok)
   const shop = service('shop', {
     url: server.origin,
     auth: { bearer: secret('NONE') },
     calls: { one: get('/s', { input: {} }) },
   })
-  assert.equal(await codeOf(calling([shop]).call('shop', 'one', {})), 'T0019')
+  assert.equal(await codeOf(calling([shop]).call('shop', 'one', {})), 'F0019')
   assert.equal(server.asked.length, 0)
 })
 
-test('[24-1a] a signer is handed the finished request after the once-only key, once for each try, and its answer is sent; one that throws is T0009 and is not tried again', async (t) => {
+test('[24-1a] a signer is handed the finished request after the once-only key, once for each try, and its answer is sent; one that throws is F0009 and is not tried again', async (t) => {
   let n = 0
   const server = await standIn(t, (_, response) => {
     n++
@@ -312,7 +312,7 @@ test('[24-1a] a signer is handed the finished request after the once-only key, o
     ],
   )
   const before = server.asked.length
-  assert.equal(await codeOf(call('shop', 'fails', {})), 'T0009')
+  assert.equal(await codeOf(call('shop', 'fails', {})), 'F0009')
   assert.equal(server.asked.length, before)
   assert.equal(seen.length, 3)
 })
@@ -343,12 +343,12 @@ test('[24-1a] a redirect to another host carries no header of the sign-in, whate
   assert.equal(other.asked.length, 2)
 })
 
-test('[24-1a] the input is held to the types of the call before anything is sent: a field that does not fit and one that is not declared are T0002', async (t) => {
+test('[24-1a] the input is held to the types of the call before anything is sent: a field that does not fit and one that is not declared are F0002', async (t) => {
   const server = await standIn(t, ok)
   const shop = service('shop', { url: server.origin, calls: { one: get('/s', { input: { n: number() } }) } })
   const { call } = calling([shop])
-  assert.equal(await codeOf(call('shop', 'one', { n: 'two' })), 'T0002')
-  assert.equal(await codeOf(call('shop', 'one', { n: 2, more: 1 })), 'T0002')
+  assert.equal(await codeOf(call('shop', 'one', { n: 'two' })), 'F0002')
+  assert.equal(await codeOf(call('shop', 'one', { n: 2, more: 1 })), 'F0002')
   assert.equal(server.asked.length, 0)
 })
 

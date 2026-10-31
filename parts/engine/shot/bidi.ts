@@ -6,7 +6,7 @@ type Params = Record<string, unknown>
 export interface Bidi {
   /**
    * Sends a command of the session, and answers what the browser answered. Throws what the browser refused it with,
-   * and T0016 where no answer came within `within` milliseconds, three minutes where it names none.
+   * and F0016 where no answer came within `within` milliseconds, three minutes where it names none.
    */
   send(method: string, params?: Params, within?: number): Promise<Params>
   // Names what is told each event of that name.
@@ -16,7 +16,7 @@ export interface Bidi {
 
 /**
  * Takes the address of the connection of WebDriver BiDi (https://w3c.github.io/webdriver-bidi/). Opens it, and
- * answers what drives it. Throws T0016 where the connection cannot be opened, or is not open within ten seconds.
+ * answers what drives it. Throws F0016 where the connection cannot be opened, or is not open within ten seconds.
  */
 export async function bidiAt(address: string): Promise<Bidi> {
   const socket = new WebSocket(address)

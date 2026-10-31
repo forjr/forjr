@@ -1,4 +1,4 @@
-import { action, object, text } from 'tentjs'
+import { action, object, text } from 'forjr'
 import { noted } from './helpers/seen.ts'
 
 export const summarize = action('summarize', {

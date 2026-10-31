@@ -26,7 +26,7 @@ async function settled(app: App, as: Caller, workspace: string): Promise<{ id: s
   assert.fail('the turn never ended')
 }
 
-test('[40-19] the handle workspaces from an action of the product: create, turn with wait false, turns, undo, values, mail and publish work for the owner, and each is T3101 for another user', async (t) => {
+test('[40-19] the handle workspaces from an action of the product: create, turn with wait false, turns, undo, values, mail and publish work for the owner, and each is F3101 for another user', async (t) => {
   const at = await product(t, folderOf(t), 'builder')
   const live = (id: string) => ({
     dataFolder: join(at.folder, 'live', id),
@@ -70,10 +70,10 @@ test('[40-19] the handle workspaces from an action of the product: create, turn 
     ['mailOf', { workspace: project.workspace }],
     ['publishIt', { workspace: project.workspace }],
   ] as const)
-    assert.equal((await refusal(made.app.call(name, input, { as: bob })))?.code, 'T3101', name)
+    assert.equal((await refusal(made.app.call(name, input, { as: bob })))?.code, 'F3101', name)
 })
 
-test('[40-19] may lets another user in, and in an app that no program gave workspaces the handle is T0013', async (t) => {
+test('[40-19] may lets another user in, and in an app that no program gave workspaces the handle is F0013', async (t) => {
   const at = await product(t, folderOf(t), 'builder')
   const holder = await userOf(at.app, 'ada@example.com')
   const helper = await userOf(at.app, 'bob@example.com')
@@ -93,7 +93,7 @@ test('[40-19] may lets another user in, and in an app that no program gave works
   // The same product, opened in an engine that no program gave workspaces.
   const bare = await product(t, folderOf(t), 'builder')
   const somebody = await userOf(bare.app, 'cy@example.com')
-  assert.equal((await refusal(bare.app.call('newProject', { from: 'notes' }, { as: somebody })))?.code, 'T0013')
+  assert.equal((await refusal(bare.app.call('newProject', { from: 'notes' }, { as: somebody })))?.code, 'F0013')
 })
 
 test('[40-19] a workspace published into the product own engine answers at its address, also after the program was started again', async (t) => {

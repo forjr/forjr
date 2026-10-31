@@ -1,4 +1,4 @@
-import { choice, link, table, text } from 'tentjs'
+import { choice, link, table, text } from 'forjr'
 
 // An app is an MCP server that Claude Code starts by its command or reaches at its address.
 export const apps = table('apps', {

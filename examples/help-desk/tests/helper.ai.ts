@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { evals, testApp } from 'tentjs/test'
+import { evals, testApp } from 'forjr/test'
 import { fakeAll, GUIDE, HOOK_SECRET, mailCall, userOf } from '../fakes/fakes'
 
 // What the helper does with its tools, with every model faked: these hold the wiring, and a real model runs

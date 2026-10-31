@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { ran } from './ran.ts'
 
 /** Runs a line of PowerShell, and answers what it printed, or nothing where it failed. */
@@ -20,7 +20,7 @@ export const pathOfUser = (): string | undefined =>
 export function setPathOfUser(value: string): void {
   const quoted = `'${value.replaceAll("'", "''")}'`
   if (powershell(`[Environment]::SetEnvironmentVariable('Path', ${quoted}, 'User')`) === undefined)
-    throw new TentError('T0013', 'The path of the current user could not be written.', {
+    throw new ForjrError('F0013', 'The path of the current user could not be written.', {
       fix: 'Change your path by hand, in the settings of Windows.',
     })
 }

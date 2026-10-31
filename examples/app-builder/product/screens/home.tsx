@@ -1,5 +1,5 @@
 import { AppWindow, ChevronRight, Plus } from 'lucide-react'
-import { Form, Link, read, screen } from 'tentjs/ui'
+import { Form, Link, read, screen } from 'forjr/ui'
 import { AppFrame, Waiting } from '../components/frame'
 import { Mark } from '../components/icons'
 import { myProjects, newProject } from '../functions/projects'

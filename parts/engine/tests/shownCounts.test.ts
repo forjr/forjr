@@ -66,15 +66,15 @@ test("[26-9] with read: 'owner' a user is answered the rows of their own use and
   assert.deepEqual(await useOf(app, { kind: 'nobody' }), {})
 })
 
-test('[26-9] a write to it, search and history on it are T2016 while running, and no name reads the counts but the table', async (t) => {
+test('[26-9] a write to it, search and history on it are F2016 while running, and no name reads the counts but the table', async (t) => {
   const { app } = await shown(t)
   const ada = await person(app, 'Ada')
   await app.call('ask', { words: 'Hi.' }, { as: ada })
-  assert.equal(await codeOf(Promise.resolve().then(() => app.call('written', { unit: 'calls' }, { as: ada }))), 'T2016')
-  assert.equal(await codeOf(Promise.resolve().then(() => app.call('searched', {}, { as: ada }))), 'T2016')
-  assert.equal(await codeOf(app.read({ from: 'usage', history: true, id: 'x' }, { as: system })), 'T2016')
+  assert.equal(await codeOf(Promise.resolve().then(() => app.call('written', { unit: 'calls' }, { as: ada }))), 'F2016')
+  assert.equal(await codeOf(Promise.resolve().then(() => app.call('searched', {}, { as: ada }))), 'F2016')
+  assert.equal(await codeOf(app.read({ from: 'usage', history: true, id: 'x' }, { as: system })), 'F2016')
   // The engine's own table is read by the system alone, as a program reads it.
-  assert.equal(await codeOf(app.read({ from: '_t_counts' }, { as: ada })), 'T0013')
+  assert.equal(await codeOf(app.read({ from: '_f_counts' }, { as: ada })), 'F0013')
 })
 
 test('[26-9] a live query over it is sent the new sum after a model call, on a reader too', async (t) => {

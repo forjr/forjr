@@ -7,7 +7,7 @@ import { builtinModules } from 'node:module'
 export function packageOf(named: string): string | undefined {
   if (named.startsWith('.') || named.startsWith('/') || /^[a-zA-Z]:/.test(named) || named.includes('\0'))
     return undefined
-  if (named.startsWith('node:') || named === 'tentjs' || named.startsWith('tentjs/')) return undefined
+  if (named.startsWith('node:') || named === 'forjr' || named.startsWith('forjr/')) return undefined
   if (builtinModules.includes(named)) return undefined
   const parts = named.split('/')
   const name = named.startsWith('@') ? parts.slice(0, 2).join('/') : parts[0]

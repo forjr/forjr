@@ -1,4 +1,4 @@
-import { boolean, date, list, number, query, text } from 'tentjs'
+import { boolean, date, list, number, query, text } from 'forjr'
 
 const NONE = ['none']
 const limit: number = 'twenty'

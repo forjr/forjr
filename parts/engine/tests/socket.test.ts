@@ -35,7 +35,7 @@ test('[29-2] the link over the network is a WebSocket of the borrowed part: a te
   const bundle = await bundled(t, {}, work)
   const dataFolder = join(work, 'writer')
   const app = await engineOf(t).open(bundle.folder, { dataFolder, mode: 'test', readers: [key], insecure: true })
-  const address = `http://127.0.0.1:${portOf(dataFolder)}/_t/copy`
+  const address = `http://127.0.0.1:${portOf(dataFolder)}/_f/copy`
   // A write whose record is larger than one frame of 64 kB holds, so that its bytes cross in more than one piece.
   const long = 'x'.repeat(300_000)
   await app.write([{ add: 'tags', values: { name: 'first' } }], { as: system })
@@ -60,7 +60,7 @@ test('[29-2] the link over the network is a WebSocket of the borrowed part: a te
   const refused = heard(dial(address, { authorization: `Bearer ${'x'.repeat(40)}` }))
   await until('a link with no key of a reader was closed', () => refused.closed())
   assert.deepEqual(refused.texts, [])
-  const nobody = heard(dial('http://127.0.0.1:9/_t/copy', { authorization: `Bearer ${key}` }))
+  const nobody = heard(dial('http://127.0.0.1:9/_f/copy', { authorization: `Bearer ${key}` }))
   await until('a link to nobody was closed', () => nobody.closed())
 
   // A link that its opener closes is told closed at once, and the writer hears that the reader left.

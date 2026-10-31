@@ -9,7 +9,7 @@ test('[45-1] the removal of a person says that the archive still holds them, as 
   for (const archive of [true, false]) {
     const folder = copyOf(t, 'undone')
     if (!archive) {
-      const file = join(folder, 'tent.ts')
+      const file = join(folder, 'forjr.ts')
       writeFileSync(
         file,
         readFileSync(file, 'utf8').replace('backups: { every: false },', 'backups: { every: false, archive: false },'),

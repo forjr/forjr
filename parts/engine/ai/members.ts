@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { MemberName } from '../../core/internal.ts'
 import { memberNames, memberTypes, projectZone } from '../../core/internal.ts'
 import type { RunView } from '../../flows/index.ts'
@@ -55,14 +55,14 @@ function ranMember(o: Opened, name: string, member: MemberName): MemberOf | unde
 /** Whether a name is a member that is a live query: `working` of an agent, and of a run that is followed. */
 export const isLiveMember = (o: Opened, name: string): boolean => memberOf(o, name)?.member === 'working'
 
-const notFound = (run: string): TentError =>
-  new TentError('T0001', `No run ${JSON.stringify(run).slice(0, 80)} is there.`, {
+const notFound = (run: string): ForjrError =>
+  new ForjrError('F0001', `No run ${JSON.stringify(run).slice(0, 80)} is there.`, {
     fix: 'Name a run of this agent that the caller started, or one under it.',
   })
 
 /**
  * The run that a member names, where it is a run of this agent or a run under one - the run at the top of its
- * calls is a run of the agent - and the caller started that top run. Throws T0001 otherwise: the caller learns
+ * calls is a run of the agent - and the caller started that top run. Throws F0001 otherwise: the caller learns
  * nothing of a run that is not theirs.
  */
 function theirs(o: Opened, agent: string, run: string, caller: Caller): RunView {
@@ -92,10 +92,10 @@ function ratedBy(o: Opened, agent: string, one: RunView, input: Record<string, u
 /**
  * Takes an app, a member, what it was handed, and the caller. Passes the agent's `access` and the input of
  * the member, and carries it out: `working` answers the entries of section 5 of the document of agents;
- * `approve` and `refuse` answer one ask that waits, of a run the caller may answer (T0001), at a step that waits
- * with an ask (T0002), by its pass and its ask, and `approve` a question with its answer as `data` (T0002 for one
+ * `approve` and `refuse` answer one ask that waits, of a run the caller may answer (F0001), at a step that waits
+ * with an ask (F0002), by its pass and its ask, and `approve` a question with its answer as `data` (F0002 for one
  * that does not fit); `stop` stops a run of the caller's own, or the unfinished run of a
- * conversation for any caller who may open it (T2103). Throws T3101 for a caller the access does not let in.
+ * conversation for any caller who may open it (F2103). Throws F3101 for a caller the access does not let in.
  */
 export function answerMember(o: Opened, member: MemberOf, given: unknown, caller: Caller): unknown {
   const name = `${member.agent}.${member.member}`
@@ -129,7 +129,7 @@ export function answerMember(o: Opened, member: MemberOf, given: unknown, caller
       return undefined
     }
     if (thread === undefined)
-      throw new TentError('T0002', `${name} is handed a run or a conversation.`, {
+      throw new ForjrError('F0002', `${name} is handed a run or a conversation.`, {
         fix: 'Hand it `{ run }` or `{ thread }`.',
       })
     // Whoever may open a conversation may steer it.
@@ -141,8 +141,8 @@ export function answerMember(o: Opened, member: MemberOf, given: unknown, caller
   const step = String(input.step)
   if (member.member === 'rate') return ratedBy(o, member.agent, one, input, caller)
   if (!asksAt(o, runner, one, step))
-    throw new TentError(
-      'T0002',
+    throw new ForjrError(
+      'F0002',
       `No ask waits at the step ${JSON.stringify(step).slice(0, 80)} of the run ${one.id}.`,
       {
         fix: 'Answer an ask that `working` lists, with its run, its step, its repeat and its n.',

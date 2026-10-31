@@ -1,4 +1,4 @@
-import { later, TentError } from '../core/index.ts'
+import { later, ForjrError } from '../core/index.ts'
 import type { CallContext } from './context.ts'
 import type { Opened } from './opened.ts'
 import { table } from './tables/attempts.ts'
@@ -35,19 +35,19 @@ const nameOf = (one: Counted): string => JSON.stringify([one.key, one.address])
  */
 function countedFor(member: string, key: unknown, how: unknown): Counted {
   if (typeof key !== 'string' || key === '')
-    throw new TentError('T0002', `\`attempts.${member}\` takes a key: a text that names what is tried.`, {
+    throw new ForjrError('F0002', `\`attempts.${member}\` takes a key: a text that names what is tried.`, {
       fields: { key: 'type' },
     })
   const from = Reflect.get(Object(how), 'address') === true ? visit()?.about.from : undefined
   return { key, address: from === undefined ? '' : countedAs(plainAddress(from)) }
 }
 
-/** Holds the handle to where a count is a write of its own. Throws T0013 in a query, a change and a rule. */
+/** Holds the handle to where a count is a write of its own. Throws F0013 in a query, a change and a rule. */
 function ownWrite(cx: CallContext, member: string): void {
   const { kind } = cx.work
   if (kind === 'action' || kind === 'seed') return
-  throw new TentError(
-    'T0013',
+  throw new ForjrError(
+    'F0013',
     `\`attempts.${member}\` was used in a ${kind}: a count is a write of its own, made at once.`,
     {
       fix: 'Count a try in an action or a route: a count inside a change would be undone with the change.',
@@ -56,9 +56,9 @@ function ownWrite(cx: CallContext, member: string): void {
 }
 
 /**
- * `attempts.limit`: counts one try for a key, and fails with T0005 when more than `tries` were counted within
+ * `attempts.limit`: counts one try for a key, and fails with F0005 when more than `tries` were counted within
  * `per`. The window starts at the first try. The count is a write of its own, made at once, so a try whose call
- * fails afterwards still counts. Throws T0013 in a query and a change, and T0002 for a count or a length that is
+ * fails afterwards still counts. Throws F0013 in a query and a change, and F0002 for a count or a length that is
  * none.
  */
 export function limitAttempts(cx: CallContext, key: unknown, how: unknown): void {
@@ -68,8 +68,8 @@ export function limitAttempts(cx: CallContext, key: unknown, how: unknown): void
   const per: unknown = Reflect.get(Object(how), 'per')
   const length = typeof per === 'string' ? later(new Date(0), per).getTime() : Number.NaN
   if (typeof tries !== 'number' || !Number.isInteger(tries) || tries < 1 || !(length > 0))
-    throw new TentError(
-      'T0002',
+    throw new ForjrError(
+      'F0002',
       '`attempts.limit` takes `tries`, a whole number of 1 or more, and `per`, a length of time.',
       { fix: "Hand it both, as `{ tries: 5, per: '10 minutes' }`.", fields: { tries: 'type', per: 'type' } },
     )
@@ -81,9 +81,13 @@ export function limitAttempts(cx: CallContext, key: unknown, how: unknown): void
   const running = row !== undefined && now < started + length
   const count = running ? Number(row.count) : 0
   if (count >= tries)
-    throw new TentError('T0005', `More than ${tries} tries were counted for ${JSON.stringify(one.key).slice(0, 80)}.`, {
-      fix: 'Try again when the window has ended.',
-    })
+    throw new ForjrError(
+      'F0005',
+      `More than ${tries} tries were counted for ${JSON.stringify(one.key).slice(0, 80)}.`,
+      {
+        fix: 'Try again when the window has ended.',
+      },
+    )
   const values = running ? { count: count + 1 } : { windowStart: new Date(now), count: 1 }
   o.store.write((tx) =>
     row ? tx.change(table.name, { ...one }, values, system) : tx.add(table.name, { ...one, ...values }, system),
@@ -91,7 +95,7 @@ export function limitAttempts(cx: CallContext, key: unknown, how: unknown): void
   endsOf(o).set(nameOf(one), (running ? started : now) + length)
 }
 
-/** `attempts.clear`: empties the count of a key, as after a sign-in that worked. Throws T0013 in a query and a change. */
+/** `attempts.clear`: empties the count of a key, as after a sign-in that worked. Throws F0013 in a query and a change. */
 export function clearAttempts(cx: CallContext, key: unknown, how: unknown): void {
   const o = cx.app
   ownWrite(cx, 'clear')

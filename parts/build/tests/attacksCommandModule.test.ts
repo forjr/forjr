@@ -9,9 +9,9 @@ const marker = 'the-marker-of-the-backend-4711'
 const kept = 'sk_live_the_secret_of_the_backend_4711'
 
 const files: Record<string, string> = {
-  'tent.ts': "import { project } from 'tentjs'\nexport const shop = project('shop', { title: 'Shop' })\n",
+  'forjr.ts': "import { project } from 'forjr'\nexport const shop = project('shop', { title: 'Shop' })\n",
   'package.json': `${JSON.stringify({ name: 'shop', private: true, type: 'module' })}\n`,
-  'functions/orders.ts': `import { query, text } from 'tentjs'
+  'functions/orders.ts': `import { query, text } from 'forjr'
 
 const key = '${kept}'
 
@@ -24,7 +24,7 @@ export const openOrders = query('openOrders', {
   run: () => ['${marker}', key.length].join(' '),
 })
 `,
-  'commands/pay.ts': `import { command } from 'tentjs/cli'
+  'commands/pay.ts': `import { command } from 'forjr/cli'
 import { openOrders } from '../functions/orders'
 
 export const pay = command('pay', {

@@ -9,12 +9,12 @@ import { errorsOf } from './projects.ts'
 // `extends` names a file that is gone, once made every build of the projects below it fail.
 const files: Record<string, string> = {
   'tsconfig.json': `${JSON.stringify({ extends: './gone/tsconfig.json' })}\n`,
-  'shop/tent.ts': "import { project } from 'tentjs'\n\nexport const shop = project('shop', { title: 'Shop' })\n",
-  'shop/screens/home.tsx': `import { screen } from 'tentjs/ui'
+  'shop/forjr.ts': "import { project } from 'forjr'\n\nexport const shop = project('shop', { title: 'Shop' })\n",
+  'shop/screens/home.tsx': `import { screen } from 'forjr/ui'
 
 export const homeScreen = screen('homeScreen', { path: '/', access: 'anyone', view: () => <h1>Home</h1> })
 `,
-  'shop/functions/count.ts': `import { action } from 'tentjs'
+  'shop/functions/count.ts': `import { action } from 'forjr'
 
 function twice(n: number): number {
   return n * 2

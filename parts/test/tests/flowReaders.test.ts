@@ -11,7 +11,7 @@ const system = { as: 'system' } as const
 
 // The flows of these tests: a flow that waits an hour, an action that stops its runs from code, and a charge that
 // keeps the card it computes in a sealed step.
-const flows = `import { anyone, action, flow, list, number, object, runs, text } from 'tentjs'
+const flows = `import { anyone, action, flow, list, number, object, runs, text } from 'forjr'
 import { addCustomer } from '../functions/functions'
 
 export const tick = flow('tick', {
@@ -77,8 +77,8 @@ test('[46-8] a sealed step result is the sealed text alone on a reader that hold
   assert.doesNotMatch(JSON.stringify(shown), /4242/, 'the reader reads the sealed text alone')
   const data = new DatabaseSync(join(folderOf(t, 'reader-2'), 'data.db'), { readOnly: true })
   try {
-    const row = data.prepare('SELECT result FROM "_t_steps" WHERE run = ? AND name = ?').get(run, 'card')
-    assert.match(String(row?.result), /tent\.sealed/)
+    const row = data.prepare('SELECT result FROM "_f_steps" WHERE run = ? AND name = ?').get(run, 'card')
+    assert.match(String(row?.result), /forjr\.sealed/)
     assert.doesNotMatch(String(row?.result), /4242/, 'the data file of the reader holds the sealed text alone')
   } finally {
     data.close()

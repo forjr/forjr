@@ -1,4 +1,4 @@
-import { component, screen, read, number, Link } from 'tentjs/ui'
+import { component, screen, read, number, Link } from 'forjr/ui'
 import { itemNamed, itemsOf } from './functions'
 
 // The component that both screens are shown inside: its links mark themselves, and it has a state of its own.

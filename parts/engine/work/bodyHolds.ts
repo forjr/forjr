@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { isStored } from '../../core/internal.ts'
 
@@ -37,7 +37,7 @@ function heldBy(body: unknown): { tables?: Set<string>; calls: Set<string> } {
 /**
  * Takes a description, the definition whose work a task carries out, and what its worker asks. Where that
  * definition's `run` was read, the worker may read only the tables its body reads and call only what it calls:
- * anything else is T0013, since the writer holds what the work asks for to what its body holds.
+ * anything else is F0013, since the writer holds what the work asks for to what its body holds.
  */
 export function heldToBody(
   description: Description,
@@ -51,13 +51,13 @@ export function heldToBody(
   if (what === 'read') {
     const from = Reflect.get(Object(message.plan), 'from')
     if (typeof from === 'string' && held.tables && !held.tables.has(from))
-      throw new TentError('T0013', `The work of ${definition} reads ${from}, which its body does not read.`, {
+      throw new ForjrError('F0013', `The work of ${definition} reads ${from}, which its body does not read.`, {
         fix: 'A worker asks for what the body of the work holds, and no other.',
       })
   }
   if (what === 'do' && !held.calls.has(String(message.name)))
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `The work of ${definition} calls ${String(message.name)}, which its body does not call.`,
       {
         fix: 'A worker asks for what the body of the work holds, and no other.',

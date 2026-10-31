@@ -15,7 +15,7 @@ interface Prop {
 }
 
 /**
- * One tag of a view: its definition, its name as written, what of `tentjs/ui` it is, its properties, and the tags
+ * One tag of a view: its definition, its name as written, what of `forjr/ui` it is, its properties, and the tags
  * around it.
  */
 export interface Tag {
@@ -80,11 +80,11 @@ export function entriesOf(written: Node | undefined): [string, Node][] | undefin
   return found
 }
 
-/** The names that a file takes from `tentjs/ui`, each by the name the file gives it. */
+/** The names that a file takes from `forjr/ui`, each by the name the file gives it. */
 function uiNames(tree: Node): Map<string, string> {
   return new Map(
     scan(tree)
-      .imports.filter((one) => one.from === 'tentjs/ui')
+      .imports.filter((one) => one.from === 'forjr/ui')
       .map((one) => [one.local, one.name] as const),
   )
 }

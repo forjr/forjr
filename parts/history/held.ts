@@ -91,7 +91,7 @@ export function heldFiles(
     }
     for (const entry of entries.sort((a, b) => (a.name < b.name ? -1 : 1))) {
       const path = at ? `${at}/${entry.name}` : entry.name
-      if (prefix === '' && (isEngineName(path) || path === 'tent.clash.ts')) continue
+      if (prefix === '' && (isEngineName(path) || path === 'forjr.clash.ts')) continue
       // The history and a git repository of the same folder know nothing of each other, whatever `leave` names.
       if (isGitName(entry.name)) continue
       if (entry.isDirectory()) {

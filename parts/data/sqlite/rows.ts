@@ -1,5 +1,5 @@
 import type { SQLInputValue } from 'node:sqlite'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isId } from '../ids.ts'
 import type { ColumnType, Row, RowKey } from '../store.ts'
 import { vectorBytes, vectorOf } from '../vector.ts'
@@ -12,11 +12,11 @@ import { rowOf } from './shape.ts'
 import { msOf, toStored } from './values.ts'
 import { allRows } from './wide.ts'
 
-const misfit = (table: string, column: string, why: string): TentError =>
-  new TentError('T2107', `\`${column}\` of \`${table}\` ${why}.`, { fields: { [column]: 'type' } })
+const misfit = (table: string, column: string, why: string): ForjrError =>
+  new ForjrError('F2107', `\`${column}\` of \`${table}\` ${why}.`, { fields: { [column]: 'type' } })
 
-const notFound = (table: string, key: RowKey): TentError =>
-  new TentError('T2103', `No row of \`${table}\` is found under ${JSON.stringify(key)}.`)
+const notFound = (table: string, key: RowKey): ForjrError =>
+  new ForjrError('F2103', `No row of \`${table}\` is found under ${JSON.stringify(key)}.`)
 
 /** Takes a value as code holds it. Answers it as SQLite keeps it, a link as the inside number of the row it names. */
 function kept(held: Held, shape: Shape, name: string, type: ColumnType, value: unknown): SQLInputValue {
@@ -24,8 +24,8 @@ function kept(held: Held, shape: Shape, name: string, type: ColumnType, value: u
   if (typeof value !== 'string') throw misfit(shape.layout.name, name, 'takes the id of a row')
   const found = held.statement(`SELECT "_n" FROM ${q(type.table)} WHERE "id" = ?`).get(value)
   if (!found)
-    throw new TentError(
-      'T2104',
+    throw new ForjrError(
+      'F2104',
       `\`${name}\` of \`${shape.layout.name}\` names a row of \`${type.table}\` that does not exist.`,
     )
   return Number(found._n)
@@ -62,8 +62,8 @@ function read(held: Held, shape: Shape, where: string, values: SQLInputValue[]):
  * Takes what an open store holds, `touched`, which is told each row that is written, `vectored`, which is told
  * each vector that is set or removed, and `added`, which is told the inside number of each new row of a table that
  * has a vector column. Answers the three writes
- * of a row. Each throws T2107 for a value that does not fit its column, T2104 for a link whose row is missing,
- * T2101 where a `unique` rule breaks, and `change` and `remove` T2103 for a row that is not there.
+ * of a row. Each throws F2107 for a value that does not fit its column, F2104 for a link whose row is missing,
+ * F2101 where a `unique` rule breaks, and `change` and `remove` F2103 for a row that is not there.
  */
 export function rowWrites(
   held: Held,

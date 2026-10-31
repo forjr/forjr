@@ -1,4 +1,4 @@
-import { TentError } from '../errors.ts'
+import { ForjrError } from '../errors.ts'
 import type { Tick } from '../word.ts'
 import { cannot, drawn, holdsReference, listOf, sized } from '../word.ts'
 
@@ -26,7 +26,7 @@ async function oneAfterAnother(
 export function eachWith(tick: Tick, ...values: unknown[]): unknown {
   const [list, arrow] = values
   if (holdsReference([list])) {
-    throw new TentError('T1014', '`each` was handed a reference in the place of its list: it takes an arrow.', {
+    throw new ForjrError('F1014', '`each` was handed a reference in the place of its list: it takes an arrow.', {
       fix: 'Use each in a body or in a view, which can hold an arrow. A form written with values cannot.',
     })
   }
@@ -42,7 +42,7 @@ export function eachWith(tick: Tick, ...values: unknown[]): unknown {
       if (drawn('mayWait', [])?.value === true) return oneAfterAnother(tick, entries, call, made, one, i)
       // The promise is left alone from here on, so its own failure must not end the program.
       Promise.resolve(one).catch(() => undefined)
-      throw new TentError('T0013', 'An arrow handed to `each` answered a promise where waiting is not allowed.', {
+      throw new ForjrError('F0013', 'An arrow handed to `each` answered a promise where waiting is not allowed.', {
         fix: 'Write the arrow so that it answers a value, or use each in an action or inside a step.',
       })
     }
@@ -54,8 +54,8 @@ export function eachWith(tick: Tick, ...values: unknown[]): unknown {
 /**
  * Takes a list and an arrow, which is handed each entry and its place. Answers a new list of what the arrow gave,
  * in order. Where waiting is allowed and the arrow answers a promise, the entries are taken one after another and
- * it answers a promise of the list. Throws T0013 for an arrow that answers a promise where waiting is not allowed,
- * before it takes a second entry; T1014 where it is handed a reference in the place of its list; and T0027 for a
+ * it answers a promise of the list. Throws F0013 for an arrow that answers a promise where waiting is not allowed,
+ * before it takes a second entry; F1014 where it is handed a reference in the place of its list; and F0027 for a
  * value that is no list.
  */
 export function each<Entry, Made>(

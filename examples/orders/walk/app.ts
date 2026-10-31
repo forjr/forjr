@@ -10,7 +10,7 @@ const run = promisify(execFile)
 
 export const APP_FOLDER = fileURLToPath(new URL('../', import.meta.url))
 
-// In this repository the command `tent` is this file, run by the pinned runtime.
+// In this repository the command `forjr` is this file, run by the pinned runtime.
 const SHELL = fileURLToPath(new URL('../../../parts/cli/shell.ts', import.meta.url))
 
 export type RunningApp = {
@@ -26,13 +26,13 @@ function isAnswer(value: unknown): value is Answer {
   return typeof value === 'object' && value !== null && 'ok' in value && 'value' in value
 }
 
-/** Carries out `tent <words> --json` in the folder of a project, and answers its value. */
-export async function tent(folder: string, words: string[]): Promise<unknown> {
+/** Carries out `forjr <words> --json` in the folder of a project, and answers its value. */
+export async function forjr(folder: string, words: string[]): Promise<unknown> {
   const said = await run(process.execPath, [SHELL, ...words, '--json'], { cwd: folder }).catch(
     (error: { stdout?: string; message: string }) => ({ stdout: error.stdout || error.message }),
   )
   const answer: unknown = said.stdout.trim().startsWith('{') ? JSON.parse(said.stdout) : undefined
-  if (!isAnswer(answer) || !answer.ok) throw new Error(`tent ${words.join(' ')} failed: ${said.stdout}`)
+  if (!isAnswer(answer) || !answer.ok) throw new Error(`forjr ${words.join(' ')} failed: ${said.stdout}`)
   return answer.value
 }
 
@@ -47,7 +47,7 @@ export function textOf(value: unknown, name: string): string {
 
 /** A new empty folder outside the repository, and what takes it away again. */
 export async function tempFolder(): Promise<{ path: string; remove: () => Promise<void> }> {
-  const path = await mkdtemp(join(tmpdir(), 'tent-orders-'))
+  const path = await mkdtemp(join(tmpdir(), 'forjr-orders-'))
   return { path, remove: () => rm(path, { recursive: true, force: true, maxRetries: 20, retryDelay: 250 }) }
 }
 
@@ -67,10 +67,10 @@ export async function ensurePackages(): Promise<void> {
 
 /** Builds the project of a folder into `out`, and answers the folder of its bundle. */
 export async function buildApp(folder: string, out: string): Promise<string> {
-  return textOf(await tent(folder, ['build', '--out', out]), 'bundle')
+  return textOf(await forjr(folder, ['build', '--out', out]), 'bundle')
 }
 
-/** Starts a bundle with `tent start --mode test --seed` on a data folder, on a free port. */
+/** Starts a bundle with `forjr start --mode test --seed` on a data folder, on a free port. */
 /**
  * Whether this program runs with the rights of an administrator of Windows, as a machine of the automatic runs does:
  * Windows names the level of its rights among its groups, `S-1-16-12288` or above.
@@ -85,7 +85,7 @@ export async function startApp(folder: string, bundle: string, dataFolder: strin
   await mkdir(dataFolder, { recursive: true })
   const child = spawn(
     process.execPath,
-    // `tent start` runs as an administrator only where it is told it is meant.
+    // `forjr start` runs as an administrator only where it is told it is meant.
     [
       SHELL,
       'start',
@@ -111,7 +111,7 @@ export async function startApp(folder: string, bundle: string, dataFolder: strin
 
 /** A copy of the project in `folder`, with its packages linked in, so a walk may save its files. */
 export async function copyApp(folder: string): Promise<string> {
-  const left = [join(APP_FOLDER, 'node_modules'), join(APP_FOLDER, '.tent'), join(APP_FOLDER, 'walk')]
+  const left = [join(APP_FOLDER, 'node_modules'), join(APP_FOLDER, '.forjr'), join(APP_FOLDER, 'walk')]
   await cp(APP_FOLDER, folder, { recursive: true, filter: (from) => !left.some((one) => from.startsWith(one)) })
   await symlink(join(APP_FOLDER, 'node_modules'), join(folder, 'node_modules'), 'junction')
   return folder
@@ -122,7 +122,7 @@ export async function unlinkApp(folder: string): Promise<void> {
   await unlink(join(folder, 'node_modules')).catch(() => undefined)
 }
 
-/** Runs `tent dev` in the folder of a project, on its own development data, on a free port. */
+/** Runs `forjr dev` in the folder of a project, on its own development data, on a free port. */
 export async function devApp(folder: string): Promise<RunningApp> {
   const child = spawn(process.execPath, [SHELL, 'dev', '--port', '0'], {
     cwd: folder,
@@ -131,14 +131,14 @@ export async function devApp(folder: string): Promise<RunningApp> {
   child.stdout?.resume()
   try {
     const address = await saidAddress(child)
-    return { folder, address, dataFolder: join(folder, '.tent'), stop: () => ended(child) }
+    return { folder, address, dataFolder: join(folder, '.forjr'), stop: () => ended(child) }
   } catch (error) {
     await ended(child)
     throw error
   }
 }
 
-// `tent start` and `tent dev` say on the standard error where the app runs, and on the standard output what stopped them.
+// `forjr start` and `forjr dev` say on the standard error where the app runs, and on the standard output what stopped them.
 function saidAddress(child: ChildProcess): Promise<string> {
   return new Promise((resolve, reject) => {
     let said = ''
@@ -158,7 +158,7 @@ function saidAddress(child: ChildProcess): Promise<string> {
     })
     child.once('exit', (code) => {
       clearTimeout(timer)
-      reject(new Error(`tent start ended with ${code}: ${said}`))
+      reject(new Error(`forjr start ended with ${code}: ${said}`))
     })
   })
 }
@@ -171,9 +171,9 @@ function ended(child: ChildProcess): Promise<void> {
   })
 }
 
-/** The rows of a table of a running app, as `tent data rows` answers them. */
+/** The rows of a table of a running app, as `forjr data rows` answers them. */
 export async function rowsOf(app: RunningApp, table: string): Promise<unknown[]> {
-  const rows = await tent(app.folder, ['data', 'rows', table, '--data', app.dataFolder])
-  if (!Array.isArray(rows)) throw new Error(`\`tent data rows ${table}\` answered no list.`)
+  const rows = await forjr(app.folder, ['data', 'rows', table, '--data', app.dataFolder])
+  if (!Array.isArray(rows)) throw new Error(`\`forjr data rows ${table}\` answered no list.`)
   return rows
 }

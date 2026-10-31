@@ -53,7 +53,7 @@ export interface ChangeSink {
   wrote(change: SinkChange): void | Promise<void>
 }
 
-const ofTheApp = (table: string): boolean => !table.startsWith('_t_')
+const ofTheApp = (table: string): boolean => !table.startsWith('_f_')
 
 /** A change as a sink that does not record is handed it: with no record, and nothing that comes with one. */
 function plainOf(change: SinkChange): SinkChange {

@@ -49,7 +49,7 @@ async function sendPlain(response: Response, answer: ServerResponse): Promise<vo
 
 /**
  * Answers a request of the plain port: the authority's question for a token the engine was given, before anything
- * of an app; for a listed name, 308 to its secure address; and T0017 for any other name.
+ * of an app; for a listed name, 308 to its secure address; and F0017 for any other name.
  */
 async function plainAnswer(request: IncomingMessage, s: SecureSide): Promise<Response> {
   const path = request.url ?? '/'

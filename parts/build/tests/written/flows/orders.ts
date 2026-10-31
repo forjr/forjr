@@ -1,4 +1,4 @@
-import { cron, event, every, flow, incoming, link, mail, object, text } from 'tentjs'
+import { cron, event, every, flow, incoming, link, mail, object, text } from 'forjr'
 import { markPaid } from '../functions/orders'
 import { orders } from '../tables/shop'
 

@@ -49,7 +49,7 @@ export function stopMark(tx: Tx, run: RunRow): Record<string, unknown> {
     .filter((step) => !step.name.startsWith('onFail.') && !step.name.startsWith('onStop.'))
     .sort((a, b) => (b.startedAt ?? 0) - (a.startedAt ?? 0))[0]
   return {
-    code: 'T5106',
+    code: 'F5106',
     name: 'stopped',
     message: `The run ${run.id} was stopped, and its \`onStop\` is its last work.`,
     stopped: {

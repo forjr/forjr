@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { StepOptions } from './face.ts'
 import { flowOf } from './flowOf.ts'
 import type { Pass } from './pass.ts'
@@ -33,7 +33,7 @@ export const taskSizeLimit = (pass: Pass): number => projectLimit(pass.of.held, 
  * system, and code that states no `uses`, since the writer could not hold such a task to what it may ask for.
  * Nothing where the kind takes it.
  */
-export function refusedBy(pass: Pass, kind: string, o: StepOptions): TentError | undefined {
+export function refusedBy(pass: Pass, kind: string, o: StepOptions): ForjrError | undefined {
   const { run, held } = pass.of
   const workers: unknown = held.env.description(run.version).project.workers
   const stated: unknown = isWritten(workers) ? workers[kind] : undefined
@@ -41,11 +41,11 @@ export function refusedBy(pass: Pass, kind: string, o: StepOptions): TentError |
   const record = flowOf(held, run.version, run.flow).record
   const asSystem = run.kind === 'action' ? typeof record.system === 'string' : run.as !== 'starter'
   if (asSystem)
-    return new TentError('T0013', `The kind ${kind} takes no work that runs as the system, and ${run.flow} does.`, {
+    return new ForjrError('F0013', `The kind ${kind} takes no work that runs as the system, and ${run.flow} does.`, {
       fix: 'Carry it out on a kind that takes such work, or let the run run as its starter.',
     })
   if (!usesOf(pass, o))
-    return new TentError('T0013', `The kind ${kind} takes no code that does not say what it uses.`, {
+    return new ForjrError('F0013', `The kind ${kind} takes no code that does not say what it uses.`, {
       fix: 'State `uses` on the step or the action: the functions and the members of handles its code asks for.',
     })
   return undefined

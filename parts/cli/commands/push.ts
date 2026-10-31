@@ -5,8 +5,8 @@ import { historyAsked } from '../historyAsked.ts'
 /**
  * Sends the points of the branch that `now` follows that the server lacks, oldest first, and moves the server's
  * branch of that name. Where someone else pushed since, the server merges what touched other paths, and refuses
- * with T9103 where both touched one: `tent pull` first. A head that holds no word of the check is checked first;
- * one that did not pass is T9101, unless `--unchecked`.
+ * with F9103 where both touched one: `forjr pull` first. A head that holds no word of the check is checked first;
+ * one that did not pass is F9101, unless `--unchecked`.
  */
 export const command: Command = {
   name: 'push',

@@ -10,7 +10,7 @@ Its columns are `id`, `createdAt` and `updatedAt`; `day`, the start of the day i
 
 With `'scores'` the table is the engine's own table of the ratings that people gave the runs of agents and the scores that a judge gave them (`option.agent.score`): `id`, `createdAt` and `updatedAt`; `run` and `agent`; `kind`, `'rating'` or `'score'`; `score`, a number; `note`, a person's words, and `why`, a judge's reason; `caller`, who gave it, the system for a score; and `user`, the person whose run it is. With `read: 'owner'` each person reads the ratings and scores of their own runs.
 
-It is read as any table is: a filter, a sort, `limit`, `after`, `get`, `count`, `group` with its sums, `with('user')`, and a live query over it is sent the new rows when the counts are written. A write of it, `search`, `near`, `history` and a trigger on it are `code.T2016`.
+It is read as any table is: a filter, a sort, `limit`, `after`, `get`, `count`, `group` with its sums, `with('user')`, and a live query over it is sent the new rows when the counts are written. A write of it, `search`, `near`, `history` and a trigger on it are `code.F2016`.
 
 ## Example
 
@@ -26,4 +26,4 @@ export const myUse = query('myUse', {
 
 ## See also
 
-`word.table`, `option.project.countBy`, `code.T2016`
+`word.table`, `option.project.countBy`, `code.F2016`

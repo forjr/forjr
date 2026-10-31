@@ -1,7 +1,7 @@
 import type { Node } from '../tree.ts'
 import { child, kid, kids, nameOf, propertyOf, unwrap, walk, word } from '../tree.ts'
 
-/** The words that make a definition, which a backend file imports from `tentjs`. */
+/** The words that make a definition, which a backend file imports from `forjr`. */
 export const definitionWords = new Set([
   'project',
   'table',
@@ -23,9 +23,9 @@ export const definitionWords = new Set([
 
 /** The three imports of an app, each with the sort of file that imports it. */
 export const sorts: Record<string, 'backend' | 'screen' | 'command'> = {
-  tentjs: 'backend',
-  'tentjs/ui': 'screen',
-  'tentjs/cli': 'command',
+  forjr: 'backend',
+  'forjr/ui': 'screen',
+  'forjr/cli': 'command',
 }
 
 /** One name that a file imports: the name it has in the file, the name it has where it comes from, and from where. */
@@ -66,13 +66,13 @@ export interface Scan {
   events: Declared[]
 }
 
-/** The word that a call calls, where its callee is a name that the file imports from `tentjs` as a word that makes a definition. */
+/** The word that a call calls, where its callee is a name that the file imports from `forjr` as a word that makes a definition. */
 function wordOf(call: Node | undefined, words: Map<string, string>): string | undefined {
   if (call?.type !== 'CallExpression') return undefined
   return words.get(nameOf(child(call, 'callee')) ?? '')
 }
 
-/** Whether a call declares an event: it calls `event` of tentjs with options that state `data`. */
+/** Whether a call declares an event: it calls `event` of forjr with options that state `data`. */
 function declaresEvent(call: Node | undefined, eventWords: Set<string>): boolean {
   if (call?.type !== 'CallExpression' || !eventWords.has(nameOf(child(call, 'callee')) ?? '')) return false
   const [, options] = kids(call, 'arguments')
@@ -113,9 +113,9 @@ export function scanOf(tree: Node): Scan {
       .filter((one) => Object.hasOwn(sorts, one.from) && definitionWords.has(one.name))
       .map((one) => [one.local, one.name] as const),
   )
-  // The local names of `event` of tentjs, by which a file declares an event.
+  // The local names of `event` of forjr, by which a file declares an event.
   const eventWords = new Set(
-    found.imports.filter((one) => one.from === 'tentjs' && one.name === 'event').map((one) => one.local),
+    found.imports.filter((one) => one.from === 'forjr' && one.name === 'event').map((one) => one.local),
   )
   for (const node of kids(tree, 'body')) {
     const declaration = kid(node, 'declaration')

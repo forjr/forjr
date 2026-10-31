@@ -1,4 +1,4 @@
-import { number, table, text, where } from 'tentjs'
+import { number, table, text, where } from 'forjr'
 
 export const orders = table('orders', {
   columns: { placedBy: text(), total: number() },

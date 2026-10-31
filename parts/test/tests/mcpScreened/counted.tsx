@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { screen, read } from 'tentjs/ui'
+import { screen, read } from 'forjr/ui'
 import { openOrders } from './functions'
 
 // A screen that is offered to MCP: its view keeps a state of React of its own, which the build packs into

@@ -1,0 +1,7 @@
+orders.status  status? open|paid
+read by
+  query openOrders  functions/orders.ts:5  anyone signed in  offered api  reads customers.*, orders.*
+written by
+  change markPaid  functions/orders.ts:17  role staff  reads ~orders  writes ~orders.status, ~orders.total  emits ~paid  code
+may reach it, by code
+  change markPaid  functions/orders.ts:17  role staff  reads ~orders  writes ~orders.status, ~orders.total  emits ~paid  code

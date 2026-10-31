@@ -1,5 +1,5 @@
 // Tables as a hand writes them: each but the last reads a value that its record holds as the value alone.
-import { choice, table, text } from 'tentjs' // the words of ours
+import { choice, table, text } from 'forjr' // the words of ours
 import { MAX, STATUSES, noteOptions } from '../shared/values'
 import * as values from '../shared/values'
 

@@ -1,4 +1,4 @@
-// Stand-in MCP servers of a mail box and a calendar, for `tent mcp approve` and for trying the app by hand.
+// Stand-in MCP servers of a mail box and a calendar, for `forjr mcp approve` and for trying the app by hand.
 // Start them with `node fakes/tools.ts`: the mail on port 7811, the calendar on 7812, each at /mcp.
 import { createServer } from 'node:http'
 

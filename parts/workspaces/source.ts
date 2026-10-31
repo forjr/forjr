@@ -1,5 +1,5 @@
 import type { Caller } from '../core/index.ts'
-import { object, TentError } from '../core/index.ts'
+import { object, ForjrError } from '../core/index.ts'
 import type { ToolSource, ToolSpec } from '../core/internal.ts'
 import { checkValue } from '../core/internal.ts'
 import type { Writer } from '../history/index.ts'
@@ -12,8 +12,8 @@ import type { Form, ToolAt } from './tools/face.ts'
 import { trustedOwner } from './opening.ts'
 
 /** The error of a tool that a policy does not offer: it is no tool, as a model is told of any it was not offered. */
-const noTool = (name: string): TentError =>
-  new TentError('T0001', `No project tool ${JSON.stringify(name).slice(0, 60)} is offered to this agent.`, {
+const noTool = (name: string): ForjrError =>
+  new ForjrError('F0001', `No project tool ${JSON.stringify(name).slice(0, 60)} is offered to this agent.`, {
     fix: 'Use a tool that the policy of the agent names in `tools`, in a mode that lets it.',
   })
 
@@ -46,8 +46,8 @@ function offered(record: object): { policy?: Policy; names: string[] } {
 /**
  * Takes what the workspaces hold, the id of a workspace, the name of a tool and its input, and where it is
  * carried out: the caller, the record of the agent whose policy holds, what writes its points, and what asks
- * the person. Carries the tool out on that workspace, under that policy. Throws T0001 for a tool the policy does
- * not offer, T0002 for an input that does not fit, and what the tool throws.
+ * the person. Carries the tool out on that workspace, under that policy. Throws F0001 for a tool the policy does
+ * not offer, F0002 for an input that does not fit, and what the tool throws.
  */
 export async function toolCalled(
   held: Held,
@@ -61,7 +61,7 @@ export async function toolCalled(
   if (!policy || !tool || !names.includes(name)) throw noTool(name)
   const missed = checkValue(object(tool.input), input ?? {})
   if (missed.length)
-    throw new TentError('T0002', `The input of ${name} does not fit: ${missed.map((one) => one.message).join(' ')}`, {
+    throw new ForjrError('F0002', `The input of ${name} does not fit: ${missed.map((one) => one.message).join(' ')}`, {
       fields: Object.fromEntries(missed.flatMap((one) => Object.entries(one.fields ?? {}))),
     })
   const one = oneOf(held, id)
@@ -74,7 +74,7 @@ export async function toolCalled(
     by: o.by,
     trust: trustOf(o.record),
     async ask(what) {
-      if (!(await o.ask(what))) throw new TentError('T7111', 'The person refused this.')
+      if (!(await o.ask(what))) throw new ForjrError('F7111', 'The person refused this.')
     },
   }
   // A tool that `ask` names waits for the person first; one that writes files asks once its write is read, with

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Change } from '../../data/index.ts'
 import { applyChange, applyMemory, here, isWrote, layoutOf, setHere } from '../../data/index.ts'
 import { epochNumber, epochOf, manyLimit, newer, placeOf, versionOf } from '../held.ts'
@@ -47,7 +47,7 @@ export interface Reader {
   linked(): string | undefined
   /** The address that its link is open to, or the one it tries first. */
   writer(): string
-  /** Fetches the bytes of a file from its writer, and keeps them. Throws T0029 where the writer is not reached. */
+  /** Fetches the bytes of a file from its writer, and keeps them. Throws F0029 where the writer is not reached. */
   fetchFile(file: FileBytes): Promise<void>
   current(): boolean
   /** Whether it holds the whole data of a writer it follows: not while it fetches, and not while a writer's folder waits for a newer writer. */
@@ -194,7 +194,7 @@ export function readerOpened(o: Opened, reads: Reads, reached: (address: string)
         if (!change.file) (await import('../files/moving.ts')).followMove(o, o.tenantFiles)
       } else applyChange(o.store, change)
     } catch (error) {
-      if (error instanceof TentError && error.code === 'T0033') return refetch(true, mine.address)
+      if (error instanceof ForjrError && error.code === 'F0033') return refetch(true, mine.address)
       readerLine(r, 'error', 'A change of the writer could not be applied.', { n: change.n, error: String(error) })
       return dial.reopen()
     }
@@ -214,7 +214,7 @@ export function readerOpened(o: Opened, reads: Reads, reached: (address: string)
       r.lacking = false
     }
     for (const row of change.rows)
-      if (!row.table.startsWith('_t_'))
+      if (!row.table.startsWith('_f_'))
         o.raise('row.changed', { app: o.app, table: row.table, id: String(row.row.id), kind: row.kind })
     if (typeof toldSettled === 'number') r.settled = Math.max(r.settled, toldSettled)
     toldHub(change)
@@ -259,7 +259,7 @@ export function readerOpened(o: Opened, reads: Reads, reached: (address: string)
           const blob = async (fingerprint: string): Promise<Uint8Array> =>
             new Uint8Array(
               await (
-                await asked(reached(mine.address), mine.address, `/_t/copy/blob/${fingerprint}`, reads.key)
+                await asked(reached(mine.address), mine.address, `/_f/copy/blob/${fingerprint}`, reads.key)
               ).arrayBuffer(),
             )
           await fetchVersion(o.dataFolder, told, blob)
@@ -310,7 +310,7 @@ export function readerOpened(o: Opened, reads: Reads, reached: (address: string)
     const theirs = typeof message.epoch === 'string' ? message.epoch : undefined
     // A reader obeys no writer of an older epoch than the one it holds.
     if (theirs !== undefined && newer(r.held, theirs) && ['go', 'again', 'ahead'].includes(message.t)) {
-      tell(mine.link, { t: 'no', code: 'T0030' })
+      tell(mine.link, { t: 'no', code: 'F0030' })
       r.open = undefined
       mine.link.close()
       return dial.next()
@@ -355,7 +355,7 @@ export function readerOpened(o: Opened, reads: Reads, reached: (address: string)
         return refetch(message.keep === true, mine.address)
       case 'ahead':
         readerLine(r, 'warn', 'This reader holds more writes than its writer, which stands back.', {
-          fix: 'Run `tent take-over` on the machine that is to go on.',
+          fix: 'Run `forjr take-over` on the machine that is to go on.',
         })
         return
       case 'other-id':
@@ -366,7 +366,7 @@ export function readerOpened(o: Opened, reads: Reads, reached: (address: string)
         return dial.next()
       case 'no':
         if (typeof message.writer === 'string') dial.namedWriter(message.writer, mine.address)
-        if (message.code === 'T0034')
+        if (message.code === 'F0034')
           readerLine(r, 'error', 'This reader and its writer run stores of two shape numbers.', {
             fix: 'Run one engine on every machine, the writer first.',
           })
@@ -456,7 +456,7 @@ export function readerOpened(o: Opened, reads: Reads, reached: (address: string)
       try {
         await fetchBytes(o, file, askOf(address))
       } catch (error) {
-        if (error instanceof TentError && error.code === 'T0029') throw error
+        if (error instanceof ForjrError && error.code === 'F0029') throw error
         throw notReached(address, `the bytes of a file could not be fetched: ${String(error)}`)
       }
       r.bytesLacking.delete(file.fingerprint)

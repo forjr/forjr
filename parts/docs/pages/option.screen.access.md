@@ -11,7 +11,7 @@ The rule of a screen decides who sees the page, and nothing else. What must stay
 ## Example
 
 ```tsx
-import { screen, role } from 'tentjs/ui'
+import { screen, role } from 'forjr/ui'
 
 export const ordersScreen = screen('ordersScreen', {
   path: '/orders',
@@ -22,9 +22,9 @@ export const ordersScreen = screen('ordersScreen', {
 
 ## Errors
 
-`code.T1008`: it is left out.
+`code.F1008`: it is left out.
 
-`code.T1014`: what is written there is no rule.
+`code.F1014`: what is written there is no rule.
 
 ## See also
 

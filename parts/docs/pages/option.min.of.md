@@ -14,7 +14,7 @@ first: date({ from: min({ of: orders, by: 'customer', column: 'placedAt' }) })
 
 ## Errors
 
-`code.T2025`: the counted rows lie in another data file than the row that holds the number.
+`code.F2025`: the counted rows lie in another data file than the row that holds the number.
 
 ## See also
 

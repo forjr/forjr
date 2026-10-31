@@ -2,7 +2,7 @@ import { callerText } from '../../data/index.ts'
 import { AsyncLocalStorage } from 'node:async_hooks'
 import type { AppServices, ConnectEnv } from '../../connect/index.ts'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { underWay } from '../context.ts'
 import type { Opened } from '../opened.ts'
 import { mayDownload } from '../stored/access.ts'
@@ -38,8 +38,8 @@ const made = new WeakMap<object, AppServices>()
 const envs = new WeakMap<object, ConnectEnv>()
 
 /** The error of a file of an input that the caller may not download: told as one that is not there. */
-const noFile = (id: string): TentError =>
-  new TentError('T2104', `No file ${JSON.stringify(id).slice(0, 60)} can be read by the caller of this call.`, {
+const noFile = (id: string): ForjrError =>
+  new ForjrError('F2104', `No file ${JSON.stringify(id).slice(0, 60)} can be read by the caller of this call.`, {
     fix: 'Hand the service a file that the caller may download.',
   })
 
@@ -84,7 +84,7 @@ export function connectEnvOf(o: Opened): ConnectEnv {
     signers,
     verifiers,
     standIn(service) {
-      // Under `tent test`, each service a test called, and one let through to where it is reached outside.
+      // Under `forjr test`, each service a test called, and one let through to where it is reached outside.
       noteTouched('services', service)
       const stand = standInOf(o, service)
       if (!stand) noteOutside(`service ${service}`)

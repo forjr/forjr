@@ -8,16 +8,16 @@ import time
 CHILD = "import os, sys, time\nopen(sys.argv[1], 'w').write(str(os.getpid()))\ntime.sleep(40)\n"
 
 
-def run(input, tent):
+def run(input, forjr):
     how = input["how"]
-    said = os.path.join(tent.disk, f"child-{how}")
+    said = os.path.join(forjr.disk, f"child-{how}")
     subprocess.Popen([sys.executable, "-I", "-c", CHILD, said])
     for _ in range(100):
         if os.path.exists(said) and open(said).read():
             break
         time.sleep(0.05)
     # The test looks at the program this one started while this one still runs, and then says go.
-    go = os.path.join(tent.disk, f"go-{how}")
+    go = os.path.join(forjr.disk, f"go-{how}")
     for _ in range(1200):
         if os.path.exists(go):
             break

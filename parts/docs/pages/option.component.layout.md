@@ -9,7 +9,7 @@ A component, or its name as text. It is drawn around this one.
 ## Example
 
 ```tsx
-import { component } from 'tentjs/ui'
+import { component } from 'forjr/ui'
 
 export const PriceTag = component('PriceTag', {
   layout: 'Card',
@@ -19,7 +19,7 @@ export const PriceTag = component('PriceTag', {
 
 ## Errors
 
-`code.T1014`: what is written there is neither a component nor a name.
+`code.F1014`: what is written there is neither a component nor a name.
 
 ## See also
 

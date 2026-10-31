@@ -6,7 +6,7 @@ import { test } from 'node:test'
 import { startHeld } from '../rooms/held/process.ts'
 import { workFolder } from './apps.ts'
 
-// The attack of the reviewer on how the held program of an app is started.
+// An attack on how the held program of an app is started.
 
 /** Lays files into a new folder of the test, and answers the folder. */
 function laid(t: TestContext, files: Record<string, string>): string {
@@ -32,7 +32,7 @@ export const leak = { options: { run: () => readFileSync(join(import.meta.dirnam
       const program = startHeld({ place: bundle, native: [], nativeFolders: [], serve: () => undefined })
       t.after(() => program.close())
     },
-    (error: { code?: string }) => error.code === 'T0035',
+    (error: { code?: string }) => error.code === 'F0035',
     'the held program was not started',
   )
 })

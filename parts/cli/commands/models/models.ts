@@ -5,7 +5,7 @@ import type { Command } from '../../command.ts'
 /**
  * Lists every model of the project with what it can do: its provider and its name there, its abilities and the
  * most tokens one request may hold, as the definition states them or the list of its provider knows them, its
- * voices, whether it is a function, its limits and its fall-backs. `tent models test` tries them.
+ * voices, whether it is a function, its limits and its fall-backs. `forjr models test` tries them.
  */
 export const command: Command = {
   name: 'models',

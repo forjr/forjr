@@ -1,4 +1,4 @@
-import { anyone, change, input, text } from 'tentjs'
+import { anyone, change, input, text } from 'forjr'
 import { teams } from './tables'
 
 export const addTeam = change('addTeam', {

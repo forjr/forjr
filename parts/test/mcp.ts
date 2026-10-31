@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { App } from '../engine/index.ts'
 import { adminTokenOf } from './adminToken.ts'
 import type { TestCaller } from './as.ts'
@@ -9,10 +9,10 @@ const newest = '2026-07-28'
 const versionKey = 'io.modelcontextprotocol/protocolVersion'
 const canKey = 'io.modelcontextprotocol/clientCapabilities'
 const clientKey = 'io.modelcontextprotocol/clientInfo'
-const clientInfo = { name: 'tent-test', version: '1' }
+const clientInfo = { name: 'forjr-test', version: '1' }
 
 /**
- * Whom a client of a test is: a caller, by the admin token and `Tent-Caller` as a command of this computer sends
+ * Whom a client of a test is: a caller, by the admin token and `Forjr-Caller` as a command of this computer sends
  * one; a token, as a key and the token of a grant are sent; or the lines of a request of the test's own.
  */
 export type McpAs = TestCaller | { token: string } | { headers: Record<string, string> }
@@ -87,7 +87,7 @@ function eventsOf(answer: Response): McpListening {
         continue
       }
       const part = await reader?.read()
-      if (!part || part.done) throw new TentError('T0013', 'The kept stream ended.')
+      if (!part || part.done) throw new ForjrError('F0013', 'The kept stream ended.')
       buffer += decoder.decode(part.value, { stream: true })
     }
   }
@@ -117,7 +117,7 @@ export const mcp =
       if (typeof as === 'object' && 'headers' in as) return as.headers
       const token = adminTokenOf(dataFolder())
       const caller = typeof as === 'string' ? as : as.kind === 'user' ? String(as.user?.id) : as.kind
-      return { authorization: `Bearer ${token}`, 'tent-caller': caller }
+      return { authorization: `Bearer ${token}`, 'forjr-caller': caller }
     }
     const sent = (body: unknown, o: { headers?: Record<string, string>; method?: string } = {}): Promise<Response> => {
       const method = o.method ?? 'POST'
@@ -167,7 +167,7 @@ export const mcp =
     }
     const resultOf = (reply: McpReply, what: string): Record<string, unknown> => {
       if (reply.status !== 200 || reply.body.result === undefined)
-        throw new TentError('T0013', `${what} was answered ${reply.status}: ${JSON.stringify(reply.body)}`)
+        throw new ForjrError('F0013', `${what} was answered ${reply.status}: ${JSON.stringify(reply.body)}`)
       return Object(reply.body.result)
     }
     return {

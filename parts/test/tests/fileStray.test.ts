@@ -70,7 +70,7 @@ test('[50-6] the upkeep bears a folder and a thing that is no data file under te
   assert.equal(said(), 5)
 })
 
-test('[50-6] the sweep that tent data files --sweep starts bears a thing that is no data file under the row of a tenant: it moves it aside, says so, and sweeps every other file', async (t) => {
+test('[50-6] the sweep that forjr data files --sweep starts bears a thing that is no data file under the row of a tenant: it moves it aside, says so, and sweeps every other file', async (t) => {
   const { app, dataFolder } = await deskOf(t)
   const [north, south, west] = [await addTeam(app, 'North'), await addTeam(app, 'South'), await addTeam(app, 'West')]
   const caller = await app.user({ name: 'Ada', roles: [] })

@@ -8,7 +8,7 @@ import { notDropped } from './started.ts'
 /** What a model is handed of the answer of its last tool, as the text it ends with. */
 const toldOf = async (text: Promise<string>): Promise<string> => JSON.parse((await text).slice('Done: '.length))
 
-test('[27-18] the end of limits.ask ends a sequence with T7111 and the words of a refusal, and the calls before it stay made', async (t) => {
+test('[27-18] the end of limits.ask ends a sequence with F7111 and the words of a refusal, and the calls before it stay made', async (t) => {
   const { app, maya, orders } = await sequencedApp(t)
   app.fake('writer', handing(lines('const open = myOrders({})', `refund({ order: '${orders[0]}' })`, 'return 1')))
   const { run } = notDropped(await app.start('quickAsk', { message: 'Refund.' }, { as: maya }))
@@ -33,7 +33,7 @@ test('[27-18] a list of a walk that would pass limits.result is cut there, with 
   assert.equal(shown.more, true)
 })
 
-test('[27-18] a fill whose answer does not fit its shape is asked for once more, and its second miss fails its step with T7108', async (t) => {
+test('[27-18] a fill whose answer does not fit its shape is asked for once more, and its second miss fails its step with F7108', async (t) => {
   const { app, maya } = await sequencedApp(t)
   let fills = 0
   app.fake('writer', (request: ReplyRequest): FakeAnswer => {
@@ -44,7 +44,7 @@ test('[27-18] a fill whose answer does not fit its shape is asked for once more,
     return handing("return fill(boolean(), 'Is it late?')")(request)
   })
   const { run } = notDropped(await app.start('helper', { message: 'Judge.' }, { as: maya }))
-  assert.match(String(await toldOf(answered(app, run))), /^Error T7108/)
+  assert.match(String(await toldOf(answered(app, run))), /^Error F7108/)
   assert.equal(fills, 2)
   assert.equal(stepsOf(app, run).find((one) => one.name === 'fill 1.1.1')?.state, 'failed')
 })
@@ -64,7 +64,7 @@ test('[27-18] a refused sequence counts as one tool call on limits.toolCalls', a
   await app.runs.wait(run).catch(() => undefined)
   const ended = app.runs.read(run)
   assert.equal(ended?.state, 'failed')
-  assert.equal(ended?.error?.code, 'T7102')
+  assert.equal(ended?.error?.code, 'F7102')
   assert.equal(stepsOf(app, run).filter((one) => one.name.startsWith('tool ')).length, 3)
 })
 

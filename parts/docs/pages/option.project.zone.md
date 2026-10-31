@@ -14,7 +14,7 @@ export const shop = project('shop', {
 })
 ```
 
-A page shows a moment in the viewer's own zone, which it keeps in the cookie `tent_zone`. The first HTML of a first visit, which has no cookie yet, shows it in this zone, and the page corrects it once it has come alive.
+A page shows a moment in the viewer's own zone, which it keeps in the cookie `forjr_zone`. The first HTML of a first visit, which has no cookie yet, shows it in this zone, and the page corrects it once it has come alive.
 
 ## See also
 

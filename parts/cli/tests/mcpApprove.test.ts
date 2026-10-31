@@ -31,7 +31,7 @@ async function approving(
       ),
   )
   const made = await buildProject(project, { for: 'dev' })
-  const data = join(project, '.tent')
+  const data = join(project, '.forjr')
   makeSecretKey(data)
   for (const secret of ['BOARD_KEY', 'CLOUD_ID', 'OPENAI_KEY', 'ANTHROPIC_KEY'])
     storedValues(data, made.description, { kind: 'secrets', name: secret, value: `test-${secret}` })
@@ -44,7 +44,7 @@ const tool = (name: string, description: string) => ({
   inputSchema: { type: 'object', properties: { words: { type: 'string' } } },
 })
 
-test('[25-20] tent mcp approve asks a server for its tools, shows them, and writes them with their fingerprints into mcp.lock.json, from which the build fills the calls of the service', async (t) => {
+test('[25-20] forjr mcp approve asks a server for its tools, shows them, and writes them with their fingerprints into mcp.lock.json, from which the build fills the calls of the service', async (t) => {
   const board = await toolServer(t, [tool('listBoards', 'Lists the boards'), tool('renameBoard', 'Renames a board')])
   const project = await approving(t, 'approve-board', { board })
   const approved = await typed(project, 'mcp', 'approve', 'board', '--json')
@@ -75,14 +75,14 @@ test('[25-20] tent mcp approve asks a server for its tools, shows them, and writ
   assert.equal(again.listBoards.fingerprint, listed.listBoards.fingerprint)
 })
 
-test("[25-11] tent mcp approve --as asks with that user's connection", async (t) => {
+test("[25-11] forjr mcp approve --as asks with that user's connection", async (t) => {
   const cloud = await toolServer(t, [tool('whoami', 'Tells who you are')])
   // The engine of the test is closed before the folder of the test is removed: it is asked for first.
   const engine = createEngine({ port: 0 })
   t.after(() => engine.close())
   const project = await approving(t, 'approve-cloud', { cloud })
   const built = await buildProject(project, { for: 'dev' })
-  const app = await engine.open(built.bundleFolder, { dataFolder: join(project, '.tent'), mode: 'development' })
+  const app = await engine.open(built.bundleFolder, { dataFolder: join(project, '.forjr'), mode: 'development' })
   const made: unknown[] = Object(
     await app.write([{ add: 'users', values: { name: 'Cem', roles: [] } }], { as: 'system' }),
   )

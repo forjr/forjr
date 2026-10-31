@@ -24,7 +24,7 @@ const worst: State[] = ['passed', 'owed', 'failed']
 
 function commit(): string {
   // A run of a pull request checks out a commit that joins the branch to its target, so the run names the branch's own.
-  if (process.env.TENT_COMMIT) return process.env.TENT_COMMIT
+  if (process.env.FORJR_COMMIT) return process.env.FORJR_COMMIT
   try {
     return execFileSync('git', ['rev-parse', 'HEAD'], { encoding: 'utf8', stdio: ['ignore', 'pipe', 'ignore'] }).trim()
   } catch {
@@ -163,7 +163,7 @@ export default async function* report(source: AsyncIterable<TestEvent>): AsyncGe
     // A picture's file is named `<engine>.<name>`, and its name may hold a dot of its own.
     pictures: gathered('picture', (rest) => rest.replace('.', '/'), isPicture, wrong),
   }
-  const file = join('results', `${result.system}${process.env.TENT_RUN === 'night' ? '.night' : ''}.json`)
+  const file = join('results', `${result.system}${process.env.FORJR_RUN === 'night' ? '.night' : ''}.json`)
   mkdirSync('results', { recursive: true })
   writeFileSync(file, `${JSON.stringify(result, null, 2)}\n`)
   const filesSorted = Object.fromEntries(

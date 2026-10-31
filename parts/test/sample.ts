@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { isStored } from '../core/internal.ts'
 
 const two = (n: number): string => String(n).padStart(2, '0')
@@ -10,7 +10,7 @@ const two = (n: number): string => String(n).padStart(2, '0')
  * than its most; a number its least, or 1 where none is stated; `false`; the moment and the day that run; the first
  * of the values of a choice, as `values` of the description keeps them; an empty list, as long as its least of
  * samples of what it holds; and a record of a sample of each field that must be there. It is the one home of a
- * sample, which `app.make`, `tent test --plan` and `tent test --declared` read. Throws T0002 for a kind it cannot fill.
+ * sample, which `app.make`, `forjr test --plan` and `forjr test --declared` read. Throws F0002 for a kind it cannot fill.
  */
 export function sampleOf(
   type: Record<string, unknown>,
@@ -48,7 +48,7 @@ export function sampleOf(
       ? Promise.all(fields.map(async ([field, value]) => [field, await value] as const)).then(Object.fromEntries)
       : Object.fromEntries(fields)
   }
-  throw new TentError('T0002', `No sample is made of \`${name}\`, of the kind ${String(kind)}: give it a value.`, {
+  throw new ForjrError('F0002', `No sample is made of \`${name}\`, of the kind ${String(kind)}: give it a value.`, {
     fields: { [name]: 'required' },
   })
 }

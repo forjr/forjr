@@ -3,7 +3,7 @@ import datetime
 import numberish
 
 
-def run(input, tent):
+def run(input, forjr):
     return {
         "one": numberish.Scalar(3.5),
         "many": numberish.Array([1, 2, 3]),

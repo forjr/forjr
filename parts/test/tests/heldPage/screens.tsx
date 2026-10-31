@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { anyone, screen } from 'tentjs/ui'
+import { anyone, screen } from 'forjr/ui'
 
 // A screen whose first HTML holds an open dialog, which the page then shows as modal, and a press in it that
 // holds the page in a question of the browser's own until someone answers it.

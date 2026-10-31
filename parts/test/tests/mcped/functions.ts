@@ -1,4 +1,4 @@
-import { action, anyone, change, flow, input, json, link, list, number, object, query, role, table, text } from 'tentjs'
+import { action, anyone, change, flow, input, json, link, list, number, object, query, role, table, text } from 'forjr'
 
 export const users = table('users', {
   columns: { email: text({ optional: true }), roles: list(text()) },
@@ -147,7 +147,7 @@ export const listResources = query('listResources', {
   access: 'signedIn',
   input: { params: json({ optional: true }) },
   output: json(),
-  run: ({ user }) => ({ resources: [{ uri: 'tent://orders', name: `orders of ${user?.id}` }] }),
+  run: ({ user }) => ({ resources: [{ uri: 'forjr://orders', name: `orders of ${user?.id}` }] }),
 })
 
 export const secretPrompt = query('secretPrompt', {

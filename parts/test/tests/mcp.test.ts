@@ -7,7 +7,7 @@ import { edited, errorOf, callerIdOf, mcpApp, mcpProject, opened, people, textOf
 
 const older = ['2025-11-25', '2025-06-18', '2025-03-26']
 
-test('[25-1] a request of the newest form with lines that match its body is answered, and one whose lines and body differ is T0002', async (t) => {
+test('[25-1] a request of the newest form with lines that match its body is answered, and one whose lines and body differ is F0002', async (t) => {
   const app = await mcpApp(t)
   const { ada } = await people(app)
   const client = app.mcp({ as: ada })
@@ -17,10 +17,10 @@ test('[25-1] a request of the newest form with lines that match its body is answ
   assert.ok((await client.tools()).length > 0)
   const method = await client.request('tools/list', {}, { headers: { 'mcp-method': 'tools/call' } })
   assert.equal(method.status, 400)
-  assert.equal(Object(Object(method.body.error).data).code, 'T0002')
+  assert.equal(Object(Object(method.body.error).data).code, 'F0002')
   const version = await client.request('tools/list', {}, { headers: { 'mcp-protocol-version': '2025-06-18' } })
   assert.equal(version.status, 400)
-  assert.equal(Object(Object(version.body.error).data).code, 'T0002')
+  assert.equal(Object(Object(version.body.error).data).code, 'F0002')
 })
 
 test('[25-1] a client of each older version opens, lists and calls, and nothing is kept between its requests', async (t) => {
@@ -48,7 +48,7 @@ test('[25-1] a client of each older version opens, lists and calls, and nothing 
   )
 })
 
-test('[25-1] an unknown method is not known, a GET is 405, a body of many requests is T0002, and a note is taken', async (t) => {
+test('[25-1] an unknown method is not known, a GET is 405, a body of many requests is F0002, and a note is taken', async (t) => {
   const app = await mcpApp(t)
   const { ada } = await people(app)
   const client = app.mcp({ as: ada })
@@ -61,7 +61,7 @@ test('[25-1] an unknown method is not known, a GET is 405, a body of many reques
     { jsonrpc: '2.0', id: 2, method: 'tools/list', params: {} },
   ])
   assert.equal(many.status, 400)
-  assert.equal(Object(Object(many.body.error).data).code, 'T0002')
+  assert.equal(Object(Object(many.body.error).data).code, 'F0002')
   const note = await app
     .mcp({ as: ada, form: '2025-06-18' })
     .send({ jsonrpc: '2.0', method: 'notifications/initialized' })
@@ -81,7 +81,7 @@ test('[25-1] a request that names no caller is 401 with the line that says where
   await client.request('tools/list', {})
   const third = await client.request('tools/list', {})
   assert.equal(third.status, 429)
-  assert.equal(Object(third.body.error).code, 'T0005', JSON.stringify(third.body))
+  assert.equal(Object(third.body.error).code, 'F0005', JSON.stringify(third.body))
 })
 
 test('[25-1] with `mcp: { stream: true }` a GET is a kept stream, which is sent the note that the tools changed when a new version goes live', async (t) => {
@@ -116,18 +116,18 @@ test('[25-1] [05-13.35] a method that `mcp.on` names is answered by its function
   const client = app.mcp({ as: ada })
   const listed = await client.request('resources/list', {})
   assert.deepEqual(Object(listed.body.result).resources, [
-    { uri: 'tent://orders', name: `orders of ${callerIdOf(ada)}` },
+    { uri: 'forjr://orders', name: `orders of ${callerIdOf(ada)}` },
   ])
   for (const form of [undefined, '2025-06-18']) {
     const hello = await app.mcp({ as: ada, ...(form ? { form } : {}) }).hello()
     assert.ok(Object(hello.capabilities).resources, 'resources/list is of the part `resources`')
     assert.ok(Object(hello.capabilities).prompts, 'prompts/get is of the part `prompts`')
   }
-  // A method whose function refuses the caller is the answer of a tool with T3101.
+  // A method whose function refuses the caller is the answer of a tool with F3101.
   const refused = await client.request('prompts/get', { name: 'x' })
   const result = Object(refused.body.result)
   assert.equal(result.isError, true)
-  assert.equal(errorOf(result).code, 'T3101')
+  assert.equal(errorOf(result).code, 'F3101')
 })
 
 test('[25-2] [25-18] the list holds exactly the offered functions, each with its title, its about, its input and the marks of its row', async (t) => {
@@ -191,27 +191,27 @@ test('[25-2] an answer that is a list is { value }, and says so in the part that
   await client.call('addOrder', { title: 'first' })
   const listed = await client.call('titles', {})
   assert.deepEqual(listed.structuredContent, { value: ['first'] })
-  assert.equal(Object(listed._meta)['tent.wrapped'], true)
+  assert.equal(Object(listed._meta)['forjr.wrapped'], true)
   assert.deepEqual(JSON.parse(textOf(listed)), { value: ['first'] })
   const schema = Object((await client.tools()).find((one) => one.name === 'titles')?.outputSchema)
   assert.deepEqual(Object(schema.properties).value?.type, 'array')
   const nothing = await client.call('forget', {})
   assert.deepEqual(nothing.structuredContent, {})
-  assert.equal(Object(nothing._meta)['tent.wrapped'], true)
+  assert.equal(Object(nothing._meta)['forjr.wrapped'], true)
   const record = await client.call('peek', {})
   assert.deepEqual(record.structuredContent, { at: 'now' })
-  assert.equal(Object(record._meta)['tent.wrapped'], undefined, 'a record is no wrapped value')
+  assert.equal(Object(record._meta)['forjr.wrapped'], undefined, 'a record is no wrapped value')
 })
 
-test('[25-2] a function offered to MCP with a name of 65 characters is T1014, and one named callFunction is T1009', async (t) => {
+test('[25-2] a function offered to MCP with a name of 65 characters is F1014, and one named callFunction is F1009', async (t) => {
   for (const [name, code] of [
-    ['a'.repeat(65), 'T1014'],
-    ['callFunction', 'T1009'],
+    ['a'.repeat(65), 'F1014'],
+    ['callFunction', 'F1009'],
   ]) {
     const folder = mcpProject(t)
     writeFileSync(
       join(folder, 'more.ts'),
-      `import { query } from 'tentjs'\nexport const ${name} = query('${name}', { about: 'x', access: 'signedIn', offer: ['mcp'], input: {}, run: () => 1 })\n`,
+      `import { query } from 'forjr'\nexport const ${name} = query('${name}', { about: 'x', access: 'signedIn', offer: ['mcp'], input: {}, run: () => 1 })\n`,
     )
     const built = await buildProject(folder, { for: 'dev', out: join(folder, '..', 'out') })
     assert.ok(
@@ -221,7 +221,7 @@ test('[25-2] a function offered to MCP with a name of 65 characters is T1014, an
   }
 })
 
-test('[25-3] [11-2@9b] a call passes the door as its caller: a row of another user is not found, a refusal of the rule is T3101, and an input that does not fit is an error answer with its fields', async (t) => {
+test('[25-3] [11-2@9b] a call passes the door as its caller: a row of another user is not found, a refusal of the rule is F3101, and an input that does not fit is an error answer with its fields', async (t) => {
   const app = await mcpApp(t)
   const { ada, bob } = await people(app)
   const asAda = app.mcp({ as: ada })
@@ -232,21 +232,21 @@ test('[25-3] [11-2@9b] a call passes the door as its caller: a row of another us
   assert.deepEqual(Object(await app.mcp({ as: bob }).call('openOrders', {})).structuredContent, { value: [] })
   const refused = await asAda.call('staffTotals', {})
   assert.equal(refused.isError, true)
-  assert.equal(errorOf(refused).code, 'T3101')
-  assert.match(textOf(refused), /^Error T3101: /)
+  assert.equal(errorOf(refused).code, 'F3101')
+  assert.match(textOf(refused), /^Error F3101: /)
   const bad = await asAda.call('addOrder', { title: 'x' })
   assert.equal(bad.isError, true)
-  assert.equal(errorOf(bad).code, 'T0002')
+  assert.equal(errorOf(bad).code, 'F0002')
   assert.deepEqual(errorOf(bad).fields, { title: 'min' })
-  assert.match(textOf(bad), /^Error T0002: .*\ntitle: min$/s)
+  assert.match(textOf(bad), /^Error F0002: .*\ntitle: min$/s)
   for (const name of ['hidden', 'onlyApi', 'listResources', 'nothingHere']) {
     const missing = await asAda.call(name, {})
     assert.equal(missing.isError, true)
-    assert.equal(errorOf(missing).code, 'T0001', name)
+    assert.equal(errorOf(missing).code, 'F0001', name)
   }
 })
 
-test('[25-3] [23-30@9b] a flow offered to MCP answers its answer through its output, one that outlasts the call is T0008 with the run, and a flow with `access` alone is no tool', async (t) => {
+test('[25-3] [23-30@9b] a flow offered to MCP answers its answer through its output, one that outlasts the call is F0008 with the run, and a flow with `access` alone is no tool', async (t) => {
   const app = await mcpApp(t)
   const { ada } = await people(app)
   const client = app.mcp({ as: ada })
@@ -254,14 +254,14 @@ test('[25-3] [23-30@9b] a flow offered to MCP answers its answer through its out
   assert.deepEqual(counted.structuredContent, { letters: 4 })
   const late = await client.call('slowJob', { word: 'late' })
   assert.equal(late.isError, true)
-  assert.equal(errorOf(late).code, 'T0008')
+  assert.equal(errorOf(late).code, 'F0008')
   const run = String(Object(errorOf(late).fields).run)
   assert.ok(run.length > 10)
   app.clock.advance('2 hours')
   const waited = await client.call('slowJob', { run })
   assert.deepEqual(waited.structuredContent, { word: 'late' })
   const pages = await client.call('pagesOnly', { word: 'x' })
-  assert.equal(errorOf(pages).code, 'T0001')
+  assert.equal(errorOf(pages).code, 'F0001')
   assert.equal(app.runs.find({ flow: 'pagesOnly' }).length, 0)
 })
 
@@ -273,7 +273,7 @@ test("[25-18] under `mcp: { only: 'queries' }` the list holds what only reads, a
   assert.deepEqual(names, ['openOrders', 'openToAll', 'peek', 'renamed', 'staffTotals', 'titles'])
   for (const one of await client.tools()) assert.equal(Object(one.annotations).readOnlyHint, true, String(one.name))
   const change = await client.call('addOrder', { title: 'refused' })
-  assert.equal(errorOf(change).code, 'T0001')
+  assert.equal(errorOf(change).code, 'F0001')
   assert.equal((await app.rows('orders')).length, 0)
 })
 

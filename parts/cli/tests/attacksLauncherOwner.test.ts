@@ -40,7 +40,7 @@ const systemFolder =
     : '/etc'
 
 test('[05-12.24] a launcher in bin/ that another user of the computer wrote is not written over, not run, and named', async (t) => {
-  const home = mkdtempSync(join(tmpdir(), 'tent-attacks-launcher-'))
+  const home = mkdtempSync(join(tmpdir(), 'forjr-attacks-launcher-'))
   // The link is taken away by itself first, so that nothing of the folder it leads to is ever removed.
   t.after(() => {
     const bin = join(home, 'bin')

@@ -1,11 +1,11 @@
 import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { Finding } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { fieldsOf, isTestFailure, isFinding } from './answerShapes.ts'
 import type { Failure } from './testFailed.ts'
 
-/** What a run of `tent test` reports: its value and its findings, as `--json` prints them. */
+/** What a run of `forjr test` reports: its value and its findings, as `--json` prints them. */
 export interface Report {
   value: {
     passed: number
@@ -43,13 +43,13 @@ function isReport(read: unknown): read is Report {
 /**
  * Takes the test files of a project in the order of their names, and a share as `--shard` writes it, `<n>/<of>`.
  * Answers the files of that share: the files split by their names into `of` runs one after another, as even as they
- * go, and the `n`th of them. Throws T0002 for a share of no form, or one past the last.
+ * go, and the `n`th of them. Throws F0002 for a share of no form, or one past the last.
  */
 export function shareOf(files: string[], written: string): string[] {
   const found = /^(\d+)\/(\d+)$/.exec(written)
   const [n, of] = found ? [Number(found[1]), Number(found[2])] : [0, 0]
   if (!found || n < 1 || of < 1 || n > of)
-    throw new TentError('T0002', `${JSON.stringify(written)} is no share of the tests.`, {
+    throw new ForjrError('F0002', `${JSON.stringify(written)} is no share of the tests.`, {
       fix: 'Name a share as `--shard 2/4`: the second of four.',
       fields: { shard: 'pattern' },
     })
@@ -66,10 +66,10 @@ export function keepReport(project: string, report: Report): void {
 }
 
 /**
- * `tent test --join <folders>`: takes the folders of the reports of the shares of one suite, each holding the
+ * `forjr test --join <folders>`: takes the folders of the reports of the shares of one suite, each holding the
  * `report.json` of a run, or the folder of a project that holds one in `results/tests/`. Answers the one report of
  * them all, as one run gives it: what passed, failed and was replayed added up, each counted apart, and the files and
- * findings of each, in the order of the folders. Throws T0001 for a folder that holds no report.
+ * findings of each, in the order of the folders. Throws F0001 for a folder that holds no report.
  */
 export function joined(folders: string[]): Report {
   const all: Report = { value: { passed: 0, failed: 0, replayed: 0, files: [], failures: [] }, findings: [] }
@@ -77,12 +77,12 @@ export function joined(folders: string[]): Report {
   for (const folder of folders) {
     const file = [join(folder, 'report.json'), reportOf(folder)].find(existsSync)
     if (!file)
-      throw new TentError('T0001', `${folder} holds no report of a run of the tests.`, {
+      throw new ForjrError('F0001', `${folder} holds no report of a run of the tests.`, {
         fix: 'Name the folder that a run with `--shard` kept its `results/tests/report.json` in.',
       })
     const read: unknown = JSON.parse(readFileSync(file, 'utf8'))
     if (!isReport(read))
-      throw new TentError('T0001', `${file} is no report of a run of the tests.`, {
+      throw new ForjrError('F0001', `${file} is no report of a run of the tests.`, {
         fix: 'Name the folder that a run with `--shard` kept its `results/tests/report.json` in.',
       })
     const one = read

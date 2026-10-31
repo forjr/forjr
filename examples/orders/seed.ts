@@ -1,4 +1,4 @@
-import { passwords, seed } from 'tentjs'
+import { passwords, seed } from 'forjr'
 
 // Fixed moments four days apart, so the list has the same order on every run and the newest order falls in June.
 const FIRST_DAY = Date.UTC(2025, 0, 6, 9, 0, 0)

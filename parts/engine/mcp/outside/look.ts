@@ -53,7 +53,7 @@ async function looked(o: Opened, service: string, user: string | undefined): Pro
     o.log.write('lines', {
       at: o.clock.now(),
       level: 'warn',
-      message: `The tool ${tool} of ${service} is not as it was approved, and is held back: run \`tent mcp approve ${service}\`.`,
+      message: `The tool ${tool} of ${service} is not as it was approved, and is held back: run \`forjr mcp approve ${service}\`.`,
     })
   kept.set(key, { held, at: o.clock.now() })
 }

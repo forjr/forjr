@@ -1,7 +1,7 @@
 import type { Stats } from 'node:fs'
 import { closeSync, constants, fstatSync, lstatSync, openSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { beginOwnerOnly, programRuns } from '../core/internal.ts'
 import type { Mode } from '../data/index.ts'
 import { keptAlone } from './ownerOnly.ts'
@@ -80,7 +80,7 @@ function ownText(file: string): string | undefined {
 
 /**
  * Takes a data folder. Answers what its `engine.json` says, read only when it is an ordinary file that the current
- * user owns: a link in its place, a file of another user, and a file of another form say nothing. Throws T0013
+ * user owns: a link in its place, a file of another user, and a file of another form say nothing. Throws F0013
  * where a folder lies in its place.
  */
 export function engineFileOf(dataFolder: string): EngineFile | undefined {
@@ -92,7 +92,7 @@ export function engineFileOf(dataFolder: string): EngineFile | undefined {
     return undefined
   }
   if (about.isDirectory())
-    throw new TentError('T0013', `A folder lies in the place of ${file}, where an engine writes how it is reached.`, {
+    throw new ForjrError('F0013', `A folder lies in the place of ${file}, where an engine writes how it is reached.`, {
       fix: 'Remove that folder: no engine can start on the data folder while it lies there.',
     })
   try {

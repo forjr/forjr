@@ -40,7 +40,7 @@ const tries = [1000, 2000, 4000, 8000, 16_000, 30_000]
 
 /** The failure of a call that was held longer than `callHold`, which is never sent. */
 const notSent = (hold: number): WireError => ({
-  code: 'T0036',
+  code: 'F0036',
   name: 'not-sent',
   message: `The call was held for want of a connection for ${Math.round(hold / 1000)} seconds, and was not sent.`,
   fix: 'Press again once the connection is back.',
@@ -50,7 +50,7 @@ const notSent = (hold: number): WireError => ({
  * Takes what the page reaches. Answers the queue of its calls: a call that is made while the connection is gone
  * is held, not failed, and the held calls are sent in the order they were made when the connection is back - the
  * browser says it is online, or a try after 1, 2, 4 and up to 30 seconds goes through - so a later call never
- * overtakes an earlier one. A call held past `callHold` fails with T0036, and is never sent.
+ * overtakes an earlier one. A call held past `callHold` fails with F0036, and is never sent.
  */
 export function callQueue(reach: QueueReach): Queue {
   const held: Held[] = []
@@ -104,7 +104,7 @@ export function callQueue(reach: QueueReach): Queue {
   }
   reach.online?.(back)
 
-  /** Holds a call, and fails it with T0036 once it was held for `callHold`, unless it is being sent then. */
+  /** Holds a call, and fails it with F0036 once it was held for `callHold`, unless it is being sent then. */
   const hold = (one: Held): void => {
     held.push(one)
     one.waiting(true)

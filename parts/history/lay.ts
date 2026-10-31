@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, rmdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { SqliteFile } from '../data/index.ts'
 import { blobOf, hasBlob } from './blobs.ts'
 import { placeOf } from './held.ts'
@@ -9,7 +9,7 @@ import { inTheWay, isHeldPath } from './paths.ts'
 import type { Point } from './point.ts'
 
 /**
- * The files of a point, each with its fingerprint. Throws T9107 for a point that was dropped, for a path that no
+ * The files of a point, each with its fingerprint. Throws F9107 for a point that was dropped, for a path that no
  * point may hold, and for a file whose bytes the history does not hold: so nothing is written of a point that
  * cannot be written whole.
  */
@@ -33,14 +33,14 @@ function put(file: SqliteFile, print: string, lies: string): void {
   writeFileSync(lies, bytes)
 }
 
-/** The failure for files that cannot be written without touching what is no file of a point: T0013, which names each. */
-const refused = (words: string, paths: string[]): TentError =>
-  new TentError('T0013', `${words}: ${paths.join(', ')}.`, {
+/** The failure for files that cannot be written without touching what is no file of a point: F0013, which names each. */
+const refused = (words: string, paths: string[]): ForjrError =>
+  new ForjrError('F0013', `${words}: ${paths.join(', ')}.`, {
     fix: 'Move these files away, or take the link away, and ask again. Nothing was changed.',
   })
 
 /**
- * Writes every file of a point into a folder, each under its path. Throws T0013, before anything is written, where
+ * Writes every file of a point into a folder, each under its path. Throws F0013, before anything is written, where
  * a link stands on the way of a file: it may lead out of the folder.
  */
 export function writeInto(file: SqliteFile, point: Point, folder: string): void {
@@ -53,7 +53,7 @@ export function writeInto(file: SqliteFile, point: Point, folder: string): void 
 
 /**
  * Takes the folder of a project with its roots, the files that a point of the present would hold, by their paths,
- * and the files of the point to go to. Throws T0013 where going there would write over what no point holds and so
+ * and the files of the point to go to. Throws F0013 where going there would write over what no point holds and so
  * could not be brought back: a file that is left out or too large for a point, and whatever lies behind a link.
  * It names each such file, and nothing was changed.
  */

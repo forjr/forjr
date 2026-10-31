@@ -1,0 +1,98 @@
+{
+  "ai": {
+    "uses": [
+      "connect",
+      "core",
+      "flows"
+    ]
+  },
+  "build": {
+    "uses": [
+      "core",
+      "screens"
+    ]
+  },
+  "check": {
+    "uses": [
+      "build",
+      "core"
+    ]
+  },
+  "cli": {
+    "uses": "every part"
+  },
+  "connect": {
+    "uses": [
+      "core",
+      "data"
+    ]
+  },
+  "core": {
+    "uses": []
+  },
+  "data": {
+    "uses": [
+      "core"
+    ]
+  },
+  "docs": {
+    "uses": []
+  },
+  "engine": {
+    "uses": [
+      "ai",
+      "connect",
+      "core",
+      "data",
+      "flows",
+      "screens"
+    ]
+  },
+  "flows": {
+    "uses": [
+      "core",
+      "data"
+    ]
+  },
+  "history": {
+    "uses": [
+      "core",
+      "data"
+    ]
+  },
+  "publish": {
+    "uses": [
+      "build",
+      "check",
+      "connect",
+      "core",
+      "engine",
+      "history"
+    ]
+  },
+  "screens": {
+    "uses": [
+      "core"
+    ]
+  },
+  "test": {
+    "uses": [
+      "build",
+      "connect",
+      "core",
+      "engine"
+    ]
+  },
+  "workspaces": {
+    "uses": [
+      "build",
+      "check",
+      "connect",
+      "core",
+      "docs",
+      "engine",
+      "history",
+      "publish"
+    ]
+  }
+}

@@ -1,4 +1,4 @@
-import { messages } from 'tentjs/ui'
+import { messages } from 'forjr/ui'
 
 export default messages('tr', {
   site: {
@@ -86,7 +86,7 @@ export default messages('tr', {
     lead: 'Bu adres sitede hiçbir yere çıkmıyor.',
     home: 'Ana sayfaya',
   },
-  tent: {
+  forjr: {
     required: 'Bu gerekli.',
     type: 'Bu geçerli bir değer değil.',
     min: 'En az {min}.',

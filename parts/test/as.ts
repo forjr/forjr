@@ -9,14 +9,14 @@ export type TestCaller = Caller | string
 /** A function as a test names it: by its name, or by its definition. */
 export type Fn = string | { readonly definition: string }
 
-/** Holds an app to having a table of users. Throws T0014 for one that has none. */
+/** Holds an app to having a table of users. Throws F0014 for one that has none. */
 export const withUsers = (app: App): void =>
   needsUsers({ name: app.description.app.name, tables: app.description.tables })
 
 /**
  * Takes an app, and whom a test named. Answers the caller: a caller as it is, nobody and the system by their
- * words, and for the id of a user the caller that its row makes. Throws T0014 where an id is named and the app
- * has no `users` table, and T2103 for an id that names no row.
+ * words, and for the id of a user the caller that its row makes. Throws F0014 where an id is named and the app
+ * has no `users` table, and F2103 for an id that names no row.
  */
 export async function callerOf(app: App, named: TestCaller): Promise<Caller> {
   if (typeof named !== 'string') return named
@@ -27,7 +27,7 @@ export async function callerOf(app: App, named: TestCaller): Promise<Caller> {
 
 /**
  * `app.as(caller)`: answers what calls a function as that caller, through steps 5 to 10 of the door. The promise
- * of a call is refused with the `TentError` of its failure, and answers once `landed` has answered.
+ * of a call is refused with the `ForjrError` of its failure, and answers once `landed` has answered.
  */
 export const as =
   (app: App, landed: () => Promise<void> = async () => undefined) =>

@@ -157,14 +157,14 @@ test('[29-5] a caller who writes and then reads from a far reader that was told 
   const wrote = await send(app, 'addOrder', { title: 'new' })
   // The answer says where it stands and what it wrote, and sets the cookie while a far reader is joined.
   const n = app.at().n
-  assert.equal(wrote.headers.get('tent-at'), `1.${n}`)
-  assert.equal(wrote.headers.get('tent-wrote'), `1.orders:${n}`)
-  assert.equal(cookieOf(wrote), `tent_wrote.many=1.orders:${n}`)
+  assert.equal(wrote.headers.get('forjr-at'), `1.${n}`)
+  assert.equal(wrote.headers.get('forjr-wrote'), `1.orders:${n}`)
+  assert.equal(cookieOf(wrote), `forjr_wrote.many=1.orders:${n}`)
   assert.match(wrote.headers.get('set-cookie') ?? '', /Max-Age=5; HttpOnly/)
-  // The cookie, and `Tent-After` with the `Tent-Wrote` of the answer, hold the read alike.
+  // The cookie, and `Forjr-After` with the `Forjr-Wrote` of the answer, hold the read alike.
   const marks: Record<string, string>[] = [
     { cookie: cookieOf(wrote) },
-    { 'tent-after': String(wrote.headers.get('tent-wrote')) },
+    { 'forjr-after': String(wrote.headers.get('forjr-wrote')) },
   ]
   for (const headers of marks) {
     const [onWriter, onFar] = [callsOf(t, 'data', 'listOrders'), callsOf(t, 'reader-3', 'listOrders')]
@@ -187,7 +187,7 @@ test('[29-5] a mark holds a read by the tables it names, and a mark that is made
   far.hold()
   await send(app, 'addOrder', { title: 'the far reader lacks it' })
   assert.equal(far.at().n, app.at().n - 1)
-  const cookie = `tent_wrote.many=1.teams:${app.at().n}`
+  const cookie = `forjr_wrote.many=1.teams:${app.at().n}`
   /** How many requests for a name the writer and the far reader each answered, before and after one request to the far reader. */
   const crossed = async (name: string, headers: Record<string, string>): Promise<[number, number]> => {
     const [onWriter, onFar] = [callsOf(t, 'data', name), callsOf(t, 'reader-3', name)]
@@ -202,11 +202,11 @@ test('[29-5] a mark holds a read by the tables it names, and a mark that is made
   // A number far ahead, a newer epoch and a mark of 100 kB each cost one wait and one crossing.
   for (const after of ['1.999999', '9.1', `1.${'9'.repeat(100_000)}`]) {
     const began = performance.now()
-    assert.deepEqual(await crossed('listCustomers', { 'tent-after': after }), [1, 0], after.slice(0, 12))
+    assert.deepEqual(await crossed('listCustomers', { 'forjr-after': after }), [1, 0], after.slice(0, 12))
     assert.ok(performance.now() - began < 2000)
   }
   // A mark of an older epoch costs none.
-  assert.deepEqual(await crossed('listCustomers', { 'tent-after': '0.999999' }), [0, 1])
+  assert.deepEqual(await crossed('listCustomers', { 'forjr-after': '0.999999' }), [0, 1])
   far.release()
 })
 
@@ -245,7 +245,7 @@ test('[29-5] a change that states everywhere, a write to a table that a rule rea
   assert.equal((await late).status, 200)
 })
 
-test('[29-6] a reader whose link is cut answers nothing itself after behind: it hands on, and with the writer gone it answers T0029, on /_t/health too', async (t) => {
+test('[29-6] a reader whose link is cut answers nothing itself after behind: it hands on, and with the writer gone it answers F0029, on /_f/health too', async (t) => {
   const { app, near } = await machinesOf(t)
   await send(app, 'addOrder', { title: 'one' })
   await level(app, near)
@@ -259,12 +259,12 @@ test('[29-6] a reader whose link is cut answers nothing itself after behind: it 
   assert.equal(near.at().current, false)
   assert.equal(Object((await send(near, 'listOrders')).value).length, 1)
   assert.deepEqual([callsOf(t, 'data', 'listOrders'), callsOf(t, 'reader-2', 'listOrders')], [onWriter + 1, onNear + 1])
-  // With the writer gone it answers T0029, on `/_t/health` too.
+  // With the writer gone it answers F0029, on `/_f/health` too.
   await app.kill()
   const refused = await send(near, 'listOrders')
-  assert.deepEqual([refused.status, refused.code], [503, 'T0029'])
-  const unwell = await send(near, '', {}, { path: '/_t/health', method: 'GET' })
-  assert.deepEqual([unwell.status, unwell.code], [503, 'T0029'])
+  assert.deepEqual([refused.status, refused.code], [503, 'F0029'])
+  const unwell = await send(near, '', {}, { path: '/_f/health', method: 'GET' })
+  assert.deepEqual([unwell.status, unwell.code], [503, 'F0029'])
 })
 
 test(

@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { CodeRow } from '../core/internal.ts'
 import { codes, isWritten } from '../core/internal.ts'
 
@@ -15,7 +15,7 @@ export function asSaved(value: unknown): { value: unknown; size: number } {
 }
 
 /** The codes of the framework that a second try would only repeat, beside those whose status says so. */
-const neverAgain = ['T7111', 'T7116', 'T0019', 'T0022']
+const neverAgain = ['F7111', 'F7116', 'F0019', 'F0022']
 
 /** The statuses of a framework error that a second try would only repeat. */
 const repeats = [400, 401, 403, 404, 409, 413]
@@ -25,7 +25,7 @@ const repeats = [400, 401, 403, 404, 409, 413]
  * status says that a second try would only repeat it, and the four codes that are named for it.
  */
 export function isTriedAgain(error: unknown): boolean {
-  if (!(error instanceof TentError)) return true
+  if (!(error instanceof ForjrError)) return true
   if (!Object.hasOwn(registry, error.code)) return false
   if (neverAgain.includes(error.code)) return false
   const status = registry[error.code].status
@@ -35,13 +35,13 @@ export function isTriedAgain(error: unknown): boolean {
 /**
  * Takes what was thrown. Answers what a row keeps of it: the code, the short word and the message, with the fix
  * and the fields where it has them. The place of a call that waits for a yes is never kept: it belongs to the one
- * refusal that carried it. An error that is no `TentError` is kept as an error in app code.
+ * refusal that carried it. An error that is no `ForjrError` is kept as an error in app code.
  */
 export function keptError(error: unknown): Record<string, unknown> {
   // The reference under which the log holds an error, where the engine gave it one.
   const ref: unknown = Reflect.get(Object(error), 'ref')
   const referred = typeof ref === 'string' ? { ref } : {}
-  if (error instanceof TentError)
+  if (error instanceof ForjrError)
     return {
       code: error.code,
       name: error.name,
@@ -51,7 +51,7 @@ export function keptError(error: unknown): Record<string, unknown> {
       ...referred,
     }
   return {
-    code: 'T0009',
+    code: 'F0009',
     name: 'internal',
     message: error instanceof Error ? error.message : String(error),
     ...referred,
@@ -59,12 +59,12 @@ export function keptError(error: unknown): Record<string, unknown> {
 }
 
 /** Takes what a row keeps of an error. Answers the error again, as what is thrown. */
-export function thrownOf(kept: unknown): TentError {
+export function thrownOf(kept: unknown): ForjrError {
   const held = isWritten(kept) ? kept : {}
   const fields = isWritten(held.fields)
     ? Object.fromEntries(Object.entries(held.fields).map(([name, check]) => [name, String(check)]))
     : undefined
-  const thrown = new TentError(String(held.code ?? 'T0009'), String(held.message ?? codes.T0009.sentence), {
+  const thrown = new ForjrError(String(held.code ?? 'F0009'), String(held.message ?? codes.F0009.sentence), {
     ...(typeof held.fix === 'string' ? { fix: held.fix } : {}),
     ...(fields ? { fields } : {}),
   })
@@ -78,7 +78,7 @@ export function thrownOf(kept: unknown): TentError {
  */
 export function seenOf(kept: unknown): { code: string; message: string } {
   const held = isWritten(kept) ? kept : {}
-  const code = String(held.code ?? 'T0009')
-  const shown = code !== 'T0009' && (!Object.hasOwn(registry, code) || registry[code].status !== undefined)
-  return shown ? { code, message: String(held.message ?? '') } : { code: 'T0009', message: codes.T0009.sentence }
+  const code = String(held.code ?? 'F0009')
+  const shown = code !== 'F0009' && (!Object.hasOwn(registry, code) || registry[code].status !== undefined)
+  return shown ? { code, message: String(held.message ?? '') } : { code: 'F0009', message: codes.F0009.sentence }
 }

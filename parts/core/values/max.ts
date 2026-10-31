@@ -14,7 +14,7 @@ export function maxWith(tick: Tick, ...values: unknown[]): unknown {
 /**
  * Takes a list of numbers, of days or of moments, all of one kind, and the name of a field of each entry where
  * they stand in one. Answers the largest, in its kind, and nothing for an empty list. Handed one text and nothing
- * else, it answers what `group` takes for a column. Handed a reference it answers its record. Throws T0027 for an
+ * else, it answers what `group` takes for a column. Handed a reference it answers its record. Throws F0027 for an
  * entry of another kind, and for a value that is no list.
  */
 export function max<Entry>(list: readonly Entry[]): Entry | undefined

@@ -1,6 +1,6 @@
 # Orders
 
-An orders tool for a small shop, built with Tent.js. Staff see every order, find one, open it and mark it paid, and add customers and orders. A customer signs in and sees only their own orders. A change one person makes shows in every open page, with no reload.
+An orders tool for a small shop, built with Forjr. Staff see every order, find one, open it and mark it paid, and add customers and orders. A customer signs in and sees only their own orders. A change one person makes shows in every open page, with no reload.
 
 ## What it shows
 
@@ -15,13 +15,13 @@ An orders tool for a small shop, built with Tent.js. Staff see every order, find
 ## Run it
 
 ```sh
-npm install -g tentjs
-git clone https://github.com/tentislabs/tent.js
-cd tent.js/examples/orders
+npm install -g forjr
+git clone https://github.com/forjr/forjr
+cd forjr/examples/orders
 npm install
-tent dev
+forjr dev
 ```
 
 Open `http://localhost:3000` and sign in as `sam@shop.example`, one of the staff, with the password `a long secret`, which the seed gives every person on the data of development.
 
-`tent check` checks the whole app, and `tent test` runs its tests.
+`forjr check` checks the whole app, and `forjr test` runs its tests.

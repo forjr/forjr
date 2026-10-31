@@ -39,14 +39,14 @@ function changed(o: Opened, form: URLSearchParams): Response {
 }
 
 /**
- * `POST /_t/oauth/token`: where a client changes a code for tokens, and renews them, with a form as the standard
+ * `POST /_f/oauth/token`: where a client changes a code for tokens, and renews them, with a form as the standard
  * writes it. A client proves itself by the proof of the standard alone, and no secret. A refusal is the standard's
  * form of one. It passes steps 1, 2 and 4 of the door: counted for its address like a request for a screen, and
  * for its client.
  */
 export const address: Address = {
   order: 2,
-  match: (request) => request.method === 'POST' && programsAt(request, '/_t/oauth/token') && { name: 'oauth-token' },
+  match: (request) => request.method === 'POST' && programsAt(request, '/_f/oauth/token') && { name: 'oauth-token' },
   steps: [1, 2],
   async handle({ app: o, request, about }) {
     let form: URLSearchParams

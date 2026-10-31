@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { CallContext, Work } from './context.ts'
 import { within } from './context.ts'
 import { limitOf } from './limits.ts'
@@ -21,13 +21,13 @@ export type OnRequest = (
 
 // The addresses that the code of a builder is never handed: the commands of this computer, the link between a
 // writer and its readers, and the link of a worker.
-const never = ['/_t/admin', '/_t/copy', '/_t/work']
+const never = ['/_f/admin', '/_f/copy', '/_f/work']
 
 /** Whether a request is one that `onRequest` is called for, by its address. */
 export function isHanded(request: Request): boolean {
   const { pathname } = new URL(request.url)
   // The run commands and the log asked with a key of the right `operate` pass the door as every request does.
-  if (operated.some((name) => pathname === `/_t/admin/${name}`) && sentKey(request) !== undefined) return true
+  if (operated.some((name) => pathname === `/_f/admin/${name}`) && sentKey(request) !== undefined) return true
   return !never.some((one) => pathname === one || pathname.startsWith(`${one}/`))
 }
 
@@ -50,8 +50,8 @@ const open = (answer: Response): Response =>
  * Takes the function of a builder, a request, what the engine knows of it, the most time that the function may
  * take, and what hands a request on to the door. Calls the function, and answers the response that it answers:
  * the one that `next` gave, changed or not, or one of its own. An answer to a request that was handed on under
- * another address than the one asked is kept by no cache. Throws T0008 where the function passes its time, and
- * T0009 where it answers what is no response.
+ * another address than the one asked is kept by no cache. Throws F0008 where the function passes its time, and
+ * F0009 where it answers what is no response.
  */
 export async function handedFirst(
   own: OnRequest,
@@ -63,7 +63,7 @@ export async function handedFirst(
   const asked = new URL(request.url)
   const next: Next = async (handed) => {
     if (!(handed instanceof Request))
-      throw new TentError('T0013', '`next` of `onRequest` takes the request to hand on.', {
+      throw new ForjrError('F0013', '`next` of `onRequest` takes the request to hand on.', {
         fix: 'Hand `next` the request that was asked, or a `Request` of another address.',
       })
     const to = new URL(handed.url)
@@ -79,7 +79,7 @@ export async function handedFirst(
     timer = setTimeout(
       () =>
         refuse(
-          new TentError('T0008', '`onRequest` worked past the time of a call, `limits.actionTime` of the project.', {
+          new ForjrError('F0008', '`onRequest` worked past the time of a call, `limits.actionTime` of the project.', {
             fix: 'Do less for each request, or raise `actionTime` in `project.limits`.',
           }),
         ),
@@ -93,7 +93,7 @@ export async function handedFirst(
       timeUp,
     ])
     if (!(answer instanceof Response))
-      throw new TentError('T0009', '`onRequest` answered what is no response.', {
+      throw new ForjrError('F0009', '`onRequest` answered what is no response.', {
         fix: 'Answer what `next(request)` gave, or a `Response` of your own.',
       })
     // An answer that leaves with a cookie, as the code of the builder may add one, is kept by no cache.
@@ -133,7 +133,7 @@ export function throughOwn(o: Opened, request: Request, about: About, door: Next
   }
   const asked: OnRequest = async (...handed) => {
     const answer = await callIn(cx, o.room, own, handed, false, false)
-    if (!(answer instanceof Response)) throw new TentError('T0009', '`onRequest` answered what is no response.')
+    if (!(answer instanceof Response)) throw new ForjrError('F0009', '`onRequest` answered what is no response.')
     return answer
   }
   return within(cx, () => handedFirst(asked, request, about, time, door))
@@ -143,7 +143,7 @@ export function throughOwn(o: Opened, request: Request, about: About, door: Next
  * Takes an app, the request that opens its live connection, what the engine knows of it, and the function of the
  * program that holds the app, where it has one. Each function that there is is asked, the program's first: it lets
  * the opening pass by handing the request on, and refuses it by answering itself. It cannot change the answer.
- * Throws T3101 for an opening that one of them refused.
+ * Throws F3101 for an opening that one of them refused.
  */
 export async function liveAsked(o: Opened, request: Request, about: About, program?: OnRequest): Promise<void> {
   if (!program && !projectCode(o, 'onRequest')) return
@@ -155,7 +155,7 @@ export async function liveAsked(o: Opened, request: Request, about: About, progr
     })
   await (program ? handedFirst(program, request, about, limitOf(o.description, 'actionTime'), app) : app(request))
   if (!passed)
-    throw new TentError('T3101', 'The opening of the live connection was refused by `onRequest`.', {
-      fix: 'Hand the request of `/_t/live` on with `next(request)`.',
+    throw new ForjrError('F3101', 'The opening of the live connection was refused by `onRequest`.', {
+      fix: 'Hand the request of `/_f/live` on with `next(request)`.',
     })
 }

@@ -1,4 +1,4 @@
-import { project, table, text } from 'tentjs'
+import { project, table, text } from 'forjr'
 
 export const eventing = project('eventing', {})
 

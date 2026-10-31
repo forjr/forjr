@@ -1,11 +1,11 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 
 /**
  * Takes what the work of a task failed with, and its wire form. Answers the wire form with the place of a call that
  * nobody agreed to, where the failure names one: its writer then has the step wait for the person.
  */
 export function workPlaced(error: unknown, wire: object): object {
-  if (!(error instanceof TentError) || error.code !== 'T7111' || !error.place) return wire
+  if (!(error instanceof ForjrError) || error.code !== 'F7111' || !error.place) return wire
   return { ...wire, place: { name: error.place.name, nth: error.place.nth } }
 }
 

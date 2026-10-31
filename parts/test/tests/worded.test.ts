@@ -5,7 +5,7 @@ import test from 'node:test'
 import { served } from './served.ts'
 
 /** The Turkish file of the shop, which is all that a second language adds beside the `languages` line. */
-const turkish = `import { messages } from 'tentjs/ui'
+const turkish = `import { messages } from 'forjr/ui'
 
 export default messages('tr', {
   home: { title: 'Hoş geldiniz', open: 'Siparişleri gör' },
@@ -21,7 +21,7 @@ test('[32-9] a second language added to a finished three-screen app changes only
   const two = await served('worded', {
     change: (folder) => {
       writeFileSync(join(folder, 'messages', 'tr.ts'), turkish)
-      const file = join(folder, 'tent.ts')
+      const file = join(folder, 'forjr.ts')
       writeFileSync(
         file,
         readFileSync(file, 'utf8').replace("title: 'Shop',", "title: 'Shop',\n  languages: ['en', 'tr'],"),

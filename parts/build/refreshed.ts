@@ -1,5 +1,5 @@
 // The end of a module of development for Fast Refresh. The page code of development holds React's own runtime as
-// `__tentRefresh` of the page, and a module reaches it by the two names that the builder's transform writes,
+// `__forjrRefresh` of the page, and a module reaches it by the two names that the builder's transform writes,
 // `$RefreshReg$` and `$RefreshSig$`, which Vite's plug-in for React hands each module the same way.
 import type { SourceFile } from './work.ts'
 
@@ -18,13 +18,13 @@ export function refreshEnd(file: SourceFile, address: string): string {
   const place = JSON.stringify(`${file.path} `)
   const views = (file.seen?.declared ?? []).filter((one) => one.word === 'screen' || one.word === 'component')
   return [
-    `function $RefreshReg$(type, id) { globalThis.__tentRefresh?.register(type, ${place} + id, ${reset}) }`,
-    `function $RefreshSig$() { return globalThis.__tentRefresh?.sign(${reset}) ?? ((type) => type) }`,
+    `function $RefreshReg$(type, id) { globalThis.__forjrRefresh?.register(type, ${place} + id, ${reset}) }`,
+    `function $RefreshSig$() { return globalThis.__forjrRefresh?.sign(${reset}) ?? ((type) => type) }`,
     // A family that stands inside another is named after it, as React's runtime names the render of a `forwardRef`.
     ...views.map(
       (one) => `$RefreshReg$(${one.exportName}.options?.view, ${JSON.stringify(`${one.name ?? one.exportName}$view`)})`,
     ),
-    `globalThis.__tentRefresh?.held(${JSON.stringify(address)}, import.meta.url)`,
+    `globalThis.__forjrRefresh?.held(${JSON.stringify(address)}, import.meta.url)`,
     '',
   ].join('\n')
 }

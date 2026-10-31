@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fingerprintOf } from '../../core/internal.ts'
 import { sameSecret } from '../../core/index.ts'
 
@@ -13,7 +13,7 @@ export interface ReaderKey {
 const keyId = (key: string): string => fingerprintOf(new TextEncoder().encode(key)).slice(0, 16)
 
 /**
- * Takes `readers` of `open`: each entry a key, or a key that is far. Answers the keys. Throws T0013 for an entry
+ * Takes `readers` of `open`: each entry a key, or a key that is far. Answers the keys. Throws F0013 for an entry
  * that is no key: a key is a text of 32 characters or more.
  */
 export function readerKeysOf(readers: unknown): ReaderKey[] {
@@ -21,7 +21,7 @@ export function readerKeysOf(readers: unknown): ReaderKey[] {
   for (const one of Array.isArray(readers) ? readers : []) {
     const key: unknown = typeof one === 'string' ? one : Reflect.get(Object(one), 'key')
     if (typeof key !== 'string' || key.length < 32)
-      throw new TentError('T0013', 'A key of `readers` is a text of 32 characters or more.', {
+      throw new ForjrError('F0013', 'A key of `readers` is a text of 32 characters or more.', {
         fix: "Name each reader's key: `readers: [key, { key, far: true }]`.",
       })
     keys.push({ id: keyId(key), key, far: typeof one !== 'string' && Reflect.get(Object(one), 'far') === true })

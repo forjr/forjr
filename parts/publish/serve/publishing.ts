@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import type { App, ServedRequest } from '../../engine/index.ts'
 import { secretsNamed } from '../../engine/index.ts'
@@ -24,7 +24,7 @@ export interface PublishServer {
   previews?: Previews
 }
 
-/** What a publish answers, as `Published` of `tentjs/publish`, the target's part of it. */
+/** What a publish answers, as `Published` of `forjr/publish`, the target's part of it. */
 interface Answered {
   version: string
   point: string
@@ -74,7 +74,7 @@ export function healthAfter(running: Description, next: Description, steps: obje
 
 /**
  * Asks the health query of the project of a version, where it names one, as the system, of that version, within
- * the time it states. Throws T9103 with `health` where it fails or is late.
+ * the time it states. Throws F9103 with `health` where it fails or is late.
  */
 export async function healthy(app: App, description: Description, version: string): Promise<void> {
   const asked: Record<string, unknown> = Object(Object(description.project).publish)
@@ -119,10 +119,10 @@ const movingTables = (from: Description, to: Description): string[] =>
       (from.tables[name].tenant === undefined) !== (to.tables[name].tenant === undefined),
   )
 
-/** Why a switch was refused, as the reason of T9103. */
-function refusalOf(error: unknown): TentError {
-  const code = error instanceof TentError ? error.code : 'T0009'
-  const reason = /^T200[1-4]$/.test(code) || code === 'T2107' ? 'rows' : 'switch'
+/** Why a switch was refused, as the reason of F9103. */
+function refusalOf(error: unknown): ForjrError {
+  const code = error instanceof ForjrError ? error.code : 'F0009'
+  const reason = /^F200[1-4]$/.test(code) || code === 'F2107' ? 'rows' : 'switch'
   return refusedPush(
     `The version cannot be switched to: ${error instanceof Error ? error.message : String(error)}`,
     { reason, code },
@@ -134,7 +134,7 @@ function refusalOf(error: unknown): TentError {
  * Carries a publish out on the target, steps 5 to 9: the bundle that the point names is held against the version
  * id, the data against the new tables, and the secrets it names against those that have a value; it is added
  * beside the running one, its health query asked, and switched to; `live` moves to the point. With `try` it
- * answers what it would do, with nothing changed. Throws T9103 with what refused it, and T9107 for what was not sent.
+ * answers what it would do, with nothing changed. Throws F9103 with what refused it, and F9107 for what was not sent.
  */
 async function published(server: PublishServer, body: Record<string, unknown>): Promise<Answered> {
   const { app, history } = server
@@ -176,12 +176,14 @@ async function published(server: PublishServer, body: Record<string, unknown>): 
   } else {
     const files: Record<string, unknown> = Object(body.files)
     if (typeof body.point !== 'string' || typeof body.version !== 'string')
-      throw new TentError('T0002', 'A publish names `point`, `version` and `files`.', { fields: { point: 'required' } })
+      throw new ForjrError('F0002', 'A publish names `point`, `version` and `files`.', {
+        fields: { point: 'required' },
+      })
     const named = history.read(body.point)
     if (named?.kind !== 'published' || named.name !== body.version)
       throw notHeld(`The server holds no point of the publish of the version ${body.version}.`, { point: body.point })
     if (Object.values(files).some((one) => typeof one !== 'string'))
-      throw new TentError('T0002', '`files` names each file of the bundle by its fingerprint.', {
+      throw new ForjrError('F0002', '`files` names each file of the bundle by its fingerprint.', {
         fields: { files: 'type' },
       })
     bundle = keepBundle(history, body.version, Object(files))
@@ -297,17 +299,17 @@ async function published(server: PublishServer, body: Record<string, unknown>): 
   }
 }
 
-/** A publish of the preview of a branch, on a server that keeps previews. Throws T9103 on one that keeps none. */
+/** A publish of the preview of a branch, on a server that keeps previews. Throws F9103 on one that keeps none. */
 function preview(server: PublishServer, body: Record<string, unknown>, request: Request): ReturnType<typeof previewed> {
   if (!server.previews)
-    throw refusedPush('This server keeps no previews.', { reason: 'preview' }, 'Start the server with `tent start`.')
+    throw refusedPush('This server keeps no previews.', { reason: 'preview' }, 'Start the server with `forjr start`.')
   return previewed(server.previews, body, new URL(request.url))
 }
 
-/** Answers `/_t/publish`: one publish at a time for an app, a second at once is T9103. */
+/** Answers `/_f/publish`: one publish at a time for an app, a second at once is F9103. */
 export async function publishAnswer(server: PublishServer, asked: ServedRequest): Promise<Response> {
   if (!asked.key.rights.includes('publish'))
-    throw new TentError('T9104', 'Publishing needs a key with the right `publish`.', { fields: { right: 'publish' } })
+    throw new ForjrError('F9104', 'Publishing needs a key with the right `publish`.', { fields: { right: 'publish' } })
   if (server.busy)
     throw refusedPush(
       'Another publish of this app is under way.',
@@ -325,9 +327,9 @@ export async function publishAnswer(server: PublishServer, asked: ServedRequest)
     }
     // A record that names one key twice, a path of the files among them, is read as no record at all.
     if (namesKeyTwice(text))
-      throw new TentError('T0002', 'The body names one key twice in one record.', { fields: { body: 'twice' } })
+      throw new ForjrError('F0002', 'The body names one key twice in one record.', { fields: { body: 'twice' } })
     if (typeof body !== 'object' || body === null || Array.isArray(body))
-      throw new TentError('T0002', 'The body is a record in the wire form.', { fields: { body: 'type' } })
+      throw new ForjrError('F0002', 'The body is a record in the wire form.', { fields: { body: 'type' } })
     const given = Object(body)
     const value =
       given.preview === undefined ? await published(server, given) : await preview(server, given, asked.request)

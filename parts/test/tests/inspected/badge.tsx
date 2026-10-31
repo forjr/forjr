@@ -1,4 +1,4 @@
-import { component, text } from 'tentjs/ui'
+import { component, text } from 'forjr/ui'
 
 export const Badge = component('Badge', {
   props: { label: text() },

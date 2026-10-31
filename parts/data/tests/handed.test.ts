@@ -66,7 +66,7 @@ test('[20-14] [night] handedAnswer passes what db handed out, without the privat
     Array(3).fill(['n', 'name']),
   )
   // A `db` that is limited is refused a group by the column, and leaves a value worked out from it out by itself.
-  assert.throws(() => at(db, 'users').group('salary', { n: count() }).all(), { code: 'T0013' })
+  assert.throws(() => at(db, 'users').group('salary', { n: count() }).all(), { code: 'F0013' })
   assert.ok(
     at(db, 'users')
       .group('name', { total: sum('salary'), n: count() })
@@ -99,7 +99,7 @@ test('[20-14] [night] handedAnswer passes what db handed out, without the privat
   ])
     assert.equal(
       codeOf(() => handedAnswer(wrong)),
-      'T0009',
+      'F0009',
       JSON.stringify(wrong),
     )
 })
@@ -232,7 +232,7 @@ test('[20-14] [night] raw SQL through db: who has it, what ends a statement, and
   assert.equal(nOf(db)('customers', s.bolt), Object(order).customer)
   assert.equal(
     codeOf(() => nOf(db)('customers', '00000000000000000000000000')),
-    'T2103',
+    'F2103',
   )
 
   // A semicolon inside quoted text or inside a comment ends nothing, and a comment after the closing one is taken.
@@ -247,16 +247,16 @@ test('[20-14] [night] raw SQL through db: who has it, what ends a statement, and
   // A code query that answers a raw row with no `output` is refused.
   assert.equal(
     codeOf(() => handedAnswer(sql('SELECT "id", "name" FROM "users"'))),
-    'T0009',
+    'F0009',
   )
   assert.equal(
     codeOf(() => handedAnswer(sql('SELECT "id", "name" FROM "users"')[0])),
-    'T0009',
+    'F0009',
   )
 
   for (const text of [
-    'SELECT * FROM "_t_meta"',
-    'SELECT * FROM "_t_history"',
+    'SELECT * FROM "_f_meta"',
+    'SELECT * FROM "_f_history"',
     'SELECT 1; SELECT 2',
     'COMMIT',
     'PRAGMA journal_mode = DELETE',
@@ -265,7 +265,7 @@ test('[20-14] [night] raw SQL through db: who has it, what ends a statement, and
   ]) {
     assert.equal(
       codeOf(() => sql(text)),
-      'T0013',
+      'F0013',
       text,
     )
     // Inside a change too.
@@ -273,18 +273,18 @@ test('[20-14] [night] raw SQL through db: who has it, what ends a statement, and
       codeOf(() =>
         store.write((tx) => sqlOf(createDb(tx, description, system, 'write', {}, { system: true }))(text, [])),
       ),
-      'T0013',
+      'F0013',
       text,
     )
   }
   // A text that writes outside a write.
   assert.equal(
     codeOf(() => sql('UPDATE "teams" SET "name" = \'x\'')),
-    'T0012',
+    'F0012',
   )
   assert.equal(
     codeOf(() => sql('DELETE FROM "lines"')),
-    'T0012',
+    'F0012',
   )
   assert.deepEqual(sql('SELECT count(*) AS "n" FROM "lines"'), [{ n: 1 }])
   // Inside a change it writes.

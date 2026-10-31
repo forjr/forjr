@@ -17,7 +17,7 @@ function refreshedFamilies(): { kept: unknown[]; anew: unknown[] } {
 test('[31-22] the part refresh registers the component that the page draws a view through as the family of the view, with the signature of the view: a save that keeps the hooks keeps its state, and one that changes them mounts it anew', async () => {
   Reflect.set(globalThis, 'window', globalThis)
   await import('../page/refresh/refresh.ts')
-  const refreshing = globalThis.__tentRefresh
+  const refreshing = globalThis.__forjrRefresh
   assert.ok(refreshing)
   refreshing.views(drawingOf)
   /** A view as a module of development makes it: signed by the transform, then registered by the end of its module. */

@@ -1,8 +1,8 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 
 /** The error of a query that reads a clock, draws a random number or reaches the network while it runs. */
-export const notPure = (what: string): TentError =>
-  new TentError('T4101', `A query ${what} while it ran: a query answers the same for the same data.`, {
+export const notPure = (what: string): ForjrError =>
+  new ForjrError('F4101', `A query ${what} while it ran: a query answers the same for the same data.`, {
     fix: 'Read the time from the `now` that the query is handed, and move what draws or reaches out into an action.',
   })
 
@@ -30,7 +30,7 @@ let fetching: typeof fetch | undefined
 
 /**
  * Takes the `run` of a query, or the arrow of a rule. Carries it out with the clock and the random source of the
- * runtime swapped for ones that fail with T4101, and takes the swap back when it has ended, also where it failed.
+ * runtime swapped for ones that fail with F4101, and takes the swap back when it has ended, also where it failed.
  * That is safe because such work runs from start to finish with nothing else in between.
  */
 export function pure<Answer>(work: () => Answer): Answer {

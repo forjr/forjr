@@ -1,4 +1,4 @@
-import { read, screen } from 'tentjs/ui'
+import { read, screen } from 'forjr/ui'
 import { busyCount } from './functions'
 
 // A screen whose data is a query that holds the processor.

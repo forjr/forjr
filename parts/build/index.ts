@@ -23,6 +23,12 @@ export type { Keeping } from './lookups.ts'
 export { keeping } from './lookups.ts'
 
 export type { Source } from './projectSource.ts'
+// What the map and the impact read of the code beside the description: what it does, where each definition stands,
+// and the files each file imports.
+export { seenInCode, tableOfMember } from './seenInCode.ts'
+export type { DefinitionAt } from './placeLine.ts'
+export { linesOf, rawAt } from './placeLine.ts'
+export { filesImported } from './reach.ts'
 
 /** Carries the steps of the build out on a folder, in their order, and answers what they made. */
 async function build(
@@ -47,7 +53,7 @@ async function build(
  * the folder of the bundle. Finds, sorts, loads and
  * describes the files of the project, writes its type list, builds a module for each backend file that holds
  * code, and writes the bundle with its description last. Answers the description, the folder of the bundle, the
- * version id and what was found. With an error among the findings no bundle is written, and the folder and the
+ * version id, what was found, and the source of the project as the build read it. With an error among the findings no bundle is written, and the folder and the
  * version id are empty text.
  */
 export async function buildProject(
@@ -59,6 +65,7 @@ export async function buildProject(
   versionId: string
   findings: Finding[]
   drawn: Record<string, { packages?: Record<string, string>; calls?: string[] }>
+  source: Source
 }> {
   const work = await build(folder, options, true)
   return {
@@ -67,6 +74,7 @@ export async function buildProject(
     versionId: work.versionId ?? '',
     findings: work.findings,
     drawn: work.drawn ?? {},
+    source: sourceOf(work),
   }
 }
 
@@ -172,9 +180,9 @@ export { storeTidied } from './steps/write.ts'
 /**
  * Takes the folder of a project, and what makes the installer of packages, as the engine hands it, from `python` of
  * `project`. Describes the project, and resolves the `packages` of its `python` definitions into each of its locks,
- * written into its root, as `tent python lock` does: a lock that is out of date is what it makes anew. Answers the
+ * written into its root, as `forjr python lock` does: a lock that is out of date is what it makes anew. Answers the
  * Python the locks were made for, the files written, and what was found: what the description finds wrong stops
- * it, and a lock that could not be made is T7020.
+ * it, and a lock that could not be made is F7020.
  */
 export async function lockProject(
   folder: string,
@@ -182,7 +190,7 @@ export async function lockProject(
 ): Promise<{ python: string; written: string[]; findings: Finding[] }> {
   const { description, findings } = await describeProject(folder)
   // A lock that does not fit what the project names is what the command is for.
-  const stops = findings.filter((one) => one.level === 'error' && one.code !== 'T7020')
+  const stops = findings.filter((one) => one.level === 'error' && one.code !== 'F7020')
   if (stops.length) return { python: '', written: [], findings: stops }
   const python: unknown = description.project.python
   const stated = typeof python === 'object' && python !== null ? { ...python } : {}

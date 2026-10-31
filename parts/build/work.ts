@@ -1,5 +1,5 @@
 import type { Finding } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description, Loaded } from '../core/internal.ts'
 import { finding } from '../core/internal.ts'
 import type { Made } from './borrowed/vite.ts'
@@ -134,10 +134,10 @@ const plainWords = (text: string): string => text.replace(colors, '')
 /** Reports what a word threw while a file was loaded, at the line it is known for. */
 export function threw(work: Work, file: SourceFile, node: Node | undefined, error: unknown): void {
   const words = error instanceof Error ? error.message : String(error)
-  if (error instanceof TentError)
+  if (error instanceof ForjrError)
     found(work, error.code, file, node, words, error.fix ?? 'Mend what the message names.')
   else
-    found(work, 'T1014', file, node, `The file ${file.path} cannot be loaded: ${words}`, 'Mend what the message names.')
+    found(work, 'F1014', file, node, `The file ${file.path} cannot be loaded: ${words}`, 'Mend what the message names.')
 }
 
 /** Takes the folder of a project, the options of a build, and whether a bundle is written. Answers the work of that build, with nothing done yet. */

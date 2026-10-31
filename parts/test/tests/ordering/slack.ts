@@ -1,4 +1,4 @@
-import { post, secret, service, text } from 'tentjs'
+import { post, secret, service, text } from 'forjr'
 
 // The address is written anew by the test, with the port of its stand-in server.
 export const slack = service('slack', {

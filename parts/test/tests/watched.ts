@@ -25,7 +25,7 @@ const origin = 'https://many.test'
  * silent.
  */
 export function watcher(app: TestApp): Watcher {
-  const end = app.live(new Request(`${origin}/_t/live`, { headers: { origin } }))
+  const end = app.live(new Request(`${origin}/_f/live`, { headers: { origin } }))
   const got: Message[] = []
   let closed = false
   end.each(

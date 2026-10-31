@@ -9,7 +9,7 @@ Text. It is for a person and for a coding agent that reads the project. It is no
 ## Example
 
 ```tsx
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 export const ordersScreen = screen('ordersScreen', {
   path: '/orders',

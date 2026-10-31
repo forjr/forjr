@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { rowIds } from '../../data/index.ts'
 import type { CallContext } from '../context.ts'
 import { callService } from '../services/call.ts'
@@ -18,7 +18,7 @@ export function calledOnWorker(cx: CallContext, definition: string, args: unknow
   return callService(cx, definition, args, {
     onWorker: async (held, input, call) => {
       const remote = held.remote
-      if (!remote) throw new TentError('T0009', 'A call of a worker is made in the work of a task.')
+      if (!remote) throw new ForjrError('F0009', 'A call of a worker is made in the work of a task.')
       const { key, nth, agreed } = mayPlace(held, definition, input)
       const may = rowIds.next()
       const said = await remote.ask({ what: 'may', may, ...told, key, nth })

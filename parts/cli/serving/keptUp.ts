@@ -14,9 +14,9 @@ const newer = (a: string, b: string): boolean => {
 }
 
 /**
- * Takes what `--update` of `tent start` names, what says a line in the log, and what ends the server with 75 once
+ * Takes what `--update` of `forjr start` names, what says a line in the log, and what ends the server with 75 once
  * it took a release. Looks at once, and then once a day: with `fixes` for the newest release of its own line that
- * is marked as a fix, with `all` for the newest of its major version. It fetches one as `tent update` does, and
+ * is marked as a fix, with `all` for the newest of its major version. It fetches one as `forjr update` does, and
  * then the server is ended, so that the launcher starts it again on the new version. Under the npm door, and for a
  * framework that runs from its sources, it takes none, and says so once. Answers what stops it.
  */
@@ -41,7 +41,7 @@ export function keptUp(o: { update: 'fixes' | 'all'; say(line: string): void; to
       const { list } = await signedList(at.from, 'releases.json', {
         keys,
         fetch,
-        format: 'tent.releases/1',
+        format: 'forjr.releases/1',
         time: 30_000,
         home,
         seen: 'releases',
@@ -60,7 +60,7 @@ export function keptUp(o: { update: 'fixes' | 'all'; say(line: string): void; to
         .sort((a, b) => (newer(a.version, b.version) ? -1 : 1))[0]
       if (!taken) return
       await updateInstall(home, { version: taken.version, from: at.from, keys, fetch })
-      o.say(`Tent.js ${taken.version} was taken by itself: the server starts again on it.`)
+      o.say(`Forjr ${taken.version} was taken by itself: the server starts again on it.`)
       o.took()
     } catch (error) {
       o.say(`No release was taken by itself: ${error instanceof Error ? error.message : String(error)}`)

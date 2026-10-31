@@ -1,4 +1,4 @@
-import { allow, change, input, number, query, random, table, text } from 'tentjs'
+import { allow, change, input, number, query, random, table, text } from 'forjr'
 
 export const notes = table('notes', { columns: { body: text(), n: number() }, access: { read: 'signedIn' } })
 

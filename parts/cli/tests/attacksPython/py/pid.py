@@ -1,5 +1,5 @@
 import os
 
 
-def run(input, tent):
+def run(input, forjr):
     return os.getpid()

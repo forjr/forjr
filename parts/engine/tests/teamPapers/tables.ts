@@ -1,4 +1,4 @@
-import { file, link, list, project, table, text } from 'tentjs'
+import { file, link, list, project, table, text } from 'forjr'
 
 export const teamPapers = project('teamPapers', {
   limits: { anyonePerMinute: 100000, callerPerMinute: 100000, filesAtOnce: 2 },

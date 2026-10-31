@@ -17,7 +17,7 @@ export function addressAsked(asked: unknown[]): string {
 /**
  * Takes the call that a `fetch` of backend code is made in, what it was handed, and the `fetch` of the runtime.
  * Sends it through the guarded fetch in its plain form, held to the address rule of the app: a private or a local
- * address is refused (T0022), straight and through a redirect, unless `privateHosts` lists it, and no cap holds.
+ * address is refused (F0022), straight and through a redirect, unless `privateHosts` lists it, and no cap holds.
  * An address that opens no connection, `data:` and `blob:`, is the runtime's own to answer.
  */
 export async function heldToAddresses(

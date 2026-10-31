@@ -1,12 +1,12 @@
 // The crossing of values between the engine and a room whose code lives in a heap of its own: the runtime's
 // structured clone, with a mark in place of what it cannot carry. Both sides use it, so it imports `core` alone, and
 // the crossing of errors beside it, which imports `core` alone too.
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Crossed } from './crossing.ts'
 import { crossed, revived, rowsAsText, rowsOfText } from './crossing.ts'
 
 // The key of a mark: no value that code makes holds it.
-const key = '\u0000tent'
+const key = '\u0000forjr'
 
 /** What stands for a value that structured clone cannot carry. */
 type Marked =
@@ -88,8 +88,8 @@ export interface Bounds {
 const isMarked = (value: unknown): value is Marked =>
   typeof value === 'object' && value !== null && typeof Reflect.get(value, key) === 'string'
 
-const tooLarge = (what: string): TentError =>
-  new TentError('T0009', `A value that crosses into or out of the room of the app is ${what}.`, {
+const tooLarge = (what: string): ForjrError =>
+  new ForjrError('F0009', `A value that crosses into or out of the room of the app is ${what}.`, {
     fix: 'Hand and answer smaller values: a value crosses 64 deep and `limits.valueSize` large at most.',
   })
 
@@ -100,7 +100,7 @@ const whole = (value: object): boolean =>
 /**
  * Takes a value of this side, what keeps what cannot cross, and the bounds. Answers the value as it crosses: a
  * record of its own fields for a value of a class, each getter read once, and a mark for a function, a promise, a
- * stream, a `db`, an error, a request and a response. Throws T0009 for a value deeper or larger than the bounds.
+ * stream, a `db`, an error, a request and a response. Throws F0009 for a value deeper or larger than the bounds.
  */
 export function outOf(value: unknown, keep: Keeper, bounds: Bounds): unknown {
   let size = 0
@@ -266,7 +266,7 @@ function iterableOf(n: number, ask: Asker): AsyncIterable<unknown> {
 /**
  * Takes a value that crossed and how this side asks for what the other kept. Answers it as a value of this heap: a
  * function that asks for its call, a promise that the other side settles, a stream pulled piece by piece, a `db`,
- * and an error rebuilt as an error of this heap, a `TentError` with what it carried.
+ * and an error rebuilt as an error of this heap, a `ForjrError` with what it carried.
  */
 export function intoOf(value: unknown, ask: Asker): unknown {
   return intoAt(value, ask)
@@ -339,7 +339,7 @@ function intoAt(value: unknown, ask: Asker): unknown {
       case 'theirs': {
         const own = ask.theirs?.(one.n)
         if (own === undefined)
-          throw new TentError('T0013', 'A request crossed back that this side did not hand in the call.')
+          throw new ForjrError('F0013', 'A request crossed back that this side did not hand in the call.')
         return own
       }
       case 'db':
@@ -381,4 +381,5 @@ function intoAt(value: unknown, ask: Asker): unknown {
 
 /** An error as it crosses, and the one it stands for on the side it reaches. */
 export const errorOut = (error: unknown): Crossed => crossed(error)
+/** Takes an error as it crossed. Answers the error it stands for on the side it reached. */
 export const errorIn = (failed: Crossed): Error => revived(failed)

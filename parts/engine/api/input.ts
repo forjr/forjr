@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { bodyOf } from '../web/body.ts'
 import { readJson } from '../web/json.ts'
 import { isWritten } from '../../core/internal.ts'
@@ -20,7 +20,7 @@ function valueOf(type: unknown, written: string): unknown {
 /**
  * The input of a `GET` of the API: one name after the question mark for each field. Text, a choice, a link, a day
  * and a file id are taken as they are, a number, true or false and a date as text, a list as its name once for each
- * entry, and an object, a `json` or a vector as JSON text. Throws T0002 for a name given twice for a field that is
+ * entry, and an object, a `json` or a vector as JSON text. Throws F0002 for a name given twice for a field that is
  * no list. The door checks what it answers, as any input.
  */
 export function queryInput(input: unknown, asked: URLSearchParams): Record<string, unknown> {
@@ -35,7 +35,7 @@ export function queryInput(input: unknown, asked: URLSearchParams): Record<strin
       continue
     }
     if (all.length > 1)
-      throw new TentError('T0002', `\`${name.slice(0, 40)}\` was given ${all.length} times, and is no list.`, {
+      throw new ForjrError('F0002', `\`${name.slice(0, 40)}\` was given ${all.length} times, and is no list.`, {
         fields: { [name.slice(0, 40)]: 'type' },
         fix: 'Give a field that is no list once.',
       })
@@ -46,19 +46,23 @@ export function queryInput(input: unknown, asked: URLSearchParams): Record<strin
 
 /**
  * The input of a `POST` of the API: the body, one JSON object, stated as `Content-Type: application/json`. An
- * empty body is no input. Throws T0002 for any other body, and T0003 for one over the size of a call.
+ * empty body is no input. Throws F0002 for any other body, and F0003 for one over the size of a call.
  */
 export async function bodyInput(request: Request, size: number): Promise<unknown> {
   const bytes = await bodyOf(request, size)
   if (!bytes.length) return {}
   const type = (request.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase()
   if (type !== 'application/json')
-    throw new TentError('T0002', 'The body of a call to the API is JSON, stated as `Content-Type: application/json`.', {
-      fields: { '': 'type' },
-    })
+    throw new ForjrError(
+      'F0002',
+      'The body of a call to the API is JSON, stated as `Content-Type: application/json`.',
+      {
+        fields: { '': 'type' },
+      },
+    )
   const body = readJson(bytes)
   if (!isWritten(body))
-    throw new TentError('T0002', 'The body of a call to the API is the input itself, as one JSON object.', {
+    throw new ForjrError('F0002', 'The body of a call to the API is the input itself, as one JSON object.', {
       fields: { '': 'type' },
     })
   return body

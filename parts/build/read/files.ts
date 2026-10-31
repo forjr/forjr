@@ -45,7 +45,7 @@ export function reachOf(work: Work, file: SourceFile, known: Map<string, Map<str
     const target = one.from.startsWith('.') ? namedFile(file.file, one.from) : undefined
     const path = target ? keptPath(work, target) : undefined
     const app = path !== undefined ? known.get(path)?.get(one.name) : undefined
-    if (one.from === 'tentjs' || one.from === 'tentjs/ui') imports.set(one.local, { ours: one.name })
+    if (one.from === 'forjr' || one.from === 'forjr/ui') imports.set(one.local, { ours: one.name })
     else if (target && path !== undefined && textFile.test(target) && one.name === 'default')
       imports.set(one.local, { text: textOf(target), textFile: path })
     else imports.set(one.local, app ? { app } : { other: one.from })

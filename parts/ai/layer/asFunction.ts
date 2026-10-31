@@ -1,5 +1,5 @@
 import type { Type } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { checkValue, isStored } from '../../core/internal.ts'
 import type { AiEnv, Base, Provider, Result } from '../face.ts'
 import { ProviderFailure } from '../../core/internal.ts'
@@ -123,9 +123,9 @@ async function jobDone(
 
 /**
  * Takes a model call and the input of a model that is a function. Checks the input against the model's `input`
- * (T0002), hands each file in it to the provider as its bytes, and asks the provider: through `begin` and `check`
+ * (F0002), hands each file in it to the provider as its bytes, and asks the provider: through `begin` and `check`
  * where it has them, and through `call` otherwise. Stores each file of the answer, and checks the answer against
- * the model's `output` (T7108). Answers the output.
+ * the model's `output` (F7108). Answers the output.
  */
 export async function calledAsFunction(asking: Asking, given: unknown): Promise<unknown> {
   const { env, version } = asking
@@ -134,7 +134,7 @@ export async function calledAsFunction(asking: Asking, given: unknown): Promise<
   const { input } = typesOf(env, version, asked)
   const found = checkValue(input, given)
   if (found.length)
-    throw new TentError('T0002', `The input of the model ${asked.name} does not fit: ${found[0].message}`, {
+    throw new ForjrError('F0002', `The input of the model ${asked.name} does not fit: ${found[0].message}`, {
       fields: Object.assign({}, ...found.map((one) => one.fields ?? {})),
       fix: 'Give each field of the input a value of its declared type, and no field that is not declared.',
     })
@@ -162,8 +162,8 @@ export async function calledAsFunction(asking: Asking, given: unknown): Promise<
       if (own.output) {
         const missed = checkValue(own.output, output)
         if (missed.length)
-          throw new TentError(
-            'T7108',
+          throw new ForjrError(
+            'F7108',
             `The answer of the model ${model.name} does not fit its output: ${missed.map((one) => one.message).join(' ')}`,
             { fix: 'State an `output` that the answer fits, or ask a model that keeps to it.' },
           )

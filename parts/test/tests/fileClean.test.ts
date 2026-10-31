@@ -28,9 +28,9 @@ const holds = (file: string, table: string): boolean =>
   readFile(file, `SELECT count(*) AS "n" FROM "sqlite_master" WHERE "type" = 'table' AND "name" = '${table}'`)[0]?.n ===
   1
 
-test('[50-5@6] tent data clean reaches each file of a tenant: a retired table is dropped in a file that is open and in one that is closed, each by a write of a higher number, and what the app still reads stays', async (t) => {
+test('[50-5@6] forjr data clean reaches each file of a tenant: a retired table is dropped in a file that is open and in one that is closed, each by a write of a higher number, and what the app still reads stays', async (t) => {
   const folder = copyOf(t, 'moving')
-  const [tables, tent] = [join(folder, 'tables.ts'), join(folder, 'tent.ts')]
+  const [tables, forjr] = [join(folder, 'tables.ts'), join(folder, 'forjr.ts')]
   appendFileSync(tables, marks)
   const built = async (out: string): Promise<string> => {
     const made = await buildProject(folder, { for: 'dev', out: join(folder, '..', out) })
@@ -62,8 +62,11 @@ test('[50-5@6] tent data clean reaches each file of a tenant: a retired table is
   // The signs are removed on purpose: the pass retires them in each file, where their rows stay.
   writeFileSync(tables, readFileSync(tables, 'utf8').replace(signs, ''))
   writeFileSync(
-    tent,
-    readFileSync(tent, 'utf8').replace("title: 'Notes that move',", "title: 'Notes that move',\n  removed: ['signs'],"),
+    forjr,
+    readFileSync(forjr, 'utf8').replace(
+      "title: 'Notes that move',",
+      "title: 'Notes that move',\n  removed: ['signs'],",
+    ),
   )
   const without = await app.add(await built('bundle-2'))
   await app.switch(without)

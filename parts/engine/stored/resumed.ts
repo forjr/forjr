@@ -12,7 +12,7 @@ import {
 } from 'node:fs'
 import { join } from 'node:path'
 import { Writable } from 'node:stream'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { storedLimit } from '../limits.ts'
 import type { Opened } from '../opened.ts'
 import { streamed } from '../web/streamed.ts'
@@ -54,8 +54,8 @@ const recordOf = (o: Opened, id: string): string => join(folderOf(o), `${id}.jso
 const partOf = (o: Opened, id: string): string => join(folderOf(o), `${id}.part`)
 
 /** The error of an upload id that names nothing for this caller: one that is not there and one of another are told alike. */
-const unknown = (): TentError =>
-  new TentError('T0001', 'No upload under way has that id.', {
+const unknown = (): ForjrError =>
+  new ForjrError('F0001', 'No upload under way has that id.', {
     fix: 'Begin the upload anew: an upload is named by the caller who began it, for `limits.uploadResume` after its last part.',
   })
 
@@ -108,7 +108,7 @@ export function underwayBytes(o: Opened, by: string, address?: string): { own: n
   return { own, all }
 }
 
-/** What an upload under way is, for the caller who names it. Throws T0001 for an id that names none of theirs. */
+/** What an upload under way is, for the caller who names it. Throws F0001 for an id that names none of theirs. */
 function underwayOf(o: Opened, id: string, by: string): Kept {
   if (!/^[0-9a-f]{32}$/.test(id)) throw unknown()
   standing(o)
@@ -151,15 +151,15 @@ export async function beginUpload(
   return { upload: id, offset: 0 }
 }
 
-/** Where an upload in parts of this caller stands: how many of its bytes have arrived. Throws T0001. */
+/** Where an upload in parts of this caller stands: how many of its bytes have arrived. Throws F0001. */
 export function uploadAt(o: Opened, id: string, by: string): { upload: string; offset: number; direct: boolean } {
   const underway = underwayOf(o, id, by)
   return { upload: id, offset: underway.direct ? 0 : offsetOf(o, id), direct: underway.direct !== undefined }
 }
 
 /** The error of a part that does not go on from where its upload stands. */
-const notThere = (held: number, said: string): TentError =>
-  new TentError('T0002', `The upload stands at ${held} bytes, and ${said}.`, {
+const notThere = (held: number, said: string): ForjrError =>
+  new ForjrError('F0002', `The upload stands at ${held} bytes, and ${said}.`, {
     fields: { offset: 'values' },
     fix: 'Ask where the upload stands, with no `Upload-Offset`, and send the bytes from there.',
   })
@@ -168,7 +168,7 @@ const notThere = (held: number, said: string): TentError =>
  * Takes the next part of an upload in parts of this caller, at the offset the caller states, with the length the
  * part states. What arrives is kept as it arrives, so a part that is cut off keeps what came before the cut, and
  * keeps the upload for another `limits.uploadResume`. Answers where the upload stands, or the file once its last
- * byte has arrived, as `done` answers it. Throws T0001 for an id that names none of the caller's, and T0002 for
+ * byte has arrived, as `done` answers it. Throws F0001 for an id that names none of the caller's, and F0002 for
  * an offset that is not where the upload stands and for a part that was cut off.
  */
 export async function uploadPart(
@@ -266,8 +266,8 @@ async function heldBytes(o: Opened, name: string): Promise<ReadableStream<Uint8A
 /**
  * Takes in an upload of this caller that went straight to the store, once the store holds its bytes: they are
  * read for their fingerprint and their kind, as the bytes of any upload are, and are held to the size and the kind
- * that were stated. Answers the file, as `done` answers it. Throws T0001 for an id that names none of the
- * caller's, and T0002 while the store holds no bytes of it, and where its bytes are not what was stated: the
+ * that were stated. Answers the file, as `done` answers it. Throws F0001 for an id that names none of the
+ * caller's, and F0002 while the store holds no bytes of it, and where its bytes are not what was stated: the
  * upload is then given up, with its bytes.
  */
 export async function directTaken(
@@ -281,7 +281,7 @@ export async function directTaken(
   if (name === undefined) throw notThere(offsetOf(o, id), 'it is sent in parts')
   const bytes = await heldBytes(o, name)
   if (!bytes)
-    throw new TentError('T0002', 'The store holds no bytes of this upload yet.', {
+    throw new ForjrError('F0002', 'The store holds no bytes of this upload yet.', {
       fields: { upload: 'required' },
       fix: 'Send the bytes to the address of the upload first, and then ask for it again.',
     })
@@ -299,8 +299,8 @@ export async function directTaken(
     (stated !== undefined && stated !== 'application/octet-stream' && file.kind !== stated)
   ) {
     await forgetFile(o, file)
-    throw new TentError(
-      'T0002',
+    throw new ForjrError(
+      'F0002',
       `The upload stated ${underway.size} bytes of ${stated ?? 'no kind'}, and the store held ${file.size} bytes of ${file.kind}.`,
       { fields: { upload: 'values' } },
     )

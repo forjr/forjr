@@ -25,7 +25,7 @@ export function arrowsOfFlow(flow: Written): Node[] {
 
 /**
  * Takes the code of a flow and the words its file imports. Answers its calls, each by the name of what it stands
- * for: the step tool by `step` under whatever name the code holds it, and a word of tentjs by its own name under
+ * for: the step tool by `step` under whatever name the code holds it, and a word of forjr by its own name under
  * whatever name it was imported.
  */
 export function flowCalls(code: Node, words: Map<string, string> = new Map()): Call[] {

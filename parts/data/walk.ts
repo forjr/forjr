@@ -1,9 +1,9 @@
-// The one walk of a switch: a table walked a page at a time in the order of its ids, with its place in `_t_meta`.
+// The one walk of a switch: a table walked a page at a time in the order of its ids, with its place in `_f_meta`.
 import { setMeta } from './here.ts'
 import { heldMeta } from './metaKeys.ts'
 import type { Store, Tx } from './store.ts'
 
-/** The key of `_t_meta` under which a file keeps where the walk of a name stands. */
+/** The key of `_f_meta` under which a file keeps where the walk of a name stands. */
 const walkKey = (name: string): string => `walk.${name}`
 
 /**

@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Tx, Writing, Wrote } from '../../data/index.ts'
 import { removeRow } from '../files/directory.ts'
 import type { Opened } from '../opened.ts'
@@ -12,8 +12,8 @@ import { dropTenantHolds, filesIn, holdFiles, isTenants, misfit, noFile, storesF
 /**
  * Takes an app, the name of a function, the fields of its input as the description stores them, the checked
  * input, and the caller. Holds every `file` value of the input to three things, whatever the function states: the
- * file is there, this caller may download it, and it fits the kinds and the most bytes of its field. Throws T2104
- * for the first two, told alike, and T0002 for the third. An id that travels as text, or inside `json`, is not
+ * file is there, this caller may download it, and it fits the kinds and the most bytes of its field. Throws F2104
+ * for the first two, told alike, and F0002 for the third. An id that travels as text, or inside `json`, is not
  * seen.
  */
 export function checkFiles(
@@ -30,8 +30,8 @@ export function checkFiles(
       if (!file || !mayDownload(o, caller, file, visitorNow())) throw noFile(held.id)
       const fails = misfit(file, held.type)
       if (fails)
-        throw new TentError(
-          'T0002',
+        throw new ForjrError(
+          'F0002',
           `The input of ${name} does not fit: the file of \`${held.field}\` ${fails === 'values' ? `is of the kind ${file.kind}` : `holds ${file.size} bytes`}, which its field does not take.`,
           { fields: { [held.field]: fails }, fix: 'Send a file of a kind and a size that the field takes.' },
         )

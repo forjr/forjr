@@ -6,11 +6,11 @@ test('[16-4@4] a name of a call that was sent and is no name of the app is writt
   const run = await running(t)
   const long = `${'a'.repeat(60)}${'b'.repeat(4000)}`
   // Through the door: nothing of that name is there.
-  const asked = await send(run.app, `${run.origin}/_t/call/${long}`)
-  assert.equal(asked.error.code, 'T0001')
+  const asked = await send(run.app, `${run.origin}/_f/call/${long}`)
+  assert.equal(asked.error.code, 'F0001')
   // From a program that holds the app.
-  assert.equal(await codeOf(run.app.call(long, {}, { as: nobody })), 'T0001')
-  assert.equal((await send(run.app, `${run.origin}/_t/call/publicTags`)).status, 200)
+  assert.equal(await codeOf(run.app.call(long, {}, { as: nobody })), 'F0001')
+  assert.equal((await send(run.app, `${run.origin}/_f/call/publicTags`)).status, 200)
   const names = logRows(run.dataFolder, 'calls').map((row) => String(row.name))
   assert.deepEqual(names, [long.slice(0, 64), long.slice(0, 64), 'publicTags'])
   // What the log holds of the errors names nothing longer either.

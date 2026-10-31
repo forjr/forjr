@@ -1,4 +1,4 @@
-import { TentError } from '../errors.ts'
+import { ForjrError } from '../errors.ts'
 import type { Tick } from '../word.ts'
 import { recorded, sized } from '../word.ts'
 
@@ -34,9 +34,9 @@ function knows(language: unknown): boolean {
   }
 }
 
-/** Throws T0002 for an option that is not allowed, with the name of the option as the field. */
+/** Throws F0002 for an option that is not allowed, with the name of the option as the field. */
 function refuse(option: string, why: string): never {
-  throw new TentError('T0002', `chunks: the option ${option} ${why}.`, { fields: { [option]: 'type' } })
+  throw new ForjrError('F0002', `chunks: the option ${option} ${why}.`, { fields: { [option]: 'type' } })
 }
 
 /** Answers a part without the white space at its two ends, or nothing where it holds nothing else. */
@@ -152,8 +152,8 @@ function chunksOf(units: Part[], size: number, overlap: number): Part[] {
  * chunk is repeated at the start of the next (150), which is less than half of `size`; `cut`, where a chunk may end
  * (`'paragraph'`); and `language`, whose sentence rules are used (`'en'`). Answers the chunks, each `{ text, at }`
  * and a part of the text exactly as it stood, with `page` where the text holds a page mark. The same text and
- * options give the same chunks on every system. Handed a reference it answers its record. Throws T0002 for an
- * option that is not allowed, and T0027 for more chunks than `valueSize`.
+ * options give the same chunks on every system. Handed a reference it answers its record. Throws F0002 for an
+ * option that is not allowed, and F0027 for more chunks than `valueSize`.
  */
 export function chunks(text: string, o?: ChunksOptions): Chunk[]
 export function chunks(...values: unknown[]): unknown {
@@ -168,7 +168,7 @@ export function chunksWith(tick: Tick, ...values: unknown[]): unknown {
 /** Cuts a text into its chunks. */
 function cut(tick: Tick, text: string, o: ChunksOptions = {}): Chunk[] {
   if (typeof o !== 'object' || o === null)
-    throw new TentError('T0002', 'chunks: its options are no record.', { fields: { options: 'type' } })
+    throw new ForjrError('F0002', 'chunks: its options are no record.', { fields: { options: 'type' } })
   const options = { size: 1200, overlap: 150, cut: 'paragraph' as const, language: 'en', ...o }
   for (const name of Object.keys(o))
     if (!(name in { size: 0, overlap: 0, cut: 0, language: 0 })) refuse(name, 'is none of chunks')

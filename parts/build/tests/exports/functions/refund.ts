@@ -1,4 +1,4 @@
-import { action, allow, number, route } from 'tentjs'
+import { action, allow, number, route } from 'forjr'
 
 const big = (total: unknown) => Number(total) > 100
 

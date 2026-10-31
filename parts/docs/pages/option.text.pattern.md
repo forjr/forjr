@@ -14,7 +14,7 @@ code: text({ pattern: '^[A-Z]{3}$' })
 
 ## Errors
 
-`code.T0002`: a value of an input that does not fit it.
+`code.F0002`: a value of an input that does not fit it.
 
 ## See also
 

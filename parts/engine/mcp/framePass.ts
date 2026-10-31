@@ -142,7 +142,7 @@ export function framePassOf(o: Opened, caller: Caller, page: Page): string | und
 
 // The addresses where a browser sets no header of its own, at which a pass is read from the address.
 const inAddress = (path: string): boolean =>
-  path === '/_t/live' || /^\/_t\/files\/[^/]+$/.test(path) || /^\/_t\/img\/[^/]+$/.test(path)
+  path === '/_f/live' || /^\/_f\/files\/[^/]+$/.test(path) || /^\/_f\/img\/[^/]+$/.test(path)
 
 /**
  * Takes an app and a request. Answers what the pass of a frame that the request carries holds: as
@@ -190,17 +190,17 @@ export function carriesPass(request: Request): boolean {
  */
 export function passLets(pass: FramePass, request: Request): boolean {
   const path = new URL(request.url).pathname
-  const read = /^\/_t\/(read|call)\/([^/]+)$/.exec(path)
+  const read = /^\/_f\/(read|call)\/([^/]+)$/.exec(path)
   const name = read ? decodeURIComponent(read[2]) : ''
   if (read && request.method !== 'POST') return false
   if (read) return pass.members.includes(name) || (read[1] === 'read' && pass.reads.includes(name))
-  const file = /^\/_t\/(files|img)\/([^/]+)$/.exec(path)
+  const file = /^\/_f\/(files|img)\/([^/]+)$/.exec(path)
   if (file) return request.method === 'GET' && pass.files.includes(decodeURIComponent(file[2]))
-  return path === '/_t/live' || (path === '/_t/files' && request.method === 'POST' && pass.uploads)
+  return path === '/_f/live' || (path === '/_f/files' && request.method === 'POST' && pass.uploads)
 }
 
-/** Whether a request carries a pass of a frame and no cookie at all: such a request is not held to the origin rules. */
 // A reader cannot open a pass and hands its request on whole: the writer holds the pass to its rules there.
+/** Whether a request carries a pass of a frame and no cookie at all: such a request is not held to the origin rules. */
 export const passedWithNoCookie = (o: Opened, request: Request): boolean =>
   !request.headers.has('cookie') && (o.machine.reader ? carriesPass(request) : framePassIn(o, request) !== undefined)
 

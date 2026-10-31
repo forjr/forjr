@@ -35,16 +35,16 @@ function namedBy(held: Held, host: string): { one: One; live: boolean } | undefi
 /** Whether a cookie is one of the product app's own, by its name: its session, its visitor id and its kept state. */
 function productCookie(name: string, app: string): boolean {
   const escaped = app.replace(/[^A-Za-z0-9]/g, (one) => `\\${one}`)
-  return new RegExp(`^(?:__Host-|__Secure-)?tent_[a-z]+\\.${escaped}$`).test(name)
+  return new RegExp(`^(?:__Host-|__Secure-)?forjr_[a-z]+\\.${escaped}$`).test(name)
 }
 
 /**
  * A request for the app of a workspace as its code may see it: every cookie of the product app's own names, and a
- * `Tent-Caller` that the visitor sent, taken out. The code of a workspace is not the product's.
+ * `Forjr-Caller` that the visitor sent, taken out. The code of a workspace is not the product's.
  */
 function forWorkspace(request: Request, app: string): Request {
   const headers = new Headers(request.headers)
-  headers.delete('tent-caller')
+  headers.delete('forjr-caller')
   const cookies = (headers.get('cookie') ?? '')
     .split(';')
     .map((one) => one.trim())

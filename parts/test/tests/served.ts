@@ -88,5 +88,5 @@ export function complaintsOf(page: Page): string[] {
 /** Opens an address, and waits until the page has come alive: from then on a press is taken. */
 export async function alive(page: Page, address: string): Promise<void> {
   await page.goto(address)
-  await page.locator('#tent[data-t-alive]').waitFor()
+  await page.locator('#forjr[data-f-alive]').waitFor()
 }

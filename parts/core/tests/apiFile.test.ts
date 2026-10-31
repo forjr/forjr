@@ -74,9 +74,9 @@ test('[24-5] each row of the types is read into its type, a reference is followe
   assert.deepEqual(
     findings.map((one) => [one.code, one.level]),
     [
-      ['T7013', 'warning'],
-      ['T7013', 'warning'],
-      ['T7013', 'warning'],
+      ['F7013', 'warning'],
+      ['F7013', 'warning'],
+      ['F7013', 'warning'],
     ],
   )
   assert.ok(findings.every((one) => /postThings/.test(one.message)))
@@ -144,7 +144,7 @@ test('[24-5] `use` as a record names the calls, an operation with no id is named
   )
 })
 
-test('[24-5] an operation that is not there, a file of another version, a file that is no JSON, two calls of one name, and a parameter and a body field of one name are each T7013, an error', () => {
+test('[24-5] an operation that is not there, a file of another version, a file that is no JSON, two calls of one name, and a parameter and a body field of one name are each F7013, an error', () => {
   const file = fileOf({
     '/a': { get: { operationId: 'GetA', responses: {} } },
     '/b': { get: { operationId: 'getA', responses: {} } },
@@ -159,15 +159,15 @@ test('[24-5] an operation that is not there, a file of another version, a file t
   })
   const errorsOf = (found: ReturnType<typeof readApiFile>) =>
     found.findings.filter((one) => one.level === 'error').map((one) => one.code)
-  assert.deepEqual(errorsOf(readApiFile(file, ['Missing'])), ['T7013'])
-  assert.deepEqual(errorsOf(readApiFile(fileOf({}, {}, '2.0'), ['GetA'])), ['T7013'])
-  assert.deepEqual(errorsOf(readApiFile({ swagger: '2.0', paths: {} }, ['GetA'])), ['T7013'])
-  assert.deepEqual(errorsOf(readApiFile('{ not json', ['GetA'])), ['T7013'])
-  assert.deepEqual(errorsOf(readApiFile(file, ['GetA', 'getA'])), ['T7013'])
-  assert.deepEqual(errorsOf(readApiFile(file, ['PostC'])), ['T7013'])
+  assert.deepEqual(errorsOf(readApiFile(file, ['Missing'])), ['F7013'])
+  assert.deepEqual(errorsOf(readApiFile(fileOf({}, {}, '2.0'), ['GetA'])), ['F7013'])
+  assert.deepEqual(errorsOf(readApiFile({ swagger: '2.0', paths: {} }, ['GetA'])), ['F7013'])
+  assert.deepEqual(errorsOf(readApiFile('{ not json', ['GetA'])), ['F7013'])
+  assert.deepEqual(errorsOf(readApiFile(file, ['GetA', 'getA'])), ['F7013'])
+  assert.deepEqual(errorsOf(readApiFile(file, ['PostC'])), ['F7013'])
   // An operation id that is no name of ours needs a key of `use`, which names it.
   const odd = fileOf({ '/d': { get: { operationId: 'get-d', responses: {} } } })
-  assert.deepEqual(errorsOf(readApiFile(odd, ['get-d'])), ['T7013'])
+  assert.deepEqual(errorsOf(readApiFile(odd, ['get-d'])), ['F7013'])
   assert.deepEqual(errorsOf(readApiFile(odd, { getD: 'get-d' })), [])
 })
 
@@ -188,7 +188,7 @@ test('[24-5] what no used call needs is never looked at, so a part of the file t
   assert.deepEqual((calls.getGood as Record<string, unknown>).output, { kind: 'json' })
   assert.deepEqual(
     findings.map((one) => [one.code, one.level]),
-    [['T7013', 'warning']],
+    [['F7013', 'warning']],
   )
   assert.match(findings[0].message, /other\.json/)
 })

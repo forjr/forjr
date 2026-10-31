@@ -4,15 +4,15 @@ import { dirname, join } from 'node:path'
 import { test } from 'node:test'
 import { buildProject, buildSaved } from '../index.ts'
 
-// The attacks of the reviewer on what a session of development keeps between saves: a save is never answered from
+// Attacks on what a session of development keeps between saves: a save is never answered from
 // what the disk held before it, where the watcher of the project's folder could not see the change.
 
 test('[31-21] a file that comes in a folder of `roots` while a session runs is found by the next save', async (t) => {
   const tree = join(process.cwd(), 'results', 'build', `sessionRoots-${Math.random().toString(36).slice(2)}`)
   t.after(() => rmSync(tree, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }))
   const files: Record<string, string> = {
-    'app/tent.ts': `import { project } from 'tentjs'\nexport const shop = project('shop', { title: 'Shop', roots: ['../shared'] })\n`,
-    'app/functions/labels.ts': `import { query, table, text } from 'tentjs'
+    'app/forjr.ts': `import { project } from 'forjr'\nexport const shop = project('shop', { title: 'Shop', roots: ['../shared'] })\n`,
+    'app/functions/labels.ts': `import { query, table, text } from 'forjr'
 import { LABEL } from '../../shared/labels'
 
 export const notes = table('notes', { columns: { body: text() }, access: { read: 'signedIn' } })
@@ -55,8 +55,8 @@ test('[31-21] a package of a backend file that is installed anew is built anew: 
   const folder = join(process.cwd(), 'results', 'build', `keptPackage-${Math.random().toString(36).slice(2)}`)
   t.after(() => rmSync(folder, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }))
   const files: Record<string, string> = {
-    'tent.ts': `import { project } from 'tentjs'\nexport const shop = project('shop', { title: 'Shop' })\n`,
-    'functions/greeting.ts': `import { anyone, query, text } from 'tentjs'
+    'forjr.ts': `import { project } from 'forjr'\nexport const shop = project('shop', { title: 'Shop' })\n`,
+    'functions/greeting.ts': `import { anyone, query, text } from 'forjr'
 import { greet } from 'greet'
 
 export const greeting = query('greeting', { access: anyone('every visitor'), output: text(), run: () => greet() })

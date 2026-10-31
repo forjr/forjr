@@ -1,4 +1,4 @@
-import { change, link, list, number, table, text } from 'tentjs'
+import { change, link, list, number, table, text } from 'forjr'
 
 export const users = table('users', { columns: { roles: list(text()) }, access: { read: 'owner' } })
 

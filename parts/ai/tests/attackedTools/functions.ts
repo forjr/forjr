@@ -13,7 +13,7 @@ import {
   runs,
   secret,
   text,
-} from 'tentjs'
+} from 'forjr'
 import { customers, messages, notes, orders } from './tables'
 
 export const writer = model('writer', { provider: 'anthropic', name: 'claude-sonnet-5-5', key: secret('ANTHROPIC_KEY') })

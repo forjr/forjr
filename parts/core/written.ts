@@ -1,4 +1,4 @@
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 import type { Seeing } from './itself.ts'
 import { refuseFault } from './itself.ts'
 import { isMarked } from './mark.ts'
@@ -19,7 +19,7 @@ const intoWritten: Seeing = (one) =>
  * Takes a value as it was written where a value may stand. Answers it as it is stored: a record that a word of ours
  * made as it is, a plan as its record, a moment as text in the standard form, a list entry by entry, and an object
  * the author wrote as the list of its entries in the order they were written, with one that holds nothing left out.
- * Anything else is answered as it is. Throws T1014 for a value that holds itself, and for one that is nested more
+ * Anything else is answered as it is. Throws F1014 for a value that holds itself, and for one that is nested more
  * than 200 deep: no stored form can hold either.
  */
 export function asValue(written: unknown): unknown {
@@ -48,8 +48,8 @@ export const writtenEntries = (written: Record<string, unknown>): [string, unkno
 /** Takes a record of written values by name. Answers the record of the stored values, with nothing left out of it but what holds nothing. */
 export function asValues(written: Record<string, unknown>): Record<string, unknown> {
   if (typeof written !== 'object' || written === null || Array.isArray(written))
-    throw new TentError(
-      'T1014',
+    throw new ForjrError(
+      'F1014',
       'A record of values by their names is needed where a row or the values of a word are written.',
       {
         fix: 'Write the values as a record, as { name: value }.',

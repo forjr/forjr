@@ -46,12 +46,12 @@ async function writtenAnew(project: string): Promise<{
   const texts: Record<string, string> = {}
   const code: string[] = []
   for (const [file, names] of byFile(first.description)) {
-    const coded = names.filter((name) => codeOf(() => definitionSource(first.description, name)) === 'T0013')
+    const coded = names.filter((name) => codeOf(() => definitionSource(first.description, name)) === 'F0013')
     if (coded.length) {
       // A file with a code definition is left as it stands: code has no text of this kind.
       assert.equal(
         codeOf(() => fileSource(first.description, names, { path: file })),
-        'T0013',
+        'F0013',
       )
       code.push(file)
       continue
@@ -91,7 +91,7 @@ test('[34-2] a run that was read, a rule that was read, and every form of a plan
   const text = texts['functions/orders.ts']
   // The reads are written back as reads, and never as the values they held.
   assert.match(text, /^import intro from '\.\.\/prompts\/intro\.txt'$/m)
-  assert.match(text, /^import \{ shop \} from '\.\.\/tent'$/m)
+  assert.match(text, /^import \{ shop \} from '\.\.\/forjr'$/m)
   assert.match(text, /^const PAGE = 20$/m)
   assert.match(text, /^const LABELS = \{ open: 'Open', paid: 'Paid', shipped: 'On its way' \}$/m)
   assert.match(text, /^const SIZES = \[10, 20, 50\]$/m)
@@ -103,7 +103,7 @@ test('[34-2] a run that was read, a rule that was read, and every form of a plan
   assert.doesNotMatch(text, /You help customers/)
   // A length of time and a size are written in words, and what equals its default is left out.
   assert.match(
-    texts['tent.ts'],
+    texts['forjr.ts'],
     /limits: \{\n {4}callSize: '2 MB',\n {4}queryTime: '2 seconds',\n {4}liveRows: 500,\n {4}runsKept: '3 months',\n {2}\},/,
   )
   assert.match(texts['flows/orders.ts'], /limits: \{ steps: 200 \},/)
@@ -113,7 +113,7 @@ test('[34-2] a run that was read, a rule that was read, and every form of a plan
 
 test('[34-2] fileSource of each file of a project that states every option of every backend word builds to the same description, and a file that holds code is left as it stands', async () => {
   const { before, after, code } = await writtenAnew('options')
-  assert.deepEqual(code.sort(), ['functions/doors.ts', 'functions/notes.ts', 'tent.ts'])
+  assert.deepEqual(code.sort(), ['forjr.ts', 'functions/doors.ts', 'functions/notes.ts'])
   assert.equal(held(after), held(before))
 })
 

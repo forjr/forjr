@@ -1,4 +1,4 @@
-import { action, allow, number } from 'tentjs'
+import { action, allow, number } from 'forjr'
 
 // A price that its own code takes up to 60 alone: its edge at the most fails, and is cut down to the least that fails.
 export const priced = action('priced', {

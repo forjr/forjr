@@ -25,13 +25,13 @@ const handed = [
   'children',
 ]
 
-/** Reports each name of a record of a view that is one of the names every view is handed: T1009. */
+/** Reports each name of a record of a view that is one of the names every view is handed: F1009. */
 export function namesFree(told: Told, option: string, names: readonly string[]): void {
   for (const name of names)
     if (handed.includes(name))
       report(
         told,
-        'T1009',
+        'F1009',
         `the name \`${name}\` of \`${option}\` is reserved: every view is handed a value under it.`,
         'Give it another name.',
       )
@@ -68,7 +68,7 @@ export const notForDevice = [
 
 /**
  * Takes the place of a state and its type as it was written. Answers the type as it is stored, and reports one that
- * starts as nothing it could be (T1014): no `boolean`, no `default`, and not `optional`. What is no type was told
+ * starts as nothing it could be (F1014): no `boolean`, no `default`, and not `optional`. What is no type was told
  * already, and is stored as a type that stands in for it.
  */
 export function stateType(told: Told, where: string, written: unknown): Stored {
@@ -76,7 +76,7 @@ export function stateType(told: Told, where: string, written: unknown): Stored {
   if (isStored(written) && written.kind === type.kind && !startsAs(type))
     report(
       told,
-      'T1014',
+      'F1014',
       `\`${where}\` is no \`boolean\`, states no \`default\` and is not \`optional\`.`,
       'Give its type a `default`, or mark it `optional: true`, so that it starts as nothing.',
     )
@@ -92,8 +92,8 @@ function leavesAddress(type: Stored): boolean {
 
 /**
  * Takes the state of a screen or of a component as it was written. Answers it as it is stored: for each name its
- * type, or its type with where it is kept. Reports a reserved name (T1009), and what a state may not state
- * (T1014): an `in` that is none of the three, a device state in a component or of a type that the cookie does not
+ * type, or its type with where it is kept. Reports a reserved name (F1009), and what a state may not state
+ * (F1014): an `in` that is none of the three, a device state in a component or of a type that the cookie does not
  * take, a type that an address cannot hold, and `back` on a state that is not kept in the address.
  */
 export function viewState(told: Told, kind: 'screen' | 'component', written: unknown): Stored {
@@ -102,7 +102,7 @@ export function viewState(told: Told, kind: 'screen' | 'component', written: unk
   for (const [name, one] of Object.entries(optionsOf(written))) {
     const entry = optionsOf(one)
     const where = `state.${name}`
-    const bad = (why: string, fix: string) => report(told, 'T1014', `\`${where}\` ${why}.`, fix)
+    const bad = (why: string, fix: string) => report(told, 'F1014', `\`${where}\` ${why}.`, fix)
     if (typeof entry.kind === 'string') {
       keepAt(stored, name, stateType(told, where, one))
       continue
@@ -144,14 +144,14 @@ function kindOfRead(told: Told, name: string): 'query' | 'action' {
 /**
  * Takes one entry of `data` as `read` answered it, or as the build read it. Answers it as it is stored: what it
  * reads under `query` or `action`, its input, and `needed`, `wait` and `refresh` where they differ from what holds
- * when they are left out. Nothing, with T1014, for what is no `read`.
+ * when they are left out. Nothing, with F1014, for what is no `read`.
  */
 function entryOf(told: Told, where: string, written: unknown, wasRead: boolean): Stored | undefined {
   const entry = optionsOf(written)
   const name = nameIf(told, where, entry.read)
   if (!isStored(written) || name === undefined) {
     if (entry.read === undefined)
-      report(told, 'T1014', `\`${where}\` is no \`read(...)\`.`, 'Write the entry as read(query, input).')
+      report(told, 'F1014', `\`${where}\` is no \`read(...)\`.`, 'Write the entry as read(query, input).')
     return undefined
   }
   const stored: Stored = { [kindOfRead(told, name)]: name }
@@ -165,15 +165,15 @@ function entryOf(told: Told, where: string, written: unknown, wasRead: boolean):
 
 /**
  * Takes `data` as it was written, and what the build read of it where it is an arrow. Answers it as it is stored:
- * its entries by their names, or `{ code: true }` for an arrow that is not plain. Reports a reserved name (T1009)
- * and an entry that is no `read` (T1014).
+ * its entries by their names, or `{ code: true }` for an arrow that is not plain. Reports a reserved name (F1009)
+ * and an entry that is no `read` (F1014).
  */
 export function viewData(told: Told, written: unknown, read: unknown): Stored | undefined {
   if (written === undefined) return undefined
   const entries = isStored(read) ? read : typeof written === 'function' ? undefined : optionsOf(written)
   if (!entries) return { code: true }
   if (typeof written !== 'function' && !isStored(written)) {
-    report(told, 'T1014', '`data` is neither a record of `read(...)` nor an arrow.', 'Write a record of read(...).')
+    report(told, 'F1014', '`data` is neither a record of `read(...)` nor an arrow.', 'Write a record of read(...).')
     return undefined
   }
   namesFree(told, 'data', Object.keys(entries))

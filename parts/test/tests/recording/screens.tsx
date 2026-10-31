@@ -1,4 +1,4 @@
-import { Link, screen, useMicrophone } from 'tentjs/ui'
+import { Link, screen, useMicrophone } from 'forjr/ui'
 
 // A screen that records, whose recording can be begun twice, cancelled, or left while the browser is asked.
 export const recordScreen = screen('recordScreen', {

@@ -1,4 +1,4 @@
-import { action, agent, change, flow, input, json, list, mail, model, query, text } from 'tentjs'
+import { action, agent, change, flow, input, json, list, mail, model, query, text } from 'forjr'
 import { chats, messages, orders, users } from './tables.ts'
 
 export const writer = model('writer', { provider: 'mine', name: 'm-1', abilities: ['reply', 'tools'], takes: 100000 })

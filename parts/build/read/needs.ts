@@ -8,7 +8,7 @@ import type { FileReach } from './arrows.ts'
 export function neededBy(file: FileReach): string[] {
   const words = [...file.imports.values()].flatMap((one) => ('ours' in one ? [one.ours] : []))
   const found = new Set<string>()
-  // A value word that the file takes from `tentjs/ui` is held by a part of its own.
+  // A value word that the file takes from `forjr/ui` is held by a part of its own.
   if (words.some((name) => screenWords.has(name))) found.add('values')
   // A file that records the microphone loads the part that records.
   if (words.includes('useMicrophone')) found.add('mic')

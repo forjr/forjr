@@ -22,10 +22,10 @@ async function keyedWriter(t: TestContext, change?: (description: Description) =
   return { app, dataFolder, origin: `http://localhost:${portOf(dataFolder)}` }
 }
 
-/** Sends `access-key` to the admin channel of the app, as `tent access key` does, and answers its value. */
+/** Sends `access-key` to the admin channel of the app, as `forjr access key` does, and answers its value. */
 async function admin(dataFolder: string, app: App, origin: string, args: object): Promise<Record<string, unknown>> {
   const token = String(JSON.parse(readFileSync(join(dataFolder, 'engine.json'), 'utf8')).token)
-  const answered = await send(app, `${origin}/_t/admin/access-key`, {
+  const answered = await send(app, `${origin}/_f/admin/access-key`, {
     body: JSON.stringify({ args }),
     headers: { authorization: `Bearer ${token}` },
   })
@@ -35,7 +35,7 @@ async function admin(dataFolder: string, app: App, origin: string, args: object)
 
 /** Opens the link of a worker with a key, after the writer took the key in: its versions answer first. */
 async function joinedWith(app: Parameters<typeof rawWorker>[0], origin: string, key: string) {
-  const versions = await fetch(`${origin}/_t/work/versions`, { headers: { authorization: `Bearer ${key}` } })
+  const versions = await fetch(`${origin}/_f/work/versions`, { headers: { authorization: `Bearer ${key}` } })
   assert.equal(versions.status, 200)
   return rawWorker(app, key)
 }
@@ -49,10 +49,10 @@ test('[51-9] a worker joins with a key that holds the right work, and with no ot
     writeKey(app, { name: 'api', scopes: ['*'] }).key,
   ]
   for (const key of others) {
-    const answer = await fetch(`${origin}/_t/work/versions`, { headers: { authorization: `Bearer ${key}` } })
+    const answer = await fetch(`${origin}/_f/work/versions`, { headers: { authorization: `Bearer ${key}` } })
     assert.equal(answer.status, 404, 'a key that lacks the right work')
     assert.throws(() =>
-      app.link(new Request('http://localhost/_t/work', { headers: { authorization: `Bearer ${key}` } })),
+      app.link(new Request('http://localhost/_f/work', { headers: { authorization: `Bearer ${key}` } })),
     )
   }
   const worker = await joinedWith(app, origin, work)
@@ -61,13 +61,13 @@ test('[51-9] a worker joins with a key that holds the right work, and with no ot
   worker.close()
 })
 
-test('[51-9] a key bound to one kind is answered no with T5109 where its worker states another or more at once than it may, and a second worker under a key bound to one is answered no and does not close the first', async (t) => {
+test('[51-9] a key bound to one kind is answered no with F5109 where its worker states another or more at once than it may, and a second worker under a key bound to one is answered no and does not close the first', async (t) => {
   const { app, origin } = await keyedWriter(t)
   const key = writeKey(app, { name: 'gpu', rights: ['work'], work: { kinds: ['gpu'], atOnce: 2, workers: 1 } }).key
   const refused = async (said: object): Promise<void> => {
     const worker = await joinedWith(app, origin, key)
     worker.send(said)
-    assert.deepEqual(await worker.next('no'), { t: 'no', code: 'T5109' }, JSON.stringify(said))
+    assert.deepEqual(await worker.next('no'), { t: 'no', code: 'F5109' }, JSON.stringify(said))
     await untilWithin(() => worker.closed(), 'the link was closed')
   }
   await refused(here({ kinds: ['locked'] }))
@@ -90,7 +90,7 @@ test('[51-9] a key of the right work that states nothing more takes one worker o
   await one.next('go')
   const second = await joinedWith(app, origin, plain)
   second.send(here({ id: '01m4x5y72ke6aay7szexb9d1d2' }))
-  assert.deepEqual(await second.next('no'), { t: 'no', code: 'T5109' })
+  assert.deepEqual(await second.next('no'), { t: 'no', code: 'F5109' })
   const a = await joinedWith(app, origin, two)
   a.send(here({ id: '01m4x5y72ke6aay7szexb9d1d3' }))
   await a.next('go')
@@ -100,7 +100,7 @@ test('[51-9] a key of the right work that states nothing more takes one worker o
   for (const worker of [one, a, b]) worker.close()
 })
 
-test('[51-9] tent access key add --right work binds the key to --kinds, --at-once and --workers', async (t) => {
+test('[51-9] forjr access key add --right work binds the key to --kinds, --at-once and --workers', async (t) => {
   const { app, origin, dataFolder } = await keyedWriter(t)
   const made = await admin(dataFolder, app, origin, {
     do: 'add',
@@ -113,7 +113,7 @@ test('[51-9] tent access key add --right work binds the key to --kinds, --at-onc
   const key = String(made.key)
   const worker = await joinedWith(app, origin, key)
   worker.send(here({ kinds: ['gpu'], atOnce: 5 }))
-  assert.deepEqual(await worker.next('no'), { t: 'no', code: 'T5109' })
+  assert.deepEqual(await worker.next('no'), { t: 'no', code: 'F5109' })
   const fits = await joinedWith(app, origin, key)
   fits.send(here({ kinds: ['gpu'], atOnce: 4 }))
   await fits.next('go')
@@ -139,11 +139,11 @@ test('[51-9] keys.add takes work only on a key of the right work, with kinds, at
       }
       return undefined
     })()
-    assert.equal(Reflect.get(Object(error), 'code'), 'T0002', JSON.stringify(work))
+    assert.equal(Reflect.get(Object(error), 'code'), 'F0002', JSON.stringify(work))
   }
   assert.throws(
     () => writeKey(app, { name: 'bad', rights: ['read'], work: { workers: 2 } }),
-    (error: unknown) => Reflect.get(Object(error), 'code') === 'T0002',
+    (error: unknown) => Reflect.get(Object(error), 'code') === 'F0002',
   )
 })
 
@@ -155,16 +155,16 @@ test('[51-9] with its key a worker is handed no data file, no file that no task 
   await worker.next('go')
   const asks = (path: string) => fetch(`${origin}${path}`, { headers: { authorization: `Bearer ${key}` } })
   const data = fingerprintOf(readFileSync(join(dataFolder, 'data.db')))
-  assert.equal((await asks(`/_t/work/blob/${data}`)).status, 404, 'the data file')
-  assert.equal((await asks(`/_t/work/file/${data}?task=not-a-task`)).status, 404, 'a file that no task names')
-  assert.equal((await asks('/_t/copy/versions')).status, 404, 'an address of a reader')
+  assert.equal((await asks(`/_f/work/blob/${data}`)).status, 404, 'the data file')
+  assert.equal((await asks(`/_f/work/file/${data}?task=not-a-task`)).status, 404, 'a file that no task names')
+  assert.equal((await asks('/_f/copy/versions')).status, 404, 'an address of a reader')
   assert.throws(() =>
-    app.link(new Request('http://localhost/_t/copy', { headers: { authorization: `Bearer ${key}` } })),
+    app.link(new Request('http://localhost/_f/copy', { headers: { authorization: `Bearer ${key}` } })),
   )
   worker.close()
 })
 
-test('[51-9] the files that a worker of a key of the right work posts past workHeld are T0005', async (t) => {
+test('[51-9] the files that a worker of a key of the right work posts past workHeld are F0005', async (t) => {
   const { app, origin } = await keyedWriter(t, (description) => {
     description.project.limits = { ...Object(description.project.limits), workHeld: 100 }
   })
@@ -179,13 +179,13 @@ test('[51-9] the files that a worker of a key of the right work posts past workH
   const task = String(Object((await worker.next('work')).task).id)
   worker.send({ t: 'started', task })
   const post = (body: string) =>
-    fetch(`${origin}/_t/work/file?task=${task}&kind=text/plain`, {
+    fetch(`${origin}/_f/work/file?task=${task}&kind=text/plain`, {
       method: 'POST',
       headers: { authorization: `Bearer ${key}`, 'content-type': 'application/octet-stream' },
       body,
     })
   assert.equal((await post('x'.repeat(60))).status, 200)
-  assert.equal(Object(Object(await (await post('y'.repeat(60))).json()).error).code, 'T0005')
+  assert.equal(Object(Object(await (await post('y'.repeat(60))).json()).error).code, 'F0005')
   worker.close()
 })
 

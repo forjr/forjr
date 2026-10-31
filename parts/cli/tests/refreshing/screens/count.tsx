@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { screen, read, text } from 'tentjs/ui'
+import { screen, read, text } from 'forjr/ui'
 import { word } from 'tiny-words'
 import { label } from '../functions/notes'
 import { Badge } from '../components/badge'

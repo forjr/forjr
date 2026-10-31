@@ -5,7 +5,7 @@ import type { App } from '../index.ts'
 import { system } from './apps.ts'
 import { liveMoment, untilTried, watcher } from './watching.ts'
 
-/** The opening of `/_t/live` over a real connection, with the frames written by the test itself, as an attacker's program writes them. */
+/** The opening of `/_f/live` over a real connection, with the frames written by the test itself, as an attacker's program writes them. */
 export interface RawLive {
   // The status of a refusal, or 101, with the extensions that the engine agreed to.
   status: number
@@ -40,10 +40,10 @@ function framed(opcode: number, payload: Buffer, packed: boolean): Buffer {
 }
 
 /**
- * Asks for the opening of `/_t/live` over a real connection to this computer, with the headers of the test. Answers
+ * Asks for the opening of `/_f/live` over a real connection to this computer, with the headers of the test. Answers
  * what was answered: a refusal with its status, or the connection, whose frames the test writes and reads itself.
  */
-export function rawLive(port: number, headers: Record<string, string>, path = '/_t/live'): Promise<RawLive> {
+export function rawLive(port: number, headers: Record<string, string>, path = '/_f/live'): Promise<RawLive> {
   return new Promise((done, failed) => {
     const asking = request({
       host: '127.0.0.1',

@@ -82,7 +82,7 @@ test('[52-5] every kind of value of the rows of a read arrives as it was sent, b
   assert.deepStrictEqual(cloned(rows), rows, 'by the structured clone')
   // The rows of a read reach the other side as the text, and come out as they were sent.
   const out = rowsOut(rows, columns, keep)
-  assert.equal(Reflect.get(Object(out), '\u0000tent'), 'rows')
+  assert.equal(Reflect.get(Object(out), '\u0000forjr'), 'rows')
   assert.deepStrictEqual(intoOf(structuredClone(outOf(out, keep, bounds)), ask), rows)
 })
 

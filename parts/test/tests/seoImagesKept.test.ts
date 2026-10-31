@@ -15,7 +15,7 @@ function keptIn(dataFolder: string): string[] {
 
 /** The project of the pictures with three products, the limits it is handed, and a cache of the product screen. */
 const shop = (limits: string, cache?: string) => (folder: string) => {
-  const project = join(folder, 'tent.ts')
+  const project = join(folder, 'forjr.ts')
   writeFileSync(
     project,
     readFileSync(project, 'utf8').replace('screensPerMinute: 100000', `screensPerMinute: 100000, ${limits}`),
@@ -30,13 +30,13 @@ const shop = (limits: string, cache?: string) => (folder: string) => {
   const seeded = [0, 1, 2].map((n) => `  db.products.add({ title: 'Product ${n}', color: '#00ff00' })`).join('\n')
   writeFileSync(
     join(folder, 'seed.ts'),
-    `import { seed } from 'tentjs'\n\nexport default seed(({ db }) => {\n${seeded}\n})\n`,
+    `import { seed } from 'forjr'\n\nexport default seed(({ db }) => {\n${seeded}\n})\n`,
   )
 }
 
 /** Asks for the picture of the address of a product, and answers its status. */
 async function pictureOf(address: string, product: string): Promise<number> {
-  const answer = await fetch(`${address}/_t/seo/image/productScreen?/products/${product}`)
+  const answer = await fetch(`${address}/_f/seo/image/productScreen?/products/${product}`)
   await answer.arrayBuffer()
   return answer.status
 }

@@ -1,5 +1,5 @@
 import './app.css'
-import { anyone, Form, screen, text } from 'tentjs/ui'
+import { anyone, Form, screen, text } from 'forjr/ui'
 import { Face } from '../components/Face'
 import { signIn } from '../functions/people'
 

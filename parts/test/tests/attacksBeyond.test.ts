@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import { gated, got, noted, notesIn, recordOf, signedIn } from './gates.ts'
 import { refusedWith, wholeLog, wholeOf, wire } from './sieges.ts'
 
-test('[05-4.10] on live data the error screen of an action and of a view that fail with a secret text, and a read of the action, say T0009 and a reference, and nothing of the text', async (t) => {
+test('[05-4.10] on live data the error screen of an action and of a view that fail with a secret text, and a read of the action, say F0009 and a reference, and nothing of the text', async (t) => {
   const gate = await gated(t, { open: { mode: 'live' } })
   for (const path of ['/leaks', '/broken', '/writes/change', '/writes/sql']) {
     const page = await got(gate, path)
@@ -27,17 +27,17 @@ test('[05-4.10] on live data the error screen of an action and of a view that fa
     ])
       assert.ok(!page.text.includes(told), `${path} tells ${told}`)
   }
-  const read = await wire(gate, { path: '/_t/read/leaks' })
+  const read = await wire(gate, { path: '/_f/read/leaks' })
   assert.equal(read.status, 500)
   const { ref, trace, ...error } = Object(read.body.error)
-  assert.deepEqual(error, { code: 'T0009', name: 'internal', message: 'Something went wrong.' })
+  assert.deepEqual(error, { code: 'F0009', name: 'internal', message: 'Something went wrong.' })
   assert.match(String(ref), /^[a-z0-9]{8}$/)
   assert.match(String(trace), /^[0-9a-f]{32}$/)
   // The text is in the log, where the reference finds it, and in no answer.
   assert.ok(wholeLog(gate.dataFolder).includes('SECRET-OF-THE-ACTION-0123456789'))
 })
 
-test('[05-4.10] a read at /_t/read/ of a query the caller may not call, with an input that does not fit, as another caller, and by a name that is no query and no action', async (t) => {
+test('[05-4.10] a read at /_f/read/ of a query the caller may not call, with an input that does not fit, as another caller, and by a name that is no query and no action', async (t) => {
   const gate = await gated(t, { open: { mode: 'test' } })
   await noted(gate, { title: 'the one note' })
   const ada = await signedIn(gate, 'Ada', ['staff'])
@@ -49,7 +49,7 @@ test('[05-4.10] a read at /_t/read/ of a query the caller may not call, with an 
         ? { ...body, as: signed.id }
         : body
     return wire(gate, {
-      path: `/_t/read/${name}`,
+      path: `/_f/read/${name}`,
       body: JSON.stringify(named),
       headers: signed ? { cookie: signed.cookie } : {},
     })
@@ -59,37 +59,37 @@ test('[05-4.10] a read at /_t/read/ of a query the caller may not call, with an 
     return [answer.status, answer.error.code ?? answer.body.value]
   }
   // The rule of what is read holds for the caller of the request, before its input is looked at.
-  assert.deepEqual(await seen('forStaff', { input: {} }), [401, 'T0006'])
-  assert.deepEqual(await seen('forStaff', { input: {} }, bob), [403, 'T3101'])
-  assert.deepEqual(await seen('forStaff', { input: { more: 1 } }, bob), [403, 'T3101'])
+  assert.deepEqual(await seen('forStaff', { input: {} }), [401, 'F0006'])
+  assert.deepEqual(await seen('forStaff', { input: {} }, bob), [403, 'F3101'])
+  assert.deepEqual(await seen('forStaff', { input: { more: 1 } }, bob), [403, 'F3101'])
   assert.deepEqual(await seen('forStaff', { input: {} }, ada), [200, 'for the staff'])
   assert.deepEqual(await seen('whoAmI', { input: {} }, bob), [200, bob.id])
   // A caller is who the request is, and never who its body names: a body that names another is told that its
   // caller changed, and is not run.
   for (const as of [ada.id, 'system', { kind: 'system' }, `user:${ada.id}`]) {
-    assert.deepEqual(await seen('forStaff', { input: {}, as }, bob), [403, 'T3101'], JSON.stringify(as))
+    assert.deepEqual(await seen('forStaff', { input: {}, as }, bob), [403, 'F3101'], JSON.stringify(as))
     // From nobody, a page drawn for a user is told that its caller changed; a field that names no user is nothing.
-    const drawn = typeof as === 'string' ? [403, 'T3101'] : [401, 'T0006']
+    const drawn = typeof as === 'string' ? [403, 'F3101'] : [401, 'F0006']
     assert.deepEqual(await seen('forStaff', { input: {}, as }), drawn, JSON.stringify(as))
-    assert.deepEqual(await seen('whoAmI', { input: {}, as }, bob), [403, 'T3101'], JSON.stringify(as))
-    assert.deepEqual(await seen('forStaff', { input: {}, caller: as, user: as, roles: ['staff'] }, bob), [403, 'T3101'])
+    assert.deepEqual(await seen('whoAmI', { input: {}, as }, bob), [403, 'F3101'], JSON.stringify(as))
+    assert.deepEqual(await seen('forStaff', { input: {}, caller: as, user: as, roles: ['staff'] }, bob), [403, 'F3101'])
   }
-  // An input that does not fit is T0002, and a body that is no record of a read too.
+  // An input that does not fit is F0002, and a body that is no record of a read too.
   for (const body of [{ input: { more: 1 } }, { input: [] }, { input: 'x' }, [], 'x', 7, null])
-    assert.deepEqual(await seen('allNotes', body), [400, 'T0002'], JSON.stringify(body))
+    assert.deepEqual(await seen('allNotes', body), [400, 'F0002'], JSON.stringify(body))
   assert.equal((await read('allNotes', {}, undefined)).status, 200)
-  // A version that never was, and one that climbs, is T0007 with the running version, and reads no file.
-  const running = String(Object((await wire(gate, { method: 'GET', path: '/_t/health' })).body.value).version)
+  // A version that never was, and one that climbs, is F0007 with the running version, and reads no file.
+  const running = String(Object((await wire(gate, { method: 'GET', path: '/_f/health' })).body.value).version)
   assert.match(running, /^[0-9a-f]{32}$/)
   for (const version of ['../../data', '..\\..\\data', 'a'.repeat(32), `${running}/../x`, '']) {
     const answer = await read('allNotes', { input: {}, version })
-    assert.deepEqual([answer.status, answer.error.code, answer.error.running], [409, 'T0007', running], version)
+    assert.deepEqual([answer.status, answer.error.code, answer.error.running], [409, 'F0007', running], version)
   }
 
   // A name that is no query and no action answers as a name that is nothing, whole, on live data.
   const live = await gated(t, { open: { mode: 'live' } })
   const before = await notesIn(live)
-  const none = wholeOf(await wire(live, { path: '/_t/read/nothing', input: { title: 'x' } }))
+  const none = wholeOf(await wire(live, { path: '/_f/read/nothing', input: { title: 'x' } }))
   assert.equal(none.status, 404)
   for (const name of [
     'addNote',
@@ -97,9 +97,9 @@ test('[05-4.10] a read at /_t/read/ of a query the caller may not call, with an 
     'users',
     'gate',
     'shownScreen',
-    '_t_rate',
-    '_t_sessions',
-    '_t_calls',
+    '_f_rate',
+    '_f_sessions',
+    '_f_calls',
     '__proto__',
     'constructor',
     'toString',
@@ -115,7 +115,7 @@ test('[05-4.10] a read at /_t/read/ of a query the caller may not call, with an 
     '%',
     '',
   ])
-    assert.deepEqual(wholeOf(await wire(live, { path: `/_t/read/${name}`, input: { title: 'x' } })), none, name)
+    assert.deepEqual(wholeOf(await wire(live, { path: `/_f/read/${name}`, input: { title: 'x' } })), none, name)
   assert.equal(await notesIn(live), before)
 })
 
@@ -131,16 +131,16 @@ test('[05-4.1@5] a private column of a row is in no page and in no read, the pag
     await got(gate, '/broken'),
     await got(gate, '/staff/'),
     await got(gate, '/account'),
-    await got(gate, `/_t/b/${Object(Object(gate.app.description.browser).screens).shownScreen[0]}`),
-    await got(gate, '/_t/b/description.json'),
-    await wire(gate, { path: '/_t/read/allNotes' }),
-    await wire(gate, { path: '/_t/read/staffNotes', headers: { cookie: bob.cookie } }),
+    await got(gate, `/_f/b/${Object(Object(gate.app.description.browser).screens).shownScreen[0]}`),
+    await got(gate, '/_f/b/description.json'),
+    await wire(gate, { path: '/_f/read/allNotes' }),
+    await wire(gate, { path: '/_f/read/staffNotes', headers: { cookie: bob.cookie } }),
   ]
   for (const [k, answer] of answers.entries()) {
     assert.ok(!answer.text.includes('HIDDEN-VALUE-OF-A-ROW'), `the answer ${k} holds a private column`)
     assert.ok(!/"hidden"\s*:/.test(answer.text), `the answer ${k} names a private column`)
     // No header says what answers, or which version of it.
-    for (const name of ['server', 'x-powered-by', 'via', 'x-runtime', 'x-tent-version', 'x-tent-engine'])
+    for (const name of ['server', 'x-powered-by', 'via', 'x-runtime', 'x-forjr-version', 'x-forjr-engine'])
       assert.equal(answer.headers[name], undefined, `the answer ${k} sends ${name}`)
     assert.equal(answer.headers['x-content-type-options'], 'nosniff', `the answer ${k}`)
   }
@@ -239,11 +239,11 @@ test('[17-5] app.session is for a user as the row holds it: the roles that the a
   // A caller that states roles of its own is taken by its id: the session is the user of the row, with its roles.
   const cookie = gate.app.session({ kind: 'user', user: { id: bob.id, roles: ['staff', 'admin'] } })
   const read = await wire(gate, {
-    path: '/_t/read/forStaff',
+    path: '/_f/read/forStaff',
     body: JSON.stringify({ input: {}, as: bob.id }),
     headers: { cookie },
   })
-  assert.equal(read.error.code, 'T3101')
+  assert.equal(read.error.code, 'F3101')
   assert.equal((await got(gate, '/staff', { cookie })).status, 404)
   assert.deepEqual(recordOf((await got(gate, '/account', { cookie })).text).user, { id: bob.id, roles: [] })
   // What is no user of the app has no session.
@@ -269,7 +269,7 @@ test('[17-5] app.session is for a user as the row holds it: the roles that the a
       await refusedWith(
         Promise.resolve().then(() => gate.app.session(Object(user) === user ? Object(user) : String(user))),
       ),
-      'T2103',
+      'F2103',
       JSON.stringify(user),
     )
 })

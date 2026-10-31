@@ -12,13 +12,13 @@ import type { RawWorker } from './workLink.ts'
 import { here, joiningKeys, rawWorker, writerOf } from './workLink.ts'
 import { notDropped } from './started.ts'
 
-/** Every address under `/_t/work` but the link, as a worker asks it, with a fingerprint and a task that may be none. */
+/** Every address under `/_f/work` but the link, as a worker asks it, with a fingerprint and a task that may be none. */
 const addressesOf = (fingerprint: string): { method: string; path: string }[] => [
-  { method: 'GET', path: '/_t/work/versions' },
-  { method: 'GET', path: `/_t/work/blob/${fingerprint}` },
-  { method: 'GET', path: `/_t/work/file/${fingerprint}?task=01m4x5y72ke6aay7szexb9d1d1` },
-  { method: 'POST', path: '/_t/work/file?task=01m4x5y72ke6aay7szexb9d1d1&kind=text/plain' },
-  { method: 'POST', path: '/_t/work/file?task=01m4x5y72ke6aay7szexb9d1d1&carry=1' },
+  { method: 'GET', path: '/_f/work/versions' },
+  { method: 'GET', path: `/_f/work/blob/${fingerprint}` },
+  { method: 'GET', path: `/_f/work/file/${fingerprint}?task=01m4x5y72ke6aay7szexb9d1d1` },
+  { method: 'POST', path: '/_f/work/file?task=01m4x5y72ke6aay7szexb9d1d1&kind=text/plain' },
+  { method: 'POST', path: '/_f/work/file?task=01m4x5y72ke6aay7szexb9d1d1&carry=1' },
 ]
 
 /** Asks every address of a worker, and the link, with a key or none: each must be as an address that is not there. */
@@ -31,7 +31,7 @@ async function noneFound(app: App, origin: string, fingerprint: string, key?: st
     assert.equal(answer.status, 404, `${method} ${path} with ${key ? 'a key' : 'no key'}`)
   }
   assert.throws(
-    () => app.link(new Request(`${origin}/_t/work`, { headers })),
+    () => app.link(new Request(`${origin}/_f/work`, { headers })),
     `the link with ${key ? 'a key' : 'no key'}`,
   )
 }
@@ -41,7 +41,7 @@ function fileOfVersion(bundle: string): string {
   return fingerprintOf(readFileSync(join(bundle, 'description.json')))
 }
 
-test('[51-11.1@7b] /_t/work and each address under it, with no key, with a key the app does not let join, and over a connection that is not secure, are not found, and no work is sent', async (t) => {
+test('[51-11.1@7b] /_f/work and each address under it, with no key, with a key the app does not let join, and over a connection that is not secure, are not found, and no work is sent', async (t) => {
   const { app, origin } = await writerOf(t)
   const bundle = await bundled(t, { project: 'working' })
   const fingerprint = fileOfVersion(bundle.folder)
@@ -49,7 +49,7 @@ test('[51-11.1@7b] /_t/work and each address under it, with no key, with a key t
   await noneFound(app, origin, fingerprint, 'n'.repeat(40))
   // The key that the app lets join reaches them: so it is the key, and not the address, that is refused.
   const versions = await app.request(
-    new Request(`${origin}/_t/work/versions`, { headers: { authorization: `Bearer ${joiningKeys.free}` } }),
+    new Request(`${origin}/_f/work/versions`, { headers: { authorization: `Bearer ${joiningKeys.free}` } }),
   )
   assert.equal(versions.status, 200)
   // Work that waits for a worker is sent to none of them: it waits.
@@ -74,7 +74,7 @@ test('[51-11.1@7b] /_t/work and each address under it, with no key, with a key t
   }
 })
 
-/** A writer of the project of heavy work whose keys are rows, as `tent access key` makes them. */
+/** A writer of the project of heavy work whose keys are rows, as `forjr access key` makes them. */
 async function keyedWriter(t: TestContext) {
   const { clock } = testClock()
   const bundle = await bundled(t, { project: 'working' })
@@ -84,10 +84,10 @@ async function keyedWriter(t: TestContext) {
   return { app, dataFolder, bundle: bundle.folder, origin: `http://localhost:${portOf(dataFolder)}` }
 }
 
-/** Removes a key through the admin channel of the app, as `tent access key remove` does. */
+/** Removes a key through the admin channel of the app, as `forjr access key remove` does. */
 async function keyRemoved(app: App, origin: string, dataFolder: string, id: string): Promise<void> {
   const token = String(JSON.parse(readFileSync(join(dataFolder, 'engine.json'), 'utf8')).token)
-  const answered = await send(app, `${origin}/_t/admin/access-key`, {
+  const answered = await send(app, `${origin}/_f/admin/access-key`, {
     body: JSON.stringify({ args: { do: 'remove', name: id } }),
     headers: { authorization: `Bearer ${token}` },
   })
@@ -96,19 +96,19 @@ async function keyRemoved(app: App, origin: string, dataFolder: string, id: stri
 
 /** Opens the link of a worker with a key, after it asked the versions as a worker does, and has it say `here`. */
 async function joining(app: App, origin: string, key: string, said: object): Promise<RawWorker> {
-  const versions = await fetch(`${origin}/_t/work/versions`, { headers: { authorization: `Bearer ${key}` } })
+  const versions = await fetch(`${origin}/_f/work/versions`, { headers: { authorization: `Bearer ${key}` } })
   assert.equal(versions.status, 200)
   const worker = rawWorker(app, key)
   worker.send(said)
   return worker
 }
 
-test('[51-11.1@8c] /_t/work and each address under it, with a key that lacks the right work, are not found', async (t) => {
+test('[51-11.1@8c] /_f/work and each address under it, with a key that lacks the right work, are not found', async (t) => {
   const { app, origin, bundle } = await keyedWriter(t)
   const fingerprint = fileOfVersion(bundle)
   // A key of the right work reaches the addresses, and has the app load the link of workers.
   const work = writeKey(app, { name: 'work', rights: ['work'] }).key
-  const answer = await fetch(`${origin}/_t/work/versions`, { headers: { authorization: `Bearer ${work}` } })
+  const answer = await fetch(`${origin}/_f/work/versions`, { headers: { authorization: `Bearer ${work}` } })
   assert.equal(answer.status, 200)
   for (const rights of [['read'], ['push'], ['publish'], ['bundle'], ['copy'], ['far'], ['operate']])
     await noneFound(app, origin, fingerprint, writeKey(app, { name: rights.join(' '), rights }).key)
@@ -125,7 +125,7 @@ test("[51-11.4] a worker's key, taken, joins as the kinds it is bound to and no 
     here({ kinds: ['gpu'], atOnce: 2 }),
   ]) {
     const worker = await joining(app, origin, taken.key, said)
-    assert.deepEqual(await worker.next('no'), { t: 'no', code: 'T5109' }, JSON.stringify(said))
+    assert.deepEqual(await worker.next('no'), { t: 'no', code: 'F5109' }, JSON.stringify(said))
     await untilWithin(() => worker.closed(), 'the link was closed')
   }
   const thief = await joining(
@@ -138,9 +138,9 @@ test("[51-11.4] a worker's key, taken, joins as the kinds it is bound to and no 
   // No data file, no file of a task that is not its own, and no address of a reader.
   const asks = (path: string) => fetch(`${origin}${path}`, { headers: { authorization: `Bearer ${taken.key}` } })
   const data = fingerprintOf(readFileSync(join(dataFolder, 'data.db')))
-  assert.equal((await asks(`/_t/work/blob/${data}`)).status, 404, 'the data file')
-  assert.equal((await asks(`/_t/work/file/${data}?task=01m4x5y72ke6aay7szexb9d1d9`)).status, 404, 'another task')
-  assert.equal((await asks('/_t/copy/versions')).status, 404, 'an address of a reader')
+  assert.equal((await asks(`/_f/work/blob/${data}`)).status, 404, 'the data file')
+  assert.equal((await asks(`/_f/work/file/${data}?task=01m4x5y72ke6aay7szexb9d1d9`)).status, 404, 'another task')
+  assert.equal((await asks('/_f/copy/versions')).status, 404, 'an address of a reader')
   const versions = await thief.next('versions')
   for (const one of Array.isArray(versions.list) ? versions.list : [])
     thief.send({ t: 'ready', version: Object(one).version })
@@ -162,7 +162,7 @@ test("[51-11.4] a worker's key, taken, joins as the kinds it is bound to and no 
   other.close()
 })
 
-test('[51-11.10] a worker that names every kind and atOnce 1000 in here is answered T5109 for what its key does not hold, and is handed nothing', async (t) => {
+test('[51-11.10] a worker that names every kind and atOnce 1000 in here is answered F5109 for what its key does not hold, and is handed nothing', async (t) => {
   const { app, origin } = await keyedWriter(t)
   const key = writeKey(app, { name: 'one', rights: ['work'], work: { kinds: ['gpu'], atOnce: 2 } }).key
   // Every kind that the project states.
@@ -173,7 +173,7 @@ test('[51-11.10] a worker that names every kind and atOnce 1000 in here is answe
     here({ kinds: ['gpu'], atOnce: 1000 }),
   ]) {
     const worker = await joining(app, origin, key, said)
-    assert.deepEqual(await worker.next('no'), { t: 'no', code: 'T5109' }, JSON.stringify(said))
+    assert.deepEqual(await worker.next('no'), { t: 'no', code: 'F5109' }, JSON.stringify(said))
     await untilWithin(() => worker.closed(), 'the link was closed')
     assert.equal(
       worker.heard.some((message) => message.t === 'work' || message.t === 'go'),

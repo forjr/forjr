@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { bounded } from '../bounded.ts'
 import { endsAt } from '../endsAt.ts'
 import type { CallContext, Work } from '../context.ts'
@@ -39,7 +39,7 @@ const isFound = (matched: object): matched is RouteFound & { name: string } =>
  * 1 to 6 and 10 of the door: the size and the origin, with the size and the sites that the route states, the
  * caller, the rate limits, and its `access`, where a rule made with `allow` is handed the request and the values
  * of its path. A request for its path with a method that it does not state is no request for it. A refusal of
- * the door is the wire error, and an error that `run` throws is T0009.
+ * the door is the wire error, and an error that `run` throws is F0009.
  */
 export const address: Address = {
   order: 3,
@@ -51,7 +51,7 @@ export const address: Address = {
   own: (o, matched) =>
     isFound(matched) ? { size: routeSize(o, matched.record), sites: routeSites(matched.record) } : undefined,
   async handle({ app: o, request, matched, caller, about, began }) {
-    if (!isFound(matched)) return errorAnswer(o, 'route', new TentError('T0001', 'No route answers this address.'))
+    if (!isFound(matched)) return errorAnswer(o, 'route', new ForjrError('F0001', 'No route answers this address.'))
     const { name, record, params } = matched
     noteTouched('routes', name)
     countAnswering(name, caller)
@@ -72,7 +72,7 @@ export const address: Address = {
       inGrant(o, caller, name, false)
       const code = routeCode(o, name)
       if (!code)
-        throw new TentError('T0011', `The route ${name} is code, and the bundle holds no \`run\` for it.`, {
+        throw new ForjrError('F0011', `The route ${name} is code, and the bundle holds no \`run\` for it.`, {
           fix: 'Build the project again, and run the bundle as the build wrote it.',
         })
       const asked =
@@ -81,7 +81,7 @@ export const address: Address = {
           : bounded(request, routeSize(o, record))
       // Step 6: the rule of the route. One made with `allow` is asked here, since a route has no checked input.
       const said = ruled(record.access, caller)
-      const denied = (rule: string, needs: string): TentError => {
+      const denied = (rule: string, needs: string): ForjrError => {
         o.log.write('denied', { at: o.clock.now(), name, ...callerOf(caller), rule })
         return refusedBy(name, needs, caller)
       }
@@ -105,7 +105,7 @@ export const address: Address = {
       // The end of the work may move while it runs: the wait for a part that is fetched is taken out of its time.
       const timing = endsAt(work, () => {
         ends.abort()
-        return new TentError('T0008', `${name} worked past the time of its call.`, {
+        return new ForjrError('F0008', `${name} worked past the time of its call.`, {
           fix: 'Do less in one request, or raise `limits.time` of the route.',
         })
       })
@@ -116,7 +116,7 @@ export const address: Address = {
         timeUp,
       ])
       if (!(answer instanceof Response))
-        throw new TentError('T0009', `The route ${name} answered what is no response.`, {
+        throw new ForjrError('F0009', `The route ${name} answered what is no response.`, {
           fix: 'Answer a `Response` from the `run` of the route.',
         })
       // The time ends when `run` has answered: a stream then lasts as long as its connection.

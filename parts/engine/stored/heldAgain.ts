@@ -10,7 +10,7 @@ const system = { kind: 'system' } as const
 
 const isRow = (value: unknown): value is Row => typeof value === 'object' && value !== null && !Array.isArray(value)
 
-/** One hold as `_t_holds` keeps it, by its key. */
+/** One hold as `_f_holds` keeps it, by its key. */
 interface Hold {
   file: string
   tableName: string
@@ -51,8 +51,8 @@ function heldBy(o: Opened, tenant: FileName): Hold[] | undefined {
           held.push({ file: one.id, tableName, rowId, column: one.field, keptAt })
     }
     if (there.has(tableName)) for (const row of read({ from: tableName })) of(row, String(row.id), '')
-    if (!there.has('_t_history')) continue
-    for (const version of read({ from: '_t_history', where: { col: 'tableName', is: tableName } })) {
+    if (!there.has('_f_history')) continue
+    for (const version of read({ from: '_f_history', where: { col: 'tableName', is: tableName } })) {
       const at = momentOf(version.at)
       if (at !== undefined && isRow(version.value)) of(version.value, String(version.rowId), new Date(at).toISOString())
     }

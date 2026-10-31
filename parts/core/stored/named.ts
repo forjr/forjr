@@ -4,14 +4,14 @@ import { handedName, report } from './shared.ts'
 /**
  * The one place where an option that names a definition is stored as the name. Takes the option as its author
  * wrote it, what was handed, and the place of it where it stands inside the option. Answers the name, or nothing
- * for what is neither a name nor a definition, which is T1014 by its place: the option is then left out.
+ * for what is neither a name nor a definition, which is F1014 by its place: the option is then left out.
  */
 export function nameAt(told: Told, option: string, handed: unknown, place = option): string | undefined {
   const name = handedName(handed)
   if (name) return name
   report(
     told,
-    'T1014',
+    'F1014',
     `\`${place}\` is neither a name nor a definition, ${place === option ? 'and' : `and \`${option}\``} is left out.`,
     'Write the name of the definition as text, or hand the definition itself.',
   )

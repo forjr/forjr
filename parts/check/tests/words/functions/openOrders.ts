@@ -1,4 +1,4 @@
-import { input, number, query } from 'tentjs'
+import { input, number, query } from 'forjr'
 import { orders } from '../tables/shop'
 
 export const openOrders = query('openOrders', {

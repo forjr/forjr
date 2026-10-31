@@ -19,7 +19,7 @@ export const stripe = service('stripe', {
 
 ## Errors
 
-`code.T7115`: the call failed after its tries.
+`code.F7115`: the call failed after its tries.
 
 ## See also
 

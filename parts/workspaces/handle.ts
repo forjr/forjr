@@ -1,5 +1,5 @@
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { TurnOptions, Workspace, Workspaces, WorkspacesOptions } from './face.ts'
 import { heldTo } from './heldTo.ts'
 
@@ -17,14 +17,14 @@ const shown = (workspace: Workspace): Omit<Workspace, 'folder'> => {
 /**
  * Takes the workspaces and what they were made with. Answers the working object behind the handle `workspaces`
  * of the product's app, which the engine hands the caller of each call first. Every member but `create` and
- * `list` holds that caller to the workspace it names: its owner, or whoever `may` lets in, and T3101 for anyone
+ * `list` holds that caller to the workspace it names: its owner, or whoever `may` lets in, and F3101 for anyone
  * else. Each answers a promise.
  */
 export function handleOf(w: Workspaces, o: WorkspacesOptions): object {
-  /** The workspace of an id, held to the caller: T0001 where there is none, and T3101 for a caller that may not. */
+  /** The workspace of an id, held to the caller: F0001 where there is none, and F3101 for a caller that may not. */
   const held = (caller: Caller, id: unknown): Workspace => {
     const workspace = typeof id === 'string' ? w.get(id) : undefined
-    if (!workspace) throw new TentError('T0001', `No workspace ${JSON.stringify(id).slice(0, 40)} is there.`)
+    if (!workspace) throw new ForjrError('F0001', `No workspace ${JSON.stringify(id).slice(0, 40)} is there.`)
     heldTo(o, caller, workspace)
     return workspace
   }

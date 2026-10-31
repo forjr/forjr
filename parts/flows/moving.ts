@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { rowIds } from '../data/index.ts'
 import { flowOf } from './flowOf.ts'
 import type { Held } from './held.ts'
@@ -46,7 +46,7 @@ function firstMisfit(saved: string[], record: Record<string, unknown>): string |
 /**
  * Tries another version against the saved steps of a run, without doing anything, and moves the run to it where
  * every saved step still matches in order. Answers whether it was moved, and the step that does not match. With
- * `dry` nothing is moved. Throws T0001 for a run that is not there, and T0013 for one that is worked on now.
+ * `dry` nothing is moved. Throws F0001 for a run that is not there, and F0013 for one that is worked on now.
  */
 export function moveRun(
   held: Held,
@@ -55,10 +55,10 @@ export function moveRun(
   o: { dry?: boolean } = {},
 ): { moved: boolean; step?: string } {
   const run = runOf(held.env, id)
-  if (!run) throw new TentError('T0001', `No run ${JSON.stringify(id).slice(0, 80)} is there.`)
+  if (!run) throw new ForjrError('F0001', `No run ${JSON.stringify(id).slice(0, 80)} is there.`)
   if (held.atWork.has(id))
-    throw new TentError('T0013', `The run ${id} is being worked on, and is moved only while it waits.`, {
-      fix: 'Move a run while it waits: `tent runs` shows its state.',
+    throw new ForjrError('F0013', `The run ${id} is being worked on, and is moved only while it waits.`, {
+      fix: 'Move a run while it waits: `forjr runs` shows its state.',
     })
   let record: Record<string, unknown>
   try {
@@ -77,7 +77,7 @@ export function moveRun(
  * Starts a new run of the flow of a run, on the given version, with its key, which reuses the saved results of
  * the steps that began before the step `from`, and a result that `with` gives for a step by its name. Left out,
  * `from` is the first step that did not end done, so every step that was done is reused. Answers the id of the new
- * run. Throws T0001 for a run that is not there, and T0002 for a `from` that names no saved step of it.
+ * run. Throws F0001 for a run that is not there, and F0002 for a `from` that names no saved step of it.
  */
 export function replayRun(
   held: Held,
@@ -87,13 +87,13 @@ export function replayRun(
   const { clock } = held.env
   const store = readIn(held.env, id)
   const run = readRun(store, id)
-  if (!run) throw new TentError('T0001', `No run ${JSON.stringify(id).slice(0, 80)} is there.`)
+  if (!run) throw new ForjrError('F0001', `No run ${JSON.stringify(id).slice(0, 80)} is there.`)
   const steps = stepsInOrder(store, id)
   const named = o.from === undefined ? steps.findIndex((step) => step.state !== 'done') : undefined
   const first = named === undefined ? steps.findIndex((step) => step.name === o.from) : named < 0 ? steps.length : named
   if (first < 0)
-    throw new TentError('T0002', `The run ${id} holds no saved step named ${JSON.stringify(o.from)}.`, {
-      fix: 'Name a step that the run has saved: `tent runs show` lists them.',
+    throw new ForjrError('F0002', `The run ${id} holds no saved step named ${JSON.stringify(o.from)}.`, {
+      fix: 'Name a step that the run has saved: `forjr runs show` lists them.',
     })
   const flow = flowOf(held, o.version, run.flow)
   const next = idIn(rowIds.next(), fileOf(id))

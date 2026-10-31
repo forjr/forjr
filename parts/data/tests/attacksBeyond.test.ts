@@ -8,7 +8,7 @@ import { board, rawOf, seedBoard } from './board.ts'
 import { at } from './shop.ts'
 import { codeOf, system } from './work.ts'
 
-test('[50-12.8] the id of a tenant whose row is gone names no tenant: where its file still stands, a read answers no rows and a write is T2104', (t) => {
+test('[50-12.8] the id of a tenant whose row is gone names no tenant: where its file still stands, a read answers no rows and a write is F2104', (t) => {
   const files = filesOf(t, board)
   const s = seedBoard(files)
   const asSystem = writingFiles(files, board)
@@ -34,23 +34,23 @@ test('[50-12.8] the id of a tenant whose row is gone names no tenant: where its 
       const write = writingFiles(files, board, who)
       assert.equal(
         codeOf(() => write((db) => at(db, 'tasks').of(s.south).add({ title: 'for nobody' }))),
-        'T2104',
+        'F2104',
         what,
       )
       assert.equal(
         codeOf(() => write((db) => at(db, 'tasks').of(s.south).change(String(task.id), { title: 'for nobody' }))),
-        'T2104',
+        'F2104',
         what,
       )
       assert.equal(
         codeOf(() => write((db) => at(db, 'tasks').of(s.south).remove(String(task.id)))),
-        'T2104',
+        'F2104',
         what,
       )
     }
     assert.equal(
       codeOf(() => rawOf(files)('select count(*) c from tasks', [], { of: s.south })),
-      'T2104',
+      'F2104',
     )
   }
   // No row was written into the file of nobody.
@@ -70,7 +70,7 @@ test('[50-12.9] an add that its rule refuses makes no file: a file is made only 
     const write = writingFiles(files, board, who)
     assert.equal(
       codeOf(() => write((db) => at(db, 'drops').of(s.east).add({ kind: 'not fine' }))),
-      'T3101',
+      'F3101',
     )
     assert.equal(files.has(east), false)
     assert.deepEqual(marked, [])
@@ -144,11 +144,11 @@ test('[20-3] [50-3] in the files of tenants nothing is told of a row that the ca
   // A pick reads through no link: a path in it is refused, alone and in a plan inside `in`.
   assert.equal(
     codeOf(() => tasks.pick(['order.note']).all()),
-    'T1014',
+    'F1014',
   )
   assert.equal(
     codeOf(() => tasks.where({ title: { in: at(bob, 'tasks').of(s.north).pick(['order.note']) } }).all()),
-    'T1014',
+    'F1014',
   )
   assert.deepEqual(titles(tasks.where({ not: { 'order.note': 'secret plan' } }).all()), all)
   assert.deepEqual(titles(tasks.where({ not: { 'order.note': 'no such note' } }).all()), all)
@@ -161,28 +161,28 @@ test('[20-3] [50-3] in the files of tenants nothing is told of a row that the ca
   // A private column: through a link it is refused in a filter and a sort, and left out of a group.
   assert.equal(
     codeOf(() => tasks.where({ 'order.cost': 7 }).all()),
-    'T0013',
+    'F0013',
   )
   assert.equal(
     codeOf(() => tasks.where({ 'assignee.salary': 5000 }).all()),
-    'T0013',
+    'F0013',
   )
   assert.equal(
     codeOf(() => tasks.sort('order.cost').all()),
-    'T0013',
+    'F0013',
   )
   assert.equal(
     codeOf(() => tasks.where({ title: { in: at(bob, 'orders').of(s.north).pick(['cost']) } }).all()),
-    'T0013',
+    'F0013',
   )
   assert.equal(
     codeOf(() => tasks.group('order.cost', { n: count() }).all()),
-    'T0013',
+    'F0013',
   )
   // A plan inside a filter names its tenant: one that names none is refused, and is not read in this file.
   assert.equal(
     codeOf(() => tasks.where({ order: { in: at(bob, 'orders').pick(['id']) } }).all()),
-    'T2109',
+    'F2109',
   )
   // A search of the builder's own that answers the ids of another tenant gives no row of that tenant.
   const asked: string[] = []
@@ -240,7 +240,7 @@ test('[20-3] [50-3] in the files of tenants nothing is told of a row that the ca
   for (const row of [...own.all(), ...own.pick(['cost', 'note']).all()]) assert.equal('cost' in row, false)
   assert.equal(
     codeOf(() => own.group('cost', { n: count() }).all()),
-    'T0013',
+    'F0013',
   )
   for (const row of hers.with('order').all()) assert.equal('cost' in Object(row.order), false)
   writingFiles(files, board, person(s.ada))((db) => at(db, 'orders').of(s.north).change(s.secret, { total: 11 }))
@@ -249,7 +249,7 @@ test('[20-3] [50-3] in the files of tenants nothing is told of a row that the ca
   assert.equal('cost' in version.value, false)
   assert.equal(
     codeOf(() => own.sort('cost').all()),
-    'T0013',
+    'F0013',
   )
   // Of the other team she reads nothing, and its file is not opened for her.
   for (const file of files.open()) files.close(file)

@@ -4,10 +4,10 @@ import struct
 import sys
 
 
-def run(input, tent):
+def run(input, forjr):
     # A frame of the channel's own form for this very call, written everywhere code prints: were any of these the
     # channel, the call would answer "forged".
-    body = json.dumps({"t": "done", "call": tent._call, "value": "forged"}).encode()
+    body = json.dumps({"t": "done", "call": forjr._call, "value": "forged"}).encode()
     frame = struct.pack("<I", len(body)) + body
     sys.stdout.buffer.write(frame)
     sys.stdout.flush()

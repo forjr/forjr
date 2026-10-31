@@ -9,7 +9,7 @@ A record of types, each by its name. A use writes them as the properties of the 
 ## Example
 
 ```tsx
-import { component, number, text, useTranslations } from 'tentjs/ui'
+import { component, number, text, useTranslations } from 'forjr/ui'
 
 export const PriceTag = component('PriceTag', {
   props: { amount: number(), currency: text({ default: 'USD' }) },
@@ -24,7 +24,7 @@ A part that is handed a function, inside a component that holds the state:
 
 ```tsx
 import { useState } from 'react'
-import { component } from 'tentjs/ui'
+import { component } from 'forjr/ui'
 
 function Toggle({ open, onToggle }: { open: boolean; onToggle: () => void }) {
   return (
@@ -49,9 +49,9 @@ export const Talk = component('Talk', {
 
 ## Errors
 
-`code.T1009`: a name of `props` is one of the names every view is handed.
+`code.F1009`: a name of `props` is one of the names every view is handed.
 
-`code.T1014`: an entry that is no type.
+`code.F1014`: an entry that is no type.
 
 ## See also
 

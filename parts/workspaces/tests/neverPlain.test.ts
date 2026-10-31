@@ -40,7 +40,7 @@ test('[40-9] a workspace is never held to plain definitions: createWorkspaces ta
   assert.ok(text.includes(policy))
   writeFileSync(file, text.replace(policy, `${policy}    forms: 'any',\n`))
   const { findings } = await checkProject(folder)
-  const refused = findings.filter((one) => one.code === 'T8000' && one.where?.file === 'functions/agents.ts')
+  const refused = findings.filter((one) => one.code === 'F8000' && one.where?.file === 'functions/agents.ts')
   assert.equal(refused.length, 1, JSON.stringify(findings))
   assert.match(refused[0].message, /forms/)
 })

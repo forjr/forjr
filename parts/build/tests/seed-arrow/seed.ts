@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 
 const TITLES = ['Buy milk', 'Write home']
 

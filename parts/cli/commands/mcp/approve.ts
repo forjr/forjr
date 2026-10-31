@@ -19,7 +19,7 @@ function lockOf(file: string): Record<string, unknown> {
 }
 
 /**
- * `tent mcp approve <service> [--as <user id>]`: asks an outside MCP server for its tools, through the engine, with
+ * `forjr mcp approve <service> [--as <user id>]`: asks an outside MCP server for its tools, through the engine, with
  * the values of its auth or with that user's connection; shows each with its description and its input; and
  * writes them with their fingerprints into `mcp.lock.json` in the project's root, in place of what it held of that
  * service. The build fills the calls of the service from there.

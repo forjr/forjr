@@ -38,13 +38,13 @@ async function endsItsWorker(
   assert.fail('the run that ends its worker never ended')
 }
 
-test('[51-3] work that ends every worker it is given fails its run with T5107 after tries, with a worker still joined', async (t) => {
+test('[51-3] work that ends every worker it is given fails its run with F5107 after tries, with a worker still joined', async (t) => {
   const app = await heavyWith(t)
   const keeper = await joined(t, app, ['slow'])
   const worker = await joined(t, app, ['gpu'])
   const [killer] = await started(app, 'gpu', [3])
   const { kills } = await endsItsWorker(app, worker, killer)
-  assert.equal(app.runs.read(killer)?.error?.code, 'T5107')
+  assert.equal(app.runs.read(killer)?.error?.code, 'F5107')
   assert.equal(kills, 4, 'each try that ended its worker alone counted against tries, of which there are 4')
   assert.ok(app.workers().some((one) => Reflect.get(Object(one), 'id') === keeper.at().id))
 })
@@ -58,7 +58,7 @@ test('[51-3] a task that ends its worker while nineteen others are beside it: ea
   await untilAsync('the twenty are out', () => workingOn(worker).length === 20)
   const { beside } = await endsItsWorker(app, worker, killer)
   assert.equal(beside, false, 'the task that ends its worker was handed out beside another after it was marked alone')
-  assert.equal(app.runs.read(killer)?.error?.code, 'T5107')
+  assert.equal(app.runs.read(killer)?.error?.code, 'F5107')
   for (const [i, run] of runs.entries())
     if (run !== killer) assert.equal(await app.runs.wait(run), numbers[i] * numbers[i], `run ${i + 1}`)
 })

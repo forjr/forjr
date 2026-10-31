@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { afterEach, test } from 'node:test'
 import { pathToFileURL } from 'node:url'
 import { inspect } from 'node:util'
-import { TentError } from '../index.ts'
+import { ForjrError } from '../index.ts'
 import { runBody, setRuntime, valueOf } from '../internal.ts'
 import { cases } from './bodies-cases.ts'
 import type { Case, Seen } from './bodies-world.ts'
@@ -129,7 +129,7 @@ test('[12-2a] runBody: a return ends a body or an arrow, a fail arrives as itsel
     },
   ]
   const failed = await byHand(failing, { name: 'd', input: {} })
-  assert.ok(failed.failure instanceof TentError)
+  assert.ok(failed.failure instanceof ForjrError)
   assert.deepEqual(
     [failed.failure.code, failed.failure.name, failed.failure.message, failed.failure.fields],
     ['not-open', 'not-open', 'That order is not open.', { order: 'closed' }],
@@ -254,13 +254,13 @@ test('[12-2a] runBody: each waits only where the call may, tick is asked for eve
     may.calls.map((one) => one[1]),
     ['sendReceipt', 'mayWait', 'sendReceipt', 'sendReceipt'],
   )
-  // Where it answers false, or nothing, it fails with T0013 before its second entry.
+  // Where it answers false, or nothing, it fails with F0013 before its second entry.
   for (const mayWait of [false, undefined]) {
     const calls: string[] = []
     setRuntime(testRuntime((_, name) => calls.push(name), mayWait))
     assert.throws(
       () => runBody(waits, order),
-      (thrown) => thrown instanceof TentError && thrown.code === 'T0013',
+      (thrown) => thrown instanceof ForjrError && thrown.code === 'F0013',
     )
     assert.deepEqual(calls, ['sendReceipt', 'mayWait'])
   }
@@ -286,12 +286,12 @@ test('[12-2a] runBody: each waits only where the call may, tick is asked for eve
   // entries of the repeat, each with its one statement.
   assert.equal(ticks, 4 + 4 + 4 + 4 + 4 + 4)
   const ending = () => {
-    throw new TentError('T0008', 'The time of the call is up.')
+    throw new ForjrError('F0008', 'The time of the call is up.')
   }
   const ended = await byHand(counted, { name: 'c', input: {} }, { tick: ending })
-  assert.ok(ended.failure instanceof TentError && ended.failure.code === 'T0008')
+  assert.ok(ended.failure instanceof ForjrError && ended.failure.code === 'F0008')
 
-  // A chain that starts at a value which `db` did not hand out is T0009, and no member of it is called: a list
+  // A chain that starts at a value which `db` did not hand out is F0009, and no member of it is called: a list
   // that a member which answers gave, a row, and what the body was handed.
   const goesOn = (from: unknown) => [
     { const: 'found', value: from },
@@ -304,7 +304,7 @@ test('[12-2a] runBody: each waits only where the call may, tick is asked for eve
     [{ name: ['input', 'first'] }, 0],
   ] as const) {
     const refused = await byHand(goesOn(from), { name: 'd', input: { first: { with: () => 'called' } } })
-    assert.ok(refused.failure instanceof TentError && refused.failure.code === 'T0009', shown(refused))
+    assert.ok(refused.failure instanceof ForjrError && refused.failure.code === 'F0009', shown(refused))
     assert.equal(refused.calls.length, calls)
   }
   // A chain goes on from a name that holds a chain, and from a choice between two chains.
@@ -348,7 +348,7 @@ test('[12-2a] runBody: each waits only where the call may, tick is asked for eve
     { fn: 'process.exit', args: [] },
   ]) {
     const refused = await byHand([{ return: form }], { name: 'h', input: {} })
-    assert.ok(refused.failure instanceof TentError && refused.failure.code === 'T0011', shown(refused))
+    assert.ok(refused.failure instanceof ForjrError && refused.failure.code === 'F0011', shown(refused))
   }
   // What a member that is not there gives is a failure of the runtime's own kind.
   const none = await byHand([{ return: { plan: { db: 'orders' }, then: [{ latest: [] }] } }], {
@@ -376,7 +376,7 @@ test('[12-2a] runBody: a name that db, a table of it, step or a handle only inhe
   const waiting = Object.assign(async (_name: string, work: () => unknown) => work(), { now: async () => 'noon' })
   setRuntime(testRuntime(() => undefined, true))
   const run = (body: object[], tools: object = step) => ownRun(body, { db, step: tools })
-  const refused = (seen: { failure?: unknown }) => seen.failure instanceof TentError && seen.failure.code === 'T0011'
+  const refused = (seen: { failure?: unknown }) => seen.failure instanceof ForjrError && seen.failure.code === 'F0011'
 
   // A member of its own is there.
   assert.equal(run([{ return: { plan: { db: 'orders' }, then: [{ all: [] }] } }]).answer, rows)
@@ -417,7 +417,7 @@ test('[12-2a] runBody: a name that db, a table of it, step or a handle only inhe
     { return: { plan: { name: ['made'] }, then: [{ keys: [{ name: ['input'] }] }] } },
   ]
   const went = run(goesOn)
-  assert.ok(went.failure instanceof TentError && went.failure.code === 'T0009', shown(went))
+  assert.ok(went.failure instanceof ForjrError && went.failure.code === 'F0009', shown(went))
   // A member that a class of the engine gives its chains is a member of the chain.
   class Chained {
     all(): unknown[] {
@@ -508,11 +508,11 @@ test('[12-2a] valueOf hands tick on to contains, slice and chunks, which ask it 
   assert.deepEqual([Array.isArray(made) && made.length, asked], [3, 3])
   // The time of the call ends each of them at its next entry.
   const ending = () => {
-    throw new TentError('T0008', 'The time of the call is up.')
+    throw new ForjrError('F0008', 'The time of the call is up.')
   }
   for (const stored of [{ fn: 'contains', args: [[1], 9] }, { fn: 'slice', args: [[1, 2], 0] }, cut])
     assert.throws(
       () => valueOf(stored, { tick: ending }),
-      (thrown) => thrown instanceof TentError && thrown.code === 'T0008',
+      (thrown) => thrown instanceof ForjrError && thrown.code === 'F0008',
     )
 })

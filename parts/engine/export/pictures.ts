@@ -69,7 +69,7 @@ function writtenOf(o: Opened, src: { asset: string } | { file: string }): Writte
 
 /** The path of a picture in one width among the files of an export, in its own kind or in another. */
 const pathOf = (written: Written, width: number, kind = written.kind): string =>
-  `_t/img/${written.name}.${width}.${endings[kind]}`
+  `_f/img/${written.name}.${width}.${endings[kind]}`
 
 /** The files of a picture in each format other than its own kind, by the kind and then by the width. */
 export type Formats = Map<string, Record<string, Record<number, string>>>

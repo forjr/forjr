@@ -45,7 +45,7 @@ export const hostOf = (address: string): string => new URL(address).host.toLower
 
 /**
  * Takes what the workspaces hold and the id of a workspace. Answers what they hold of it, read from its folder the
- * first time, so that a folder that was put there while the program ran is found. Throws T0001 for an id that
+ * first time, so that a folder that was put there while the program ran is found. Throws F0001 for an id that
  * names no workspace.
  */
 export function oneOf(held: Held, id: string): One {

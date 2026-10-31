@@ -1,4 +1,4 @@
-import { anyone, change, number, query, text } from 'tentjs'
+import { anyone, change, number, query, text } from 'forjr'
 
 const open = anyone('a test calls it')
 

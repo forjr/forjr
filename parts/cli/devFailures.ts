@@ -5,7 +5,7 @@ import { failureText, isFailure } from './failureText.ts'
 const keyOf = (failure: Record<string, unknown>): string => JSON.stringify([failure.message, failure.where])
 
 /**
- * Takes the app of a session of `tent dev`, its port, the folder of the project, and where the session says what it
+ * Takes the app of a session of `forjr dev`, its port, the folder of the project, and where the session says what it
  * does. Watches what the open pages show, as a page of the app does, over a live connection of this computer, and
  * says each failure while running there once, with the path of its file. Answers what ends the watching.
  */
@@ -14,7 +14,7 @@ export function failuresTold(o: { app: App; port: number; folder: string; out(li
   let told = new Set<string>()
   let end: ReturnType<App['live']>
   try {
-    end = o.app.live(new Request(`${address}/_t/live`, { headers: { origin: address } }))
+    end = o.app.live(new Request(`${address}/_f/live`, { headers: { origin: address } }))
   } catch {
     return () => undefined
   }

@@ -19,7 +19,7 @@ test('[51-7] on a kind that states mayStop, a worker that is told going answers 
   assert.equal(await app.runs.wait(run), 2, 'the next try went on from the progress of the one before')
 })
 
-test('[51-7] a worker of a kind that states mayStop, killed without a word: the try does not count against tries; after lost such tries the task goes to next, also after the writer started again, and fails with T5107 where no next names it', async (t) => {
+test('[51-7] a worker of a kind that states mayStop, killed without a word: the try does not count against tries; after lost such tries the task goes to next, also after the writer started again, and fails with F5107 where no next names it', async (t) => {
   const app = await heavyWith(t, spot)
   const { run } = notDropped(await app.start('onSpot', { kind: 'spot', tries: 3 }, system))
   for (let i = 0; i < 2; i++) {
@@ -40,10 +40,10 @@ test('[51-7] a worker of a kind that states mayStop, killed without a word: the 
     await beats(app, 8)
   }
   await untilAsync('the run failed', () => app.runs.read(nowhere)?.state === 'failed')
-  assert.equal(app.runs.read(nowhere)?.error?.code, 'T5107')
+  assert.equal(app.runs.read(nowhere)?.error?.code, 'F5107')
 })
 
-test('[51-7] a worker that was killed for want of memory says so when it starts again: the try failed with T5110, and the task goes to a next that names memory', async (t) => {
+test('[51-7] a worker that was killed for want of memory says so when it starts again: the try failed with F5110, and the task goes to a next that names memory', async (t) => {
   const app = await heavyWith(t, spot)
   const small = await joined(t, app, ['small'])
   const { run } = notDropped(await app.start('onSpot', { kind: 'small', tries: 2 }, system))

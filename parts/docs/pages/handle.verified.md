@@ -5,7 +5,7 @@ The handle behind the word `verified`: it checks the signature of the request of
 ## Example
 
 ```ts
-import { anyone, route, verified } from 'tentjs'
+import { anyone, route, verified } from 'forjr'
 import { stripe } from '../services/stripe'
 
 export const exchange = route('exchange', {
@@ -29,7 +29,7 @@ The engine keeps the bytes of a request, up to the `size` of the route, only for
 
 ## Errors
 
-`code.T7118` for a signature that does not hold, or a time too far from now. `code.T0013` in a route whose file does not import `verified`. `code.T0009` for a secret with no value.
+`code.F7118` for a signature that does not hold, or a time too far from now. `code.F0013` in a route whose file does not import `verified`. `code.F0009` for a secret with no value.
 
 ## See also
 

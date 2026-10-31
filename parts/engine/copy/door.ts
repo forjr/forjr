@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { bearerOf } from '../bearer.ts'
 import type { Answering } from '../door/address.ts'
 import { logName, newRef } from '../door/failure.ts'
@@ -44,24 +44,24 @@ export interface Taken {
 }
 
 /** The error of a request that was handed to a machine which is not the writer, or under another epoch than the writer's. */
-const notTheWriter = (writer: string | undefined): TentError =>
-  new TentError('T0030', 'This request was handed on to a machine that is not its writer, or under another epoch.', {
+const notTheWriter = (writer: string | undefined): ForjrError =>
+  new ForjrError('F0030', 'This request was handed on to a machine that is not its writer, or under another epoch.', {
     fix: `Reach the writer${writer ? ` at ${writer}` : ''}.`,
   })
 
 /**
  * Takes an app, a request and what the engine knows of it. Reads the headers that a reader adds to a request it
  * hands on, and takes them out, before any other code is handed the request. A writer believes a request whose
- * `Tent-Reader` names the key of a reader as coming from the address, by the scheme and under the name that
- * `Tent-For` states, and counts it for that key. Throws T0001 for such a header with no key behind it, T0030 for
- * a request that was handed on under another epoch or to a machine that is not the writer, and T0005 for one
+ * `Forjr-Reader` names the key of a reader as coming from the address, by the scheme and under the name that
+ * `Forjr-For` states, and counts it for that key. Throws F0001 for such a header with no key behind it, F0030 for
+ * a request that was handed on under another epoch or to a machine that is not the writer, and F0005 for one
  * request more than a reader's key may hand on in a minute.
  */
 export function takerOf(o: Opened, request: Request, about: About): Taken {
   if (!handed.some((name) => request.headers.has(name))) return { request, about }
   const { clean, sent } = withoutHanded(request)
   const { writer, reader, keys } = o.machine
-  const named = sent['tent-reader']
+  const named = sent['forjr-reader']
   // The key of a reader is one that `readers` of `open` names, or a row of the keys of the right `copy` or `far`.
   const key =
     named === null
@@ -77,23 +77,23 @@ export function takerOf(o: Opened, request: Request, about: About): Taken {
     if (!saysMore(sent)) return { request: clean, about }
     throw notHanded()
   }
-  const epoch = sent['tent-epoch'] ?? ''
+  const epoch = sent['forjr-epoch'] ?? ''
   if (epoch !== writer.epoch()) {
     if (newer(epoch, writer.epoch())) writer.heard(epoch)
     throw notTheWriter(undefined)
   }
   const limit = manyLimit(o.description, 'handedPerMinute')
   if (!countedFor(o, `handed:${key.id}`, limit))
-    throw new TentError('T0005', `A reader handed more than ${limit} requests on in a minute.`, {
+    throw new ForjrError('F0005', `A reader handed more than ${limit} requests on in a minute.`, {
       fix: 'Raise `handedPerMinute` in `project.limits`, or run more readers.',
     })
-  const [from, scheme, host] = (sent['tent-for'] ?? '').split(';').map((part) => part.trim())
+  const [from, scheme, host] = (sent['forjr-for'] ?? '').split(';').map((part) => part.trim())
   const believed: About =
     from && (scheme === 'http' || scheme === 'https') && host
       ? { from, scheme, host, origin: `${scheme}://${host}`, proxied: true }
       : { ...about, proxied: true }
-  const ref = /^[0-9a-z]{8}$/.test(sent['tent-ref'] ?? '') ? String(sent['tent-ref']) : undefined
-  const trace = sent['tent-trace'] ?? undefined
+  const ref = /^[0-9a-z]{8}$/.test(sent['forjr-ref'] ?? '') ? String(sent['forjr-ref']) : undefined
+  const trace = sent['forjr-trace'] ?? undefined
   return {
     request: clean,
     about: believed,
@@ -124,9 +124,9 @@ type Kind = 'own' | 'health' | 'reads' | 'writes'
 /** Says what a request asks for: an address that each machine answers itself, a read that a reader answers, or anything else. */
 function kindOf(o: Opened, request: Request): { kind: Kind; name?: string } {
   const { pathname } = new URL(request.url)
-  if (pathname === '/_t/copy' || pathname.startsWith('/_t/copy/') || /^\/_t\/admin(\/|$)/.test(pathname))
+  if (pathname === '/_f/copy' || pathname.startsWith('/_f/copy/') || /^\/_f\/admin(\/|$)/.test(pathname))
     return { kind: 'own' }
-  if (pathname === '/_t/health') return { kind: 'health' }
+  if (pathname === '/_f/health') return { kind: 'health' }
   // The pass of a frame opens only on the machine that made it, and that is the writer, which answers `/mcp`.
   if (carriesPass(request)) return { kind: 'writes' }
   // A route is the writer's: its code runs there alone, whatever method it states.
@@ -134,13 +134,13 @@ function kindOf(o: Opened, request: Request): { kind: Kind; name?: string } {
   // A page: a screen, a read from one, and a file of the bundle.
   const page = pageKind(o, request)
   if (page) return page
-  // A function of the API is read where it only reads, as at `/_t/call/`.
+  // A function of the API is read where it only reads, as at `/_f/call/`.
   if ((request.method === 'GET' || request.method === 'POST') && pathname.startsWith('/api/')) {
     const asked = apiFunction(o, pathname)
     if (asked) return { kind: readerCarries(o, asked) ? 'reads' : 'writes', name: asked }
   }
-  if (request.method !== 'POST' || !pathname.startsWith('/_t/call/')) return { kind: 'writes' }
-  let name = pathname.slice('/_t/call/'.length)
+  if (request.method !== 'POST' || !pathname.startsWith('/_f/call/')) return { kind: 'writes' }
+  let name = pathname.slice('/_f/call/'.length)
   try {
     name = decodeURIComponent(name)
   } catch {
@@ -149,26 +149,26 @@ function kindOf(o: Opened, request: Request): { kind: Kind; name?: string } {
   return { kind: readerCarries(o, name) ? 'reads' : 'writes', name }
 }
 
-const cookieName = (o: Opened): string => `tent_wrote.${o.name}`
+const cookieName = (o: Opened): string => `forjr_wrote.${o.name}`
 
-/** The mark that a request names: its cookie, its `Tent-After`, or both joined. */
+/** The mark that a request names: its cookie, its `Forjr-After`, or both joined. */
 function markIn(o: Opened, request: Request): Mark | undefined {
   const cookies = request.headers.get('cookie') ?? ''
   const cookie = cookies
     .split(';')
     .map((one) => one.trim())
     .find((one) => one.startsWith(`${cookieName(o)}=`))
-  return joinMarks(markOf(cookie?.slice(cookieName(o).length + 1)), markOf(request.headers.get('tent-after')))
+  return joinMarks(markOf(cookie?.slice(cookieName(o).length + 1)), markOf(request.headers.get('forjr-after')))
 }
 
 /** Adds to an answer where it stands, and the mark of what its request wrote, with the cookie while a far reader is joined. */
 function marked(o: Opened, answer: Response, at: number, asked: Underway, request: Request, about: About): Response {
   const headers = new Headers(answer.headers)
   const epoch = epochNumber(o.machine.at().epoch)
-  headers.set('tent-at', `${epoch}.${at}`)
+  headers.set('forjr-at', `${epoch}.${at}`)
   const wrote = wroteMark(epoch, asked.commits)
   if (wrote) {
-    headers.set('tent-wrote', markText(wrote))
+    headers.set('forjr-wrote', markText(wrote))
     if (o.machine.writer?.farJoined()) {
       const joined = joinMarks(markIn(o, request), wrote) ?? wrote
       const seconds = Math.ceil(manyLimit(o.description, 'behind') / 1000)
@@ -205,7 +205,7 @@ function within<Answer>(o: Opened, ms: number, work: Promise<Answer>, late: () =
   })
 }
 
-const isNotReached = (error: unknown): error is TentError => error instanceof TentError && error.code === 'T0029'
+const isNotReached = (error: unknown): error is ForjrError => error instanceof ForjrError && error.code === 'F0029'
 
 // What the system says of a connection that was never taken: the request did not leave this machine.
 const notTaken = ['ECONNREFUSED', 'ENOTFOUND', 'EAI_AGAIN', 'EHOSTUNREACH', 'ENETUNREACH', 'EADDRNOTAVAIL']
@@ -220,7 +220,7 @@ function neverLeft(error: unknown): boolean {
 /**
  * Takes a reader, a request with its body, and what the engine knows of it. Hands the request to the writer, as
  * it came, with the reader's own five headers, and passes the answer back once it has arrived whole. A far reader holds an
- * answer that names what it wrote until it has applied that write itself, for a moment at most. Answers T0029
+ * answer that names what it wrote until it has applied that write itself, for a moment at most. Answers F0029
  * where the writer cannot be reached, and where its answer did not arrive whole.
  */
 async function handOn(
@@ -237,13 +237,13 @@ async function handOn(
   const ref = newRef()
   const headers = new Headers(request.headers)
   for (const name of [...handed, ...perHop]) headers.delete(name)
-  headers.set('tent-reader', reader.reads.key)
-  headers.set('tent-epoch', reader.linked() ?? reader.epoch())
-  headers.set('tent-for', `${about.from}; ${about.scheme}; ${about.host}`)
-  headers.set('tent-ref', ref)
+  headers.set('forjr-reader', reader.reads.key)
+  headers.set('forjr-epoch', reader.linked() ?? reader.epoch())
+  headers.set('forjr-for', `${about.from}; ${about.scheme}; ${about.host}`)
+  headers.set('forjr-ref', ref)
   // The writer's spans of the request stand in the trace of this machine's, under its span of the door.
   const parent = parentNow()
-  if (parent) headers.set('tent-trace', parentHeader(parent))
+  if (parent) headers.set('forjr-trace', parentHeader(parent))
   const carries =
     request.method !== 'GET' &&
     request.method !== 'HEAD' &&
@@ -294,18 +294,18 @@ async function handOn(
     const { status, statusText, headers: answered } = head
     answer = new Response(body.byteLength ? body : null, { status, statusText, headers: answered })
   } catch (error) {
-    logged(false, 'T0029')
+    logged(false, 'F0029')
     // A request that this machine refused to send, and one whose connection was never taken, did not leave it.
     const failed = isNotReached(error)
       ? error
-      : notReached(address, String(error), !(error instanceof TentError) && !neverLeft(error))
+      : notReached(address, String(error), !(error instanceof ForjrError) && !neverLeft(error))
     return errorAnswer(o, pathname, failed)
   }
   logged(answer.ok)
   // A machine that says it is not the writer, or not under that epoch, was dialled wrongly: the caller may ask again.
-  if (answer.status === 409 && (await codeIn(answer.clone())) === 'T0030')
+  if (answer.status === 409 && (await codeIn(answer.clone())) === 'F0030')
     return errorAnswer(o, pathname, notReached(address, 'it is not the writer, or stands in another epoch'))
-  const wrote = markOf(answer.headers.get('tent-wrote'))
+  const wrote = markOf(answer.headers.get('forjr-wrote'))
   if (reader.reads.far && wrote) {
     const within = manyLimit(o.description, 'catchUp')
     await reader.untilApplied(Math.max(wrote.n ?? 0, ...(wrote.tables?.values() ?? [])), within)
@@ -317,7 +317,7 @@ async function handOn(
 
 /**
  * Takes a reader, what a live connection was opened with, and a query with its input. Asks the writer for the
- * answer, as the read that a page of that connection sends, `POST /_t/read/<name>`, handed on under the cookies
+ * answer, as the read that a page of that connection sends, `POST /_f/read/<name>`, handed on under the cookies
  * and the key of the opening. Answers the value, and throws the error that the writer answered.
  */
 export async function readOnWriter(
@@ -336,13 +336,13 @@ export async function readOnWriter(
     const value = opened.request.headers.get(name)
     if (value !== null) headers.set(name, value)
   }
-  const request = new Request(`${origin}/_t/read/${encodeURIComponent(query)}`, { method: 'POST', headers, body })
+  const request = new Request(`${origin}/_f/read/${encodeURIComponent(query)}`, { method: 'POST', headers, body })
   const answer = await handOn(o, request, body, opened.about, performance.now())
   const wire: Record<string, unknown> = Object(await answer.json())
   if (wire.ok === true) return wire.value
   const told: Record<string, unknown> = Object(wire.error)
-  throw new TentError(
-    typeof told.code === 'string' ? told.code : 'T0009',
+  throw new ForjrError(
+    typeof told.code === 'string' ? told.code : 'F0009',
     typeof told.message === 'string' ? told.message : 'The writer did not answer the read.',
   )
 }
@@ -412,7 +412,7 @@ export async function answeredByMachines<Passed extends object>(
   if (!reader.whole() || kind === 'health') {
     if (reader.whole() && reader.current())
       return marked(o, await handle(request), reader.applied(), newAsked(), request, about)
-    const why = new TentError('T0029', 'This machine cannot answer for now: it is a reader that is not current.', {
+    const why = new ForjrError('F0029', 'This machine cannot answer for now: it is a reader that is not current.', {
       fix: 'Ask again in a moment, or ask the writer.',
     })
     return marked(o, errorAnswer(o, name ?? pathname, why), reader.applied(), newAsked(), request, about)

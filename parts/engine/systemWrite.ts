@@ -1,5 +1,5 @@
 import type { Caller, Db } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { By, FileName, Tx, Wrote, Writing } from '../data/index.ts'
 import type { CallContext, Written } from './context.ts'
 import { within } from './context.ts'
@@ -77,15 +77,15 @@ export async function systemWrite<Answer>(
 /**
  * Takes the context of a call, what uses it, and work on a `db` that writes with full access, for a handle of the
  * engine that writes rows of the app. Carries it out in the write that is open for the call, of which it is then a
- * part, or as a write of its own as the system, made by that call. Throws T0013 in a query, in the arrow of a rule,
+ * part, or as a write of its own as the system, made by that call. Throws F0013 in a query, in the arrow of a rule,
  * and in a call that only reads.
  */
 export function systemWriteIn<Answer>(cx: CallContext, used: string, work: (db: Db) => Answer): Answer {
   const o = cx.app
   const { kind } = cx.work
   if (kind === 'query' || kind === 'rule' || cx.reads)
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `${used} writes, and was used ${cx.reads ? 'in a call that only reads' : `in a ${kind}`}.`,
       { fix: 'Write in a change, an action, a route or a step of a flow.' },
     )
@@ -125,10 +125,10 @@ export function systemWriteIn<Answer>(cx: CallContext, used: string, work: (db: 
 
 /**
  * Takes the context of a write of the system, the file that a walk is in, and what walks. Answers the write of that
- * file: of the shared file, or of one tenant's. Throws T0009 where no write is open.
+ * file: of the shared file, or of one tenant's. Throws F0009 where no write is open.
  */
 export function walkedTx(cx: { tx?: Tx; writing?: Writing }, file: FileName | undefined, what: string): Tx {
   const tx = cx.writing ? cx.writing.tx(file) : cx.tx
-  if (!tx) throw new TentError('T0009', `${what} was walked with no write open.`)
+  if (!tx) throw new ForjrError('F0009', `${what} was walked with no write open.`)
   return tx
 }

@@ -58,7 +58,7 @@ test("[05-13.17] a client with a document of its own that asks for the app is gi
   })
   assert.equal(await mcpWith(app, signed.access), 200, 'it was not given /mcp')
   const called = await app.request(
-    new Request('http://localhost/_t/call/addOrder', {
+    new Request('http://localhost/_f/call/addOrder', {
       method: 'POST',
       headers: { authorization: `Bearer ${signed.access}`, 'content-type': 'application/json' },
       body: JSON.stringify({ input: { title: 'by a client of a document' } }),
@@ -69,7 +69,7 @@ test("[05-13.17] a client with a document of its own that asks for the app is gi
   for (const resource of ['https://other.example/mcp', 'https://other.example'])
     await refusedAt(browser, authorizeAt({ client: chat.id, redirect, proof: proof(), resource }), resource)
   // A program of this computer that names itself the command line: the person is asked each time, for the whole app.
-  const cli = { client: 'tent-cli', redirect: 'http://127.0.0.1:43123/callback', scope: 'read write' }
+  const cli = { client: 'forjr-cli', redirect: 'http://127.0.0.1:43123/callback', scope: 'read write' }
   for (let time = 1; time <= 3; time++) {
     const page = await browser.request('GET', authorizeAt({ ...cli, proof: proof(), resource: 'http://localhost' }))
     assert.equal(page.status, 200, `time ${time}: the person was not asked`)

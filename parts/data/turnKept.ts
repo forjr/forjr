@@ -11,7 +11,7 @@ const system = { kind: 'system' } as const
  * or taken from, and the `Seal`. Seals or opens the value of that column in every kept version of a row of its
  * table, those kept under a former name of the table or of the column among them. Each is written under the names
  * it was kept under, by which `history` opens it. So what a column seals lies open in nothing that was kept of it.
- * Throws T0019 where a kept version holds a value and no key is at hand.
+ * Throws F0019 where a kept version holds a value and no key is at hand.
  */
 export function turnKept(
   tx: Tx,

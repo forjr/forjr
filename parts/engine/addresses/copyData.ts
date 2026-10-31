@@ -1,7 +1,7 @@
 import { mkdtempSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { keepFrom } from '../../data/index.ts'
 import { manyLimit, placeOf } from '../held.ts'
 import type { Address } from '../door/address.ts'
@@ -35,7 +35,7 @@ function kept(o: Opened): void {
  * with them: the place of the reader that fetched this file is held against its running fingerprint.
  */
 async function snapshotOf(o: Opened): Promise<Response> {
-  const folder = mkdtempSync(join(tmpdir(), 'tent-copy-'))
+  const folder = mkdtempSync(join(tmpdir(), 'forjr-copy-'))
   const removed = (): void => rmSync(folder, { recursive: true, force: true, maxRetries: 20, retryDelay: 50 })
   const mine = { n: placeOf(o).n - 1, until: Number.MAX_SAFE_INTEGER }
   const all = fetches.get(o) ?? new Set()
@@ -57,11 +57,11 @@ async function snapshotOf(o: Opened): Promise<Response> {
   }
 }
 
-/** Makes a snapshot of the data file of one tenant, and answers it as a stream. Throws T0001 for an app that keeps none, and for a tenant with no file. */
+/** Makes a snapshot of the data file of one tenant, and answers it as a stream. Throws F0001 for an app that keeps none, and for a tenant with no file. */
 async function fileOf(o: Opened, file: { table: string; id: string }): Promise<Response> {
   if (!o.tenantFiles)
-    throw new TentError('T0001', 'This app keeps no data file for each tenant.', {
-      fix: 'Ask for `/_t/copy/data` with no table and no id.',
+    throw new ForjrError('F0001', 'This app keeps no data file for each tenant.', {
+      fix: 'Ask for `/_f/copy/data` with no table and no id.',
     })
   const { copy, remove } = await (await import('../files/reading.ts')).tenantFileCopy(o, o.tenantFiles, file)
   try {
@@ -73,13 +73,13 @@ async function fileOf(o: Opened, file: { table: string; id: string }): Promise<R
 }
 
 /**
- * `GET /_t/copy/data`: the data file as a snapshot writes it, as a stream of its bytes, with its length. The file
+ * `GET /_f/copy/data`: the data file as a snapshot writes it, as a stream of its bytes, with its length. The file
  * holds its own number, epoch and running fingerprint, and the kept changes. A reader answers it too, from its
  * own data.
  */
 export const address: Address = {
   order: 1,
-  match: (request) => request.method === 'GET' && new URL(request.url).pathname === '/_t/copy/data' && {},
+  match: (request) => request.method === 'GET' && new URL(request.url).pathname === '/_f/copy/data' && {},
   steps: [1, 2, 3, 10],
   handle: (reached) =>
     keyed(reached, 'copy/data', async () => {

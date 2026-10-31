@@ -5,10 +5,10 @@ import { createRequire } from 'node:module'
 import { dirname, join } from 'node:path'
 
 /** The family that every text of a picture is drawn with: regular, medium and bold, each with its italic. */
-export const testFamily = 'Tent Test'
+export const testFamily = 'Forjr Test'
 
 /** A second face of the test font, for a text that asks for a family of its own: its light cut. */
-export const secondFamily = 'Tent Test Second'
+export const secondFamily = 'Forjr Test Second'
 
 // Each face of the two families: the file of the font, its weight, and whether it is the italic.
 const faces: [family: string, file: string, weight: number, italic: boolean][] = [

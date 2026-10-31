@@ -1,4 +1,4 @@
-import { action, number, query, text } from 'tentjs'
+import { action, number, query, text } from 'forjr'
 import { addNote } from './note'
 import { notes } from '../tables/notes'
 

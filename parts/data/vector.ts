@@ -1,7 +1,7 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 
-const notValid = (table: string, column: string, why: string): TentError =>
-  new TentError('T2105', `The vector of \`${column}\` of \`${table}\` ${why}.`, {
+const notValid = (table: string, column: string, why: string): ForjrError =>
+  new ForjrError('F2105', `The vector of \`${column}\` of \`${table}\` ${why}.`, {
     fields: { [column]: 'type' },
     fix: 'Give a list of finite numbers, as many as the `size` of the column.',
   })
@@ -9,7 +9,7 @@ const notValid = (table: string, column: string, why: string): TentError =>
 /**
  * Takes a value, how many numbers the column holds, and the names of the table and the column. Answers the value
  * as a vector is kept: numbers of 32 bits. It takes a list of numbers, and numbers of 32 bits as they are kept.
- * Throws T2105 for what is neither, for a list of another
+ * Throws F2105 for what is neither, for a list of another
  * length, and for a number that is not finite, or that 32 bits cannot hold.
  */
 export function vectorOf(value: unknown, size: number, table: string, column: string): Float32Array {
@@ -28,7 +28,7 @@ export function vectorOf(value: unknown, size: number, table: string, column: st
   return made
 }
 
-/** Throws T2105 for a vector whose numbers are all zero: it has no direction, so nothing is near it by the cosine. */
+/** Throws F2105 for a vector whose numbers are all zero: it has no direction, so nothing is near it by the cosine. */
 export function withDirection(vector: Float32Array, table: string, column: string): void {
   if (vector.every((one) => one === 0))
     throw notValid(table, column, "holds zeros alone, and has no direction for a `near` with 'cosine'")

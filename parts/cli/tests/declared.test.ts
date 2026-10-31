@@ -1,10 +1,11 @@
 import assert from 'node:assert/strict'
-import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { cpSync, existsSync, mkdirSync, readFileSync, writeFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import type { TestContext } from 'node:test'
 import { test } from 'node:test'
 import { tested } from './recordedProject.ts'
 import { copied } from './typed.ts'
+import { anotherHost, outsideCopy, testedNow } from './outsideHost.ts'
 
 /** The project `declared` beside these tests, copied, with what the folders that `more` names lay over it. */
 function declaredCopy(t: TestContext, name: string, ...more: string[]): string {
@@ -26,32 +27,32 @@ function casesOf(printed: string): { line: string; stood: string }[] {
   })
 }
 
-test('[53-11] tent test --declared on a project with a function of each rule kind writes tests/declared/access.json; run again with no change it passes; with one rule changed it fails naming the change; --update keeps the new table', (t) => {
+test('[53-11] forjr test --declared on a project with a function of each rule kind writes tests/declared/access.json; run again with no change it passes; with one rule changed it fails naming the change; --update keeps the new table', (t) => {
   const project = declaredCopy(t, 'declared-11')
   const first = tested(project, '--declared')
   assert.equal(first.ended, 0, first.printed)
   const access = accessOf(project)
   // What each caller gets of each function: the rules of nobody, a signed-in caller, a role, anyone and code.
   for (const [key, got] of Object.entries({
-    'hidden - access: as nobody': 'refused T0006',
-    'hidden - access: as a user with no role': 'refused T3101',
+    'hidden - access: as nobody': 'refused F0006',
+    'hidden - access: as a user with no role': 'refused F3101',
     'hidden - access: as the system': 'taken',
-    'listOrders - access: as nobody': 'refused T0006',
+    'listOrders - access: as nobody': 'refused F0006',
     'listOrders - access: as a user with no role': 'taken',
-    'refundOrder - access: as a user with no role': 'refused T3101',
+    'refundOrder - access: as a user with no role': 'refused F3101',
     'refundOrder - access: as a user of the role staff': 'taken',
     'openNow - access: as nobody': 'taken',
-    'staffDesk - access: as a user with no role': 'refused T3101',
+    'staffDesk - access: as a user with no role': 'refused F3101',
     'staffDesk - access: as a user of the role staff': 'taken',
     // A route, asked by each caller that a request can be, and a command of the app's own.
-    'feed - access: as nobody': 'refused T0006',
+    'feed - access: as nobody': 'refused F0006',
     'feed - access: as a user with no role': 'taken',
-    'greet - access: as a user with no role': 'refused T3101',
+    'greet - access: as a user with no role': 'refused F3101',
     'greet - access: as a user of the role staff': 'taken',
     // And each table, read, added to, changed and removed by the same callers, and by two users where it names an owner.
     'orders - change: as a user of the role staff': 'taken',
-    'orders - remove: as a user of the role staff': 'refused T2103',
-    'orders - remove: as the owner': 'refused T3101',
+    'orders - remove: as a user of the role staff': 'refused F2103',
+    'orders - remove: as the owner': 'refused F3101',
     'orders - read: as the owner': 'taken',
   }))
     assert.equal(access[key], got, `${key} in ${JSON.stringify(access, null, 1)}`)
@@ -59,7 +60,7 @@ test('[53-11] tent test --declared on a project with a function of each rule kin
   // Each line of the output names the declaration it comes from and what came of it.
   const lines = casesOf(first.printed).map((one) => one.line)
   assert.ok(
-    lines.includes("refundOrder - access: role('staff'): as a user with no role, refused T3101 (needs role 'staff')"),
+    lines.includes("refundOrder - access: role('staff'): as a user with no role, refused F3101 (needs role 'staff')"),
   )
   assert.ok(lines.includes('openNow - access: anyone: as nobody, taken'))
   const again = tested(project, '--declared')
@@ -76,11 +77,11 @@ test('[53-11] tent test --declared on a project with a function of each rule kin
   const changed = tested(project, '--declared', '--json')
   assert.equal(changed.ended, 1, changed.printed)
   const told = (changed.answer.findings ?? []).map((one) => one.message).join('\n')
-  assert.match(told, /refundOrder - access: as a user of the role staff: was taken, now refused T3101/)
+  assert.match(told, /refundOrder - access: as a user of the role staff: was taken, now refused F3101/)
   assert.equal(accessOf(project)['refundOrder - access: as a user of the role staff'], 'taken')
   const kept = tested(project, '--declared', '--update')
   assert.equal(kept.ended, 0, kept.printed)
-  assert.equal(accessOf(project)['refundOrder - access: as a user of the role staff'], 'refused T3101')
+  assert.equal(accessOf(project)['refundOrder - access: as a user of the role staff'], 'refused F3101')
   assert.equal(accessOf(project)['refundOrder - access: as a user of the role manager'] !== undefined, true)
   assert.equal(tested(project, '--declared').ended, 0)
 })
@@ -95,9 +96,9 @@ test('[53-11] a table that names a tenant is read, changed and removed in the te
   // In another tenant the row is not there: a read of it finds nothing, and a change or a removal of it is refused.
   assert.equal(access['teamNotes - read: as the system, in another tenant'], 'found nothing')
   for (const what of ['change', 'remove'])
-    assert.equal(access[`teamNotes - ${what}: as the system, in another tenant`], 'refused T2103', what)
+    assert.equal(access[`teamNotes - ${what}: as the system, in another tenant`], 'refused F2103', what)
   // Who may start the agent is held as who may call a function.
-  assert.equal(access['helper - access: as nobody'], 'refused T0006', JSON.stringify(access, null, 1))
+  assert.equal(access['helper - access: as nobody'], 'refused F0006', JSON.stringify(access, null, 1))
   assert.ok(access['helper - access: as a user with no role'] !== undefined, JSON.stringify(access, null, 1))
 })
 
@@ -109,7 +110,7 @@ test('[53-12] the edges of an input whose code throws at its max fail as interna
   const cases = casesOf(typed.printed)
   const stood = (line: string): string | undefined => cases.find((one) => one.line === line)?.stood
   assert.equal(stood('priced.price - number({ min: 0, max: 100 }): 0, taken'), 'passed', typed.printed)
-  assert.equal(stood('priced.price - number({ min: 0, max: 100 }): 100, internal T0009'), 'failed', typed.printed)
+  assert.equal(stood('priced.price - number({ min: 0, max: 100 }): 100, internal F0009'), 'failed', typed.printed)
   const told = (ran.answer.findings ?? []).find((one) =>
     one.message.includes('priced.price - number({ min: 0, max: 100 }): 100'),
   )
@@ -136,15 +137,15 @@ test('[53-13] a form sent empty, with its edges and with a sample, gives the sam
   )
 })
 
-test('[53-14] [16-2@12] no generated case reaches outside: a service, a model, a plain fetch and a run that asks a person are each held, a service and a model refused with T7132', (t) => {
+test('[53-14] [16-2@12] no generated case reaches outside: a service, a model, a plain fetch and a run that asks a person are each held, a service and a model refused with F7132', (t) => {
   const project = declaredCopy(t, 'declared-14', 'declaredOutside')
   const ran = tested(project, '--declared')
   assert.equal(ran.ended, 0, ran.printed)
   const lines = casesOf(ran.printed).map((one) => one.line)
   for (const held of [
-    'charge - access: signedIn: as a user with no role, refused T7132',
-    'paint - access: signedIn: as a user with no role, refused T7132',
-    'fetchOut - access: signedIn: as a user with no role, refused T7132',
+    'charge - access: signedIn: as a user with no role, refused F7132',
+    'paint - access: signedIn: as a user with no role, refused F7132',
+    'fetchOut - access: signedIn: as a user with no role, refused F7132',
   ])
     assert.ok(lines.includes(held), `${held} in ${lines.join('\n')}`)
   assert.ok(
@@ -156,7 +157,7 @@ test('[53-14] [16-2@12] no generated case reaches outside: a service, a model, a
 // The cases of the project `declared`, in their order, as every computer makes them: the three systems hold their
 // run to this one list.
 const declaredLines = [
-  'addOrder - access: signedIn: as nobody, refused T0006 (needs a signed-in caller)',
+  'addOrder - access: signedIn: as nobody, refused F0006 (needs a signed-in caller)',
   'addOrder - access: signedIn: as a user with no role, taken',
   'addOrder - access: signedIn: as a user of the role staff, taken',
   'addOrder - access: signedIn: as the system, taken',
@@ -170,17 +171,17 @@ const declaredLines = [
   "addOrder - form on /ordering: title 'aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa' (an edge), taken",
   'addOrder - form on /ordering: total 0 (an edge), taken',
   'addOrder - form on /ordering: total 1000 (an edge), taken',
-  'feed - access: signedIn: as nobody, refused T0006 (needs a signed-in caller)',
+  'feed - access: signedIn: as nobody, refused F0006 (needs a signed-in caller)',
   'feed - access: signedIn: as a user with no role, taken',
   'feed - access: signedIn: as a user of the role staff, taken',
-  "greet - access: role('staff'): as a user with no role, refused T3101 (needs role 'staff')",
+  "greet - access: role('staff'): as a user with no role, refused F3101 (needs role 'staff')",
   "greet - access: role('staff'): as a user of the role staff, taken",
   "greet - access: role('staff'): as the system, taken",
-  'hidden - access: nobody: as nobody, refused T0006 (lets nobody in)',
-  'hidden - access: nobody: as a user with no role, refused T3101 (lets nobody in)',
-  'hidden - access: nobody: as a user of the role staff, refused T3101 (lets nobody in)',
+  'hidden - access: nobody: as nobody, refused F0006 (lets nobody in)',
+  'hidden - access: nobody: as a user with no role, refused F3101 (lets nobody in)',
+  'hidden - access: nobody: as a user of the role staff, refused F3101 (lets nobody in)',
   'hidden - access: nobody: as the system, taken',
-  'listOrders - access: signedIn: as nobody, refused T0006 (needs a signed-in caller)',
+  'listOrders - access: signedIn: as nobody, refused F0006 (needs a signed-in caller)',
   'listOrders - access: signedIn: as a user with no role, taken',
   'listOrders - access: signedIn: as a user of the role staff, taken',
   'listOrders - access: signedIn: as the system, taken',
@@ -194,23 +195,23 @@ const declaredLines = [
   'orders - read: owner: as the system, taken',
   'orders - read: owner: as the owner, taken',
   'orders - read: owner: as another user, found nothing',
-  'orders - add: signedIn: as nobody, refused T3101 (needs a signed-in caller)',
+  'orders - add: signedIn: as nobody, refused F3101 (needs a signed-in caller)',
   'orders - add: signedIn: as a user with no role, taken',
   'orders - add: signedIn: as a user of the role staff, taken',
   'orders - add: signedIn: as the system, taken',
-  "orders - change: role('staff'): as nobody, refused T2103 (needs role 'staff')",
-  "orders - change: role('staff'): as a user with no role, refused T2103 (needs role 'staff')",
+  "orders - change: role('staff'): as nobody, refused F2103 (needs role 'staff')",
+  "orders - change: role('staff'): as a user with no role, refused F2103 (needs role 'staff')",
   "orders - change: role('staff'): as a user of the role staff, taken",
   "orders - change: role('staff'): as the system, taken",
-  "orders - change: role('staff'): as the owner, refused T3101 (needs role 'staff')",
-  "orders - change: role('staff'): as another user, refused T2103 (needs role 'staff')",
-  'orders - remove: no rule: as nobody, refused T2103',
-  'orders - remove: no rule: as a user with no role, refused T2103',
-  'orders - remove: no rule: as a user of the role staff, refused T2103',
+  "orders - change: role('staff'): as the owner, refused F3101 (needs role 'staff')",
+  "orders - change: role('staff'): as another user, refused F2103 (needs role 'staff')",
+  'orders - remove: no rule: as nobody, refused F2103',
+  'orders - remove: no rule: as a user with no role, refused F2103',
+  'orders - remove: no rule: as a user of the role staff, refused F2103',
   'orders - remove: no rule: as the system, taken',
-  'orders - remove: no rule: as the owner, refused T3101',
-  'orders - remove: no rule: as another user, refused T2103',
-  'pick - access: signedIn: as nobody, refused T0006 (needs a signed-in caller)',
+  'orders - remove: no rule: as the owner, refused F3101',
+  'orders - remove: no rule: as another user, refused F2103',
+  'pick - access: signedIn: as nobody, refused F0006 (needs a signed-in caller)',
   'pick - access: signedIn: as a user with no role, taken',
   'pick - access: signedIn: as a user of the role staff, taken',
   'pick - access: signedIn: as the system, taken',
@@ -223,30 +224,30 @@ const declaredLines = [
   "pick - form on /ordering: note '' (an edge), taken",
   "pick - form on /ordering: size 'small' (an edge), taken",
   "pick - form on /ordering: size 'large' (an edge), taken",
-  "refundOrder - access: role('staff'): as nobody, refused T0006 (needs role 'staff')",
-  "refundOrder - access: role('staff'): as a user with no role, refused T3101 (needs role 'staff')",
+  "refundOrder - access: role('staff'): as nobody, refused F0006 (needs role 'staff')",
+  "refundOrder - access: role('staff'): as a user with no role, refused F3101 (needs role 'staff')",
   "refundOrder - access: role('staff'): as a user of the role staff, taken",
   "refundOrder - access: role('staff'): as the system, taken",
   "refundOrder.order - link('orders'): a row of orders that exists, taken",
-  'staffDesk - access: a rule written as code: as nobody, refused T0006',
-  'staffDesk - access: a rule written as code: as a user with no role, refused T3101',
+  'staffDesk - access: a rule written as code: as nobody, refused F0006',
+  'staffDesk - access: a rule written as code: as a user with no role, refused F3101',
   'staffDesk - access: a rule written as code: as a user of the role staff, taken',
   'staffDesk - access: a rule written as code: as the system, taken',
   'users - read: signedIn: as nobody, taken',
   'users - read: signedIn: as a user with no role, taken',
   'users - read: signedIn: as a user of the role staff, taken',
   'users - read: signedIn: as the system, taken',
-  'users - add: no rule: as nobody, refused T3101',
-  'users - add: no rule: as a user with no role, refused T3101',
-  'users - add: no rule: as a user of the role staff, refused T3101',
+  'users - add: no rule: as nobody, refused F3101',
+  'users - add: no rule: as a user with no role, refused F3101',
+  'users - add: no rule: as a user of the role staff, refused F3101',
   'users - add: no rule: as the system, taken',
-  'users - change: no rule: as nobody, refused T2103',
-  'users - change: no rule: as a user with no role, refused T3101',
-  'users - change: no rule: as a user of the role staff, refused T3101',
+  'users - change: no rule: as nobody, refused F2103',
+  'users - change: no rule: as a user with no role, refused F3101',
+  'users - change: no rule: as a user of the role staff, refused F3101',
   'users - change: no rule: as the system, taken',
-  'users - remove: no rule: as nobody, refused T2103',
-  'users - remove: no rule: as a user with no role, refused T3101',
-  'users - remove: no rule: as a user of the role staff, refused T3101',
+  'users - remove: no rule: as nobody, refused F2103',
+  'users - remove: no rule: as a user with no role, refused F3101',
+  'users - remove: no rule: as a user of the role staff, refused F3101',
   'users - remove: no rule: as the system, taken',
 ]
 
@@ -263,7 +264,7 @@ test('[53-15] the same description gives the same cases in the same order, the o
   )
 })
 
-test('[53-16] a choice values are read by tent test --plan and by the generator from values', (t) => {
+test('[53-16] a choice values are read by forjr test --plan and by the generator from values', (t) => {
   const project = declaredCopy(t, 'declared-16')
   const planned = tested(project, '--plan', 'ordering', '--json')
   assert.equal(planned.ended, 0, planned.printed)
@@ -274,4 +275,17 @@ test('[53-16] a choice values are read by tent test --plan and by the generator 
   const lines = casesOf(ran.printed).map((one) => one.line)
   for (const value of ['small', 'large'])
     assert.ok(lines.includes(`pick.size - choice('small', 'large'): '${value}', taken`), lines.join('\n'))
+})
+
+test('[53-14] no generated case reaches outside: a page of a form case that loads a picture from another host, and code that asks another host by node:http, are each held', async (t) => {
+  const host = await anotherHost(t)
+  const project = outsideCopy(t, 'recorded-declared', host.at)
+  // The tests written by hand are no part of the cases.
+  rmSync(join(project, 'tests'), { recursive: true, force: true })
+  const ran = await testedNow(project, '--declared')
+  // The run made its cases, the form among them.
+  assert.match(ran.printed, /addNote - form on \/pictured/, ran.printed)
+  assert.match(ran.printed, /httpOut - access/, ran.printed)
+  const reached = (path: string): number => host.asked.filter((one) => one === path).length
+  assert.deepEqual({ picture: reached('/picture'), http: reached('/http') }, { picture: 0, http: 0 })
 })

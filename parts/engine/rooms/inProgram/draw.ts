@@ -42,7 +42,7 @@ function runs(pid: number): boolean {
 function pageCodeFolder(): string {
   if (ownFolder !== undefined) return ownFolder
   for (const name of readdirSync(tmpdir())) {
-    const pid = Number(/^tent-page-code-(\d+)-/.exec(name)?.[1])
+    const pid = Number(/^forjr-page-code-(\d+)-/.exec(name)?.[1])
     if (!Number.isInteger(pid) || pid === process.pid || runs(pid)) continue
     try {
       rmSync(join(tmpdir(), name), { recursive: true, force: true, maxRetries: 2 })
@@ -50,7 +50,7 @@ function pageCodeFolder(): string {
       // A folder of another user, or one that its program still lets go of, is left for a later program.
     }
   }
-  const made = mkdtempSync(join(tmpdir(), `tent-page-code-${process.pid}-`))
+  const made = mkdtempSync(join(tmpdir(), `forjr-page-code-${process.pid}-`))
   ownFolder = made
   process.once('exit', () => rmSync(made, { recursive: true, force: true }))
   return made
@@ -74,7 +74,7 @@ function laidOwn(place: string, file: string): string {
 
 /**
  * Loads the server file of the page code of a version, once for all the versions that hold the same file, from the
- * engine's own folder, and tells it that the modules of this version find React and `tentjs/ui` in it. A load that
+ * engine's own folder, and tells it that the modules of this version find React and `forjr/ui` in it. A load that
  * failed is not kept: the next version that asks loads the file from its own.
  */
 export async function pageCodeAt(place: string, file: string): Promise<PageCode> {

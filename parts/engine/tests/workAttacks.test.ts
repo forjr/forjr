@@ -51,7 +51,7 @@ test('[51-11.8] a worker that asks for a file that no task of its own names, wit
   const work = Object((await worker.next('work')).task)
   const fingerprint = String(Object(Object(work.rows).marks).file)
   const asks = (path: string, key: string) =>
-    fetch(`${origin}/_t/work/file/${path}`, { headers: { authorization: `Bearer ${key}` } })
+    fetch(`${origin}/_f/work/file/${path}`, { headers: { authorization: `Bearer ${key}` } })
   assert.equal((await asks(`${fingerprint}?task=${work.id}`, joiningKeys.free)).status, 200)
   assert.equal((await asks(`${'a'.repeat(64)}?task=${work.id}`, joiningKeys.free)).status, 404, 'a file no task names')
   assert.equal(
@@ -90,7 +90,7 @@ test('[51-11.9] a worker that says ready and loaded for what it does not hold is
   worker.send({
     t: 'failed',
     task: work.id,
-    error: { code: 'T0011', message: 'This worker does not hold the version.' },
+    error: { code: 'F0011', message: 'This worker does not hold the version.' },
     cpuMs: 0,
   })
   await worker.next('saved')
@@ -139,7 +139,7 @@ function heardOn(link: Link): { heard: Record<string, unknown>[]; closed: () => 
 test('[51-11.11] a machine at the worker from that answers no with an address of its own is not followed, and a writer of an older epoch that says go is left', async (t) => {
   const { clock, advance } = testClock()
   const engine = engineOf(t, { makers: { clock: () => clock } })
-  const folder = mkdtempSync(join(tmpdir(), 'tent-worker-'))
+  const folder = mkdtempSync(join(tmpdir(), 'forjr-worker-'))
   t.after(() => rmSync(folder, { recursive: true, force: true }))
   const machine = machineOf()
   const from = 'http://writer.test'
@@ -158,7 +158,7 @@ test('[51-11.11] a machine at the worker from that answers no with an address of
   const one = heardOn(first)
   await moment()
   assert.equal(one.heard[0]?.t, 'here')
-  tell(first, { t: 'no', code: 'T0030', address: 'http://elsewhere.test' })
+  tell(first, { t: 'no', code: 'F0030', address: 'http://elsewhere.test' })
   for (let i = 0; i < 40 && machine.dials.length < 2; i++) {
     advance(1000)
     await moment(10)
@@ -185,7 +185,7 @@ test('[51-11.11] a machine at the worker from that answers no with an address of
   assert.deepEqual([...new Set(machine.asked)], [from])
 })
 
-test('[51-11.12] on a kind that states systemWork false, a worker that asks a handle, a do that uses does not name, or a read with system under a visitor task is answered T0013', async (t) => {
+test('[51-11.12] on a kind that states systemWork false, a worker that asks a handle, a do that uses does not name, or a read with system under a visitor task is answered F0013', async (t) => {
   const { app } = await writerOf(t)
   const worker = await readyWorker(app, joiningKeys.free, ['locked'])
   await app.start('onLockedVisitor', { what: 'a visitor mark' }, { as: { kind: 'nobody', visitor: 'v1' } })
@@ -199,12 +199,12 @@ test('[51-11.12] on a kind that states systemWork false, a worker that asks a ha
     ['r1', { what: 'read', plan: { from: 'users' }, system: true }],
   ] as const) {
     const answer = await asked(worker, id, task, call)
-    assert.equal(Object(answer.error).code, 'T0013', `${id}: ${JSON.stringify(answer)}`)
+    assert.equal(Object(answer.error).code, 'F0013', `${id}: ${JSON.stringify(answer)}`)
   }
   worker.close()
 })
 
-test('[51-11.13] a worker that sends progress and log without end is refused with T0005 past workPerMinute, for that worker alone', async (t) => {
+test('[51-11.13] a worker that sends progress and log without end is refused with F0005 past workPerMinute, for that worker alone', async (t) => {
   const { app } = await writerOf(t, {
     change: (description) => {
       description.project.limits = { ...Object(description.project.limits), workPerMinute: 5 }
@@ -219,15 +219,15 @@ test('[51-11.13] a worker that sends progress and log without end is refused wit
   for (let n = 1; n <= 6; n++) worker.send({ t: 'progress', task, value: n, files: [], n })
   worker.send({ t: 'log', task, lines: [{ at: 0, level: 'info', message: 'one line too many' }] })
   await moment(100)
-  const refused = worker.heard.filter((one) => one.t === 'refused' && one.code === 'T0005')
+  const refused = worker.heard.filter((one) => one.t === 'refused' && one.code === 'F0005')
   assert.ok(refused.length >= 2, JSON.stringify(worker.heard.map((one) => [one.t, one.what, one.code])))
   assert.ok(refused.some((one) => one.what === 'log'))
-  assert.equal(calm.heard.filter((one) => one.code === 'T0005').length, 0, 'the other worker is refused nothing')
+  assert.equal(calm.heard.filter((one) => one.code === 'F0005').length, 0, 'the other worker is refused nothing')
   worker.close()
   calm.close()
 })
 
-test('[51-11.13] the files that a worker posts past workHeld are refused with T0005, and the lines of its log are written under its task', async (t) => {
+test('[51-11.13] the files that a worker posts past workHeld are refused with F0005, and the lines of its log are written under its task', async (t) => {
   const { app, origin, dataFolder } = await writerOf(t, {
     change: (description) => {
       description.project.limits = { ...Object(description.project.limits), workHeld: 100 }
@@ -239,14 +239,14 @@ test('[51-11.13] the files that a worker posts past workHeld are refused with T0
   const task = String(work.id)
   worker.send({ t: 'started', task })
   const post = (body: string) =>
-    fetch(`${origin}/_t/work/file?task=${task}&kind=text/plain`, {
+    fetch(`${origin}/_f/work/file?task=${task}&kind=text/plain`, {
       method: 'POST',
       headers: { authorization: `Bearer ${joiningKeys.free}`, 'content-type': 'application/octet-stream' },
       body,
     })
   assert.equal((await post('x'.repeat(60))).status, 200)
   const past = await post('y'.repeat(60))
-  assert.equal(Object(Object(await past.json()).error).code, 'T0005')
+  assert.equal(Object(Object(await past.json()).error).code, 'F0005')
   worker.send({ t: 'log', task, lines: [{ at: 1, level: 'warn', message: 'a line of the work' }] })
   worker.send({ t: 'done', task, result: 3, cpuMs: 1 })
   await worker.next('saved')
@@ -262,7 +262,7 @@ test('[51-11.13] the files that a worker posts past workHeld are refused with T0
 test('[51-2] the lines that work on a worker writes with log are gathered and written to the log of the writer, under the run of its task', async (t) => {
   const { app, clock, advance, dataFolder, origin } = await writerOf(t)
   const engine = engineOf(t, { makers: { clock: () => clock } })
-  const folder = mkdtempSync(join(tmpdir(), 'tent-worker-'))
+  const folder = mkdtempSync(join(tmpdir(), 'forjr-worker-'))
   t.after(() => rmSync(folder, { recursive: true, force: true }))
   const worker = await engine.work({
     from: origin,
@@ -288,7 +288,7 @@ test('[51-2] the lines that work on a worker writes with log are gathered and wr
   )
 })
 
-test('[51-4] a run that was read, whose worker asks for a plan its body does not hold or a call it does not make, is T0013', async (t) => {
+test('[51-4] a run that was read, whose worker asks for a plan its body does not hold or a call it does not make, is F0013', async (t) => {
   const { app } = await writerOf(t, { bodies: { bodyOnGpu: { run: [{ return: 1 }] } } })
   const worker = await readyWorker(app, joiningKeys.free)
   const call = app.call('bodyOnGpu', undefined, { as: system }).catch(() => undefined)
@@ -296,9 +296,9 @@ test('[51-4] a run that was read, whose worker asks for a plan its body does not
   const task = String(work.id)
   worker.send({ t: 'started', task })
   const read = await asked(worker, 'b1', task, { what: 'read', plan: { from: 'marks' } })
-  assert.equal(Object(read.error).code, 'T0013', JSON.stringify(read))
+  assert.equal(Object(read.error).code, 'F0013', JSON.stringify(read))
   const done = await asked(worker, 'b2', task, { what: 'do', name: 'addMark', input: { what: 'not in the body' } })
-  assert.equal(Object(done.error).code, 'T0013', JSON.stringify(done))
+  assert.equal(Object(done.error).code, 'F0013', JSON.stringify(done))
   worker.send({ t: 'done', task, result: 1, cpuMs: 1 })
   await call
   worker.close()

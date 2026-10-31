@@ -27,7 +27,7 @@ test('[32-6] a screen prefetched is asked for at once, and what its answer bring
   prefetched.fetch('/shop', 'v1')
   // The ask goes out with the pointer: that must be done at once.
   assert.equal(asked.length, 1)
-  assert.match(String(asked[0]), /^\/_t\/screen\?path=%2Fshop/)
+  assert.match(String(asked[0]), /^\/_f\/screen\?path=%2Fshop/)
   // Its answer is there, and nothing is taken in yet: the browser has not been idle.
   assert.deepEqual(await prefetched.take('/shop'), answer)
   await new Promise((done) => setTimeout(done, 10))

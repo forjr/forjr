@@ -20,7 +20,7 @@ import {
   route,
   table,
   text,
-} from 'tentjs'
+} from 'forjr'
 import { github, weather } from './services'
 
 export const users = table('users', {

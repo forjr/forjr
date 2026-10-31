@@ -51,7 +51,7 @@ test('[40-8] a server-side edit of a plain definition pulled into a hand-edited 
   }
 })
 
-test('[40-8] [16-2@8c] a push after someone else pushed is T9103, and after a pull it lands; a pulled point is not checked until this computer checked it', async (t) => {
+test('[40-8] [16-2@8c] a push after someone else pushed is F9103, and after a pull it lands; a pulled point is not checked until this computer checked it', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder)
   const to = server.key(['read', 'push'])
@@ -78,7 +78,7 @@ test('[40-8] [16-2@8c] a push after someone else pushed is T9103, and after a pu
     () => undefined,
     (error: { code?: string; fields?: object }) => error,
   )
-  assert.equal(refused?.code, 'T9103')
+  assert.equal(refused?.code, 'F9103')
   assert.deepEqual(Object(refused?.fields).reason, 'pointer-moved')
   assert.equal(server.history.pointer('main'), standing, 'nothing on the server moves')
 

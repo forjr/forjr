@@ -5,7 +5,7 @@ Answers the settings of the project that are marked `public`, in the code of a v
 ## Example
 
 ```tsx
-import { component, useSettings } from 'tentjs/ui'
+import { component, useSettings } from 'forjr/ui'
 
 export const Help = component('Help', {
   view: () => {

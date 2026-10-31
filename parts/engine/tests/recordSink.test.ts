@@ -61,7 +61,7 @@ async function waits(work: Promise<unknown>): Promise<boolean> {
   return !settled
 }
 
-test('[29-9@7a] with a sink that states held, a write is answered only once the sink took it; with the sink stopped answers wait, and after behind a new write is T0031', async (t) => {
+test('[29-9@7a] with a sink that states held, a write is answered only once the sink took it; with the sink stopped answers wait, and after behind a new write is F0031', async (t) => {
   const copy = record()
   const { clock, advance } = testClock()
   const run = await running(t, { engine: { makers: { clock: () => clock, changes: () => copy.sink } } })
@@ -85,7 +85,7 @@ test('[29-9@7a] with a sink that states held, a write is answered only once the 
   const third = run.app.call('addTag', { name: 'third' }, { as: system })
   assert.equal(await waits(third), true)
   advance(6000)
-  assert.equal(await codeOf(run.app.call('addTag', { name: 'fourth' }, { as: system })), 'T0031')
+  assert.equal(await codeOf(run.app.call('addTag', { name: 'fourth' }, { as: system })), 'F0031')
   copy.release()
   await third
 })

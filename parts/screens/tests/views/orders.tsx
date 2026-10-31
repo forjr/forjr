@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { screen, useQuery, useParams, useUser } from 'tentjs/ui'
+import { screen, useQuery, useParams, useUser } from 'forjr/ui'
 
 // What a screen file is handed in place of a backend definition.
 const openOrders = { definition: 'openOrders', kind: 'query', input: {}, live: true } as const

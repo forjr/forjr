@@ -6,12 +6,12 @@
 
 Report them privately in one of two ways:
 
-- **GitHub:** use [Report a vulnerability](https://github.com/tentislabs/tent.js/security/advisories/new) on the Security tab of this repository.
-- **Email:** write to [security@tentjs.com](mailto:security@tentjs.com).
+- **GitHub:** use [Report a vulnerability](https://github.com/forjr/forjr/security/advisories/new) on the Security tab of this repository.
+- **Email:** write to [security@forjr.dev](mailto:security@forjr.dev).
 
 Please include as much of the following as you can:
 
-- the version of Tent.js and the operating system it runs on,
+- the version of Forjr and the operating system it runs on,
 - the type of issue and its impact: what an attacker could do,
 - the steps to reproduce it, or a minimal project that shows it,
 - whether the issue is already known or disclosed anywhere else.
@@ -35,9 +35,9 @@ Security fixes are released for the latest minor version of the current major ve
 
 ## Getting Fixes
 
-- Run `npm install -g tentjs@latest` to update the `tent` command, and `npm install tentjs@latest` in a project.
-- Every `tent` command tells you in one line when the installed version has a known security problem, and which version fixes it.
+- Run `npm install -g forjr@latest` to update the `forjr` command, and `npm install forjr@latest` in a project.
+- Every `forjr` command tells you in one line when the installed version has a known security problem, and which version fixes it.
 
 ## Reporting Bugs
 
-Bugs that are not security issues go to [GitHub Issues](https://github.com/tentislabs/tent.js/issues).
+Bugs that are not security issues go to [GitHub Issues](https://github.com/forjr/forjr/issues).

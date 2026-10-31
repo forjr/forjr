@@ -4,7 +4,7 @@ How the signature of a call is checked.
 
 ## Value
 
-The `signature` of a service that states `webhook`, or `{ scheme, secret }`. One of `verify` and `open` is required: neither is `code.T3008`, both `code.T1007`.
+The `signature` of a service that states `webhook`, or `{ scheme, secret }`. One of `verify` and `open` is required: neither is `code.F3008`, both `code.F1007`.
 
 `scheme` is one of three names, or a record of the builder's own:
 
@@ -30,4 +30,4 @@ export const formEvents = incoming('formEvents', {
 
 ## See also
 
-`word.incoming`, `option.service.webhook`, `code.T7118`
+`word.incoming`, `option.service.webhook`, `code.F7118`

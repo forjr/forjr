@@ -1,4 +1,4 @@
-import { get, model, object, post, secret, service, text } from 'tentjs'
+import { get, model, object, post, secret, service, text } from 'forjr'
 
 export const decisions = service('decisions', {
   url: 'https://decisions.example',

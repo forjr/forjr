@@ -35,7 +35,7 @@ const proofTime = 5000
 export async function provedAt(port: number, token: string): Promise<'proved' | 'refused' | 'none'> {
   const number = randomBytes(32).toString('hex')
   try {
-    const answer = await fetch(`http://127.0.0.1:${port}/_t/admin`, {
+    const answer = await fetch(`http://127.0.0.1:${port}/_f/admin`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ number }),
@@ -44,7 +44,7 @@ export async function provedAt(port: number, token: string): Promise<'proved' | 
     const body: unknown = await answer.json()
     if (provesToken(token, number, Reflect.get(Object(Reflect.get(Object(body), 'value')), 'proof'))) return 'proved'
     const code = Reflect.get(Object(Reflect.get(Object(body), 'error')), 'code')
-    return !answer.ok && code === 'T0006' ? 'refused' : 'none'
+    return !answer.ok && code === 'F0006' ? 'refused' : 'none'
   } catch {
     return 'none'
   }

@@ -9,7 +9,7 @@ export interface Watching {
   version?: string
   // The mark of the answer that the page holds, where it holds one.
   have?: string
-  // The write that the answer must hold, on an app with readers: a mark, in the form of `Tent-At`.
+  // The write that the answer must hold, on an app with readers: a mark, in the form of `Forjr-At`.
   seen?: unknown
 }
 

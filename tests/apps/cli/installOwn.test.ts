@@ -1,0 +1,44 @@
+import assert from 'node:assert/strict'
+import { existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
+import { join } from 'node:path'
+import test from 'node:test'
+import {
+  outsideFolderOf,
+  laidInstall,
+  personIn,
+  ran,
+  released,
+  servedFolder,
+} from '../../../parts/cli/tests/released.ts'
+
+test("[41-12] forjr update and forjr uninstall, typed in a folder that holds a node_modules/forjr of another version, are the install's own: nothing of that folder runs", async (t) => {
+  const rel = await released('1.0.0')
+  const folder = outsideFolderOf(t, 'install-own')
+  const person = personIn(folder, { npm: false })
+  const launcher = laidInstall(rel, person.forjr, ['runtime', 'player'])
+  // A forjr of another version planted in the folder the commands are typed in, whose program leaves a mark where it runs.
+  const typedIn = join(folder, 'planted')
+  const planted = join(typedIn, 'node_modules', 'forjr')
+  const mark = join(folder, 'planted-ran')
+  mkdirSync(join(planted, 'bin'), { recursive: true })
+  writeFileSync(join(planted, 'package.json'), JSON.stringify({ name: 'forjr', version: '9.9.9', type: 'module' }))
+  writeFileSync(
+    join(planted, 'bin', 'forjr.js'),
+    `import { writeFileSync } from 'node:fs'\nwriteFileSync(${JSON.stringify(mark)}, 'ran')\n`,
+  )
+  writeFileSync(join(typedIn, 'package.json'), JSON.stringify({ dependencies: { forjr: '9.9.9' } }))
+  // The place releases are served from offers no newer version: the install is updated to nothing newer.
+  const served = await servedFolder(t, rel.out)
+  const env = { ...person.env, FORJR_RELEASES: served.address }
+  const updated = await ran(launcher, ['update', '--json'], { cwd: typedIn, env })
+  assert.equal(updated.status, 0, `${updated.out}${updated.err}`)
+  assert.equal(JSON.parse(updated.out).ok, true, updated.out)
+  assert.equal(readFileSync(join(person.forjr, 'current'), 'utf8').trim(), rel.version)
+  assert.equal(existsSync(mark), false, 'forjr update ran nothing of the planted folder')
+  // A no leaves the install as it was, and the answer is the install's own.
+  const kept = await ran(launcher, ['uninstall', '--json'], { cwd: typedIn, env, input: 'no\n' })
+  assert.equal(kept.status, 0, `${kept.out}${kept.err}`)
+  assert.deepEqual(JSON.parse(kept.out), { ok: true, value: { removed: false }, findings: [] })
+  assert.equal(existsSync(join(person.forjr, 'current')), true)
+  assert.equal(existsSync(mark), false, 'forjr uninstall ran nothing of the planted folder')
+})

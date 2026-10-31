@@ -15,7 +15,7 @@ export interface Edit {
 
 /** Puts the text of each edit in its place in the copy, and fails where the text it replaces is not there. */
 export function edited(folder: string, edits: Edit[]): void {
-  for (const { file = 'tent.ts', from, to } of edits) {
+  for (const { file = 'forjr.ts', from, to } of edits) {
     const path = join(folder, file)
     const text = readFileSync(path, 'utf8')
     if (!text.includes(from)) throw new Error(`${file} of the copy holds no ${JSON.stringify(from)}`)
@@ -53,7 +53,7 @@ export const callerIdOf = (caller: Caller): string => String(caller.user?.id)
 /** What a tool's answer holds in the part that is kept from the model: the wire error of a failure, by its code. */
 export function errorOf(result: Record<string, unknown>): Record<string, unknown> {
   const kept = Object(result._meta)
-  return Object(kept['tent.error'])
+  return Object(kept['forjr.error'])
 }
 
 /** The one text of a tool's answer that the model is given. */

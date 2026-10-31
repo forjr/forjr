@@ -1,0 +1,63 @@
+tables:
+  table: notes
+  read: where
+  add: signedIn
+  change: where
+  remove: nobody
+  table: orders
+  read: owner
+  add: signedIn
+  change: role staff
+  remove: role staff
+  table: users
+  read: signedIn
+  add: nobody
+  change: nobody
+  remove: nobody
+functions:
+  name: addOrder
+  kind: change
+  access: signedIn
+  name: addUser
+  kind: change
+  access: nobody
+  name: markPaid
+  kind: change
+  access: role staff
+  name: myNotes
+  kind: query
+  access: allow
+  name: noted
+  kind: change
+  access: signedIn
+  name: openOrders
+  kind: query
+  access: signedIn
+  name: staffOnly
+  kind: query
+  access: role staff
+  name: tidyNotes
+  kind: action
+  access: signedIn
+  system: it tidies every note
+  name: whoAmI
+  kind: query
+  access: anyone
+  name: yearOf
+  kind: query
+  access: anyone
+models:
+  name: writer
+  provider: anthropic
+policies:
+  agent: helper
+  policy:
+    mode: propose
+    read:
+      *
+    tools:
+      map
+      read
+unlock:
+  scripts:
+    https://js.stripe.com

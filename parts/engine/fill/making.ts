@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Opened } from '../opened.ts'
 import { carryFill } from './carry.ts'
 import type { FillGroup } from './columns.ts'
@@ -11,21 +11,21 @@ import { writeAt } from './places.ts'
 // The first wait between two tries of the work of one row, as a flow's tries have it: each wait six times the one before.
 const firstWait = 5000
 
-/** What a row of `_t_filled` keeps of an error: what a caller would see of it. */
+/** What a row of `_f_filled` keeps of an error: what a caller would see of it. */
 function keptError(error: unknown): Record<string, unknown> {
-  if (error instanceof TentError) return { code: error.code, name: error.name, message: error.message }
-  return { code: 'T0009', name: 'internal', message: error instanceof Error ? error.message : String(error) }
+  if (error instanceof ForjrError) return { code: error.code, name: error.name, message: error.message }
+  return { code: 'F0009', name: 'internal', message: error instanceof Error ? error.message : String(error) }
 }
 
 /** Whether what the work failed with is a limit of use that holds it back, which is no error of the work. */
 export const isLimit = (group: FillGroup, error: unknown): boolean =>
-  error instanceof TentError && error.code === 'T7102' && group.atLimit !== 'fail'
+  error instanceof ForjrError && error.code === 'F7102' && group.atLimit !== 'fail'
 
 /** What the work of a row was handed, and the fingerprint of that. */
 export type Handed = ReturnType<typeof fillInputOf>
 
 /**
- * Writes the values that the work made for a row, in one write with their rows of `_t_filled`, only where what the
+ * Writes the values that the work made for a row, in one write with their rows of `_f_filled`, only where what the
  * work would be handed now still has the fingerprint it was handed: where the row changed meanwhile the answer is
  * dropped and the row stays due, and where it is gone nothing is written.
  */

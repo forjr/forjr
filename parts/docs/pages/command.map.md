@@ -1,54 +1,66 @@
-# `tent map`
+# `forjr map`
 
-Prints the whole app as a short outline: each table with its columns and its rules, each function with its inputs, its rule and its form, each flow with what starts it and its steps, each package the project imports, each screen with what it reads, calls and draws, and the bytes of each file that a page loads of the project. So a model that reads the map knows what is in the app, whatever was added.
+Prints the app for the AI that reads it: each definition on one line with its file and line, who may call it, what it reads and writes, who uses it and its tests, the heaviest first, cut to a size in tokens. `forjr map <name>`, `<table>.<column>` or `<file>` gives that one thing whole.
 
 ## Usage
 
 ```
-tent map
+forjr map [<name, column or file>] [--size <tokens>] [--all] [--data <folder>]
 ```
 
-The project is built for release first, so that what each package weighs in the page is known; a project that cannot be built is outlined as it is described, with the findings that stop the build.
+## Options
+
+| Option | Means |
+|---|---|
+| `<name, column or file>` | One thing alone: a definition by its name, `event:<name>` and `package:<name>`, a column as `<table>.<column>`, or a file of the project by its path |
+| `--size <tokens>` | How many tokens the map of the app may take, by the rule of one token for every 3 bytes. 1,500 when left out |
+| `--all` | Every definition, with no cut |
+| `--data <folder>` | The data folder of a `forjr dev` that answers the map. Left out, it is `.forjr/` of the project |
 
 ## Example
 
 ```
-myApp
-tables
-  sales: month number, amount number
-    read anyone, add anyone
-functions
-  query allSales(): anyone, plain
-  change addSale(month number, amount number): anyone, plain
-  action saleWords(month number): anyone, code
-packages
-  month-words: screens homeScreen; backend functions/sales.ts; browser 248 bytes
-  net-reader: backend functions/sales.ts; reaches net
-  tiny-bars: screens homeScreen; browser 211 bytes
-screens
-  homeScreen: /, anyone
-    data: sales from allSales
-    calls: addSale
-    components: BarLine of tiny-bars
-page
-  styles: browser/styles.884c91245160.css 7111 bytes
-  screen homeScreen: browser/screens.home.426828b3de21.js 1240 bytes
+forjr map markPaid
 ```
 
-**A package** is told with who uses it - the screens and the components that draw with it, the backend files and the other files that import it - whether it reaches a browser, with the bytes it stands for in the modules a browser loads, and the ways out of the computer that its code takes, as the modules of the runtime it imports say: `net` for a connection, `programs` for a program or a worker, `files` for a file of the computer, `native` for a native module. A package that sends data out by its own means past them is not seen; `hold` of `project` holds what code may reach (`option.project.hold`).
+**One line for each definition**, two spaces between its fields, a field that holds nothing left out: its kind and name, its file and line, its rule in words, what narrows it (`owner placedBy`, a column's own `read`, `danger ask`, `sends no`), its doors (`offered api`, an address, `GET /feed.xml`, `command report`, `every 1 hour`), the columns of a table (`note?` where a row may leave it out, `customer (customers)` for a link, `status? open|paid` for a choice), its bytes in the browser, its edges out and in, and its tests:
 
-**A screen** is told with its address and its rule, each entry of its `data` with the query or the action it reads, the functions it calls, and the components it draws: the project's own by their names, and those of a package with the package.
+```
+maps  no test record: run forjr test
+~ seen in the code; code: its code may reach more than is named
+query openOrders  functions/orders.ts:5  anyone signed in  offered api  reads customers.*, orders.*
+table orders  tables/orders.ts:5  read anyone signed in, add anyone signed in, change role staff  customer (customers), total, status? open|paid  links to customers  read by openOrders, ~markPaid  written by addOrder, ~markPaid
+change markPaid  functions/orders.ts:17  role staff  reads ~orders  writes ~orders.status, ~orders.total  emits ~paid  code
+```
 
-**The page** tells the bytes of each file that a browser loads of the project: the style files of the project, and the module of each screen and each component that has one, with the style files that it brings. A page loads the module of the screen it shows, and of a component when it draws it.
+**The edges** are said in words, out and in: `reads` and `read by`, `writes` and `written by`, `rule reads` and `read by the rule of`, `links to` and `linked from`, `asks` and `asked by`, `calls` and `called by`, `starts` and `started by`, `draws` and `drawn by`, `uses` and `used by`, `holds` and `held by`, `model` and `model of`, `service` and `service of`, `keeps memory in` and `memory of`, `on` and `wakes`, `emits` and `emitted by`, `filled by` and `fills`, `keeps` and `kept by`, `backfills` and `backfilled by`, `imports` and `imported by`. A function and a flow whose columns are known say them: `reads customers.*, orders.status` for the whole rows of a table and each other column, `writes orders.status`, `removes orders`. A group holds four names, then `and <n> more`.
+
+**What was seen in the code** carries `~`: the build reads the code of each function, flow, route, command and backfill written as code for the tables it reads and writes through `db`, the columns it sets with values written in place, the functions it calls, the flows it starts and the events it emits by a name written as text. A definition whose code may reach more than its edges name ends with `code`, and so does one whose rule is written as code, which may read any table; what a helper does for it, or a name worked out at run time, stays unseen.
+
+**The weight** orders the lines: the share of a walk that starts at the doors of the app and follows the edges out, so a table that many doored screens reach through their functions comes first. One project gives one map.
+
+**The bytes in the page** come from a release build made for the map into a folder of its own, which is removed, so no bundle is left in the project (the build keeps its own cache in `.forjr/cache/`, as every build does): a package that reaches a browser, and the sum of the files a page loads for a screen and a component, on its line; each file with its bytes in `forjr map <name>`; and the style files every page loads on the first line, `browser styles <n> bytes`. A project that cannot be built for release is mapped as it is described, says `no page bytes: it does not build for release` on its first line, and answers its errors as findings. A column, and a file that holds no definition, need no bytes and no release build.
+
+**The tests** of each definition come from the record of `forjr test`, `.forjr/tests.json`: `2 tests`, `1 test`, or `no test`. Where the tests never ran, the first line says `no test record: run forjr test`.
+
+**One thing whole.** `forjr map <name>` gives its line with every group whole, `<file>:<line>-<last>`, its text, the columns it reads and writes, the bytes of each file a page loads for a screen, each edge with the line of the definition at its other end, and each test that touched it. `forjr map <table>.<column>` gives the definitions that read it, those that write it, and those whose code may reach it. `forjr map <file>` gives the line of each definition the file holds, and for a file that holds none, the files it imports and the files that import it. A word that names nothing is `code.F0001`, with the nearest name.
+
+**With `forjr dev` running**, the map is answered by its session: a save just made is in it, and the bytes of the page are those of the last release build it made for the map, while no file it read changed since; the release build waits for the build of a save under way, and two maps asked at once share one.
 
 ## Output
 
-With `--json`:
+With `--json`, the map as data:
 
 ```json
-{ "ok": true, "value": "myApp\ntables\n  ...", "findings": [] }
+{ "ok": true, "value": { "app": "maps", "page": "built", "tests": false, "box": false, "lines": [{ "name": "markPaid", "kind": "change", "file": "functions/orders.ts", "line": 17, "rule": "role staff", "doors": [], "out": [{ "kind": "writes", "name": "orders", "by": "seen" }], "in": [], "sets": ["orders.status", "orders.total"], "code": true, "weight": 0.05 }], "more": 0 }, "findings": [] }
 ```
+
+`forjr map <name>` answers `{ line, last, text, near, tests }`, a column `{ column, words, reads, writes, mayReach }`, a file `{ file, lines }`, and a file that holds no definition `{ file, imports, importedBy }`.
+
+## Errors
+
+`code.F0001` for a word that names no definition, column or file.
 
 ## See also
 
-`command.check`, `command.build`, `topic.screens`, `topic.commands`
+`command.impact`, `command.check`, `command.test`, `topic.commands`

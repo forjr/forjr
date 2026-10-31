@@ -12,7 +12,7 @@ export interface Defined {
   // What starts the launcher where it is no launcher of the install's own folder: under the npm door, the Node.js
   // that ran it and its script.
   launcher?: string[]
-  // The folder the app runs in, where a path that is no whole one is read from: the one `tent service` was typed in.
+  // The folder the app runs in, where a path that is no whole one is read from: the one `forjr service` was typed in.
   folder?: string
 }
 
@@ -65,11 +65,11 @@ function windowsWord(word: string): string {
 
 /** A systemd unit that starts the app at the start of the machine, as its user, with the right to the low ports alone. */
 function unitOf(o: Defined): string {
-  const launcher = launcherOf(o, posix.join(o.home, 'bin', 'tent'))
+  const launcher = launcherOf(o, posix.join(o.home, 'bin', 'forjr'))
   return [
     '[Unit]',
     // A `%` of the unit's own text starts a specifier of systemd, which a doubled one does not.
-    `Description=${oneLine(o.name).replaceAll('%', '%%')} (Tent.js)`,
+    `Description=${oneLine(o.name).replaceAll('%', '%%')} (Forjr)`,
     'After=network-online.target',
     '',
     '[Service]',
@@ -90,14 +90,14 @@ function unitOf(o: Defined): string {
 
 /** A launchd file: of the person, which starts at their sign-in, or of the machine, as that user. */
 function launchdOf(o: Defined): string {
-  const launcher = launcherOf(o, posix.join(o.home, 'bin', 'tent'))
+  const launcher = launcherOf(o, posix.join(o.home, 'bin', 'forjr'))
   return [
     '<?xml version="1.0" encoding="UTF-8"?>',
     '<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">',
     '<plist version="1.0">',
     '<dict>',
     '  <key>Label</key>',
-    `  <string>com.tentjs.${definitionName(o.name)}</string>`,
+    `  <string>com.forjr.${definitionName(o.name)}</string>`,
     '  <key>ProgramArguments</key>',
     '  <array>',
     ...[...launcher, ...o.words].map((word) => `    <string>${xmlText(word)}</string>`),
@@ -119,7 +119,7 @@ function launchdOf(o: Defined): string {
  * with no password kept, started again a minute after a failure. The launcher with no window of its own runs it.
  */
 function taskOf(o: Defined): string {
-  const [command = '', ...before] = launcherOf(o, win32.join(o.home, 'bin', 'tentw.exe'))
+  const [command = '', ...before] = launcherOf(o, win32.join(o.home, 'bin', 'forjrw.exe'))
   const trigger = o.machine
     ? ['    <BootTrigger>', '      <Enabled>true</Enabled>', '    </BootTrigger>']
     : [
@@ -132,7 +132,7 @@ function taskOf(o: Defined): string {
     '<?xml version="1.0" encoding="UTF-16"?>',
     '<Task version="1.2" xmlns="http://schemas.microsoft.com/windows/2004/02/mit/task">',
     '  <RegistrationInfo>',
-    `    <Description>${xmlText(`${oneLine(o.name)} (Tent.js)`)}</Description>`,
+    `    <Description>${xmlText(`${oneLine(o.name)} (Forjr)`)}</Description>`,
     '  </RegistrationInfo>',
     '  <Triggers>',
     ...trigger,
@@ -175,7 +175,7 @@ export function definitionOf(system: 'linux' | 'darwin' | 'win32', o: Defined): 
 /** The one line that starts the app, for a builder's own wrapper, as the shell of the system takes it. */
 export function lineOf(system: 'linux' | 'darwin' | 'win32', o: Defined): string {
   if (system === 'win32')
-    return [...launcherOf(o, win32.join(o.home, 'bin', 'tent.exe')), ...o.words].map(windowsWord).join(' ')
+    return [...launcherOf(o, win32.join(o.home, 'bin', 'forjr.exe')), ...o.words].map(windowsWord).join(' ')
   const quoted = (word: string): string => (/^[\w@%+=:,./-]+$/.test(word) ? word : `'${word.replaceAll("'", `'\\''`)}'`)
-  return [...launcherOf(o, posix.join(o.home, 'bin', 'tent')), ...o.words].map(quoted).join(' ')
+  return [...launcherOf(o, posix.join(o.home, 'bin', 'forjr')), ...o.words].map(quoted).join(' ')
 }

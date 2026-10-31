@@ -1,6 +1,6 @@
 import { callerText } from '../../data/index.ts'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { CallContext, Work } from '../context.ts'
 import type { Address } from '../door/address.ts'
 import { allows } from '../door/carry.ts'
@@ -24,10 +24,10 @@ import { errorAnswer, okAnswer } from '../wire.ts'
 
 const name = 'upload'
 
-const bad = (words: string, field: string, check: string): TentError =>
-  new TentError('T0002', words, { fields: { [field]: check } })
+const bad = (words: string, field: string, check: string): ForjrError =>
+  new ForjrError('F0002', words, { fields: { [field]: check } })
 
-/** Holds the name of an upload: it is kept as a name, and never used as a path. Throws T0002. */
+/** Holds the name of an upload: it is kept as a name, and never used as a path. Throws F0002. */
 function namedAs(given: string | null): string {
   // A control character, a slash and a backslash have no place in a name.
   const odd = (sign: string): boolean =>
@@ -48,7 +48,7 @@ const startFiles = { files: { kind: 'list', of: { kind: 'file' } }, audio: { kin
 /**
  * The `file` field that an upload says it is meant for: `for` names a function of the running version that this
  * caller may call, or an agent, whose start takes `files` and `audio`, and `field` a `file` field of its input, by its dotted name, where a list of files means one
- * entry. Whatever does not fit is answered the same way, with T0002, so `for` tells nobody which functions an app
+ * entry. Whatever does not fit is answered the same way, with F0002, so `for` tells nobody which functions an app
  * has.
  */
 function fieldFor(o: Opened, caller: Caller, asked: URLSearchParams): Record<string, unknown> | undefined {
@@ -75,7 +75,7 @@ function fieldFor(o: Opened, caller: Caller, asked: URLSearchParams): Record<str
   return Object(type)
 }
 
-/** Asks the `uploads` rule of the project whether a caller may upload at all. Throws T0006 for nobody, and T3101 otherwise. */
+/** Asks the `uploads` rule of the project whether a caller may upload at all. Throws F0006 for nobody, and F3101 otherwise. */
 function mayUpload(o: Opened, caller: Caller, stated: Record<string, unknown>): void {
   const access: Record<string, unknown> = Object(o.description.project.uploads ?? { rule: 'signedIn' })
   const said = ruled(access, caller)
@@ -124,8 +124,8 @@ function looseBytes(o: Opened, by: string, address?: string): { own: number; all
   return { own, all }
 }
 
-const tooMany = (words: string): TentError =>
-  new TentError('T0005', words, {
+const tooMany = (words: string): ForjrError =>
+  new ForjrError('F0005', words, {
     fix: 'Store the files that were uploaded, or wait until the loose ones are removed.',
   })
 
@@ -149,7 +149,7 @@ function closedAt(body: ReadableStream<Uint8Array> | null, length: number): Read
   })
 }
 
-/** The length that a request states of its body, in `Content-Length`. Throws T0002 where it states none. */
+/** The length that a request states of its body, in `Content-Length`. Throws F0002 where it states none. */
 function lengthOf(request: Request, words: string): number {
   const length = request.headers.get('content-length')
   if (length === null || !/^\d+$/.test(length)) throw bad(words, 'length', 'required')
@@ -178,7 +178,7 @@ const fitted =
   }
 
 /**
- * `POST /_t/files?upload=<id>`: an upload sent in parts goes on. With `Upload-Offset`, the body is its next
+ * `POST /_f/files?upload=<id>`: an upload sent in parts goes on. With `Upload-Offset`, the body is its next
  * part, sent from that byte; with none, the answer says where it stands, and for an upload straight to a store,
  * the engine takes it in. An upload is named by the caller who began it alone.
  */
@@ -206,7 +206,7 @@ const answered = (file: StoredFile): object => ({
 })
 
 /**
- * `POST /_t/files?name=<name>`: an upload, with the bytes as its body and the kind in `Content-Type`. It passes
+ * `POST /_f/files?name=<name>`: an upload, with the bytes as its body and the kind in `Content-Type`. It passes
  * steps 1 to 4 and 10 of the door, with `uploadSize` as its size limit and a count of its own. The `uploads`
  * rule, the counts and the sizes are all held against what the request states, before its body is read. The
  * answer is the wire form with `{ id, name, kind, size, width, height }` as its value. One that states its whole
@@ -216,7 +216,7 @@ const answered = (file: StoredFile): object => ({
  */
 export const address: Address = {
   order: 1,
-  match: (request) => request.method === 'POST' && new URL(request.url).pathname === '/_t/files' && { name },
+  match: (request) => request.method === 'POST' && new URL(request.url).pathname === '/_f/files' && { name },
   steps: [1, 2, 3, 10],
   async handle({ app: o, request, caller, about, began }) {
     try {
@@ -229,7 +229,7 @@ export const address: Address = {
       // Every request of an upload counts, each part of one that is sent in parts among them.
       const perMinute = storedLimit(o.description, 'uploadsPerMinute')
       if (!countedFor(o, `uploads:${nobody ? from : by}`, perMinute))
-        throw new TentError('T0005', `More than ${perMinute} uploads in a minute came from one caller.`, {
+        throw new ForjrError('F0005', `More than ${perMinute} uploads in a minute came from one caller.`, {
           fix: 'Send fewer files, or raise `uploadsPerMinute` in `project.limits`.',
         })
       const upload = asked.get('upload')
@@ -248,7 +248,7 @@ export const address: Address = {
       // what it states here, and what arrives, which its end holds to the same bound.
       const most = storedLimit(o.description, 'uploadSize')
       if (size > most)
-        throw new TentError('T0003', `The upload states ${size} bytes, more than the ${most} an upload takes.`, {
+        throw new ForjrError('F0003', `The upload states ${size} bytes, more than the ${most} an upload takes.`, {
           fix: 'Send a smaller file, or raise `uploadSize` in `project.limits`.',
         })
       const kind = request.headers.get('content-type') ?? undefined

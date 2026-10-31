@@ -9,17 +9,17 @@ import { buildSaved } from '../index.ts'
 // code, and a helper, whose importer stands in for it only where its every export is a React component.
 
 const files: Record<string, string> = {
-  'tent.ts': "import { project } from 'tentjs'\nexport const shelf = project('shelf', { title: 'Shelf' })\n",
+  'forjr.ts': "import { project } from 'forjr'\nexport const shelf = project('shelf', { title: 'Shelf' })\n",
   'ui/tone.ts': "export const tone = 'calm'\n",
   'components/card.tsx': [
-    "import { component } from 'tentjs/ui'",
+    "import { component } from 'forjr/ui'",
     "import { tone } from '../ui/tone'",
     '',
     "export const Card = component('Card', { view: () => <b data-tone={tone}>Card</b> })",
     '',
   ].join('\n'),
   'screens/about.tsx': [
-    "import { screen } from 'tentjs/ui'",
+    "import { screen } from 'forjr/ui'",
     "import { Card } from '../components/card'",
     '',
     "const kept = (o: { params: Record<string, string> }) => ['Kept', Object.keys(o.params).length].join(' ')",

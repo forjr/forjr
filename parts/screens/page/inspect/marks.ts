@@ -5,22 +5,22 @@ import { inspecting } from './speak.ts'
 let waiting = false
 
 /**
- * In a browser: speaks to the tool once the page has come alive, which its root says by `data-t-alive`, whatever
+ * In a browser: speaks to the tool once the page has come alive, which its root says by `data-f-alive`, whatever
  * the page draws.
  */
 export function whenAlive(store: PageStore): void {
   if (waiting || typeof window === 'undefined') return
   waiting = true
-  const root = document.querySelector('body > div#tent')
+  const root = document.querySelector('body > div#forjr')
   if (!root) return
-  if (root.hasAttribute('data-t-alive')) {
+  if (root.hasAttribute('data-f-alive')) {
     inspecting({ store })
     return
   }
   const watch = new MutationObserver(() => {
-    if (!root.hasAttribute('data-t-alive')) return
+    if (!root.hasAttribute('data-f-alive')) return
     watch.disconnect()
     inspecting({ store })
   })
-  watch.observe(root, { attributes: true, attributeFilter: ['data-t-alive'] })
+  watch.observe(root, { attributes: true, attributeFilter: ['data-f-alive'] })
 }

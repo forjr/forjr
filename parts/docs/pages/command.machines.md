@@ -1,23 +1,23 @@
-# `tent machines`
+# `forjr machines`
 
 Lists the writer and each reader of a running app, the writer first. It is for an engine that runs, and starts none.
 
 ## Usage
 
 ```
-tent machines [--data <folder>]
+forjr machines [--data <folder>]
 ```
 
 ## Options
 
 | Option | Means |
 |---|---|
-| `--data <folder>` | The data folder of the engine to ask. Left out, it is `.tent/` of the project |
+| `--data <folder>` | The data folder of the engine to ask. Left out, it is `.forjr/` of the project |
 
 ## Example
 
 ```
-tent machines --data /srv/shop
+forjr machines --data /srv/shop
 ```
 
 ## Output
@@ -34,8 +34,8 @@ Where a writer heard of another writer, the value also holds `other`, as `{ "epo
 
 ## Errors
 
-`code.T0013` where no engine runs on the data folder.
+`code.F0013` where no engine runs on the data folder.
 
 ## See also
 
-`command.take-over`, `command.start`, `code.T0029`
+`command.take-over`, `command.start`, `code.F0029`

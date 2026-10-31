@@ -1,5 +1,5 @@
 import { lstatSync } from 'node:fs'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored, limitDefaults } from '../../core/internal.ts'
 import type { CallContext } from '../context.ts'
 import { atOf, onceKey, whichCall } from '../flows/inside.ts'
@@ -48,7 +48,7 @@ function resultLimit(o: Opened, flow: string): number {
  * Takes an app, the call context of a call of a `python`, its name, its input, and what its `run` was handed.
  * Answers how the call keeps its progress: work of a task or of a thread, which is a run of one step, keeps it in
  * the row of its step through what it was handed; a call inside a step keeps it under the once-only key of the
- * call, in `_t_once`, so the step that is made again after a restart is handed it. A plain file of the folder of
+ * call, in `_f_once`, so the step that is made again after a restart is handed it. A plain file of the folder of
  * the call that the value names by its path is stored with it, and handed again as a copy in the folder of the
  * call that is handed the value. Outside a step nothing is kept, and nothing is answered.
  */
@@ -65,7 +65,7 @@ export function progressOf(
   const held = async (value: unknown, folder: string): Promise<ProgressKept> => {
     const size = Buffer.byteLength(JSON.stringify(value) ?? '')
     if (size > most)
-      throw new TentError('T5102', `${name} kept a progress of ${size} bytes, past \`limits.result\` of ${most}.`, {
+      throw new ForjrError('F5102', `${name} kept a progress of ${size} bytes, past \`limits.result\` of ${most}.`, {
         fix: 'Keep where the work is in a small value, and what is large in a file that the value names.',
       })
     const files: Record<string, string> = {}

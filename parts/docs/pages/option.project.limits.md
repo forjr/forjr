@@ -18,9 +18,9 @@ export const shop = project('shop', {
 
 ## Errors
 
-`code.T1003`: a name that is no limit.
+`code.F1003`: a name that is no limit.
 
-`code.T1011`: a size or a length of time that does not read.
+`code.F1011`: a size or a length of time that does not read.
 
 ## See also
 

@@ -7,7 +7,7 @@ import { metaTable } from './tables.ts'
 
 const system = { kind: 'system' } as const
 
-/** Answers the value that `_t_meta` holds under a key, by a store or by the write to work in. */
+/** Answers the value that `_f_meta` holds under a key, by a store or by the write to work in. */
 export function heldMeta(on: Store | Tx, key: string): unknown {
   const plan = { from: metaTable.name, one: 'get' as const, id: key }
   const row: unknown = 'write' in on ? on.read(plan, system).value : on.read(plan, system)

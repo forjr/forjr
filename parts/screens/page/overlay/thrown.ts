@@ -8,7 +8,7 @@ import type { Page } from '../types.ts'
  */
 export function thrown(error: unknown, page: Page, owners = ''): void {
   if (page.mode !== 'development') return
-  const at = new URL(`/_t/live${page.user ? `?as=${encodeURIComponent(page.user.id)}` : ''}`, window.location.href)
+  const at = new URL(`/_f/live${page.user ? `?as=${encodeURIComponent(page.user.id)}` : ''}`, window.location.href)
   at.protocol = at.protocol === 'https:' ? 'wss:' : 'ws:'
   const told = JSON.stringify({
     t: 'thrown',

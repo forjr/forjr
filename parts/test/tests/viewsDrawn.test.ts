@@ -8,7 +8,7 @@ import { served } from './served.ts'
 
 /** A screen whose module counts each time it is loaded, under a name of its own. */
 const counted = (name: string, path: string) => `import { useState } from 'react'
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 Reflect.set(globalThis, '${name}', Number(Reflect.get(globalThis, '${name}') ?? 0) + 1)
 

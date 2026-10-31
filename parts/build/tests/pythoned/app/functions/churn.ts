@@ -1,4 +1,4 @@
-import { link, number, object, python, role, table, text } from 'tentjs'
+import { link, number, object, python, role, table, text } from 'forjr'
 
 export const customers = table('customers', { columns: { name: text() }, access: { read: 'signedIn' } })
 

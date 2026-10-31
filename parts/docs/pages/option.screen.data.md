@@ -11,7 +11,7 @@ An entry is asked when every value its input needs is there, and asked again whe
 ## Example
 
 ```tsx
-import { screen, read } from 'tentjs/ui'
+import { screen, read } from 'forjr/ui'
 import { ordersByStatus } from '../functions/orders'
 
 export const ordersScreen = screen('ordersScreen', {
@@ -30,11 +30,11 @@ export const ordersScreen = screen('ordersScreen', {
 
 ## Errors
 
-`code.T1009`: a name of `data` is one of the names every view is handed.
+`code.F1009`: a name of `data` is one of the names every view is handed.
 
-`code.T1014`: an entry that is no `read(...)`.
+`code.F1014`: an entry that is no `read(...)`.
 
-`code.T6023`: an entry that reads what is neither a query nor an action.
+`code.F6023`: an entry that reads what is neither a query nor an action.
 
 ## See also
 

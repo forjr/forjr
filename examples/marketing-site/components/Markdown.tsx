@@ -1,5 +1,5 @@
 import { marked } from 'marked'
-import { component, text } from 'tentjs/ui'
+import { component, text } from 'forjr/ui'
 
 // Drawn on the server alone, so the browser loads none of `marked`. The text is written by the shop, never by a visitor.
 export const Markdown = component('Markdown', {

@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { createDb } from '../../data/index.ts'
 import type { CallContext, Work } from '../context.ts'
 import { underWay, within } from '../context.ts'
@@ -50,7 +50,7 @@ async function asked(o: Opened, arrow: (...handed: unknown[]) => unknown, reques
     timer = setTimeout(() => {
       ends.abort()
       refuse(
-        new TentError('T0008', '`identify` worked past the time of a call, `limits.actionTime` of the project.', {
+        new ForjrError('F0008', '`identify` worked past the time of a call, `limits.actionTime` of the project.', {
           fix: 'Ask the login that names the caller for less, or raise the limit in `project.limits`.',
         }),
       )
@@ -67,7 +67,7 @@ async function asked(o: Opened, arrow: (...handed: unknown[]) => unknown, reques
 /**
  * The way of telling who calls that is the project's own: asked last, where nothing before it named a caller. The
  * requests of one address that reach it are held to `limits.identifyPerMinute` before the code of the builder is
- * called: one more is T0005. An id that names no row of `users` is nobody. An error in it is T0009.
+ * called: one more is F0005. An id that names no row of `users` is nobody. An error in it is F0009.
  */
 export const caller = {
   order: 6,
@@ -81,16 +81,16 @@ export const caller = {
     if (!arrow) return undefined
     const limit = storedLimit(app.description, 'identifyPerMinute')
     if (!countedFor(app, `identify:${countedAs(about.from)}`, limit))
-      throw new TentError('T0005', `More than ${limit} requests in a minute from one address asked who they are.`, {
+      throw new ForjrError('F0005', `More than ${limit} requests in a minute from one address asked who they are.`, {
         fix: 'Send fewer requests, or raise `identifyPerMinute` in `project.limits`.',
       })
     let named: unknown
     try {
       named = await asked(app, arrow, request, about)
     } catch (error) {
-      if (error instanceof TentError && error.code === 'T0008') throw error
+      if (error instanceof ForjrError && error.code === 'F0008') throw error
       // Whatever the code of the builder threw, a failure of ours among it, is an error of the app for this request.
-      const failed = new TentError('T0009', `\`identify\` failed: ${error instanceof Error ? error.message : error}`, {
+      const failed = new ForjrError('F0009', `\`identify\` failed: ${error instanceof Error ? error.message : error}`, {
         fix: 'Mend `identify` of the project: it answers the id of a user, or nothing.',
       })
       failed.cause = error

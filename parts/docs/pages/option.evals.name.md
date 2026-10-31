@@ -1,6 +1,6 @@
 # `name` of `evals`
 
-The name the results are kept under, by which `tent test --ai --compare` matches them with earlier ones.
+The name the results are kept under, by which `forjr test --ai --compare` matches them with earlier ones.
 
 ## Value
 

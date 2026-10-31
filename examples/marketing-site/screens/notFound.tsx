@@ -1,4 +1,4 @@
-import { anyone, Link, screen, message } from 'tentjs/ui'
+import { anyone, Link, screen, message } from 'forjr/ui'
 import { SiteFrame } from '../components/SiteFrame'
 
 export const notFoundScreen = screen('notFoundScreen', {

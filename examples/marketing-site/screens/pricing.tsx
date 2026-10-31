@@ -1,4 +1,4 @@
-import { anyone, choice, Link, screen, useTranslations, message } from 'tentjs/ui'
+import { anyone, choice, Link, screen, useTranslations, message } from 'forjr/ui'
 import { SiteFrame } from '../components/SiteFrame'
 import './pricing.css'
 

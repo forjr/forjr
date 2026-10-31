@@ -52,7 +52,7 @@ const lists: [string, string[]][] = [
 /** The type of the input of a call that the build read: its fields, or the schema of an approved tool. */
 function inputOf(record: unknown): string {
   if (isStored(record) && isStored(record.input)) return typeOf({ kind: 'object', shape: record.input })
-  // An approved tool of an outside MCP server holds the JSON Schema of its input, as `tent mcp approve` read it.
+  // An approved tool of an outside MCP server holds the JSON Schema of its input, as `forjr mcp approve` read it.
   if (isStored(record) && isStored(record.schema)) return typeOf(fromJsonSchema(record.schema))
   return typeOf({ kind: 'object', shape: {} })
 }
@@ -125,9 +125,9 @@ function typeList(
   const blocks = written.map(([list, inside]) =>
     inside.length ? `  interface ${list} {\n${inside.join('\n')}\n  }` : `  interface ${list} {}`,
   )
-  // The type list names `DataOf` of tentjs where a file declares an event, and else imports nothing of it.
+  // The type list names `DataOf` of forjr where a file declares an event, and else imports nothing of it.
   const imported = events.length ? '{ DataOf }' : '{}'
-  return `import type ${imported} from 'tentjs'\ndeclare module 'tentjs' {\n${blocks.join('\n')}\n}\n`
+  return `import type ${imported} from 'forjr'\ndeclare module 'forjr' {\n${blocks.join('\n')}\n}\n`
 }
 
 /** Writes the type list of the project again, where it is not the one that lies there. */
@@ -140,14 +140,14 @@ export const step: Step = {
       ...work.files.values(),
     ])
     const text = `${listed}${screens ? uiTypeList(work.description) : ''}`
-    const lies = join(work.folder, 'tent.d.ts')
+    const lies = join(work.folder, 'forjr.d.ts')
     // The file is written only when it changes, so that a save that changes no name wakes no type checker.
     if (existsSync(lies) && readFileSync(lies, 'utf8').replace(/\r\n/g, '\n') === text) return
     try {
       writeFileSync(lies, text)
     } catch {
       // In a project that cannot be written, the type list lies beside the bundle.
-      if (work.options.out !== undefined) writeFileSync(join(dirname(resolve(work.options.out)), 'tent.d.ts'), text)
+      if (work.options.out !== undefined) writeFileSync(join(dirname(resolve(work.options.out)), 'forjr.d.ts'), text)
     }
   },
 }

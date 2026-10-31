@@ -1,4 +1,4 @@
-import { list, project, table, text } from 'tentjs'
+import { list, project, table, text } from 'forjr'
 
 // Each test sets the limits of use of the kind that it holds work to.
 export const workUse = project('workUse', {

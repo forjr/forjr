@@ -1,5 +1,5 @@
 import { callerText } from '../../data/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Address } from '../door/address.ts'
 import { logCall, refusedCall } from '../door/failure.ts'
 import { countedFor } from '../door/rate.ts'
@@ -15,12 +15,12 @@ import { decoded } from '../web/decoded.ts'
 import { countedAs } from '../web/names.ts'
 import { errorAnswer } from '../wire.ts'
 
-const prefix = '/_t/files/'
+const prefix = '/_f/files/'
 const name = 'download'
 
 /** The error of a download of a file that is not there, or that is not this caller's to have: the two are told alike. */
-const notFound = (): TentError =>
-  new TentError('T0001', 'No file of that id can be downloaded.', {
+const notFound = (): ForjrError =>
+  new ForjrError('F0001', 'No file of that id can be downloaded.', {
     fix: 'A file is downloaded by whoever may read a row that holds it, and while it is loose by whoever uploaded it.',
   })
 
@@ -73,7 +73,7 @@ export async function firstRead(bytes: ReadableStream<Uint8Array>): Promise<Read
 }
 
 /**
- * `GET /_t/files/<id>`: a download. It passes steps 1 to 4 and 10 of the door, counted on `filesPerMinute` and
+ * `GET /_f/files/<id>`: a download. It passes steps 1 to 4 and 10 of the door, counted on `filesPerMinute` and
  * not on the count of calls, then the rule of a download: anything that is not this caller's to have is not found.
  * A signed address for a time, `?l=<text>`, passes by its seal in place of the rule while it lasts and its file
  * stands. It answers one range of bytes for a request, so that video can seek.
@@ -87,7 +87,7 @@ export const address: Address = {
       const perMinute = storedLimit(o.description, 'filesPerMinute')
       const who = caller.kind === 'nobody' ? countedAs(about.from) : callerText(caller)
       if (!countedFor(o, `files:${who}`, perMinute))
-        throw new TentError('T0005', `More than ${perMinute} files in a minute were asked for by one caller.`, {
+        throw new ForjrError('F0005', `More than ${perMinute} files in a minute were asked for by one caller.`, {
           fix: 'Ask for fewer files, or raise `filesPerMinute` in `project.limits`.',
         })
       // An address whose percent signs stand for nothing names no file.
@@ -107,7 +107,7 @@ export const address: Address = {
         return new Response(null, { status: 304, headers })
       }
       const range = rangeOf(request.headers.get('range'), file.size)
-      // A reader that lacks the bytes fetches them first: one that cannot reach its writer answers T0029.
+      // A reader that lacks the bytes fetches them first: one that cannot reach its writer answers F0029.
       await bytesFor(o, file)
       let bytes: ReadableStream<Uint8Array>
       try {

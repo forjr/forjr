@@ -51,7 +51,7 @@ test('[40-4] two sides that changed other lines of a text merge line by line, in
   assert.equal(merged.point?.unsettled, undefined)
   assert.equal(two.history.pointer('now'), merged.point?.id)
   assert.equal(two.history.pointer('main'), merged.point?.id)
-  assert.equal(existsSync(join(two.project, 'tent.clash.ts')), false)
+  assert.equal(existsSync(join(two.project, 'forjr.clash.ts')), false)
 })
 
 test('[40-4] a file that one side changed is taken whole, one theirs added is added, and one theirs removed is removed', (t) => {
@@ -84,11 +84,11 @@ test('[40-4] two sides that changed the same lines of a text clash: ours stays, 
     { what: 'file', name: 'notes.md', ours: ['ours five'], theirs: ['theirs five'], base: ['line 5'] },
   ])
   assert.deepEqual(merged.point?.clashes, merged.clashes)
-  const clash = readFileSync(join(two.project, 'tent.clash.ts'), 'utf8')
-  assert.match(clash, /^\/\/ tent\.clash\.ts - written by `tent history merge`\./)
+  const clash = readFileSync(join(two.project, 'forjr.clash.ts'), 'utf8')
+  assert.match(clash, /^\/\/ forjr\.clash\.ts - written by `forjr history merge`\./)
   assert.match(clash, /\/\/ 1\. file notes\.md: both changed lines 5 to 5/)
   assert.match(clash, /\/\* ours\n {2}ours five\ntheirs\n {2}theirs five\n\*\//)
-  assert.equal(merged.point?.files?.['tent.clash.ts'], undefined, 'no point holds the clash file')
+  assert.equal(merged.point?.files?.['forjr.clash.ts'], undefined, 'no point holds the clash file')
 })
 
 test('[40-4] a file that is no text, changed by both, clashes, and theirs is kept beside it as .theirs', (t) => {
@@ -103,7 +103,7 @@ test('[40-4] a file that is no text, changed by both, clashes, and theirs is kep
   assert.deepEqual([...readFileSync(join(two.project, 'assets/logo.png'))], [0, 1, 2, 1])
   assert.deepEqual([...readFileSync(join(two.project, 'assets/logo.png.theirs'))], [0, 1, 2, 2])
   assert.equal(merged.point?.unsettled, true)
-  const clash = readFileSync(join(two.project, 'tent.clash.ts'), 'utf8')
+  const clash = readFileSync(join(two.project, 'forjr.clash.ts'), 'utf8')
   assert.match(
     clash,
     /\/\/ 1\. file assets\/logo\.png: both changed it\. Theirs is kept beside it as assets\/logo\.png\.theirs/,
@@ -116,7 +116,10 @@ test('[40-4] a file that one side removed and the other changed clashes, and our
   const merged = two.history.merge(two.project, 'side', ada)
   assert.equal(existsSync(join(two.project, 'a.txt')), false)
   assert.equal(readFileSync(join(two.project, 'a.txt.theirs'), 'utf8'), 'theirs\n')
-  assert.match(readFileSync(join(two.project, 'tent.clash.ts'), 'utf8'), /file a\.txt: removed here, and changed there/)
+  assert.match(
+    readFileSync(join(two.project, 'forjr.clash.ts'), 'utf8'),
+    /file a\.txt: removed here, and changed there/,
+  )
   assert.equal(merged.point?.unsettled, true)
 })
 
@@ -137,7 +140,7 @@ test('[40-4] dry answers the changes and the clashes of a merge, and changes not
   )
   assert.equal(two.history.list().length, before)
   assert.equal(readFileSync(join(two.project, 'b.txt'), 'utf8'), 'b\n')
-  assert.equal(existsSync(join(two.project, 'tent.clash.ts')), false)
+  assert.equal(existsSync(join(two.project, 'forjr.clash.ts')), false)
   assert.equal(two.history.pointer('now'), two.ours)
 })
 
@@ -156,7 +159,7 @@ test('[40-4] where ours is the point the two share, the merge is their point its
   assert.deepEqual(history.merge(project, 'side', ada), { changes: [], clashes: [] }, 'what is merged is merged once')
 })
 
-test('[40-4] [16-2@8c] settle is T9102 while the clash file or a .theirs file is there, and then records the settled point', (t) => {
+test('[40-4] [16-2@8c] settle is F9102 while the clash file or a .theirs file is there, and then records the settled point', (t) => {
   const bytes = (n: number): Uint8Array => new Uint8Array([0, n])
   const two = twoSides(
     t,
@@ -167,12 +170,12 @@ test('[40-4] [16-2@8c] settle is T9102 while the clash file or a .theirs file is
   const merged = two.history.merge(two.project, 'side', ada)
   assert.equal(
     codeOf(() => two.history.settle(two.project, ada)),
-    'T9102',
+    'F9102',
   )
-  rmSync(join(two.project, 'tent.clash.ts'))
+  rmSync(join(two.project, 'forjr.clash.ts'))
   assert.equal(
     codeOf(() => two.history.settle(two.project, ada)),
-    'T9102',
+    'F9102',
     'a .theirs file is still there',
   )
   rmSync(join(two.project, 'logo.png.theirs'))
@@ -183,12 +186,12 @@ test('[40-4] [16-2@8c] settle is T9102 while the clash file or a .theirs file is
   assert.equal(settled.unsettled, undefined)
   assert.equal(
     codeOf(() => two.history.settle(two.project, ada)),
-    'T0013',
+    'F0013',
     'nothing is left to settle',
   )
 })
 
-test('[40-4] [16-2@8c] a side that is unsettled is not merged: T9101', (t) => {
+test('[40-4] [16-2@8c] a side that is unsettled is not merged: F9101', (t) => {
   const two = twoSides(
     t,
     { 'notes.md': lines() },
@@ -198,11 +201,11 @@ test('[40-4] [16-2@8c] a side that is unsettled is not merged: T9101', (t) => {
   two.history.merge(two.project, 'side', ada)
   assert.equal(
     codeOf(() => two.history.merge(two.project, 'side', ada)),
-    'T9101',
+    'F9101',
     'ours is unsettled',
   )
   assert.equal(
     codeOf(() => two.history.merge(two.project, 'nothing-of-the-kind', ada)),
-    'T9107',
+    'F9107',
   )
 })

@@ -19,12 +19,12 @@ function filesOf(description: object): { served: string[]; closed: string[] } {
   }
 }
 
-test('[05-4.6] /_t/b/../description.json, the same with percent signs and with backslashes, and a file of server/ are not found, as a file that is not there', async (t) => {
+test('[05-4.6] /_f/b/../description.json, the same with percent signs and with backslashes, and a file of server/ are not found, as a file that is not there', async (t) => {
   // On live data an answer says its code and its general sentence, so two answers that are one are one byte for byte.
   const gate = await gated(t, { open: { mode: 'live' } })
   const { served, closed } = filesOf(gate.app.description)
-  for (const file of served) assert.equal((await got(gate, `/_t/b/${file}`)).status, 200, file)
-  const missing = wholeOf(await got(gate, '/_t/b/browser/screens.nothing.0123456789ab.js'))
+  for (const file of served) assert.equal((await got(gate, `/_f/b/${file}`)).status, 200, file)
+  const missing = wholeOf(await got(gate, '/_f/b/browser/screens.nothing.0123456789ab.js'))
   assert.equal(missing.status, 404)
   // A browser that opens it on live data is shown the page of the engine that says so (43, section 5).
   assert.match(missing.text, /<h1>404<\/h1>/)
@@ -121,19 +121,19 @@ test('[05-4.6] /_t/b/../description.json, the same with percent signs and with b
     '%ff',
   ]
   for (const path of tries) {
-    const answer = await got(gate, `/_t/b/${path}`)
+    const answer = await got(gate, `/_f/b/${path}`)
     assert.deepEqual(wholeOf(answer), missing, path)
   }
   // And none of them was handed the description by another door: no answer held a text of it.
   assert.ok(!missing.text.includes('"functions"'))
   // Every other method is not found too, for a file that is served.
   for (const method of ['POST', 'PUT', 'DELETE', 'PATCH']) {
-    const answer = await gate.app.request(new Request(`${gate.origin}/_t/b/${real}`, { method }))
+    const answer = await gate.app.request(new Request(`${gate.origin}/_f/b/${real}`, { method }))
     assert.equal(answer.status, 404, method)
   }
 })
 
-test('[05-4.6] the build of a project whose assets/ holds a link to a file outside the project, to a folder or to nothing ends with T9002, as a finding, and writes no bundle', async (t) => {
+test('[05-4.6] the build of a project whose assets/ holds a link to a file outside the project, to a folder or to nothing ends with F9002, as a finding, and writes no bundle', async (t) => {
   // Each link, as the three systems make one. A link to a file needs a right that this user may lack on Windows:
   // where it cannot be made, the link to a folder and the link to nothing are what is held there.
   const links: Record<string, (project: string, outside: string) => void> = {
@@ -161,7 +161,7 @@ test('[05-4.6] the build of a project whose assets/ holds a link to a file outsi
       findings: [{ level: 'error', code: `thrown: ${String(error).slice(0, 80)}` }],
     }))
     const codes = [...new Set(made.findings.filter((one) => one.level === 'error').map((one) => one.code))]
-    assert.deepEqual([made.bundleFolder, codes], ['', ['T9002']], linked)
+    assert.deepEqual([made.bundleFolder, codes], ['', ['F9002']], linked)
     // Nothing of what the link leads to was read into a bundle.
     const written = existsSync(join(project, 'bundle', 'assets'))
       ? readdirSync(join(project, 'bundle', 'assets'), { recursive: true }).map(String)
@@ -178,7 +178,7 @@ test('[05-4.6] the build of a project whose assets/ holds a link to a file outsi
   )
 })
 
-test('[05-4.14] a file under /_t/b/ asked for with a made-up name of the right form, a thousand times, is not found each time, with nothing read from the disk', async (t) => {
+test('[05-4.14] a file under /_f/b/ asked for with a made-up name of the right form, a thousand times, is not found each time, with nothing read from the disk', async (t) => {
   const gate = await gated(t, { open: { mode: 'live' } })
   await noted(gate, { title: 'Ann' })
   const { served } = filesOf(gate.app.description)
@@ -222,13 +222,13 @@ test('[05-4.14] a file under /_t/b/ asked for with a made-up name of the right f
 
   // The count sees a read: a file that is served is read from the disk the first time it is asked for, and once.
   // The main file of the page code is read alone; a module of development reads what it imports too, for its marks.
-  assert.equal((await got(gate, `/_t/b/${served[0]}`)).status, 200)
+  assert.equal((await got(gate, `/_f/b/${served[0]}`)).status, 200)
   assert.equal(reads.length, 1, `the first asking reads the file: ${reads.join(', ')}`)
-  assert.equal((await got(gate, `/_t/b/${served[0]}`)).status, 200)
+  assert.equal((await got(gate, `/_f/b/${served[0]}`)).status, 200)
   assert.equal(reads.length, 1, 'a second asking reads nothing')
 
   reads = []
-  const missing = wholeOf(await got(gate, '/_t/b/browser/screens.nothing.0123456789ab.js'))
+  const missing = wholeOf(await got(gate, '/_f/b/browser/screens.nothing.0123456789ab.js'))
   const hex = (k: number): string => (0x100000000000 + k * 0x9e3779b97).toString(16).slice(-12)
   const stems = [
     'browser/screens.shownScreen',
@@ -239,11 +239,11 @@ test('[05-4.14] a file under /_t/b/ asked for with a made-up name of the right f
   ]
   for (let k = 0; k < 1000; k++) {
     const ending = k % 5 === 1 ? 'css' : k % 5 === 4 ? 'txt' : 'js'
-    const answer = await got(gate, `/_t/b/${stems[k % 5]}.${hex(k)}.${ending}`)
+    const answer = await got(gate, `/_f/b/${stems[k % 5]}.${hex(k)}.${ending}`)
     assert.deepEqual(wholeOf(answer), missing, `the try ${k}`)
   }
   assert.deepEqual(reads, [], 'a made-up name reads nothing from the disk')
   // The app answers as before, and a file that is served is still served.
   assert.equal((await got(gate, '/')).status, 200)
-  assert.equal((await got(gate, `/_t/b/${served[0]}`)).status, 200)
+  assert.equal((await got(gate, `/_f/b/${served[0]}`)).status, 200)
 })

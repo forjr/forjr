@@ -1,4 +1,4 @@
-import { boolean, every, fail, flow, text } from 'tentjs'
+import { boolean, every, fail, flow, text } from 'forjr'
 
 // A job breaks at its first step where it is told to, and else waits for a word to end.
 export const job = flow('job', {

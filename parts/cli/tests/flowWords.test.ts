@@ -3,7 +3,7 @@ import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import { after, test } from 'node:test'
 import { buildProject } from '../../build/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { App, Engine } from '../../engine/index.ts'
 import { createEngine } from '../../engine/index.ts'
 import { root } from './typed.ts'
@@ -93,7 +93,7 @@ export const flow${cap(name)} = flow('flow${cap(name)}', {
 `
 
 const names = [...pure, ...kept].map(([name]) => name)
-const flows = `import { ${names.join(', ')}, each, flow, json, now, random, settings, token } from 'tentjs'
+const flows = `import { ${names.join(', ')}, each, flow, json, now, random, settings, token } from 'forjr'
 ${everywhere.map(flowed).join('')}
 // The three words that are drawn, inside a step: each draws there, and its step saves what it drew.
 export const insideDrawn = flow('insideDrawn', {
@@ -140,7 +140,7 @@ export const betweenSaved = flow('betweenSaved', {
 })
 `
 
-const tent = `import { number, project } from 'tentjs'
+const forjr = `import { number, project } from 'forjr'
 
 export const places = project('places', { title: 'Places', settings: { rate: { type: number({ default: 7 }) } } })
 `
@@ -162,7 +162,7 @@ async function make(): Promise<World> {
   const folder = join(root, 'results', 'cli', 'flowWords', 'places')
   rmSync(join(folder, '..'), { recursive: true, force: true, maxRetries: 20, retryDelay: 100 })
   for (const [path, text] of [
-    ['tent.ts', tent],
+    ['forjr.ts', forjr],
     ['flows/places.ts', flows],
   ]) {
     mkdirSync(join(folder, path, '..'), { recursive: true })
@@ -235,7 +235,7 @@ async function codeOf(work: Promise<unknown>): Promise<string | undefined> {
   try {
     await work
   } catch (error) {
-    return error instanceof TentError ? error.code : `no code: ${error}`
+    return error instanceof ForjrError ? error.code : `no code: ${error}`
   }
   return undefined
 }
@@ -287,11 +287,11 @@ test('[12-6@7b] now(), random() and token(), inside a step of the body of a flow
   })
 })
 
-test('[12-6@7b] now(), random() and token(), between two steps of a flow: each is T5001, and `step.now()` and `step.random()` are the saved ones', async () => {
+test('[12-6@7b] now(), random() and token(), between two steps of a flow: each is F5001, and `step.now()` and `step.random()` are the saved ones', async () => {
   const { app, advance, now } = await world()
   for (const flow of ['betweenNow', 'betweenRandom', 'betweenToken']) {
     const run = await started(flow)
-    assert.equal(await codeOf(app.runs.wait(run)), 'T5001', flow)
+    assert.equal(await codeOf(app.runs.wait(run)), 'F5001', flow)
     assert.deepEqual(app.runs.read(run)?.steps, [], `${flow}: the pass ended before its step`)
   }
   const at = now()

@@ -12,7 +12,7 @@ export interface Seen {
  * hears it in whatever room the code runs, and waits for its answer: the test holds it at a gate where it sets one.
  */
 export function noted(work: string, input: unknown): Promise<void> {
-  const channel = new BroadcastChannel('tentjs.test.filling')
+  const channel = new BroadcastChannel('forjr.test.filling')
   // A call that nobody answers any more, of an app that was closed, holds the program up no longer.
   channel.unref()
   const id = `${work} ${Math.random()}`

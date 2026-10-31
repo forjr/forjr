@@ -1,13 +1,13 @@
 import type { TableLayout } from '../../data/index.ts'
 
 /**
- * `_t_once`: the one table of what was done once, each row by its caller and its key, with what it answered. A call
+ * `_f_once`: the one table of what was done once, each row by its caller and its key, with what it answered. A call
  * inside a step, under the caller `''` and its once-only key, with the places counted inside it, kept as long as
  * its run; a call of a page or of a caller outside by the id it carried, kept for `limits.callIdKeep`; and a call
  * coming in, under `incoming:<name>` and the id of its scheme, kept for `limits.incomingKept`.
  */
 export const table: TableLayout = {
-  name: '_t_once',
+  name: '_f_once',
   columns: {
     caller: { kind: 'text' },
     key: { kind: 'text' },

@@ -1,4 +1,4 @@
-import { number, object, python, text } from 'tentjs'
+import { number, object, python, text } from 'forjr'
 
 export const score = python('score', {
   file: 'score.py',

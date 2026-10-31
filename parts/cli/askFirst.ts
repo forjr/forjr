@@ -3,8 +3,8 @@
 import { askAccount } from '../core/internal.ts'
 
 /**
- * Takes the words that were typed after `tent`. Begins what the command they name asks of the system first, so that
- * it runs beside the loading of the parts: on Windows the account of `tent start`, which only a program of the
+ * Takes the words that were typed after `forjr`. Begins what the command they name asks of the system first, so that
+ * it runs beside the loading of the parts: on Windows the account of `forjr start`, which only a program of the
  * system tells. The command waits for the answer where it needs it.
  */
 export function askFirst(words: string[]): void {

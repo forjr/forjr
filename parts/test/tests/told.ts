@@ -57,9 +57,9 @@ function runs(pid: unknown): boolean | string {
 /** Asks an address whether its app is ready, and says what it answered, or how the asking failed. */
 async function asked(address: string): Promise<string> {
   try {
-    const answer = await fetch(`${address}/_t/health`, { signal: AbortSignal.timeout(3000) })
+    const answer = await fetch(`${address}/_f/health`, { signal: AbortSignal.timeout(3000) })
     const body = (await answer.text()).slice(0, 200)
-    return `status ${answer.status}, Tent-At ${answer.headers.get('tent-at')}, ${body}`
+    return `status ${answer.status}, Forjr-At ${answer.headers.get('forjr-at')}, ${body}`
   } catch (error) {
     const cause: unknown = Reflect.get(Object(error), 'cause')
     return `no answer: ${String(error)} ${String(Reflect.get(Object(cause), 'code') ?? cause ?? '')}`
@@ -68,7 +68,7 @@ async function asked(address: string): Promise<string> {
 
 /**
  * Takes the machines of a test. Answers, as text, what each of them holds and says at this moment: its role and
- * its number as its app answers them, what `engine.json` and `_t_here` hold, whether the program that
+ * its number as its app answers them, what `engine.json` and `_f_here` hold, whether the program that
  * `engine.json` names still runs, the last lines of its log and of what its program wrote out, and what answers
  * at its address. A test says it where one of its waits runs out, so that a run on another computer tells why.
  */
@@ -99,9 +99,9 @@ export async function toldOf(machines: ToldOf[]): Promise<string> {
       said.push(`  engine.json: ${JSON.stringify({ ...held, token: '...' })}, its program runs: ${runs(held.pid)}`)
     } else said.push('  engine.json: none')
     const data = join(one.folder, 'data.db')
-    said.push(`  _t_here: ${rowsOf(data, 'SELECT "key", "value" FROM "_t_here"')}`)
-    const meta = `SELECT "key", "value" FROM "_t_meta" WHERE "key" IN ('n', 'epoch', 'writer', 'version')`
-    said.push(`  _t_meta: ${rowsOf(data, meta)}`)
+    said.push(`  _f_here: ${rowsOf(data, 'SELECT "key", "value" FROM "_f_here"')}`)
+    const meta = `SELECT "key", "value" FROM "_f_meta" WHERE "key" IN ('n', 'epoch', 'writer', 'version')`
+    said.push(`  _f_meta: ${rowsOf(data, meta)}`)
     const log =
       'SELECT "at", "level", "message", "data" FROM (SELECT rowid, * FROM "lines" ORDER BY rowid DESC LIMIT 12) ORDER BY rowid'
     said.push(`  the last lines of its log: ${rowsOf(join(one.folder, 'logs.db'), log)}`)

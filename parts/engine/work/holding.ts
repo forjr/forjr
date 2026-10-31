@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Runner } from '../../flows/index.ts'
 import { dayOf } from '../counts/day.ts'
 import { runAllowed } from '../counts/perRun.ts'
@@ -39,7 +39,7 @@ const keyOf = (one: LimitStanding): string =>
 /**
  * Takes an app, its runner, the reserves of the tasks out, and what looks at the queue again. Answers what holds
  * work back by the limits of use. A try whose run would pass its `perRun`, or whose own reserve passes a limit,
- * fails at once with T7102; one that a request at the door waits for is refused so; with `atLimit: 'fail'` its try
+ * fails at once with F7102; one that a request at the door waits for is refused so; with `atLimit: 'fail'` its try
  * fails; every other waits, shown as held back, and `work.limit` is raised when a limit begins to hold work back.
  * The queue is looked at again at the turn of the day of `project.zone`, while anything is held back.
  */
@@ -53,7 +53,7 @@ export function holdingOf(o: Opened, runner: Runner, reserves: () => Reserve[], 
   let cancelDay: (() => void) | undefined
 
   const agents = Object.values(o.description.flows).some((flow) => flow.agent !== undefined)
-  const fail = (entry: InQueue, error: TentError, final: boolean): 'refused' => {
+  const fail = (entry: InQueue, error: ForjrError, final: boolean): 'refused' => {
     runner.limited(entry.w.run, entry.w.step, error, final)
     return 'refused'
   }
@@ -107,7 +107,7 @@ export function holdingOf(o: Opened, runner: Runner, reserves: () => Reserve[], 
         // Only the run of an agent, and the runs it called, has a `perRun`.
         if (agents) runAllowed(o, entry.w.run, { workSeconds: entry.w.reserve / 1000 })
       } catch (error) {
-        if (error instanceof TentError) return fail(entry, error, true)
+        if (error instanceof ForjrError) return fail(entry, error, true)
         throw error
       }
       // What is out is read anew for each try: one that went out in this pass reserves too.

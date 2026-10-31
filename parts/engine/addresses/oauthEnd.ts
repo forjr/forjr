@@ -5,12 +5,12 @@ import { limitOf } from '../limits.ts'
 import { errorAnswer } from '../wire.ts'
 
 /**
- * `POST /_t/oauth/end`: ends the grant of the renewal token it is handed, in the field `token` of a form. It is
+ * `POST /_f/oauth/end`: ends the grant of the renewal token it is handed, in the field `token` of a form. It is
  * what `logout` calls. Whether a grant was ended is told to nobody: the answer is the same either way.
  */
 export const address: Address = {
   order: 2,
-  match: (request) => request.method === 'POST' && programsAt(request, '/_t/oauth/end') && { name: 'oauth-end' },
+  match: (request) => request.method === 'POST' && programsAt(request, '/_f/oauth/end') && { name: 'oauth-end' },
   steps: [1, 2],
   async handle({ app: o, request, about }) {
     try {

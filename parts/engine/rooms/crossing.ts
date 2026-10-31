@@ -1,5 +1,5 @@
 // How what cannot cross as it is crosses between two heaps: a failure, and the rows of a read as JSON text.
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { FileName } from '../../data/fileName.ts'
 import { NotReady } from '../../data/fileName.ts'
 
@@ -11,10 +11,10 @@ export interface Crossed {
   name?: string
   // What a failure of ours carries beside its code and its words.
   fix?: string
-  where?: TentError['where']
+  where?: ForjrError['where']
   fields?: Record<string, string>
-  place?: TentError['place']
-  service?: TentError['service']
+  place?: ForjrError['place']
+  service?: ForjrError['service']
   // The file of a tenant that is not ready, by which the engine steers the call: it brings the file up first.
   file?: FileName
   trace?: string
@@ -46,7 +46,7 @@ function causeOf(error: Error, depth: number): Crossed['cause'] | undefined {
 }
 
 function crossedAt(error: unknown, depth: number, ref?: string): Crossed {
-  const told = error instanceof TentError ? error : undefined
+  const told = error instanceof ForjrError ? error : undefined
   const cause = error instanceof Error ? causeOf(error, depth) : undefined
   return {
     message: error instanceof Error ? error.message : String(error),
@@ -93,7 +93,7 @@ export function revived(failed: Crossed): Error {
   const Kind = failed.name === undefined ? Error : (kinds[failed.name] ?? Error)
   const error =
     failed.code !== undefined
-      ? new TentError(failed.code, failed.message, more)
+      ? new ForjrError(failed.code, failed.message, more)
       : failed.file
         ? new NotReady(failed.file)
         : new Kind(failed.message)

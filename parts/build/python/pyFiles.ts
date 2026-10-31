@@ -29,7 +29,7 @@ function everyFileUnder(folder: string, path = ''): string[] {
   const found: string[] = []
   for (const entry of readdirSync(join(folder, path), { withFileTypes: true })) {
     const below = path ? `${path}/${entry.name}` : entry.name
-    if (path === '' && entry.name === '.tent') continue
+    if (path === '' && entry.name === '.forjr') continue
     if (entry.isDirectory() && !entry.isSymbolicLink()) found.push(...everyFileUnder(folder, below))
     else found.push(below)
   }

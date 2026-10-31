@@ -1,10 +1,10 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Bulk, RunState } from '../../flows/index.ts'
 
 const states: RunState[] = ['queued', 'running', 'waiting', 'done', 'failed', 'stopped']
 
-const unfit = (field: string, what: string): TentError =>
-  new TentError('T0002', `\`${field}\` of work on many runs is ${what}.`, {
+const unfit = (field: string, what: string): ForjrError =>
+  new ForjrError('F0002', `\`${field}\` of work on many runs is ${what}.`, {
     fields: { [field]: 'type' },
     fix: 'Name the runs by `{ flow, key?, state?, since?, before? }`: a state of a run, and a moment as a date, its text or its milliseconds.',
   })
@@ -20,7 +20,7 @@ function momentOf(field: string, written: unknown): number | undefined {
 
 /**
  * Takes what code or a command names the runs of work on many runs by. Answers it as the runner takes it: the flow,
- * the key, the states and the two moments in milliseconds. Throws T0002 for no flow, a state that is none, and a
+ * the key, the states and the two moments in milliseconds. Throws F0002 for no flow, a state that is none, and a
  * moment that does not read.
  */
 export function bulkOf(asked: unknown): Bulk {

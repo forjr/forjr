@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { callOf } from '../handleCall.ts'
 import { incomingBytes } from '../incoming/kept.ts'
 import { seenBefore } from '../incoming/seen.ts'
@@ -17,7 +17,7 @@ function verifyOf(signature: unknown): unknown {
  * The working object behind the handle `verified`: `check(request, signature, { once })` checks the signature of
  * the request of a route over the exact bytes that arrived, also after the route read the body, and answers
  * `{ id, body }`. With `once` it notes the id as a call coming in does, and answers `seen: true` for a repeat.
- * Throws T7118 for a signature that does not hold, and T0013 in a route whose file does not import `verified`.
+ * Throws F7118 for a signature that does not hold, and F0013 in a route whose file does not import `verified`.
  */
 export const handle = (o: Opened): object => ({
   async check(
@@ -28,11 +28,11 @@ export const handle = (o: Opened): object => ({
     const cx = callOf('`verified`', { waits: true })
     const body = request instanceof Request ? incomingBytes(request) : undefined
     if (!body || !(request instanceof Request))
-      throw new TentError(
-        'T0013',
+      throw new ForjrError(
+        'F0013',
         '`verified` checks the request of a route whose file imports it, and this is none.',
         {
-          fix: 'Hand `verified` the request that the route was handed, in a file that imports `verified` from tentjs.',
+          fix: 'Hand `verified` the request that the route was handed, in a file that imports `verified` from forjr.',
         },
       )
     const { id } = await verifyCall(o, verifyOf(signature), request.headers, body)

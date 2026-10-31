@@ -19,7 +19,7 @@ const found = (output: Typed, code: string): unknown[] =>
   (output.answer.findings ?? []).filter((one) => one.code === code).map((one) => [one.code, one.where])
 
 // The table of the orders with one more column, and a file with a mistake that no table change has a part in.
-const withNote = `import { boolean, link, role, table, text } from 'tentjs'
+const withNote = `import { boolean, link, role, table, text } from 'forjr'
 
 export const orders = table('orders', {
   columns: { title: text(), owner: link('users'), paid: boolean({ default: false }), note: text({ optional: true }) },
@@ -27,15 +27,15 @@ export const orders = table('orders', {
   access: { read: 'owner', add: 'signedIn', change: role('staff'), remove: role('staff') },
 })
 `
-const broken = `import { query } from 'tentjs'
+const broken = `import { query } from 'forjr'
 import { orders } from '../tables/orders'
 
 export const waits = query('waits', { access: 'signedIn', run: async ({ db }) => db.orders.limit(5).all() })
 `
 
-test('[15-7] `tent check` on a project with an error, with no engine running, still reports the findings of a table change against its data', async (t) => {
+test('[15-7] `forjr check` on a project with an error, with no engine running, still reports the findings of a table change against its data', async (t) => {
   const project = copied(t, 'check')
-  const data = join(project, '.tent')
+  const data = join(project, '.forjr')
   const table = join(project, 'tables', 'orders.ts')
   const without = readFileSync(table, 'utf8')
   writeFileSync(table, withNote)
@@ -60,24 +60,24 @@ test('[15-7] `tent check` on a project with an error, with no engine running, st
     line: lineOf(project, 'tables/orders.ts', "table('orders'"),
     definition: 'orders',
   }
-  assert.deepEqual(found(checked, 'T2002'), [['T2002', place]])
-  const gone = checked.answer.findings?.find((one) => one.code === 'T2002')
+  assert.deepEqual(found(checked, 'F2002'), [['F2002', place]])
+  const gone = checked.answer.findings?.find((one) => one.code === 'F2002')
   assert.equal(gone?.message, 'The column `orders.note` is gone, and `removed` does not name it.')
   assert.match(gone?.fix ?? '', /removed/)
-  assert.equal(found(checked, 'T4005').length, 1, 'the mistake of the project is reported beside it')
+  assert.equal(found(checked, 'F4005').length, 1, 'the mistake of the project is reported beside it')
   // It ended by itself, started no engine, and left the data as it was.
   assert.equal(existsSync(join(data, 'engine.json')), false)
 
   // As text, the finding stands with its place, its fix and its page.
   const text = await typed(project, 'check')
   assert.equal(text.ended, 1)
-  assert.match(text.printed, /error T2002 +tables\/orders\.ts:\d+ +orders/)
-  assert.match(text.printed, /more: tent docs T2002/)
+  assert.match(text.printed, /error F2002 +tables\/orders\.ts:\d+ +orders/)
+  assert.match(text.printed, /more: forjr docs F2002/)
 
   // The statement that the fix names takes the finding away, and the mistake of the project stays.
   writeFileSync(table, without.replace("owner: 'owner',", "owner: 'owner',\n  removed: ['note'],"))
   const stated = typedApart(project, 'check', '--json')
-  assert.deepEqual([found(stated, 'T2002'), found(stated, 'T4005').length], [[], 1], stated.printed)
+  assert.deepEqual([found(stated, 'F2002'), found(stated, 'F4005').length], [[], 1], stated.printed)
 
   // With an engine running on the data, the check asks it for its facts, through the admin channel.
   writeFileSync(table, withNote)
@@ -96,19 +96,19 @@ test('[15-7] `tent check` on a project with an error, with no engine running, st
   }
   try {
     const live = await typed(project, 'check', '--json')
-    assert.deepEqual(found(live, 'T2002'), [['T2002', place]], live.printed)
+    assert.deepEqual(found(live, 'F2002'), [['F2002', place]], live.printed)
     assert.equal(live.ended, 1)
   } finally {
     globalThis.fetch = real
   }
-  assert.equal(reached.filter((url) => /\/_t\/admin\/facts$/.test(url)).length, 1, reached.join(' '))
+  assert.equal(reached.filter((url) => /\/_f\/admin\/facts$/.test(url)).length, 1, reached.join(' '))
   await engine.close()
   assert.equal(existsSync(join(data, 'engine.json')), false)
 })
 
-test('[15-1@4] the failing project of each rule that passes T2001 to T2004 on fails against the data of its passing project, with exactly its code', async (t) => {
+test('[15-1@4] the failing project of each rule that passes F2001 to F2004 on fails against the data of its passing project, with exactly its code', async (t) => {
   const rules = join(root, 'parts', 'check', 'tests')
-  for (const code of ['T2001', 'T2002', 'T2003', 'T2004']) {
+  for (const code of ['F2001', 'F2002', 'F2003', 'F2004']) {
     const project = copied(t, `check-${code}`, join(rules, code, 'pass'))
     // The passing project makes its data, with one row, and passes against it.
     const added = await typed(project, 'run', 'addNote', '--with', '{"body":"open","n":"three"}', '--json')
@@ -125,11 +125,11 @@ test('[15-1@4] the failing project of each rule that passes T2001 to T2004 on fa
     assert.equal(failing.answer.findings?.length, 1, code)
     const [one] = failing.answer.findings ?? []
     assert.ok(one.fix, code)
-    const gone = code === 'T2003'
+    const gone = code === 'F2003'
     assert.deepEqual(
       one.where,
       gone
-        ? { file: 'tent.ts', line: lineOf(project, 'tent.ts', "project('shop'"), definition: 'shop' }
+        ? { file: 'forjr.ts', line: lineOf(project, 'forjr.ts', "project('shop'"), definition: 'shop' }
         : {
             file: 'functions/notes.ts',
             line: lineOf(project, 'functions/notes.ts', "table('notes'"),
@@ -137,6 +137,6 @@ test('[15-1@4] the failing project of each rule that passes T2001 to T2004 on fa
           },
       code,
     )
-    if (code === 'T2001') assert.match(one.message, /^1 row of `notes` does not fit/)
+    if (code === 'F2001') assert.match(one.message, /^1 row of `notes` does not fit/)
   }
 })

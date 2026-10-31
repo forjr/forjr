@@ -1,4 +1,4 @@
-import { Form, read, screen } from 'tentjs/ui'
+import { Form, read, screen } from 'forjr/ui'
 import { addTask, allTasks, finishTask } from '../functions/tasks'
 
 const page = {

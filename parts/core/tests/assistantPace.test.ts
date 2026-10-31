@@ -40,7 +40,7 @@ test('[46-9] an agent may state `key`, `pace` and `onStop` as a flow does, and e
   assert.ok(desk.agent)
 })
 
-test('[46-9] an agent whose `key` is no arrow is T1014, as a flow is', () => {
+test('[46-9] an agent whose `key` is no arrow is F1014, as a flow is', () => {
   const { findings } = describe({
     definitions: [
       { value: project('shop', {}) },
@@ -51,6 +51,6 @@ test('[46-9] an agent whose `key` is no arrow is T1014, as a flow is', () => {
   })
   assert.deepEqual(
     findings.map((one) => one.code),
-    ['T1014'],
+    ['F1014'],
   )
 })

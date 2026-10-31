@@ -20,7 +20,7 @@ export const shop = project('shop', {
 
 ## Errors
 
-`code.T1014`: a `share` that is no number from 0 to 1.
+`code.F1014`: a `share` that is no number from 0 to 1.
 
 ## See also
 

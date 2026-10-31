@@ -1,5 +1,5 @@
-import { query } from 'tentjs'
-import { screen } from 'tentjs/ui'
+import { query } from 'forjr'
+import { screen } from 'forjr/ui'
 
 export const ordersScreen = screen('ordersScreen', {
   path: '/',

@@ -5,7 +5,7 @@ import { Socket } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { Readable, Writable } from 'node:stream'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { commandsOver } from './channel.ts'
 import { endProgram } from './endProgram.ts'
 
@@ -72,10 +72,10 @@ export const startedBrowsers = (): { pid: number; ended: boolean }[] =>
  * Takes the program of a browser of the Chromium family. Starts it with no window, in a folder of its own, over the
  * browser's own channel for being driven, which is a pair of pipes of this program: no other program of the computer
  * can reach it, as it could a port. It holds this program open only while a command waits for its answer, and ends
- * when this program ends. Throws T0016 where it does not answer within twenty seconds.
+ * when this program ends. Throws F0016 where it does not answer within twenty seconds.
  */
 async function startedBrowser(program: string): Promise<Kept> {
-  const folder = mkdtempSync(join(tmpdir(), 'tent-shot-'))
+  const folder = mkdtempSync(join(tmpdir(), 'forjr-shot-'))
   // With `--remote-debugging-pipe` the browser reads its commands from its fourth stream and writes on its fifth,
   // each message ended by a zero byte, as playwright-core 1.64 drives it (`PipeTransport` of its `coreBundle.js`).
   const browser = spawn(
@@ -101,7 +101,7 @@ async function startedBrowser(program: string): Promise<Kept> {
   const [, , , toBrowser, fromBrowser] = browser.stdio
   if (!(toBrowser instanceof Writable) || !(fromBrowser instanceof Readable)) {
     await endProgram(browser, folder, 0)
-    throw new TentError('T0016', 'The browser was started with no channel to drive it.')
+    throw new ForjrError('F0016', 'The browser was started with no channel to drive it.')
   }
   // A pipe that the browser closed by ending is no failure of this program.
   toBrowser.on('error', () => undefined)
@@ -227,9 +227,9 @@ async function startedBrowser(program: string): Promise<Kept> {
   // The first answer is the browser's word that it started.
   await made.raw('Browser.getVersion', {}, undefined, startTime).catch(async (error: unknown) => {
     await endProgram(browser, folder, 0)
-    throw error instanceof TentError
-      ? new TentError('T0016', 'The browser did not start within twenty seconds.')
-      : new TentError('T0016', 'The browser ended before it could be driven.')
+    throw error instanceof ForjrError
+      ? new ForjrError('F0016', 'The browser did not start within twenty seconds.')
+      : new ForjrError('F0016', 'The browser ended before it could be driven.')
   })
   return made
 }
@@ -255,7 +255,7 @@ async function browserOf(program: string): Promise<Kept> {
 /**
  * Takes the program of a browser of the Chromium family. Opens one page in the browser of the program, starting it
  * at its first page: a browser context of its own (`Target.createBrowserContext`), a target in it and a session
- * attached to that target, whose events are told to this page alone. Answers what drives that page. Throws T0016
+ * attached to that target, whose events are told to this page alone. Answers what drives that page. Throws F0016
  * where the browser does not start within twenty seconds.
  */
 export async function driven(program: string): Promise<Driven> {

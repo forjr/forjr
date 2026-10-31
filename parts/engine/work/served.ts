@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Clock } from '../../core/internal.ts'
 import { idMaker, sqliteStore } from '../../data/index.ts'
 import { loadCode } from '../code.ts'
@@ -11,8 +11,8 @@ import { makeRoom } from '../rooms/makeRoom.ts'
 import { textAt } from '../files.ts'
 
 /** The error of what a worker cannot do: it holds the code of an app and none of its data. */
-const noData = (what: string): TentError =>
-  new TentError('T0013', `A worker holds no ${what}: it asks its writer.`, {
+const noData = (what: string): ForjrError =>
+  new ForjrError('F0013', `A worker holds no ${what}: it asks its writer.`, {
     fix: 'Read and write through what the work is handed, which crosses to the writer.',
   })
 

@@ -1,4 +1,4 @@
-import { action, anyone, secrets, text } from 'tentjs'
+import { action, anyone, secrets, text } from 'forjr'
 
 // What a secret holds, told to the test: an answer is the code's own word, and is not searched.
 export const valueOf = action('valueOf', {

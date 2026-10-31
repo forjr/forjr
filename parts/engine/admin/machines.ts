@@ -1,7 +1,7 @@
 import type { Admin } from '../admin.ts'
 
 /**
- * `tent machines`: every machine of the app, the writer first, each as `app.machines` gives it, with the epoch.
+ * `forjr machines`: every machine of the app, the writer first, each as `app.machines` gives it, with the epoch.
  * On a reader it is what the writer answers when it is asked, and what the reader last held where the writer
  * cannot be reached. `other` is the newest other writer that a writer heard of since it opened, and on a writer that
  * was stopped the one that stopped it.

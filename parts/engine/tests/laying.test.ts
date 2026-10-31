@@ -58,7 +58,7 @@ async function fetching(t: TestContext, folder: string, name: string, files: Uin
   }
 }
 
-/** Holds that a part is thrown away with T0016 for the reason that the test names, and that nothing of it is left. */
+/** Holds that a part is thrown away with F0016 for the reason that the test names, and that nothing of it is left. */
 async function thrownAway(t: TestContext, files: Uint8Array[], why: RegExp, what: string): Promise<void> {
   const { folder, held } = folderWith(t)
   const error: unknown = await fetching(t, folder, 'thrown', files).then(
@@ -66,7 +66,7 @@ async function thrownAway(t: TestContext, files: Uint8Array[], why: RegExp, what
     (refused: unknown) => refused,
   )
   assert.ok(error instanceof Error)
-  assert.equal(Reflect.get(error, 'code'), 'T0016', `${what}: ${error.message}`)
+  assert.equal(Reflect.get(error, 'code'), 'F0016', `${what}: ${error.message}`)
   assert.match(error.message, why, what)
   assert.deepEqual(walk(folder), held, what)
 }
@@ -584,7 +584,7 @@ test('[22-6] a part in which a link leads nowhere is held for one that is not th
   assert.equal(server.asked.length, asked)
 })
 
-test('[22-6] [16-2@6b] every way in which the look at the disk fails is T0016, which names the part and keeps the failure as its cause', async (t) => {
+test('[22-6] [16-2@6b] every way in which the look at the disk fails is F0016, which names the part and keeps the failure as its cause', async (t) => {
   const entries: Packed[] = [
     { path: 'lib/v1/readme.txt', text: 'the library' },
     { path: 'lib/current', link: 'v1' },
@@ -593,14 +593,14 @@ test('[22-6] [16-2@6b] every way in which the look at the disk fails is T0016, w
   const bytes = tgzOf(entries)
   const server = await partServer(t, { '/tool.tgz': bytes })
   const list = [lineOf('tool', '1.0.0', `${server.origin}/tool.tgz`, bytes)]
-  /** Holds that a fetch fails with T0016, names the part, and carries what the system answered as its cause. */
+  /** Holds that a fetch fails with F0016, names the part, and carries what the system answered as its cause. */
   const failsAsOurs = async (folder: string, what: string): Promise<void> => {
     const error: unknown = await fetchPart('tool', { list, folder, mode: 'development' }).then(
       (part) => new Error(`the part was answered, at ${part}`),
       (refused: unknown) => refused,
     )
     assert.ok(error instanceof Error)
-    assert.equal(Reflect.get(error, 'code'), 'T0016', `${what}: ${error.message}`)
+    assert.equal(Reflect.get(error, 'code'), 'F0016', `${what}: ${error.message}`)
     assert.match(error.message, /The part tool could not be fetched/, what)
     assert.match(String(Reflect.get(Object(error.cause), 'code')), /^E[A-Z]+$/, `${what}: ${String(error.cause)}`)
   }

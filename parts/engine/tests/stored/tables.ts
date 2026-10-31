@@ -1,4 +1,4 @@
-import { anyone, file, link, list, project, table, text } from 'tentjs'
+import { anyone, file, link, list, project, table, text } from 'forjr'
 
 // Visitors may hand a file in, and the counts of a minute lie far above what a test asks.
 export const stored = project('stored', {

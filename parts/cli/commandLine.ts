@@ -37,7 +37,7 @@ function local(request: Request, at: Running, as: string): Request {
   const url = new URL(request.url)
   const headers = new Headers(request.headers)
   headers.set('authorization', `Bearer ${at.token}`)
-  headers.set('tent-caller', as)
+  headers.set('forjr-caller', as)
   return new Request(`http://127.0.0.1:${at.port}${url.pathname}${url.search}`, {
     method: request.method,
     headers,
@@ -113,7 +113,7 @@ async function addresses(word: string, words: string[], home: string, terminal: 
   const named = rest.indexOf('--name')
   const name = named < 0 ? undefined : rest[named + 1]
   if (!address || !/^https?:\/\//.test(address)) {
-    terminal.error(`tent cli ${word} <the address of a server>\n`)
+    terminal.error(`forjr cli ${word} <the address of a server>\n`)
     return 2
   }
   if (word === 'add' && !secureOrNamed(address, insecure)) {
@@ -137,7 +137,7 @@ async function addresses(word: string, words: string[], home: string, terminal: 
       // The key that `login` kept, where the commands are not open to nobody.
       const key = keptKey(home, address)
       const answer = await serverReach(address).request(
-        new Request('http://localhost/_t/cli', key ? { headers: { authorization: `Bearer ${key}` } } : {}),
+        new Request('http://localhost/_f/cli', key ? { headers: { authorization: `Bearer ${key}` } } : {}),
       )
       const named = await listedName(answer)
       return named === undefined ? undefined : { name: named }
@@ -171,7 +171,7 @@ async function onServer(target: string, after: string[], terminal: Terminal): Pr
       reach: serverReach(target),
       home: runnerFolder(),
       target: { local: false, address: originOf(target) },
-      env: { TENT_KEY: process.env.TENT_KEY, TENT_AT: process.env.TENT_AT },
+      env: { FORJR_KEY: process.env.FORJR_KEY, FORJR_AT: process.env.FORJR_AT },
       signal: stop.signal,
       signIn: browserSignIn(),
     })
@@ -271,7 +271,7 @@ async function projectOpened(project: string, dataFolder: string, terminal: Term
 }
 
 /**
- * `tent cli <target> <words>`: the runner of an app's command line, with no launcher. The target is the folder of
+ * `forjr cli <target> <words>`: the runner of an app's command line, with no launcher. The target is the folder of
  * a project, with `--data` its data folder; a bundle folder with `--data`; or the address of a server. With an
  * engine running on that data folder the runner reaches it over this computer's own network, with its admin
  * token; with none, it opens the app in this program for the length of the command: a project is built and opened
@@ -283,7 +283,7 @@ export async function commandLine(words: string[], folder: string): Promise<numb
   const { terminal, close } = processTerminal()
   try {
     if (target === undefined) {
-      terminal.error('tent cli <a project, a bundle with --data, or the address of a server> <command> [flags]\n')
+      terminal.error('forjr cli <a project, a bundle with --data, or the address of a server> <command> [flags]\n')
       return 2
     }
     const home = runnerFolder()
@@ -293,22 +293,22 @@ export async function commandLine(words: string[], folder: string): Promise<numb
     const picked = targetFlags(after)
     const as = picked.as ?? 'system'
     const here = { words: picked.rest, terminal, as }
-    // A file, or a path that is not there, is no target: it is refused as `tent start` refuses what holds no bundle.
+    // A file, or a path that is not there, is no target: it is refused as `forjr start` refuses what holds no bundle.
     if (!existsSync(place) || !statSync(place).isDirectory()) {
       terminal.error(
-        `error T0011: ${place} is no folder of a project or of a bundle. tent cli <a project, a bundle with --data, or the address of a server> <command> [flags]\n`,
+        `error F0011: ${place} is no folder of a project or of a bundle. forjr cli <a project, a bundle with --data, or the address of a server> <command> [flags]\n`,
       )
       return 2
     }
-    if (existsSync(join(place, 'description.json')) && !existsSync(join(place, 'tent.ts'))) {
+    if (existsSync(join(place, 'description.json')) && !existsSync(join(place, 'forjr.ts'))) {
       if (picked.data === undefined) {
-        terminal.error(`tent cli ${target} names a bundle: name its data folder with --data <folder>.\n`)
+        terminal.error(`forjr cli ${target} names a bundle: name its data folder with --data <folder>.\n`)
         return 2
       }
       const data = resolve(folder, picked.data)
       return await onThisComputer({ ...here, data, open: () => bundleOpened(place, data, 'live') })
     }
-    const data = picked.data === undefined ? join(place, '.tent') : resolve(place, picked.data)
+    const data = picked.data === undefined ? join(place, '.forjr') : resolve(place, picked.data)
     return await onThisComputer({ ...here, data, open: () => projectOpened(place, data, terminal) })
   } finally {
     close()

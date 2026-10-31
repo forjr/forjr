@@ -1,4 +1,4 @@
-import { change, choice, input, number, query, table, text } from 'tentjs'
+import { change, choice, input, number, query, table, text } from 'forjr'
 
 export const orders = table('orders', {
   columns: { name: text(), status: choice(['open', 'paid'], { messages: 'status' }), total: number({ whole: true }) },

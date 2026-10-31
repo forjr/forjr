@@ -52,10 +52,10 @@ async function testServer(
   }
 }
 
-/** What `/_t/health` answers on a server under a name of the request's own. */
+/** What `/_f/health` answers on a server under a name of the request's own. */
 function healthAt(port: number, host: string): Promise<{ status: number; body: Record<string, unknown> }> {
   return new Promise((done, failed) => {
-    const asked = request({ host: '127.0.0.1', port, path: '/_t/health', headers: { host } }, (response) => {
+    const asked = request({ host: '127.0.0.1', port, path: '/_f/health', headers: { host } }, (response) => {
       const parts: Buffer[] = []
       response.on('data', (part: Buffer) => parts.push(part))
       response.on('end', () => {
@@ -73,7 +73,7 @@ function healthAt(port: number, host: string): Promise<{ status: number; body: R
   })
 }
 
-test('[45-13] `tent publish --preview` from a branch serves the branch at its own name, in the mode test, on a copy of the test data, and is removed when the branch is merged', async (t) => {
+test('[45-13] `forjr publish --preview` from a branch serves the branch at its own name, in the mode test, on a copy of the test data, and is removed when the branch is merged', async (t) => {
   const folder = folderOf(t)
   const server = await testServer(t, folder)
   const here = computer(t, folder, 'here')
@@ -172,13 +172,13 @@ test('[45-13] a preview has the secrets of the target test app and a key of its 
   for (const mode of ['test', 'live'] as const) {
     const folder = join(folderOf(t), mode)
     const server = await testServer(t, folder, mode)
-    // The key of the folder, and a file of secrets for each kind of data, as `tent secrets set` leaves them.
+    // The key of the folder, and a file of secrets for each kind of data, as `forjr secrets set` leaves them.
     const key = `${Buffer.alloc(32, 7).toString('base64')}\n`
     writeFileSync(join(server.data, 'secret.key'), key)
     for (const held of ['test', 'live'])
       writeFileSync(
         join(server.data, `secrets.${held}`),
-        `${JSON.stringify({ format: 'tent.secrets/1', values: { MAIL_KEY: `sealed for ${held}` } })}\n`,
+        `${JSON.stringify({ format: 'forjr.secrets/1', values: { MAIL_KEY: `sealed for ${held}` } })}\n`,
       )
     const here = computer(t, folder, 'here')
     const to = server.key(['read', 'push', 'publish'])

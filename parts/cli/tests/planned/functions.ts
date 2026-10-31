@@ -1,4 +1,4 @@
-import { boolean, change, input, list, number, query, table, text } from 'tentjs'
+import { boolean, change, input, list, number, query, table, text } from 'forjr'
 
 export const users = table('users', {
   columns: { name: text(), roles: list(text()) },

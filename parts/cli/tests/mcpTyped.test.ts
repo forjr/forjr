@@ -4,7 +4,7 @@ import { dirname, join } from 'node:path'
 import { test } from 'node:test'
 import { copied, typed } from './typed.ts'
 
-// An outside MCP server whose one tool `tent mcp approve` wrote into the lock file, with the schema of its input.
+// An outside MCP server whose one tool `forjr mcp approve` wrote into the lock file, with the schema of its input.
 const lock = {
   calendar: {
     tools: {
@@ -26,11 +26,11 @@ const lock = {
 }
 
 const files: Record<string, string> = {
-  'services/calendar.ts': `import { service } from 'tentjs'
+  'services/calendar.ts': `import { service } from 'forjr'
 
 export const calendar = service('calendar', { url: 'https://calendar.example.com/mcp', mcp: true })
 `,
-  'functions/invite.ts': `import { action, text } from 'tentjs'
+  'functions/invite.ts': `import { action, text } from 'forjr'
 import { calendar } from '../services/calendar'
 
 export const invite = action('invite', {
@@ -57,7 +57,7 @@ test('[25-20] the type list types each tool that mcp.lock.json approved as a cal
   const checked = await typed(folder, 'check', '--json')
   const lines = files['functions/invite.ts'].split('\n')
   const refused = lines.flatMap((line, at) => (line.endsWith('// refused') ? [at + 1] : []))
-  const typeFindings = (checked.answer.findings ?? []).filter((one) => one.code === 'T8000')
+  const typeFindings = (checked.answer.findings ?? []).filter((one) => one.code === 'F8000')
   assert.deepEqual(
     typeFindings.map((one) => `${one.where?.file}:${one.where?.line}`),
     refused.map((line) => `functions/invite.ts:${line}`),

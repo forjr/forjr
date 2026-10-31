@@ -31,12 +31,12 @@ const origin = `http://localhost:${port}`
 // The app is used in every way but a live one: written, read, called through the door, and asked for its health.
 await app.call('addCard', { title: 'first', rank: 1 }, { as: system })
 const post = { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"input":{}}' }
-const called = (await app.request(new Request(`${origin}/_t/call/allCards`, post))).status
-const health = (await fetch(`${origin}/_t/health`)).status
+const called = (await app.request(new Request(`${origin}/_f/call/allCards`, post))).status
+const health = (await fetch(`${origin}/_f/health`)).status
 // An opening that is refused loads nothing either: it never became a connection.
 let refused = ''
 try {
-  app.live(new Request(`${origin}/_t/live`))
+  app.live(new Request(`${origin}/_f/live`))
 } catch (error) {
   refused = String(Reflect.get(Object(error), 'code'))
 }
@@ -44,14 +44,14 @@ const before = ofTheHub()
 
 // The first live connection, with no network: the hub is loaded, and nothing of the borrowed part.
 const got: unknown[] = []
-const end = app.live(new Request(`${origin}/_t/live`, { headers: { origin } }))
+const end = app.live(new Request(`${origin}/_f/live`, { headers: { origin } }))
 end.each((message) => void got.push(message))
 end.send({ t: 'watch', id: 'cards', query: 'allCards', input: {} })
 for (let n = 0; n < 500 && got.length === 0; n++) await new Promise((done) => setTimeout(done, 10))
 const noNetwork = ofTheHub()
 
 // The first live connection over a real connection: the borrowed part is loaded.
-const socket = new WebSocket(`ws://localhost:${port}/_t/live`, { headers: { origin } })
+const socket = new WebSocket(`ws://localhost:${port}/_f/live`, { headers: { origin } })
 const heard: unknown[] = []
 socket.addEventListener('message', (event) => void heard.push(JSON.parse(String(event.data))))
 await new Promise((done, failed) => {

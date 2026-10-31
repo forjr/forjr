@@ -2,14 +2,14 @@ import { realpathSync } from 'node:fs'
 import { registerHooks } from 'node:module'
 import { relative, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import { describing } from '../../../core/internal.ts'
 import { moduleAt } from '../../files.ts'
 import { frameworkEntry, resolveIn } from '../resolve.ts'
 import type { RoomVersion } from '../room.ts'
 
 // The mark in the address of a module that says which loading of which version loaded it.
-const mark = 'tent-app'
+const mark = 'forjr-app'
 
 // The place of each loading, by its mark: the folder of a bundle, or the place a list of development stands beside.
 const places = new Map<string, string>()
@@ -23,12 +23,12 @@ export function placedVersion(version: RoomVersion, place: string): RoomVersion 
   return version
 }
 
-/** The place a version is run from, where the engine made it. Throws T0011 for one it did not make. */
+/** The place a version is run from, where the engine made it. Throws F0011 for one it did not make. */
 export function placeOfVersion(version: RoomVersion): string {
   const place = versionPlaces.get(version)
   if (place === undefined)
-    throw new TentError(
-      'T0011',
+    throw new ForjrError(
+      'F0011',
       `The version ${version.id} was not made by this engine, and the room of the program cannot load it.`,
     )
   return place
@@ -58,7 +58,7 @@ function pathIn(place: string, url: URL): string {
 
 // A module that a marked module imports is found by the one rule of a version, and a module of the version carries
 // the same mark: so nothing a module keeps at its top passes from one loading to another. A module of this program
-// that names an entry of the framework, `tentjs` or `tentjs/engine`, is answered with the very file this engine
+// that names an entry of the framework, `forjr` or `forjr/engine`, is answered with the very file this engine
 // uses, marked or not, so that both hold one framework: a version of development is loaded by addresses of its own.
 registerHooks({
   resolve(name, context, next) {
@@ -91,7 +91,7 @@ export function nextLoading(place: string): string {
  * Takes the place of a version, the path of one of its modules as the description names it, the mark of the
  * loading, and whether its definitions are made as it loads. Loads the module for that loading alone, where it
  * makes definitions with every word that asks the engine answering its record while it loads, and answers what the
- * module exports. Throws T0011 for a module that cannot be loaded.
+ * module exports. Throws F0011 for a module that cannot be loaded.
  */
 export async function loadIn(
   place: string,
@@ -106,11 +106,11 @@ export async function loadIn(
     const given: unknown = await (makes ? describing(() => import(url.href)) : import(url.href))
     if (typeof given === 'object' && given !== null) return Object(given)
   } catch (error) {
-    const failed = new TentError('T0011', `The module ${path} of the bundle cannot be loaded: ${String(error)}`, {
+    const failed = new ForjrError('F0011', `The module ${path} of the bundle cannot be loaded: ${String(error)}`, {
       fix: 'Build the project again, and run the bundle as the build wrote it.',
     })
     failed.cause = error
     throw failed
   }
-  throw new TentError('T0011', `The module ${path} of the bundle gives nothing.`)
+  throw new ForjrError('F0011', `The module ${path} of the bundle gives nothing.`)
 }

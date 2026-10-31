@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Opened } from './opened.ts'
 import type { About } from './web/proxy.ts'
 
@@ -33,7 +33,7 @@ export const againFor = (about: About): Promise<void> | undefined =>
 
 /**
  * Takes the end of an opening again, and its bound, `web.openTime` of the engine. Waits for it within the bound,
- * as a call that arrives meanwhile does. Throws T0008 past it.
+ * as a call that arrives meanwhile does. Throws F0008 past it.
  */
 export async function waitedAgain(done: Promise<void>, bound: number): Promise<void> {
   let timer: NodeJS.Timeout | undefined
@@ -41,7 +41,7 @@ export async function waitedAgain(done: Promise<void>, bound: number): Promise<v
     timer = setTimeout(
       () =>
         refuse(
-          new TentError('T0008', `The app was not opened again within ${bound} ms.`, {
+          new ForjrError('F0008', `The app was not opened again within ${bound} ms.`, {
             fix: 'Ask again in a moment.',
           }),
         ),

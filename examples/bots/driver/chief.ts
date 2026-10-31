@@ -1,6 +1,6 @@
 // The chief routes: Claude Code answers which bot takes which task, and each task starts a run of that bot under the
 // chief's run, which goes on by itself while the chief tells the person what it handed to whom.
-import type { DriverSteps } from 'tentjs/flows'
+import type { DriverSteps } from 'forjr/flows'
 import type { Turn } from './claude.ts'
 import { type BotInfo, record } from './read.ts'
 

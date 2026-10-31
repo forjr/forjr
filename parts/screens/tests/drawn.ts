@@ -84,16 +84,16 @@ export async function drawn(
   return { ...made, asked }
 }
 
-/** The drawing of a document: what stands inside the element with the id `tent`. */
+/** The drawing of a document: what stands inside the element with the id `forjr`. */
 export function drawingOf(html: string | undefined): string {
-  const found = /<div id="tent">([\s\S]*)<\/div>\n<script type="application\/json" id="tent-page">/.exec(html ?? '')
+  const found = /<div id="forjr">([\s\S]*)<\/div>\n<script type="application\/json" id="forjr-page">/.exec(html ?? '')
   if (!found) throw new Error(`the document holds no drawing: ${html}`)
   return found[1]
 }
 
 /** The page record of a document, read as the page code finds and reads it. */
 export function recordOf(html: string | undefined): Page {
-  const found = /<script type="application\/json" id="tent-page">([\s\S]*?)<\/script>/.exec(html ?? '')
+  const found = /<script type="application\/json" id="forjr-page">([\s\S]*?)<\/script>/.exec(html ?? '')
   if (!found) throw new Error('the document holds no page record')
   return JSON.parse(found[1])
 }

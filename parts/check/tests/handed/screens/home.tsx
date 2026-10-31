@@ -1,5 +1,5 @@
 import { useRef, useState } from 'react'
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 // A view whose elements run the builder's own code: a press, an event of the browser by its name, and an
 // element handed through `ref`.

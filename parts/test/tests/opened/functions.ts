@@ -1,4 +1,4 @@
-import { action, change, input, list, query, table, text } from 'tentjs'
+import { action, change, input, list, query, table, text } from 'forjr'
 import { BroadcastChannel } from 'node:worker_threads'
 
 export const users = table('users', {
@@ -24,7 +24,7 @@ export const addOrder = change('addOrder', {
  * hears it in whatever room the code runs, and waits until the test lets it go.
  */
 function gate(): Promise<void> {
-  const channel = new BroadcastChannel('tentjs.test.landing')
+  const channel = new BroadcastChannel('forjr.test.landing')
   // A call that nobody lets go any more, of an app that was closed, holds the program up no longer.
   channel.unref()
   const id = `addLater ${Math.random()}`

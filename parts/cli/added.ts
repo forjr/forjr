@@ -68,9 +68,9 @@ function found(name: string): boolean {
 }
 
 /**
- * `tent cli add <address>`: takes the name of the app's command from the server, holds it to the runner's own
+ * `forjr cli add <address>`: takes the name of the app's command from the server, holds it to the runner's own
  * rule, asks the person for a yes once, and writes the launcher into `bin/` of the runner's folder. Refused for
- * `tent`, a name that is the launcher of another address, and a name the terminal already finds, unless `--name`
+ * `forjr`, a name that is the launcher of another address, and a name the terminal already finds, unless `--name`
  * gives another. Answers how it ends.
  */
 export async function add(o: {
@@ -89,14 +89,14 @@ export async function add(o: {
     terminal.error(`The app at ${o.address} names no command it can be added under. Give one with --name.\n`)
     return 2
   }
-  if (!commandName.test(name) || name === 'tent') {
+  if (!commandName.test(name) || name === 'forjr') {
     terminal.error(
       `The command of ${o.address} would be named ${name.slice(0, 40)}, which the runner does not take. Give another with --name.\n`,
     )
     return 2
   }
   if (kept && kept.name !== name) {
-    terminal.error(`${o.address} is added already, as ${kept.name}. Remove it first: tent cli remove ${o.address}\n`)
+    terminal.error(`${o.address} is added already, as ${kept.name}. Remove it first: forjr cli remove ${o.address}\n`)
     return 2
   }
   const theirs = launchersOf(o.home, name).find((one) => !ownedHere(one))
@@ -136,7 +136,7 @@ export async function add(o: {
 const launchersOf = (home: string, name: string): string[] =>
   ['', '.cmd'].map((ending) => join(home, 'bin', `${name}${ending}`)).filter((one) => existsSync(one))
 
-/** `tent cli list`: each address that was added, with the name of its command, and a launcher that another user wrote. */
+/** `forjr cli list`: each address that was added, with the name of its command, and a launcher that another user wrote. */
 export function list(home: string, terminal: Terminal): number {
   for (const one of allAdded(home)) {
     terminal.write(`${one.name}  ${one.address}\n`)
@@ -146,7 +146,7 @@ export function list(home: string, terminal: Terminal): number {
   return 0
 }
 
-/** `tent cli remove <address>`: its launcher, its kept record and modules, and its yes. Its key the caller removes. */
+/** `forjr cli remove <address>`: its launcher, its kept record and modules, and its yes. Its key the caller removes. */
 export function remove(home: string, address: string): number {
   const added = addedOf(home, address)
   if (added) for (const ending of ['', '.cmd']) rmSync(join(home, 'bin', `${added.name}${ending}`), { force: true })

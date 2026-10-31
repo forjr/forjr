@@ -1,4 +1,4 @@
-import { action, change, fail, input, query, table, text } from 'tentjs'
+import { action, change, fail, input, query, table, text } from 'forjr'
 
 export const notes = table('notes', {
   columns: { words: text() },

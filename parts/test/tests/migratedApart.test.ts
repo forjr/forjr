@@ -11,7 +11,7 @@ import { copyOf } from './projects.ts'
 const system = { as: { kind: 'system' } } as const
 
 // The next version requires `label` of a task, which its backfill fills from the title.
-const backfills = `import { backfill } from 'tentjs'
+const backfills = `import { backfill } from 'forjr'
 import { tasks } from '../tables/tables'
 
 export const labelTasks = backfill('labelTasks', {

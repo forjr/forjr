@@ -21,13 +21,13 @@ async function opened(t: TestContext, onRequest: NonNullable<EngineOptions['onRe
   return besieged(t, { bundle: made.bundleFolder, engine: { onRequest }, open: { address: '*' } })
 }
 
-/** Asks for the opening of `/_t/live` over a real connection, and answers the status that it was answered. */
+/** Asks for the opening of `/_f/live` over a real connection, and answers the status that it was answered. */
 function liveStatus(t: TestContext, siege: Siege, headers: Record<string, string>): Promise<number> {
   return new Promise((done, failed) => {
     const asking = request({
       host: '127.0.0.1',
       port: siege.port,
-      path: '/_t/live',
+      path: '/_f/live',
       headers: {
         host: `localhost:${siege.port}`,
         origin: siege.origin,
@@ -72,13 +72,13 @@ test('[22-18] createEngine({ onRequest }) is called before the onRequest of the 
   const who = await wire(siege, { method: 'GET', path: '/who' })
   assert.deepEqual([who.body, who.headers['x-program']], [{ seen: 'by the program' }, 'first'])
   // And the function of the app hands it on to the door: both have added their header to the answer.
-  const call = await wire(siege, { path: '/_t/call/hello' })
+  const call = await wire(siege, { path: '/_f/call/hello' })
   assert.deepEqual(
     [call.body, call.headers['x-app'], call.headers['x-program']],
     [{ ok: true, value: 'hello' }, 'handed', 'first'],
   )
   const failed = await wire(siege, { method: 'GET', path: '/host-fails' })
-  assert.deepEqual([failed.status, failed.error.code], [500, 'T0009'])
+  assert.deepEqual([failed.status, failed.error.code], [500, 'F0009'])
   assert.equal(failed.text.includes('the code of the program failed'), false)
   assert.equal((await wire(siege, { method: 'GET', path: '/who' })).status, 200)
 })
@@ -91,7 +91,7 @@ test('[21-12] onRequest is never handed a command of this computer, and refuses 
   })
   // A command of this computer is answered by the engine: neither function is handed it.
   const command = await wire(siege, {
-    path: '/_t/admin/status',
+    path: '/_f/admin/status',
     headers: { authorization: `Bearer ${siege.token}` },
     body: '{"args":{}}',
   })
@@ -102,5 +102,5 @@ test('[21-12] onRequest is never handed a command of this computer, and refuses 
   assert.equal(await liveStatus(t, siege, {}), 101)
   assert.equal(await liveStatus(t, siege, { 'x-visitor': 'unwelcome' }), 403)
   // The function of the program is asked for the opening too, before that of the app.
-  assert.deepEqual(seen, ['/_t/live', '/_t/live'])
+  assert.deepEqual(seen, ['/_f/live', '/_f/live'])
 })

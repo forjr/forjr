@@ -5,22 +5,22 @@ import { addUser, codeOf, logRows, nobody, refusal, running, system } from './ap
 
 const titles = (rows: unknown): string[] => (Array.isArray(rows) ? rows.map((row) => String(Object(row).title)) : [])
 
-test('[16-2@4] T0001, T0006, T3101 and T0002: a name that is not there, a rule that does not let the caller in, and an input that does not fit', async (t) => {
+test('[16-2@4] F0001, F0006, F3101 and F0002: a name that is not there, a rule that does not let the caller in, and an input that does not fit', async (t) => {
   const { app, dataFolder } = await running(t)
   const ada = await addUser(app, 'Ada', ['staff'])
   const bob = await addUser(app, 'Bob')
 
   // Step 5: nothing but a function of the description is reached by a name.
   for (const name of ['nothing', 'notes', 'desk', 'constructor', '__proto__', 'toString', 'addNote.run', ''])
-    assert.equal(await codeOf(app.call(name, {}, { as: system })), 'T0001', name)
+    assert.equal(await codeOf(app.call(name, {}, { as: system })), 'F0001', name)
 
   // Step 6: a caller who is nobody is told to sign in, and a signed-in caller whom the rule keeps out is denied.
-  assert.equal(await codeOf(app.call('countNotes', {}, { as: nobody })), 'T0006')
-  assert.equal(await codeOf(app.call('staffTags', {}, { as: nobody })), 'T0006')
-  assert.equal(await codeOf(app.call('staffTags', {}, { as: bob })), 'T3101')
+  assert.equal(await codeOf(app.call('countNotes', {}, { as: nobody })), 'F0006')
+  assert.equal(await codeOf(app.call('staffTags', {}, { as: nobody })), 'F0006')
+  assert.equal(await codeOf(app.call('staffTags', {}, { as: bob })), 'F3101')
   assert.deepEqual(await app.call('staffTags', {}, { as: ada }), [])
-  assert.equal(await codeOf(app.call('closed', {}, { as: nobody })), 'T0006')
-  assert.equal(await codeOf(app.call('closed', {}, { as: ada })), 'T3101')
+  assert.equal(await codeOf(app.call('closed', {}, { as: nobody })), 'F0006')
+  assert.equal(await codeOf(app.call('closed', {}, { as: ada })), 'F3101')
   assert.deepEqual(await app.call('publicTags', {}, { as: nobody }), [])
   // The system passes every rule.
   assert.equal(await app.call('closed', {}, { as: system }), 0)
@@ -29,7 +29,7 @@ test('[16-2@4] T0001, T0006, T3101 and T0002: a name that is not there, a rule t
   assert.deepEqual(await app.call('staffTags', {}, { as: key }), [])
   assert.equal(
     await codeOf(app.call('staffTags', {}, { as: { kind: 'key', key: { id: 'k2', scopes: [], roles: [] } } })),
-    'T3101',
+    'F3101',
   )
   // A denied call is in the log, with its rule.
   const denied = logRows(dataFolder, 'denied')
@@ -52,53 +52,53 @@ test('[16-2@4] T0001, T0006, T3101 and T0002: a name that is not there, a rule t
   assert.deepEqual(await fields({ title: 5 }), { title: 'type' })
   assert.deepEqual(await fields({ title: '' }), { title: 'min' })
   assert.deepEqual(await fields({ title: 'a', colour: 'red' }), { colour: 'unknown' })
-  assert.equal(await codeOf(app.call('addNote', { title: 5 }, { as: ada })), 'T0002')
-  assert.equal(await codeOf(app.call('addNote', 'a title', { as: ada })), 'T0002')
-  assert.equal(await codeOf(app.call('addNote', [{ title: 'a' }], { as: ada })), 'T0002')
+  assert.equal(await codeOf(app.call('addNote', { title: 5 }, { as: ada })), 'F0002')
+  assert.equal(await codeOf(app.call('addNote', 'a title', { as: ada })), 'F0002')
+  assert.equal(await codeOf(app.call('addNote', [{ title: 'a' }], { as: ada })), 'F0002')
   // No input at all is an empty one, and `null` in a field means that it was not given.
   assert.deepEqual(await app.call('publicTags', undefined, { as: nobody }), [])
   assert.deepEqual(await fields({ title: null }), { title: 'required' })
   // The rule comes before the input: a caller who is kept out learns nothing of the types.
-  assert.equal(await codeOf(app.call('addNote', { title: 5 }, { as: nobody })), 'T0006')
+  assert.equal(await codeOf(app.call('addNote', { title: 5 }, { as: nobody })), 'F0006')
   // Nothing of a refused call was written.
   assert.equal(await app.call('countNotes', {}, { as: ada }), 0)
 
   // A rule made with `allow` runs on the checked input, with a `db` that reads as the caller.
   const note = Object(await app.call('addNote', { title: 'of Ada' }, { as: ada }))
   assert.equal(Object(await app.call('myNote', { note: note.id }, { as: ada })).title, 'of Ada')
-  assert.equal(await codeOf(app.call('myNote', { note: note.id }, { as: bob })), 'T3101')
-  assert.equal(await codeOf(app.call('myNote', { note: note.id }, { as: nobody })), 'T0006')
-  assert.equal(await codeOf(app.call('myNote', { note: 7 }, { as: ada })), 'T0002')
+  assert.equal(await codeOf(app.call('myNote', { note: note.id }, { as: bob })), 'F3101')
+  assert.equal(await codeOf(app.call('myNote', { note: note.id }, { as: nobody })), 'F0006')
+  assert.equal(await codeOf(app.call('myNote', { note: 7 }, { as: ada })), 'F0002')
 })
 
-test('[16-2@4] T0013, T0028 and T4101: what may not be used where, calls that nest too deep, and a query that is not pure', async (t) => {
+test('[16-2@4] F0013, F0028 and F4101: what may not be used where, calls that nest too deep, and a query that is not pure', async (t) => {
   const { app } = await running(t)
   const ada = await addUser(app, 'Ada', ['staff'])
 
   // A change may not be called from a query, nor an action from a change: nothing of either was done.
-  assert.equal(await codeOf(app.call('writesFromQuery', {}, { as: ada })), 'T0013')
+  assert.equal(await codeOf(app.call('writesFromQuery', {}, { as: ada })), 'F0013')
   assert.deepEqual(await app.call('publicTags', {}, { as: nobody }), [])
-  assert.equal(await codeOf(app.call('waitsInChange', {}, { as: ada })), 'T0013')
+  assert.equal(await codeOf(app.call('waitsInChange', {}, { as: ada })), 'F0013')
   // Full access is there only where the function states `system`.
-  assert.equal(await codeOf(app.call('noSystem', {}, { as: ada })), 'T0013')
-  assert.equal(await codeOf(app.call('rawNoSystem', {}, { as: ada })), 'T0013')
+  assert.equal(await codeOf(app.call('noSystem', {}, { as: ada })), 'F0013')
+  assert.equal(await codeOf(app.call('rawNoSystem', {}, { as: ada })), 'F0013')
   assert.equal(await app.call('everyNote', {}, { as: ada }), 0)
   assert.equal(await app.call('rawNotes', {}, { as: ada }), 0)
 
   // Functions that call each other nest as deep as the project lets them, and one more is refused.
   assert.equal(await app.call('deep', { n: 5 }, { as: ada }), 5)
   const tooDeep = await refusal(app.call('deep', { n: 6 }, { as: ada }))
-  assert.equal(tooDeep.code, 'T0028')
+  assert.equal(tooDeep.code, 'F0028')
   assert.match(tooDeep.message, /\b6\b/)
-  assert.equal(await codeOf(app.call('deep', { n: 400 }, { as: ada })), 'T0028')
+  assert.equal(await codeOf(app.call('deep', { n: 400 }, { as: ada })), 'F0028')
   assert.equal(await app.call('deep', { n: 5 }, { as: ada }), 5)
 
   // While the `run` of a query runs, the clock, the random source and the network fail.
   for (const how of ['now', 'new', 'text'])
-    assert.equal(await codeOf(app.call('byClock', { how }, { as: ada })), 'T4101', how)
+    assert.equal(await codeOf(app.call('byClock', { how }, { as: ada })), 'F4101', how)
   for (const how of ['word', 'bytes', 'id', 'math'])
-    assert.equal(await codeOf(app.call('byDice', { how }, { as: ada })), 'T4101', how)
-  assert.equal(await codeOf(app.call('byNet', {}, { as: ada })), 'T4101')
+    assert.equal(await codeOf(app.call('byDice', { how }, { as: ada })), 'F4101', how)
+  assert.equal(await codeOf(app.call('byNet', {}, { as: ada })), 'F4101')
   // A moment that is made from a number is no clock, and the swap is taken back when the query has ended.
   assert.equal(await app.call('byClock', { how: 'from a number' }, { as: ada }), 5)
   assert.equal(typeof Date.now(), 'number')
@@ -106,12 +106,12 @@ test('[16-2@4] T0013, T0028 and T4101: what may not be used where, calls that ne
   assert.equal(typeof crypto.randomUUID(), 'string')
   assert.equal(new Date() instanceof Date, true)
   // It is taken back after a query that failed inside it too, and an action is held to none of it.
-  assert.equal(await codeOf(app.call('breaks', {}, { as: ada })), 'T0009')
+  assert.equal(await codeOf(app.call('breaks', {}, { as: ada })), 'F0009')
   assert.equal(typeof Date.now(), 'number')
   assert.equal(await app.call('remind', {}, { as: ada }), 0)
 })
 
-test('[16-2@4] T0009 and T0008: what does not fit the declared output, an error of the code of the app, and a body that works past its time', async (t) => {
+test('[16-2@4] F0009 and F0008: what does not fit the declared output, an error of the code of the app, and a body that works past its time', async (t) => {
   // A body that walks a million entries a million times ends on no computer: only its time ends it. The time of a
   // query is left as the framework gives it, so that no other query of this test is held to a short one.
   const walk = { for: 'i', of: { fn: 'range', args: [0, 1_000_000] }, do: [{ do: { name: ['i'] } }] }
@@ -132,9 +132,9 @@ test('[16-2@4] T0009 and T0008: what does not fit the declared output, an error 
   for (const row of all) assert.deepEqual(Object.keys(row).sort(), ['createdAt', 'id', 'name', 'roles', 'updatedAt'])
   // A query written with `run` and no `output` answers rows as `db` handed them, and nothing else.
   assert.deepEqual(titles(await app.call('handedNotes', {}, { as: ada })), ['first', 'second'])
-  assert.equal(await codeOf(app.call('copiedNotes', {}, { as: ada })), 'T0009')
+  assert.equal(await codeOf(app.call('copiedNotes', {}, { as: ada })), 'F0009')
   // An answer that does not fit the output is the fault of the app, and is logged with what did not fit.
-  assert.equal(await codeOf(app.call('badOutput', {}, { as: ada })), 'T0009')
+  assert.equal(await codeOf(app.call('badOutput', {}, { as: ada })), 'F0009')
   // A change written with `set` answers its row, without what is private.
   const added = Object(await app.call('addUser', { name: 'Cy', roles: [], salary: 1 }, { as: system }))
   assert.deepEqual(Object.keys(added).sort(), ['createdAt', 'id', 'name', 'roles', 'updatedAt'])
@@ -148,7 +148,7 @@ test('[16-2@4] T0009 and T0008: what does not fit the declared output, an error 
 
   // An error of the code of the app is logged with its trace, and the engine keeps running.
   const broke = await refusal(app.call('breaks', {}, { as: ada }))
-  assert.equal(broke.code, 'T0009')
+  assert.equal(broke.code, 'F0009')
   assert.ok(broke.cause instanceof RangeError)
   // An own `fail` arrives as itself, and undoes its change.
   const failed = await refusal(app.call('fails', { title: 'never kept' }, { as: ada }))
@@ -159,16 +159,16 @@ test('[16-2@4] T0009 and T0008: what does not fit the declared output, an error 
 
   // A body that was read is stopped at its next entry once the time of its call is up, and the engine answers on.
   const began = performance.now()
-  assert.equal(await codeOf(app.call('spins', {}, { as: ada })), 'T0008')
+  assert.equal(await codeOf(app.call('spins', {}, { as: ada })), 'F0008')
   assert.ok(performance.now() - began >= 900, 'the body worked for the time of a query')
   assert.equal(await app.call('countNotes', {}, { as: ada }), 2)
 
   // The log holds each failure with its code, and for what a caller is not shown a ref that finds the error.
   const calls = logRows(dataFolder, 'calls')
   const of = (name: string) => calls.filter((row) => row.name === name)
-  assert.deepEqual([of('badOutput')[0].ok, of('badOutput')[0].code], [0, 'T0009'])
+  assert.deepEqual([of('badOutput')[0].ok, of('badOutput')[0].code], [0, 'F0009'])
   assert.deepEqual([of('fails')[0].ok, of('fails')[0].code, of('fails')[0].ref], [0, 'not-today', null])
-  assert.deepEqual([of('spins')[0].ok, of('spins')[0].code], [0, 'T0008'])
+  assert.deepEqual([of('spins')[0].ok, of('spins')[0].code], [0, 'F0008'])
   const errors = logRows(dataFolder, 'errors')
   const ref = String(of('breaks')[0].ref)
   assert.match(ref, /^[0-9a-z]{8}$/)
@@ -189,8 +189,8 @@ test('[13-3] a function with no rule, in a description written by hand, is open 
     },
   })
   const ada = await addUser(app, 'Ada', ['staff'])
-  assert.equal(await codeOf(app.call('publicTags', {}, { as: nobody })), 'T0006')
-  assert.equal(await codeOf(app.call('publicTags', {}, { as: ada })), 'T3101')
+  assert.equal(await codeOf(app.call('publicTags', {}, { as: nobody })), 'F0006')
+  assert.equal(await codeOf(app.call('publicTags', {}, { as: ada })), 'F3101')
   assert.deepEqual(await app.call('publicTags', {}, { as: system }), [])
 })
 
@@ -249,9 +249,9 @@ test('[21-20@4] change.done, row.changed and call.failed are each heard once, wi
   assert.deepEqual(
     heard.map(([name, one]) => [name, one.name, Object(one.error).code]),
     [
-      ['call.failed', 'nothing', 'T0001'],
-      ['call.failed', 'closed', 'T3101'],
-      ['call.failed', 'callsClosed', 'T3101'],
+      ['call.failed', 'nothing', 'F0001'],
+      ['call.failed', 'closed', 'F3101'],
+      ['call.failed', 'callsClosed', 'F3101'],
     ],
   )
 

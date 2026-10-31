@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Bulk, RunState } from './face.ts'
 import type { Held } from './held.ts'
 import { replayRun } from './moving.ts'
@@ -43,7 +43,7 @@ export async function stopAllOf(held: Held, o: Bulk, dry: boolean): Promise<{ co
 /**
  * Replays every run that the filter fits, each as `replay` replays one, on the live version: from the step `from`
  * where the run saved one of that name, and else reusing every step that was done. With `dry` nothing is started.
- * Answers how many runs it acts on, their ids, and the ids of the new runs. Throws T0013 before a version is live.
+ * Answers how many runs it acts on, their ids, and the ids of the new runs. Throws F0013 before a version is live.
  */
 export async function replayAllOf(
   held: Held,
@@ -54,7 +54,7 @@ export async function replayAllOf(
   const started: string[] = []
   const version = held.live
   if (!dry && version === undefined)
-    throw new TentError('T0013', 'No version of the app is live yet, so no run can be replayed.', {
+    throw new ForjrError('F0013', 'No version of the app is live yet, so no run can be replayed.', {
       fix: 'Replay the runs once the app is open.',
     })
   if (!dry && version !== undefined)

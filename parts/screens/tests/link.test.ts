@@ -64,7 +64,7 @@ test('[30-2] a Link is one <a> with the address of to and with, in the language 
   assert.match(anchor(turkish, 'path'), /href="\/tr\/orders\/8"/)
   assert.match(anchor(turkish, 'place'), /href="#prices"/)
   // Nothing of the framework's own is written on the element but its address and whether it is current.
-  assert.doesNotMatch(english, /data-t-|tb-/)
+  assert.doesNotMatch(english, /data-f-|tb-/)
 })
 
 test('[30-2] a Link is current on its own screen and on an address under it, with exact on its own alone, and nothing but / lies under /', async () => {

@@ -40,7 +40,7 @@ function listedHtml(
     const input = inputLines(fieldsOf(o, tool), one.input).join(', ')
     return `<li>${asText(`${titleOf(tool.split('.').at(-1) ?? tool)}${input ? `: ${input}` : ''}`)}</li>`
   })
-  return [`<ul>${calls.join('')}</ul>`, ...(waiting.more ? [`<p>${said('tent.ask.more')}</p>`] : [])]
+  return [`<ul>${calls.join('')}</ul>`, ...(waiting.more ? [`<p>${said('forjr.ask.more')}</p>`] : [])]
 }
 
 /**
@@ -62,7 +62,7 @@ export async function askPage(
   const lines = askingLines()
   if (waiting.said)
     return new Response(
-      `${pageHead(language, said('tent.ask.done'))}\n<body><main><p>${said('tent.ask.done')}</p></main></body></html>`,
+      `${pageHead(language, said('forjr.ask.done'))}\n<body><main><p>${said('forjr.ask.done')}</p></main></body></html>`,
       {
         status: 200,
         headers: lines,
@@ -73,25 +73,25 @@ export async function askPage(
   if (!own) {
     const fields: unknown = Reflect.get(Object(o.description.functions[waiting.name]), 'input')
     const html = [
-      pageHead(language, said('tent.ask.title', { tool: title })),
+      pageHead(language, said('forjr.ask.title', { tool: title })),
       '<body><main>',
-      `<h1>${said('tent.ask.title', { tool: title })}</h1>`,
+      `<h1>${said('forjr.ask.title', { tool: title })}</h1>`,
       `<ul>${inputLines(fields, waiting.input)
         .map((one) => `<li>${asText(one)}</li>`)
         .join('')}</ul>`,
       ...listedHtml(o, waiting, titleOf, inputLines, said),
-      '<form method="post" action="/_t/ask">',
+      '<form method="post" action="/_f/ask">',
       `<input type="hidden" name="t" value="${asText(answer)}">`,
-      `<button type="submit" name="answer" value="allow">${said('tent.ask.allow')}</button>`,
-      `<button type="submit" name="answer" value="refuse">${said('tent.ask.refuse')}</button>`,
+      `<button type="submit" name="answer" value="allow">${said('forjr.ask.allow')}</button>`,
+      `<button type="submit" name="answer" value="refuse">${said('forjr.ask.refuse')}</button>`,
       '</form></main></body></html>',
     ].join('\n')
     return new Response(html, { status: 200, headers: lines })
   }
   const press = (said: string) => ({
-    definition: `tent.ask.${said}`,
+    definition: `forjr.ask.${said}`,
     kind: 'post' as const,
-    post: '/_t/ask',
+    post: '/_f/ask',
     form: { t: answer, answer: said },
   })
   const ask = {

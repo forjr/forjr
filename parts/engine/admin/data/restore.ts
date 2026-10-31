@@ -1,18 +1,18 @@
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import type { Admin } from '../../admin.ts'
 import { badWord, wordOf } from '../../admin.ts'
 
-/** Reads the moment of `--at`: a text as a date is written, or a number of milliseconds. Throws T0002 for any other. */
+/** Reads the moment of `--at`: a text as a date is written, or a number of milliseconds. Throws F0002 for any other. */
 function momentOf(at: unknown): number {
   const moment = typeof at === 'number' ? at : typeof at === 'string' ? Date.parse(at) : Number.NaN
   if (Number.isFinite(moment)) return moment
-  throw new TentError('T0002', '`--at` takes a moment, as `2026-10-16T09:30:00Z` writes one.', {
+  throw new ForjrError('F0002', '`--at` takes a moment, as `2026-10-16T09:30:00Z` writes one.', {
     fields: { at: 'a moment' },
   })
 }
 
 /**
- * `tent data restore <file>`: puts the file of a backup back under the running app, with the table changes applied.
+ * `forjr data restore <file>`: puts the file of a backup back under the running app, with the table changes applied.
  * `--at <moment>` brings every data file to that moment, from a backup and the archive, and `--dry` says what it
  * would do and does nothing.
  */

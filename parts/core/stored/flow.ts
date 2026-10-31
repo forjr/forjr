@@ -87,7 +87,7 @@ function triggersOf(told: Told, written: unknown): Stored[] {
     if (!isMarked(one)) {
       report(
         told,
-        'T1014',
+        'F1014',
         '`on` holds what is no trigger.',
         'Write every(...), cron(...), event(...), or a trigger of a table.',
       )
@@ -97,7 +97,7 @@ function triggersOf(told: Told, written: unknown): Stored[] {
     if (typeof every === 'string' && !schedules.some((form) => form.test(every)))
       report(
         told,
-        'T1011',
+        'F1011',
         `the schedule ${shownAs(one.every)} does not read.`,
         "Write '15 minutes', 'day at 09:00', 'monday at 09:00' or 'month on 1 at 09:00'.",
       )
@@ -110,7 +110,7 @@ function triggersOf(told: Told, written: unknown): Stored[] {
 
 /**
  * The events of `stopOn` as they are stored: always a list, each with the key it stops by as code. An event with no
- * key, and what is no event, is T1014.
+ * key, and what is no event, is F1014.
  */
 function stopsOf(told: Told, written: unknown): Stored[] {
   if (written === undefined) return []
@@ -118,7 +118,7 @@ function stopsOf(told: Told, written: unknown): Stored[] {
     if (!isMarked(one) || typeof one.event !== 'string' || typeof one.key !== 'function') {
       report(
         told,
-        'T1014',
+        'F1014',
         '`stopOn` holds what is no event with a key.',
         "Write event('order.cancelled', { key: ({ data }) => data.order }).",
       )
@@ -130,7 +130,7 @@ function stopsOf(told: Told, written: unknown): Stored[] {
 
 /**
  * `pace` of a flow as it is stored: each length of time in milliseconds, and `order` as code. A part that is no
- * part of `pace` is T1003.
+ * part of `pace` is F1003.
  */
 function paceOf(told: Told, written: unknown): Stored | undefined {
   if (written === undefined) return undefined
@@ -188,7 +188,7 @@ function keyIn(told: Told, o: Stored, stored: Stored): void {
   else if (o.key !== undefined)
     report(
       told,
-      'T1014',
+      'F1014',
       '`key` is no arrow.',
       'Write an arrow over the input and the event: `key: ({ input }) => input.order`.',
     )
@@ -213,7 +213,7 @@ export function flowOf(told: Told, o: Stored): Stored {
   if (input && 'run' in input && (o.access !== undefined || o.offer !== undefined))
     report(
       told,
-      'T1009',
+      'F1009',
       'the input field `run` is reserved for a flow that is offered.',
       'Give the field another name.',
     )
@@ -278,7 +278,7 @@ function guardsOf(told: Told, written: unknown): Stored {
     if (!Array.isArray(listed)) {
       report(
         told,
-        'T1014',
+        'F1014',
         `\`guards.${side}\` is no list of guards.`,
         'Write a list of guards: `[tone, noOtherPeople]`.',
       )
@@ -299,13 +299,13 @@ function scoreOf(told: Told, written: unknown): Stored {
   if (typeof score.share !== 'number' || score.share < 0 || score.share > 1)
     report(
       told,
-      'T1014',
+      'F1014',
       '`score.share` is no number from 0 to 1.',
       'Give the share of the runs that are scored, as 0.05.',
     )
   const judge = optionsOf(Reflect.get(Object(score.with), 'judge'))
   if (typeof judge.model !== 'string' || typeof judge.rule !== 'string')
-    report(told, 'T1014', '`score.with` is no judge.', "Write `judge(model, 'the rule')`, or `judge.fromTools(model)`.")
+    report(told, 'F1014', '`score.with` is no judge.', "Write `judge(model, 'the rule')`, or `judge.fromTools(model)`.")
   return { share: plainOf(score.share), with: optionsOf(plainOf(judge)) }
 }
 
@@ -368,7 +368,7 @@ export function agentOf(told: Told, o: Stored): Stored {
     if (reserved.includes(toldAs))
       report(
         told,
-        'T1009',
+        'F1009',
         `the tool \`${toldAs}\` is told under a name that is reserved for what the agent itself gives a model.`,
         'Give its entry of `tools` another name with `name`.',
       )
@@ -391,7 +391,7 @@ export function agentOf(told: Told, o: Stored): Stored {
     if (!tools.map(toolName).includes(name) && !tools.map(toolName).includes(service(name)) && !ownTools.includes(name))
       report(
         told,
-        'T1014',
+        'F1014',
         `\`trust\` names ${name}, which is no tool of the agent.`,
         'Name a tool as it stands in `tools`.',
       )
@@ -405,7 +405,7 @@ export function agentOf(told: Told, o: Stored): Stored {
     if (table !== undefined) return [{ facts: table }]
     report(
       told,
-      'T1014',
+      'F1014',
       `\`knows\` names ${JSON.stringify(word)}, which is nothing the engine tells a model.`,
       "Name 'caller', 'time', or `{ facts: <table> }`.",
     )
@@ -455,7 +455,7 @@ export function agentOf(told: Told, o: Stored): Stored {
     if (told.all.get(name) && told.all.get(name)?.kind !== 'agent')
       report(
         told,
-        'T1014',
+        'F1014',
         `\`handsOver\` names ${name}, which is no agent.`,
         'Name the agents a conversation may be handed over to.',
       )

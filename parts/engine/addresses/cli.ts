@@ -6,11 +6,11 @@ import { keyAt } from '../keys/kept.ts'
 import { visit } from '../visit.ts'
 import { errorAnswer, okAnswer } from '../wire.ts'
 
-const paths = ['/_t/cli', '/_t/cli/me']
+const paths = ['/_f/cli', '/_f/cli/me']
 
 /**
- * `GET /_t/cli`: what the runner of the command line knows of the app, the list of its commands, under
- * `describeTo`; with `?have=<version>` it answers `{ same: true }` while that version runs. `GET /_t/cli/me`: who
+ * `GET /_f/cli`: what the runner of the command line knows of the app, the list of its commands, under
+ * `describeTo`; with `?have=<version>` it answers `{ same: true }` while that version runs. `GET /_f/cli/me`: who
  * the caller is, open to every caller. Both pass steps 1 to 4 and 10 of the door. An app that offers nothing to
  * the command line, and holds no command, has neither.
  */
@@ -27,7 +27,7 @@ export const address: Address = {
   async handle({ app: o, request, caller, began }) {
     const url = new URL(request.url)
     try {
-      if (url.pathname === '/_t/cli/me') {
+      if (url.pathname === '/_f/cli/me') {
         const key = caller.key && keyAt(o, caller.key.id)?.key
         logCall(o, { name: url.pathname, caller, began })
         return okAnswer({

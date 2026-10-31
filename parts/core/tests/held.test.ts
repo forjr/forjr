@@ -242,7 +242,7 @@ const single: Named[] = [
   ],
 ]
 
-test('[13-7] an option that is stored as a name or as a list of names, handed what is neither a name nor a definition, is T1014 by its place, and the option is left out', () => {
+test('[13-7] an option that is stored as a name or as a list of names, handed what is neither a name nor a definition, is F1014 by its place, and the option is left out', () => {
   // What is no name: a number, nothing, a record that no word made, a flag, a list.
   const none: [string, unknown][] = [
     ['a number', 5],
@@ -260,7 +260,7 @@ test('[13-7] an option that is stored as a name or as a list of names, handed wh
       const left = place === option ? 'and is left out' : `and \`${option}\` is left out`
       assert.deepEqual(
         findings.map((finding) => `${finding.code} ${finding.message}`),
-        [`T1014 ${named}: \`${place}\` is neither a name nor a definition, ${left}.`],
+        [`F1014 ${named}: \`${place}\` is neither a name nor a definition, ${left}.`],
         said,
       )
       assert.equal(stored(description), undefined, said)
@@ -327,7 +327,7 @@ test('[13-7] an option that is stored as a name or as a list of names, handed wh
   const by = described(table('one', { columns: { a: text(), b: Reflect.apply(text, undefined, [{ by: 5 }]) } }))
   assert.deepEqual(
     by.findings.map((finding) => finding.code),
-    ['T1014'],
+    ['F1014'],
   )
   assert.match(by.findings[0].message, /^one: .*`by` names no work\.$/)
   assert.deepEqual(checkDescription(by.description), [])
@@ -337,7 +337,7 @@ test('[13-7] an option that is stored as a name or as a list of names, handed wh
   assert.deepEqual(checkDescription(verify.description), [])
 })
 
-test('[13-7] a write that a word of ours made and that was then made to hold itself is T1014 on its definition, in `set` of a change and in the starter data, and the definition beside it is described as ever', () => {
+test('[13-7] a write that a word of ours made and that was then made to hold itself is F1014 on its definition, in `set` of a change and in the starter data, and the definition beside it is described as ever', () => {
   const shop = { value: project('shop', {}) }
   const knotted = (): object => {
     const write = notes.add({ a: 'x' })
@@ -357,7 +357,7 @@ test('[13-7] a write that a word of ours made and that was then made to hold its
   })
   assert.deepEqual(
     inSet.findings.map((finding) => finding.code),
-    ['T1014'],
+    ['F1014'],
   )
   assert.match(inSet.findings[0].message, /^c: it could not be described: \S/)
   assert.deepEqual(inSet.description.functions, { beside: stands })
@@ -368,7 +368,7 @@ test('[13-7] a write that a word of ours made and that was then made to hold its
   })
   assert.deepEqual(
     inSeed.findings.map((finding) => finding.code),
-    ['T1014'],
+    ['F1014'],
   )
   assert.match(inSeed.findings[0].message, /^seed: it could not be described: \S/)
   assert.equal('seed' in inSeed.description, false)
@@ -407,7 +407,7 @@ test('[13-7] a write that a word of ours made and that was then made to hold its
       failed[name]++
       assert.deepEqual(
         findings.map((finding) => `${finding.code} ${finding.message}`),
-        [`T1014 ${name}: it could not be described: the reading failed`],
+        [`F1014 ${name}: it could not be described: the reading failed`],
         said,
       )
       assert.deepEqual([Object.keys(description.functions), 'seed' in description], [['beside'], false], said)
@@ -415,7 +415,7 @@ test('[13-7] a write that a word of ours made and that was then made to hold its
   assert.ok(failed.c >= 3 && failed.seed >= 3, `the reading failed at ${failed.c} and ${failed.seed} places`)
 })
 
-test('[12-1] a reference counts for the depth of a value as a number does: 200 deep is taken and 201 refused, and a value word that is handed a value too deep fails with T0027 in every case', () => {
+test('[12-1] a reference counts for the depth of a value as a number does: 200 deep is taken and 201 refused, and a value word that is handed a value too deep fails with F0027 in every case', () => {
   for (const [what, end] of [
     ['a number', () => 5],
     ['a reference', () => input('x')],
@@ -426,25 +426,25 @@ test('[12-1] a reference counts for the depth of a value as a number does: 200 d
     assert.doesNotThrow(() => notes.add({ a: 'x', j: Object(inRecords(end(), 200)) }), what)
     assert.doesNotThrow(() => notes.add({ a: 'x', j: Object(inLists(end(), 200)) }), what)
     assert.doesNotThrow(() => notes.where({ j: Object(inLists(end(), 200)) }), what)
-    // Inside 201 it is refused: by a value word with T0027, wherever the reference stands among its values,
-    // and by a word that stores it with T1014.
-    assert.throws(() => concat(Object(inLists(end(), 201))), { code: 'T0027' }, what)
-    assert.throws(() => concat(Object(inRecords(end(), 201))), { code: 'T0027' }, what)
-    assert.throws(() => concat('a', input('more'), Object(inLists(end(), 201))), { code: 'T0027' }, what)
-    assert.throws(() => concat(Object(inLists(end(), 201)), input('more')), { code: 'T0027' }, what)
-    assert.throws(() => notes.add({ a: 'x', j: Object(inRecords(end(), 201)) }), { code: 'T1014' }, what)
-    assert.throws(() => notes.add({ a: 'x', j: Object(inLists(end(), 201)) }), { code: 'T1014' }, what)
-    assert.throws(() => notes.where({ j: Object(inLists(end(), 201)) }), { code: 'T1014' }, what)
+    // Inside 201 it is refused: by a value word with F0027, wherever the reference stands among its values,
+    // and by a word that stores it with F1014.
+    assert.throws(() => concat(Object(inLists(end(), 201))), { code: 'F0027' }, what)
+    assert.throws(() => concat(Object(inRecords(end(), 201))), { code: 'F0027' }, what)
+    assert.throws(() => concat('a', input('more'), Object(inLists(end(), 201))), { code: 'F0027' }, what)
+    assert.throws(() => concat(Object(inLists(end(), 201)), input('more')), { code: 'F0027' }, what)
+    assert.throws(() => notes.add({ a: 'x', j: Object(inRecords(end(), 201)) }), { code: 'F1014' }, what)
+    assert.throws(() => notes.add({ a: 'x', j: Object(inLists(end(), 201)) }), { code: 'F1014' }, what)
+    assert.throws(() => notes.where({ j: Object(inLists(end(), 201)) }), { code: 'F1014' }, what)
   }
   // A reference that stands first does not hide a value beside it that stands in too many places.
   let wide: unknown[] = [1]
   for (let level = 0; level < 40; level++) wide = [wide, wide]
-  assert.throws(() => concat(input('more'), Object(wide)), { code: 'T0027' })
+  assert.throws(() => concat(input('more'), Object(wide)), { code: 'F0027' })
   // What a word of ours made is taken as it is: a record of a word that holds a value 200 deep is a value like a
   // number where it stands in another value.
   const made200 = concat(input('x'), Object(inLists(5, 200)))
   assert.doesNotThrow(() => notes.add({ a: 'x', j: Object(inLists(made200, 200)) }))
-  assert.throws(() => notes.add({ a: 'x', j: Object(inLists(made200, 201)) }), { code: 'T1014' })
+  assert.throws(() => notes.add({ a: 'x', j: Object(inLists(made200, 201)) }), { code: 'F1014' })
   // An option of a definition, with the reference at its end.
   const withOptions = (deep: unknown) => described(made(model, 'one', { ...modelNeeds, options: { deep } }))
   assert.deepEqual(withOptions(inLists(5, 200)).findings, [])
@@ -485,7 +485,7 @@ test('[13-7] checkDescription takes a description that is nested 1,000 deep and 
   }
 })
 
-test('[11-4] toJsonSchema handed what is no type fails with T1014, and chunks says of options that are no record that they are none', () => {
+test('[11-4] toJsonSchema handed what is no type fails with F1014, and chunks says of options that are no record that they are none', () => {
   for (const [what, type] of [
     ['a number', 5],
     ['a record of no kind', { kind: 'zzz' }],
@@ -493,10 +493,10 @@ test('[11-4] toJsonSchema handed what is no type fails with T1014, and chunks sa
     ['a list of what is no type', { kind: 'list', of: { kind: 'zzz' } }],
     ['a record with a field that is no type', { kind: 'object', shape: { a: { kind: 'zzz' } } }],
   ] as const)
-    assert.throws(() => Reflect.apply(toJsonSchema, undefined, [type]), { code: 'T1014' }, what)
+    assert.throws(() => Reflect.apply(toJsonSchema, undefined, [type]), { code: 'F1014' }, what)
   assert.deepEqual(checkValue(json(), 5), [])
   assert.throws(() => Reflect.apply(chunks, undefined, ['A text.', 5]), {
-    code: 'T0002',
+    code: 'F0002',
     message: 'chunks: its options are no record.',
     fields: { options: 'type' },
   })
@@ -622,14 +622,14 @@ test('[13-7] a name that a definition wrote reads and writes a record of ours as
   }
 })
 
-test('[13-7] a list handed to describe that holds what is no definition in a place is T1014 on the project, by the place, and the rest is described', () => {
+test('[13-7] a list handed to describe that holds what is no definition in a place is F1014 on the project, by the place, and the rest is described', () => {
   const shop = { value: project('shop', {}) }
   const list: unknown[] = [shop, null, beside, undefined, 5, 'text']
   const { description, findings } = describe({ definitions: Object(list) })
   assert.deepEqual(
     findings.map((finding) => `${finding.code} ${finding.message}`),
     [2, 4, 5, 6].map(
-      (place) => `T1014 shop: place ${place} of the list that was handed to describe holds no definition.`,
+      (place) => `F1014 shop: place ${place} of the list that was handed to describe holds no definition.`,
     ),
   )
   assert.deepEqual(Object.keys(description.functions), ['beside'])
@@ -639,7 +639,7 @@ test('[13-7] a list handed to describe that holds what is no definition in a pla
   const alone = describe({ definitions: Object([null, beside]) })
   assert.deepEqual(
     alone.findings.map((finding) => `${finding.code} ${finding.message}`),
-    ['T1012 A project has no `project`.', 'T1014 Place 1 of the list that was handed to describe holds no definition.'],
+    ['F1012 A project has no `project`.', 'F1014 Place 1 of the list that was handed to describe holds no definition.'],
   )
   assert.deepEqual(Object.keys(alone.description.functions), ['beside'])
 })

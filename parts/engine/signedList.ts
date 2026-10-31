@@ -1,15 +1,15 @@
 import { existsSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { GuardedFetch } from '../connect/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { signedBy } from './signedBy.ts'
 
 /** The kinds of signed list whose newest `made` an install keeps in `seen.json`. */
 export type Seen = 'releases' | 'known' | 'trust'
 
 /** An update or a list that is refused: nothing changes. */
-export const refusedUpdate = (words: string): TentError =>
-  new TentError('T0026', words, {
+export const refusedUpdate = (words: string): ForjrError =>
+  new ForjrError('F0026', words, {
     fix: 'Where releases are served from a copy, see that the copy is whole; else wait for the next release and try again.',
   })
 
@@ -45,7 +45,7 @@ async function fetchedBytes(
 
 /**
  * Takes where releases are served, the path of a signed list under it, the keys it may be signed with, and the
- * fetch. Fetches the list and its signatures. Answers the list and its bytes. Throws T0026 for a list that no key
+ * fetch. Fetches the list and its signatures. Answers the list and its bytes. Throws F0026 for a list that no key
  * signed, that is not of its format, or whose `made` is older than the one of its kind this install last took,
  * which is named in `seen`; and what the fetch threw where it could not be fetched.
  */

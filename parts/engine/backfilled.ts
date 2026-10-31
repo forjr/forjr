@@ -1,5 +1,5 @@
 import type { Db } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { FileName, TableStep } from '../data/index.ts'
 import { applySteps, findMisfits, pagePlan, walkAt, walkedOn } from '../data/index.ts'
 import { underWay } from './context.ts'
@@ -48,7 +48,7 @@ async function walkFile(
   inside: <Answer>(work: () => Answer) => Answer = (work) => work(),
 ): Promise<void> {
   const arrow = arrows.get(o.description)?.get(name)
-  if (!arrow) throw new TentError('T0011', `The bundle holds no code for the \`run\` of the backfill ${name}.`)
+  if (!arrow) throw new ForjrError('F0011', `The bundle holds no code for the \`run\` of the backfill ${name}.`)
   const table = String(record.table)
   const page = typeof record.page === 'number' ? record.page : Math.max(1, storedLimit(o.description, 'workPage'))
   for (;;) {
@@ -108,7 +108,7 @@ export async function walkTenant(
 /**
  * Takes what the engine holds of an app at the switch to the version that runs now, and the steps of its table
  * change that make a column required which a backfill fills. Runs the backfills, and then takes those steps in
- * one write, held against the rows as they stand after the backfills. Throws T2001 where a row does not fit: the
+ * one write, held against the rows as they stand after the backfills. Throws F2001 where a row does not fit: the
  * column stays optional in the data, and the version's own types still refuse a write that leaves it out.
  */
 export async function backfilled(o: Opened, later: TableStep[]): Promise<void> {
@@ -117,8 +117,8 @@ export async function backfilled(o: Opened, later: TableStep[]): Promise<void> {
   const misfits = findMisfits(o.store, later)
   if (misfits.length) {
     const [first] = misfits
-    throw new TentError(
-      'T2001',
+    throw new ForjrError(
+      'F2001',
       `${first.rows} ${first.rows === 1 ? 'row' : 'rows'} of \`${first.table}\` hold nothing in \`${first.column}\` after the backfill that fills it ran.`,
       { fix: 'Mend the backfill so that it fills every row, and switch to its version again.' },
     )

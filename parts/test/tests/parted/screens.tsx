@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { screen, number, role, text, Link } from 'tentjs/ui'
+import { screen, number, role, text, Link } from 'forjr/ui'
 import { Loud } from './loud'
 import { Notes, Who } from './parts'
 

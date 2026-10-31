@@ -14,7 +14,7 @@ tags: list(text(), { min: 1 })
 
 ## Errors
 
-`code.T0002`: a value of an input that does not fit it.
+`code.F0002`: a value of an input that does not fit it.
 
 ## See also
 

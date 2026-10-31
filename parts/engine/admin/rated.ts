@@ -8,7 +8,7 @@ const system = { kind: 'system' } as const
 const newest = 500
 
 /**
- * `tent test --ai --from-runs`: the kept runs of an agent that people rated, each with what it was asked, what
+ * `forjr test --ai --from-runs`: the kept runs of an agent that people rated, each with what it was asked, what
  * it answered and its lowest rating, the lowest first; with `below`, only those rated below it. A run that nobody
  * rated is no case: a person's rating is what makes a run worth keeping as one.
  */

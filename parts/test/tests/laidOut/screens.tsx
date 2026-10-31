@@ -1,4 +1,4 @@
-import { component, Link, screen } from 'tentjs/ui'
+import { component, Link, screen } from 'forjr/ui'
 
 export const Frame = component('Frame', {
   view: ({ children }) => (

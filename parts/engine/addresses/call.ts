@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Address } from '../door/address.ts'
 import { called } from '../door/call.ts'
 import { drawnFor } from '../door/drawnFor.ts'
@@ -16,7 +16,7 @@ import { errorAnswer, okAnswer } from '../wire.ts'
 import { nameAfter } from '../web/decoded.ts'
 import { isWritten } from '../../core/internal.ts'
 
-const prefix = '/_t/call/'
+const prefix = '/_f/call/'
 
 // The fields that the body of a call may hold.
 const fields = ['input', 'version', 'as']
@@ -25,11 +25,11 @@ const fields = ['input', 'version', 'as']
 async function readCall(request: Request, callSize: number): Promise<Record<string, unknown>> {
   const body = readJson(await bodyOf(request, callSize))
   if (!isWritten(body))
-    throw new TentError('T0002', 'The body of a call is one record: { "input": { ... } }.', { fields: { '': 'type' } })
+    throw new ForjrError('F0002', 'The body of a call is one record: { "input": { ... } }.', { fields: { '': 'type' } })
   const unknown = Object.keys(body).filter((name) => !fields.includes(name))
   if (unknown.length)
-    throw new TentError(
-      'T0002',
+    throw new ForjrError(
+      'F0002',
       `The body of a call holds \`${unknown[0].slice(0, 40)}\`, which is none of its fields.`,
       {
         fields: Object.fromEntries(unknown.map((name) => [name, 'unknown'])),
@@ -40,7 +40,7 @@ async function readCall(request: Request, callSize: number): Promise<Record<stri
 }
 
 /**
- * `POST /_t/call/<name>`: a call from a page or from a program. A call is a `POST` whose body is JSON, stated as
+ * `POST /_f/call/<name>`: a call from a page or from a program. A call is a `POST` whose body is JSON, stated as
  * `Content-Type: application/json`: any other method or type is no call. It passes all ten steps of the door.
  */
 export const address: Address = {
@@ -76,7 +76,7 @@ export const address: Address = {
     // that carries no `Origin` of the app, which a page always sends with a `POST`.
     const origin = request.headers.get('origin')
     const program = caller.kind === 'key' || origin === null || !sameOrigin(origin, about.origin)
-    const agreed = request.headers.get('tent-agreed') ?? undefined
+    const agreed = request.headers.get('forjr-agreed') ?? undefined
     const asks = program && !asksNobody(app, caller) ? { asks: agreed === undefined ? {} : { agreed } } : {}
     try {
       const callId = callIdOf(request.headers.get('idempotency-key'))

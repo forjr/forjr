@@ -14,7 +14,7 @@ The largest value, in its kind. Handed a reference it answers its record.
 
 ## Errors
 
-`code.T0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
+`code.F0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
 
 ## See also
 

@@ -1,4 +1,4 @@
-import { input, query, table, text } from 'tentjs'
+import { input, query, table, text } from 'forjr'
 
 export const products = table('products', {
   columns: { slug: text(), name: text(), summary: text() },

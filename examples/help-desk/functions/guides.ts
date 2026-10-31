@@ -14,7 +14,7 @@ import {
   role,
   text,
   vector,
-} from 'tentjs'
+} from 'forjr'
 import { embedder } from '../models/models'
 import { guideChunks, guides } from '../tables/guides'
 

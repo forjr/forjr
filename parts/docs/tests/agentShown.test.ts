@@ -28,11 +28,11 @@ test('[03-5] the page of useAgent names the type it answers, and gives each memb
   assert.match(returns, /`\{ step, tool, input, asks, agreed\? \}`/)
 })
 
-test('[03-5] the page of T7103 tells a message to a conversation that a run works or waits on, and the way: wait for its end or its ask, or hold the message', () => {
-  const page = findPage('code.T7103')
-  assert.ok(page, 'the page code.T7103 is there')
-  assert.match(sectionOf('code.T7103', 'Details'), /conversation[^.]*(?:works|working)[^.]*wait/)
-  const fix = sectionOf('code.T7103', 'The fix')
+test('[03-5] the page of F7103 tells a message to a conversation that a run works or waits on, and the way: wait for its end or its ask, or hold the message', () => {
+  const page = findPage('code.F7103')
+  assert.ok(page, 'the page code.F7103 is there')
+  assert.match(sectionOf('code.F7103', 'Details'), /conversation[^.]*(?:works|working)[^.]*wait/)
+  const fix = sectionOf('code.F7103', 'The fix')
   assert.match(fix, /ask/)
   assert.match(fix, /holds? the message/)
 })

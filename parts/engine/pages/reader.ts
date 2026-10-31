@@ -15,12 +15,12 @@ type Kind = 'own' | 'reads' | 'writes'
  */
 export function pageKind(o: Opened, request: Request): { kind: Kind; name?: string } | undefined {
   const { pathname } = new URL(request.url)
-  if (request.method === 'GET' && pathname.startsWith('/_t/b/')) return { kind: 'own' }
+  if (request.method === 'GET' && pathname.startsWith('/_f/b/')) return { kind: 'own' }
   // A file and a picture are answered by the reader, with the bytes it holds or fetches.
-  if (request.method === 'GET' && (pathname.startsWith('/_t/files/') || pathname.startsWith('/_t/img/')))
+  if (request.method === 'GET' && (pathname.startsWith('/_f/files/') || pathname.startsWith('/_f/img/')))
     return { kind: 'reads' }
-  if (request.method === 'POST' && pathname.startsWith('/_t/read/')) {
-    let name = pathname.slice('/_t/read/'.length)
+  if (request.method === 'POST' && pathname.startsWith('/_f/read/')) {
+    let name = pathname.slice('/_f/read/'.length)
     try {
       name = decodeURIComponent(name)
     } catch {
@@ -28,7 +28,7 @@ export function pageKind(o: Opened, request: Request): { kind: Kind; name?: stri
     }
     return { kind: readerCarries(o, name) ? 'reads' : 'writes', name }
   }
-  const ours = pathname.startsWith('/_t/') || pathname === '/_t' || pathname.startsWith('/api/')
+  const ours = pathname.startsWith('/_f/') || pathname === '/_f' || pathname.startsWith('/api/')
   if (request.method !== 'GET' || ours || !Object.keys(o.description.screens).length) return undefined
   const found = screenAt(o.description, pathname)
   const data = found ? o.description.screens[found.name].data : undefined

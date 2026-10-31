@@ -1,7 +1,7 @@
 import { mkdirSync, mkdtempSync, rmSync, writeFileSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { App, Browsed, BrowserEngine } from '../engine/index.ts'
 import { kept } from './evidence.ts'
 import { preloadText } from './preload.ts'
@@ -50,8 +50,8 @@ export interface Handed {
  * A page of a real browser on the test app. Each step finds what it names by what the description and the reader
  * know of it, and answers once what it set off has landed, by the record that the page keeps: every call it made
  * answered, every live watch holding the answer that holds the write, its moves drawn, and the page alive. A name
- * that finds nothing is T0001 and one that finds two is T0002, naming what the screen holds; a step that does not
- * land within `limits.testStep` is T0008, naming what it waited for.
+ * that finds nothing is F0001 and one that finds two is F0002, naming what the screen holds; a step that does not
+ * land within `limits.testStep` is F0008, naming what it waited for.
  */
 export interface Page {
   /** The field that a form sends under that name, or that a reader names so. */
@@ -84,10 +84,10 @@ export interface Page {
 /** What the part alone reads of a page of a test: the engine that draws it, and the end of its browser. */
 const inner = new WeakMap<Page, { engine: BrowserEngine; close(): Promise<void> }>()
 
-/** Answers what the part holds of a page of a test. Throws T0013 for a page that it did not open. */
+/** Answers what the part holds of a page of a test. Throws F0013 for a page that it did not open. */
 function innerOf(page: Page): { engine: BrowserEngine; close(): Promise<void> } {
   const held = inner.get(page)
-  if (!held) throw new TentError('T0013', 'This page was not opened by `app.open`.')
+  if (!held) throw new ForjrError('F0013', 'This page was not opened by `app.open`.')
   return held
 }
 
@@ -107,7 +107,7 @@ export interface Made {
 }
 
 // The record that the test laid into the page, through which the page code gives what a test reads.
-const hook = "globalThis[Symbol.for('tent.test')]"
+const hook = "globalThis[Symbol.for('forjr.test')]"
 
 /** A finding, as the page is told it. */
 interface Asked {
@@ -160,7 +160,7 @@ export function pageOf(made: Made): {
 
   /**
    * Answers once what the page set off has landed, and the newest write of the app reached its watches: a write
-   * that a step of the page made, and one that reached it from elsewhere. Throws T0008 after `step` milliseconds,
+   * that a step of the page made, and one that reached it from elsewhere. Throws F0008 after `step` milliseconds,
    * naming what the page still waited for.
    */
   async function landed(): Promise<void> {
@@ -178,8 +178,8 @@ export function pageOf(made: Made): {
       if (told === 'late') {
         const waited = await briefly(asked(`waiting(${write})`))
         const what = Array.isArray(waited) && waited.length ? waited.map(String).join('; ') : 'the page coming alive'
-        throw new TentError(
-          'T0008',
+        throw new ForjrError(
+          'F0008',
           `A step of the page did not land within ${made.step / 1000} seconds: it still waited for ${what}.`,
           {
             fix: 'Look at what the step set off: a call that is not answered, a watch that holds no answer. `limits.testStep` bounds a step.',
@@ -201,20 +201,20 @@ export function pageOf(made: Made): {
   /** What the page answered a finding: the thing, or the failure that names what the screen holds. */
   async function foundIn(what: Asked, told: unknown): Promise<Found> {
     if (told === null)
-      throw new TentError('T0001', `The page shows no screen of the app, so no ${lookedFor(what)} is on it.`)
+      throw new ForjrError('F0001', `The page shows no screen of the app, so no ${lookedFor(what)} is on it.`)
     const answer: Record<string, unknown> = Object(told)
     if (typeof answer.missed !== 'string') return foundOf(answer.found)
     const path = String(await browsed.evaluate('Promise.resolve(location.pathname)').catch(() => '?'))
     if (answer.missed === 'none')
-      throw new TentError(
-        'T0001',
+      throw new ForjrError(
+        'F0001',
         `No ${lookedFor(what)} is on the screen ${path}. It holds ${String(answer.holds)}.`,
         {
           fix: 'Name a thing by what the screen calls it: a field by its name, a press by its words, an element by its `id`.',
         },
       )
-    throw new TentError(
-      'T0002',
+    throw new ForjrError(
+      'F0002',
       `The ${lookedFor(what)} fits ${String(answer.count)} things on the screen ${path}, two or more where a step finds one. It holds ${String(answer.holds)}.`,
       { fix: 'Give one of them other words, a `label` or an `id`, so that a name finds one thing.' },
     )
@@ -231,7 +231,7 @@ export function pageOf(made: Made): {
     const point: Record<string, unknown> = Object(told)
     if (typeof point.x === 'number' && typeof point.y === 'number') return { x: point.x, y: point.y }
     await foundIn(what, told)
-    throw new TentError('T0001', `The ${lookedFor(what)} cannot be pressed.`)
+    throw new ForjrError('F0001', `The ${lookedFor(what)} cannot be pressed.`)
   }
 
   const steps = {
@@ -258,7 +258,7 @@ export function pageOf(made: Made): {
       const told = await asked(`pick(${JSON.stringify(what)}, ${JSON.stringify(choice)})`)
       const refused: unknown = Reflect.get(Object(told), 'refused')
       if (typeof refused === 'string')
-        throw new TentError('T0002', `The ${lookedFor(what)} has no choice ${JSON.stringify(choice)}: ${refused}.`)
+        throw new ForjrError('F0002', `The ${lookedFor(what)} has no choice ${JSON.stringify(choice)}: ${refused}.`)
       if (told !== true) await browsed.click(await pointOf(what, told))
       await landed()
     },
@@ -266,7 +266,7 @@ export function pageOf(made: Made): {
       const what: Asked = { kind: 'field', name: field }
       await landed()
       await foundIn(what, await asked(`find(${JSON.stringify(what)})`))
-      const folder = mkdtempSync(join(tmpdir(), 'tent-upload-'))
+      const folder = mkdtempSync(join(tmpdir(), 'forjr-upload-'))
       try {
         // Each file lies in a folder of its own, so that two files of one name can be handed together.
         const paths = (Array.isArray(files) ? files : [files]).map((file, n) => {
@@ -304,7 +304,7 @@ export function pageOf(made: Made): {
             asks: run.steps.filter((step) => step.state === 'waiting').map((step) => step.name),
           }
         if (performance.now() > until)
-          throw new TentError('T0008', `The turn did not end within ${made.step / 1000} seconds.`, {
+          throw new ForjrError('F0008', `The turn did not end within ${made.step / 1000} seconds.`, {
             fix: 'Look at what the agent was asked: a model that never answers, a tool that waits.',
           })
         await moment()
@@ -356,7 +356,7 @@ export function pageOf(made: Made): {
     await landed()
     const script = `(${String(formSent)})(${JSON.stringify(call)}, ${JSON.stringify(values)})`
     if ((await browsed.evaluate(`Promise.resolve(${script})`)) !== true)
-      throw new TentError('T0001', `No form of the page calls ${call}.`)
+      throw new ForjrError('F0001', `No form of the page calls ${call}.`)
     await landed()
   })
   /** Moves the time of the page with the clock of the app: of the document it shows, and of every one it loads next. */
@@ -377,7 +377,7 @@ export function pageOf(made: Made): {
  */
 function formSent(call: string, values: Record<string, string>): boolean {
   const form = [...document.querySelectorAll('form')].find((one) =>
-    (one.getAttribute('action') ?? '').endsWith(`/_t/form/${encodeURIComponent(call)}`),
+    (one.getAttribute('action') ?? '').endsWith(`/_f/form/${encodeURIComponent(call)}`),
   )
   if (!form) return false
   for (const [name, value] of Object.entries(values)) {
@@ -399,11 +399,11 @@ const sends = new WeakMap<Page, (call: string, values: Record<string, string>) =
 
 /**
  * Takes a page of a test, what one of its forms calls, and the value of each field by its name. Fills the form and
- * sends it, as a person does, and answers once what it set off has landed. Throws T0001 where no form calls that.
+ * sends it, as a person does, and answers once what it set off has landed. Throws F0001 where no form calls that.
  */
 export function sendForm(page: Page, call: string, values: Record<string, string>): Promise<void> {
   const send = sends.get(page)
-  if (!send) throw new TentError('T0013', 'This page was not opened by `app.open`.')
+  if (!send) throw new ForjrError('F0013', 'This page was not opened by `app.open`.')
   return send(call, values)
 }
 

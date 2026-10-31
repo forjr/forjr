@@ -1,5 +1,5 @@
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { isStored } from '../core/internal.ts'
 import { answerOf, saysJson } from './answered.ts'
 import type { ConnectEnv } from './env.ts'
@@ -77,9 +77,9 @@ async function failedBody(answer: Response, most: number): Promise<unknown> {
   return text
 }
 
-/** T7115: the service answered with a failure, did not answer, or passed its time or its size. */
-const serviceFailed = (name: string, words: string, service: { status?: number; body?: unknown }): TentError =>
-  new TentError('T7115', `The service call ${name} failed: ${words}`, {
+/** F7115: the service answered with a failure, did not answer, or passed its time or its size. */
+const serviceFailed = (name: string, words: string, service: { status?: number; body?: unknown }): ForjrError =>
+  new ForjrError('F7115', `The service call ${name} failed: ${words}`, {
     fix: 'Read `error.service` for what the service answered, and fail with your own `fail` where a status is yours to tell.',
     service,
   })
@@ -104,7 +104,7 @@ const requestFor = (planned: Planned, signal: AbortSignal): Request =>
  * of the builder's own where the service names one, and is sent through the guarded fetch with the time and the
  * size of its service. A try that got no answer, or one of the statuses that are tried again, is tried again where
  * that is safe, after the pause the service asks for or the waits of its own. Writes one row of the log, and
- * answers what the answer reads as. Throws T7115, T0009 for a signer that fails, and what the guarded fetch refuses.
+ * answers what the answer reads as. Throws F7115, F0009 for a signer that fails, and what the guarded fetch refuses.
  */
 export async function tried(env: ConnectEnv, c: Trying): Promise<unknown> {
   const { stored, call, planned, signal } = c
@@ -143,7 +143,7 @@ export async function tried(env: ConnectEnv, c: Trying): Promise<unknown> {
         }
       } catch (error) {
         if (signal.aborted) throw signal.reason ?? error
-        if (error instanceof TentError && error.code !== 'T0023') throw error
+        if (error instanceof ForjrError && error.code !== 'F0023') throw error
         // An answer that is cut while it is read passed its size or its time: it is no answer to try again.
         if (answer && answer.status < 400)
           throw serviceFailed(c.name, String(Reflect.get(Object(error), 'message')), { status: answer.status })
@@ -172,7 +172,7 @@ export async function tried(env: ConnectEnv, c: Trying): Promise<unknown> {
       }
       if (!tryAgain || !safe || n >= tries.max) {
         if (answer) return await failed(`it answered ${answer.status}.`)
-        return await failed(failure instanceof TentError ? failure.message : 'no answer came.')
+        return await failed(failure instanceof ForjrError ? failure.message : 'no answer came.')
       }
       // A pause longer than the service may ask for ends the call at once.
       if (asked !== undefined && asked > tries.wait) return await failed(`it asked for a pause of ${asked} ms.`)
@@ -180,7 +180,7 @@ export async function tried(env: ConnectEnv, c: Trying): Promise<unknown> {
       await waited(env, asked ?? tries.first * 4 ** (n - 1), signal)
     }
   } catch (error) {
-    if (error instanceof TentError && error.code === 'T0023')
+    if (error instanceof ForjrError && error.code === 'F0023')
       throw serviceFailed(c.name, error.message, status === undefined ? {} : { status })
     throw error
   } finally {

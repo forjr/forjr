@@ -1,4 +1,4 @@
-import { component } from 'tentjs/ui'
+import { component } from 'forjr/ui'
 
 export const Button = component('Button', {
   view: ({ children }) => (

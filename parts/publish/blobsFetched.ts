@@ -13,7 +13,7 @@ export async function blobsFetched(o: Reaching, wanted: string[]): Promise<Map<s
   const got = new Map<string, Uint8Array>()
   for (let left = [...new Set(wanted)]; left.length; ) {
     const share = left.slice(0, idsAtOnce)
-    const bytes = await asked(o, '/_t/sync/blobs', { want: share })
+    const bytes = await asked(o, '/_f/sync/blobs', { want: share })
     const found = (bytes instanceof Uint8Array ? blobsOf(bytes) : []).filter(([print]) => share.includes(print))
     if (!found.length) break
     for (const [print, one] of found) got.set(print, one)

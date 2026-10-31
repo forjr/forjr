@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { model, number, TentError, text } from '../../core/index.ts'
+import { model, number, ForjrError, text } from '../../core/index.ts'
 import { ProviderFailure } from '../../core/internal.ts'
 import type { FailureKind } from '../../core/internal.ts'
 import type { Provider } from '../index.ts'
@@ -79,9 +79,9 @@ test('[26-1] a second provider: a call goes to the next model when the provider 
 
 test('[26-1] it never does when the request was not accepted, the model refused, the answer was cut off or did not fit, or a limit of ours was reached', async () => {
   for (const [kind, code] of [
-    ['notAccepted', 'T7110'],
-    ['refused', 'T7106'],
-    ['cutOff', 'T7107'],
+    ['notAccepted', 'F7110'],
+    ['refused', 'F7106'],
+    ['cutOff', 'F7107'],
   ] as const) {
     const second = told(['text:never'])
     const layer = threeModels(told([kind]), second, told(['text:never']))
@@ -91,15 +91,15 @@ test('[26-1] it never does when the request was not accepted, the model refused,
   const shape = { score: number() }
   const second = told(['value'])
   const layer = threeModels(told(['wrong']), second, told(['value']))
-  assert.equal(await codeOf(layer.call('writer', 'fill', [shape, 'Score it.'])), 'T7108')
+  assert.equal(await codeOf(layer.call('writer', 'fill', [shape, 'Score it.'])), 'F7108')
   assert.equal(second.asked, 0)
   const limited = told(['text:never'])
   const held = threeModels(told(['text:never']), limited, told(['text:never']), {
     allow: () => {
-      throw new TentError('T7102', 'A limit was reached.')
+      throw new ForjrError('F7102', 'A limit was reached.')
     },
   })
-  assert.equal(await codeOf(held.call('writer', 'reply', ['Hi.'])), 'T7102')
+  assert.equal(await codeOf(held.call('writer', 'reply', ['Hi.'])), 'F7102')
   assert.equal(limited.asked, 0)
 })
 
@@ -112,7 +112,7 @@ test('[26-1] it never does when part of the answer was already given, nor for em
   assert.equal(second.asked, 0)
   const vectors = told(['text:never'])
   const embedding = threeModels(told(['text:never']), vectors, told(['text:never']))
-  assert.equal(await codeOf(embedding.call('writer', 'embed', ['a text'])), 'T7104')
+  assert.equal(await codeOf(embedding.call('writer', 'embed', ['a text'])), 'F7104')
   assert.equal(vectors.asked, 0)
 })
 
@@ -120,7 +120,7 @@ test("[26-1] the fall-back's own fall-back is not followed, and when all fail th
   const third = told(['text:from the third'])
   const layer = threeModels(told(['unreachable']), told(['slow']), third)
   const failed = await Promise.resolve(layer.call('writer', 'reply', ['Hi.'])).catch((error: unknown) => error)
-  assert.equal(Reflect.get(Object(failed), 'code'), 'T7104')
+  assert.equal(Reflect.get(Object(failed), 'code'), 'F7104')
   assert.match(String(Reflect.get(Object(failed), 'message')), /writer: unreachable.*backup: slow/)
   assert.equal(third.asked, 0)
 })

@@ -1,4 +1,4 @@
-import { action, anyone, json, post, secret, service, text } from 'tentjs'
+import { action, anyone, json, post, secret, service, text } from 'forjr'
 
 // The ledger of the tests, at the stand-in server that a test starts: its address is written in by the test.
 export const ledger = service('ledger', {

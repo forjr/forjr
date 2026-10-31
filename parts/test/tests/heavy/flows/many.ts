@@ -1,4 +1,4 @@
-import { change, flow, list, number, object, table, text } from 'tentjs'
+import { change, flow, list, number, object, table, text } from 'forjr'
 import { BroadcastChannel } from 'node:worker_threads'
 
 /**
@@ -7,7 +7,7 @@ import { BroadcastChannel } from 'node:worker_threads'
  * long the work takes, and whether it fails.
  */
 function told(n: number, at: 'begin' | 'end'): Promise<{ ms: number; fails: boolean }> {
-  const channel = new BroadcastChannel('tentjs.test.many')
+  const channel = new BroadcastChannel('forjr.test.many')
   // Work that nobody answers any more, of an app that was closed, holds the program up no longer.
   channel.unref()
   const id = `${n} ${at} ${Math.random()}`

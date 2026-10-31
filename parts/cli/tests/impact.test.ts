@@ -16,7 +16,7 @@ const finding: Type = object({
   callers: number({ optional: true }),
 })
 
-// What `tent impact` prints with `--json`, as its value: the form of the impact as JSON.
+// What `forjr impact` prints with `--json`, as its value: the form of the impact as JSON.
 const shape: Type = object({
   against: text(),
   rights: list(finding),
@@ -29,7 +29,7 @@ const shape: Type = object({
   out: list(finding),
 })
 
-test('[44-2] tent test writes what each test touched into .tent/tests.json, and tent impact names the changes against a point with their tests, as text and with --json alike', async (t) => {
+test('[44-2] forjr test writes what each test touched into .forjr/tests.json, and forjr impact names the changes against a point with their tests, as text and with --json alike', async (t) => {
   const project = copied(t, 'impact')
   const temp = join(project, '..', 'temp')
   mkdirSync(temp)
@@ -46,7 +46,7 @@ test('[44-2] tent test writes what each test touched into .tent/tests.json, and 
   const tested = typedApart(project, 'test', '--json')
   assert.equal(tested.ended, 0, tested.printed)
   const record: { tests: Record<string, Record<string, { touched: { functions?: string[] } }[]>> } = JSON.parse(
-    readFileSync(join(project, '.tent', 'tests.json'), 'utf8'),
+    readFileSync(join(project, '.forjr', 'tests.json'), 'utf8'),
   )
   const touched: Record<string, string[]> = Object.fromEntries(
     Object.entries(record.tests['tests/orders.test.ts'] ?? {}).map(([name, runs]) => [
@@ -81,7 +81,7 @@ test('[44-2] tent test writes what each test touched into .tent/tests.json, and 
       one.change,
       one.file,
     ]),
-    [['markPaid', 'change', 'now callable by anyone', 'functions/orders.ts']],
+    [['markPaid', 'change', 'now callable by anyone (why: a test widens it)', 'functions/orders.ts']],
   )
   assert.deepEqual(value.tests, [{ name: 'markPaid', tests: Object.keys(touched).sort() }])
   assert.deepEqual(value.untested, [])
@@ -90,9 +90,12 @@ test('[44-2] tent test writes what each test touched into .tent/tests.json, and 
   const printed = (await typed(project, 'impact', 'first')).printed.split('\n')
   assert.equal(printed[0], 'Impact against first')
   assert.ok(printed.includes('Wider rights'))
-  assert.ok(printed.includes('  markPaid (change, now callable by anyone)  functions/orders.ts'), printed.join('\n'))
+  assert.ok(
+    printed.includes('  markPaid (change, now callable by anyone (why: a test widens it))  functions/orders.ts'),
+    printed.join('\n'),
+  )
   assert.ok(printed.includes('Tests'))
-  // A point that is none is T9107.
+  // A point that is none is F9107.
   const missing = await typed(project, 'impact', 'nothere', '--json')
-  assert.deepEqual([missing.ended, missing.answer.findings?.[0].code], [1, 'T9107'])
+  assert.deepEqual([missing.ended, missing.answer.findings?.[0].code], [1, 'F9107'])
 })

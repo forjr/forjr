@@ -19,7 +19,7 @@ export interface ToolAt {
   by: Writer
   // The agent's `trust`, by the names it lists.
   trust: string[]
-  // Makes the step wait for the person's yes to what is shown, and throws T7111 at their no.
+  // Makes the step wait for the person's yes to what is shown, and throws F7111 at their no.
   ask(what: object): Promise<void>
 }
 

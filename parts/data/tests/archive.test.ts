@@ -42,7 +42,7 @@ const handed = async (): Promise<void> => {
   for (let i = 0; i < 20; i++) await new Promise((done) => setImmediate(done))
 }
 
-/** The keys that `_t_here` of a store holds. */
+/** The keys that `_f_here` of a store holds. */
 const hereKeys = (store: Store): string[] => stored(store, hereTable.name).map((row) => String(row.key))
 
 test('[45-1] a sink that records is handed the record of each write with its rows, what a changed row held before, and the data keeps none of it: no kept change, and no running fingerprint', async (t) => {

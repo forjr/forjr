@@ -11,7 +11,7 @@ test('[24-9] a key is shown once, in its form, and the data holds the fingerprin
   const temp = tempOf(t)
   const app = await keyedApp(t)
   const { id, key } = await keyOf(app, { scopes: ['myOrders'] })
-  assert.match(key, /^tent_[0-9a-z]{26}_[A-Za-z0-9_-]{43}$/)
+  assert.match(key, /^forjr_[0-9a-z]{26}_[A-Za-z0-9_-]{43}$/)
   assert.equal(key.split('_')[1], id)
   const listed = Object(await app.as('system').call('listKeys', {}))
   assert.equal(JSON.stringify(listed).includes(key.slice(-43)), false, 'a list shows no key')
@@ -20,13 +20,13 @@ test('[24-9] a key is shown once, in its form, and the data holds the fingerprin
     assert.equal(one.bytes.includes(Buffer.from(secretPart)), false, 'no file of the data holds the key')
 })
 
-test('[24-9] a function outside the scopes of a key is T3101 at /api/ and at /_t/call/, and so is a route; a key of one function calls it also where it calls another inside', async (t) => {
+test('[24-9] a function outside the scopes of a key is F3101 at /api/ and at /_f/call/, and so is a route; a key of one function calls it also where it calls another inside', async (t) => {
   const app = await keyedApp(t)
   const { key } = await keyOf(app, { scopes: ['outer'] })
   assert.equal((await api(app, 'POST', 'outer', { key, input: {} })).body, 'outer and inner')
   assert.equal((await called(app, 'outer', {}, key)).ok, true)
-  assert.equal(Object((await api(app, 'GET', 'myOrders', { key })).body).code, 'T3101')
-  assert.equal(Object((await called(app, 'myOrders', {}, key)).error).code, 'T3101')
+  assert.equal(Object((await api(app, 'GET', 'myOrders', { key })).body).code, 'F3101')
+  assert.equal(Object((await called(app, 'myOrders', {}, key)).error).code, 'F3101')
   const route = await sent(app, 'GET', '/report', { key })
   assert.equal(route.status, 403)
   const scoped = await keyOf(app, { scopes: ['report'] })
@@ -47,13 +47,13 @@ test("[24-9] a key with a role passes a rule of that role; a key made for a user
   assert.equal((await api(app, 'GET', 'totals', { key: mayaKey.key })).status, 403)
 })
 
-test('[24-9] a removed and an ended key is nobody; `keys.list` and `keys.remove` work; the 121st call of a minute under `perMinute: 120` is T0005', async (t) => {
+test('[24-9] a removed and an ended key is nobody; `keys.list` and `keys.remove` work; the 121st call of a minute under `perMinute: 120` is F0005', async (t) => {
   const app = await keyedApp(t)
   const { id, key } = await keyOf(app, { scopes: ['*'], perMinute: 120 })
   for (let n = 0; n < 120; n++) assert.equal((await api(app, 'GET', 'myOrders', { key })).status, 200, `call ${n + 1}`)
   const over = await api(app, 'GET', 'myOrders', { key })
   assert.equal(over.status, 429)
-  assert.equal(Object(over.body).code, 'T0005')
+  assert.equal(Object(over.body).code, 'F0005')
   assert.ok(Number(over.headers.get('retry-after')) > 0)
   const listed: { id: string; name: string; perMinute: number }[] = Object(await app.as('system').call('listKeys', {}))
   assert.deepEqual(
@@ -61,16 +61,16 @@ test('[24-9] a removed and an ended key is nobody; `keys.list` and `keys.remove`
     [[id, 120]],
   )
   await app.as('system').call('removeKey', { id })
-  assert.equal(Object((await api(app, 'GET', 'myOrders', { key })).body).code, 'T0006')
+  assert.equal(Object((await api(app, 'GET', 'myOrders', { key })).body).code, 'F0006')
   const ending = await keyOf(app, { scopes: ['*'], for: '1 hour' })
   assert.equal((await api(app, 'GET', 'myOrders', { key: ending.key })).status, 200)
   app.clock.advance('2 hours')
-  assert.equal(Object((await api(app, 'GET', 'myOrders', { key: ending.key })).body).code, 'T0006')
+  assert.equal(Object((await api(app, 'GET', 'myOrders', { key: ending.key })).body).code, 'F0006')
 })
 
-test('[24-9] `keys.add` in a function that states no `system` is T0013; a request for a screen with a key is answered as for nobody; `connections.start` under a key made for a user answers an address', async (t) => {
+test('[24-9] `keys.add` in a function that states no `system` is F0013; a request for a screen with a key is answered as for nobody; `connections.start` under a key made for a user answers an address', async (t) => {
   const app = await keyedApp(t)
-  await assert.rejects(app.as('nobody').call('sneakKey', {}), { code: 'T0013' })
+  await assert.rejects(app.as('nobody').call('sneakKey', {}), { code: 'F0013' })
   const maya = await app.user({ name: 'Maya', roles: [] })
   const { key } = await keyOf(app, { scopes: ['*'], user: maya.user?.id })
   const page = await sent(app, 'GET', '/who', { key })
@@ -82,10 +82,10 @@ test('[24-9] `keys.add` in a function that states no `system` is T0013; a reques
   assert.match(String(started.value), /^https:\/\/github\.com\/login\/oauth\/authorize\?/)
 })
 
-test("[24-9] `/_t/live` opened by a key with no `Origin` is taken, and with a made-up key beside a visitor's cookie it is T0004", async (t) => {
+test("[24-9] `/_f/live` opened by a key with no `Origin` is taken, and with a made-up key beside a visitor's cookie it is F0004", async (t) => {
   const app = await keyedApp(t)
   const { key } = await keyOf(app, { scopes: ['*'] })
-  const end = app.live(new Request('http://localhost/_t/live', { headers: { authorization: `Bearer ${key}` } }))
+  const end = app.live(new Request('http://localhost/_f/live', { headers: { authorization: `Bearer ${key}` } }))
   closing(t, () => end.close())
   const got: Record<string, unknown>[] = []
   end.each((message) => void got.push(Object(message)))
@@ -104,14 +104,14 @@ test("[24-9] `/_t/live` opened by a key with no `Origin` is taken, and with a ma
   assert.throws(
     () =>
       app.live(
-        new Request('http://localhost/_t/live', {
+        new Request('http://localhost/_f/live', {
           headers: {
-            authorization: `Bearer tent_01m4vne21rehxa0vhe4ztfk1qx_${'A'.repeat(43)}`,
-            cookie: cookie || 'tent_visitor.shop=x',
+            authorization: `Bearer forjr_01m4vne21rehxa0vhe4ztfk1qx_${'A'.repeat(43)}`,
+            cookie: cookie || 'forjr_visitor.shop=x',
           },
         }),
       ),
-    { code: 'T0004' },
+    { code: 'F0004' },
   )
 })
 
@@ -120,7 +120,7 @@ test('[24-9] an id of no key takes the time of a wrong key: its check hashes and
   const { key } = await keyOf(app, { scopes: ['*'] })
   // A last character keeps its two lowest bits empty, so the wrong key has the form of a key and is compared.
   const wrong = `${key.slice(0, -1)}${key.endsWith('A') ? 'E' : 'A'}`
-  const none = `tent_01m4vne21rehxa0vhe4ztfk1qx_${key.slice(-43)}`
+  const none = `forjr_01m4vne21rehxa0vhe4ztfk1qx_${key.slice(-43)}`
   // The time of a request hides the time of one hash: what each check does is counted instead, call by call.
   const hashes = t.mock.method(crypto, 'createHash')
   const compares = t.mock.method(crypto, 'timingSafeEqual')
@@ -156,7 +156,7 @@ test('[24-9] `lastUsedAt` of a key is written at its use, once a minute at most'
   assert.notDeepEqual(await used(), first)
 })
 
-test('[05-8.10@8a] a run that outlives its starter: the key is removed, and the run fails with T3101 when it is next taken up', async (t) => {
+test('[05-8.10@8a] a run that outlives its starter: the key is removed, and the run fails with F3101 when it is next taken up', async (t) => {
   const app = await keyedApp(t)
   const { id } = await keyOf(app, { scopes: ['*'] })
   const { run } = notDropped(
@@ -169,14 +169,14 @@ test('[05-8.10@8a] a run that outlives its starter: the key is removed, and the 
   app.clock.advance('61 minutes')
   for (let i = 0; i < 500 && app.runs.read(run)?.state !== 'failed'; i++)
     await new Promise((done) => setTimeout(done, 10))
-  assert.equal(app.runs.read(run)?.error?.code, 'T3101')
+  assert.equal(app.runs.read(run)?.error?.code, 'F3101')
   assert.deepEqual(await app.rows('orders'), [], 'no step of the run was carried out after its key was gone')
 })
 
 test("[24-9] [24-12] without the scope `files` a key uploads for a function of its scopes and downloads the file a call answered it; with it, it uploads where `uploads` lets signed-in callers in, downloads its own loose file and a file that a row it may read holds, and is refused another's", async (t) => {
   const app = await keyedApp(t)
   const upload = (key: string, query = '') =>
-    sent(app, 'POST', `/_t/files?name=a.txt${query}`, {
+    sent(app, 'POST', `/_f/files?name=a.txt${query}`, {
       key,
       headers: { 'content-type': 'text/plain', 'content-length': '5' },
       body: 'hello',
@@ -188,15 +188,15 @@ test("[24-9] [24-12] without the scope `files` a key uploads for a function of i
   const fileId = String(Object(await forIt.json()).value.id)
   const kept = await api(app, 'POST', 'keepFile', { key: plain.key, input: { doc: fileId } })
   assert.equal(kept.body, fileId)
-  assert.equal((await sent(app, 'GET', `/_t/files/${fileId}`, { key: plain.key })).status, 200)
+  assert.equal((await sent(app, 'GET', `/_f/files/${fileId}`, { key: plain.key })).status, 200)
   const maya = await app.user({ name: 'Maya', roles: [] })
   const files = await keyOf(app, { scopes: ['files', 'holdFile'], user: maya.user?.id })
   const own = await upload(files.key)
   assert.equal(own.status, 200)
   const ownId = String(Object(await own.json()).value.id)
-  assert.equal(await (await sent(app, 'GET', `/_t/files/${ownId}`, { key: files.key })).text(), 'hello')
+  assert.equal(await (await sent(app, 'GET', `/_f/files/${ownId}`, { key: files.key })).text(), 'hello')
   await api(app, 'POST', 'holdFile', { key: files.key, input: { title: 'held', doc: ownId } })
-  assert.equal((await sent(app, 'GET', `/_t/files/${ownId}`, { key: files.key })).status, 200)
+  assert.equal((await sent(app, 'GET', `/_f/files/${ownId}`, { key: files.key })).status, 200)
   // A file of another caller is refused, as one that is not there.
-  assert.equal((await sent(app, 'GET', `/_t/files/${fileId}`, { key: files.key })).status, 404)
+  assert.equal((await sent(app, 'GET', `/_f/files/${fileId}`, { key: files.key })).status, 404)
 })

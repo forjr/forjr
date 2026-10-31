@@ -31,7 +31,7 @@ export interface LineOn {
   down(): void
 }
 
-/** The line of a page to `/_t/live`: one connection, which is opened again by itself whenever it is lost. */
+/** The line of a page to `/_f/live`: one connection, which is opened again by itself whenever it is lost. */
 export interface Line {
   /** Opens the connection where the line holds none and tries for none. */
   open(): void

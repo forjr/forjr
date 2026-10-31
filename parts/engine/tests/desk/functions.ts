@@ -17,10 +17,10 @@ import {
   random,
   role,
   settings,
-  TentError,
+  ForjrError,
   text,
   vector,
-} from 'tentjs'
+} from 'forjr'
 import { isMainThread } from 'node:worker_threads'
 import { docs, notes, tags, users, uses, words } from './tables.ts'
 
@@ -454,12 +454,12 @@ export const heavyFails = query('heavyFails', {
   access: anyone('it shows what crosses of a failure from a query thread'),
   heavy: true,
   run: () => {
-    const failed = new TentError('T0002', 'The shelf holds no such thing.', {
+    const failed = new ForjrError('F0002', 'The shelf holds no such thing.', {
       fix: 'Name a thing that the shelf holds.',
       where: { file: 'functions.ts', line: 7, definition: 'heavyFails' },
       fields: { thing: 'missing' },
     })
-    failed.cause = new TentError('T0013', 'What the failure rests on.', { where: { file: 'tables.ts', line: 3 } })
+    failed.cause = new ForjrError('F0013', 'What the failure rests on.', { where: { file: 'tables.ts', line: 3 } })
     throw failed
   },
 })

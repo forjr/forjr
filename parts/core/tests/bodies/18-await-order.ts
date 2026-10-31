@@ -1,4 +1,4 @@
-import { action, log } from 'tentjs'
+import { action, log } from 'forjr'
 import { addUser, sendReceipt, slack, stripe, writer } from '../app/shop.ts'
 
 export const awaitOrder = action('awaitOrder', {

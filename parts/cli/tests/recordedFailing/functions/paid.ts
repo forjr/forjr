@@ -1,4 +1,4 @@
-import { action, change, input, role, text } from 'tentjs'
+import { action, change, input, role, text } from 'forjr'
 import { orders } from '../tables/orders'
 
 export const markPaid = change('markPaid', {

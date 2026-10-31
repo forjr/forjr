@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { screenRequestCounted } from '../pages/count.ts'
 import type { Opened } from '../opened.ts'
 import { visit } from '../visit.ts'
@@ -40,11 +40,11 @@ export const standardJson = (status: number, body: unknown, lines: Record<string
 export const refusedAs = (error: string, description: string, status = 400): Response =>
   standardJson(status, { error, error_description: description })
 
-/** The fields of a body that is a form, read within the size of a call. Throws T0002 for a body of another kind. */
+/** The fields of a body that is a form, read within the size of a call. Throws F0002 for a body of another kind. */
 export async function formOf(request: Request, size: number): Promise<URLSearchParams> {
   const type = (request.headers.get('content-type') ?? '').split(';')[0].trim().toLowerCase()
   if (type !== 'application/x-www-form-urlencoded')
-    throw new TentError('T0002', 'The body is a form, as `application/x-www-form-urlencoded`.', {
+    throw new ForjrError('F0002', 'The body is a form, as `application/x-www-form-urlencoded`.', {
       fix: 'Send the fields as a form.',
     })
   return new URLSearchParams(new TextDecoder().decode(await bodyOf(request, size)))

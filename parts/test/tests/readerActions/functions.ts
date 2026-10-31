@@ -1,4 +1,4 @@
-import { action, change, input, table, text } from 'tentjs'
+import { action, change, input, table, text } from 'forjr'
 
 // Each opening of the app loads its own copy of this module: what the copy answers says which machine carried a call out.
 const machine = `copy ${Math.random()}`

@@ -90,7 +90,7 @@ export function filledCounts(o: Opened): FilledCount[] {
 }
 
 /**
- * `tent filled --look`: works out, for every row of each filled column, what its work would be handed, compares
+ * `forjr filled --look`: works out, for every row of each filled column, what its work would be handed, compares
  * its fingerprint with `read`, and marks each row that differs, a row written in raw SQL among them. Answers how
  * many were marked. Of a tenant table it looks in the files that `within` names (`--of`, `--all`).
  */
@@ -136,7 +136,7 @@ export function lookAgain(o: Opened, within: Within = {}): number {
 }
 
 /**
- * `tent filled --failed <table>.<column>`: the values that failed for good, with what a caller would see of their
+ * `forjr filled --failed <table>.<column>`: the values that failed for good, with what a caller would see of their
  * errors. Of a tenant table, in the files that `within` names (`--of`, `--all`).
  */
 export function failedOf(o: Opened, named: string, within: Within = {}): { id: string; error: unknown }[] {

@@ -3,7 +3,7 @@ import { badWord } from '../admin.ts'
 import { isDescription } from '../facts.ts'
 
 /**
- * `facts`, a command of the channel's own: the `Facts` of the check, for the description that `tent check` made
+ * `facts`, a command of the channel's own: the `Facts` of the check, for the description that `forjr check` made
  * of the files of the project as they now stand, or for the one of the running version where none is handed in.
  */
 export const admin: Admin = {

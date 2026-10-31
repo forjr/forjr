@@ -1,4 +1,4 @@
-import { screen, read, Form } from 'tentjs/ui'
+import { screen, read, Form } from 'forjr/ui'
 import { countOrders, placeOrder } from './functions'
 
 // A press that places an order: the call, its writes and the work it starts are one trace.

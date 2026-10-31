@@ -18,7 +18,7 @@ test('[21-24@9a] an app that holds no model has loaded nothing of ai, whatever i
   const { nobody, running, send } = await import('./apps.ts')
   const { app, origin } = await running(t)
   await app.call('publicTags', {}, { as: nobody })
-  assert.equal((await send(app, `${origin}/_t/call/publicTags`)).status, 200)
+  assert.equal((await send(app, `${origin}/_f/call/publicTags`)).status, 200)
   // The hook saw the engine load, so it would have seen the part of the models too.
   assert.ok(of('/parts/engine/').length > 0)
   assert.deepEqual(of('/parts/ai/'), [])

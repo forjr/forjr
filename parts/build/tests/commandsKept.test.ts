@@ -5,7 +5,7 @@ import { test } from 'node:test'
 import { buildSaved } from '../index.ts'
 
 // A command file that counts in the program how often it was run, so a test sees each run of it.
-const commandFile = (name: string, about: string): string => `import { command } from 'tentjs/cli'
+const commandFile = (name: string, about: string): string => `import { command } from 'forjr/cli'
 
 Reflect.set(globalThis, 'keptRuns.${name}', Number(Reflect.get(globalThis, 'keptRuns.${name}') ?? 0) + 1)
 
@@ -18,7 +18,7 @@ test('[31-21] a save of one command file has the build run that file again and n
   const folder = join(process.cwd(), 'results', 'build', `commandsKept-${Math.random().toString(36).slice(2)}`)
   t.after(() => rmSync(folder, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }))
   const files: Record<string, string> = {
-    'tent.ts': `import { project } from 'tentjs'\nexport const shop = project('shop', { title: 'Shop' })\n`,
+    'forjr.ts': `import { project } from 'forjr'\nexport const shop = project('shop', { title: 'Shop' })\n`,
     'package.json': `${JSON.stringify({ name: 'shop', private: true, type: 'module' })}\n`,
     'commands/first.ts': commandFile('keptFirst', 'The first'),
     'commands/second.ts': commandFile('keptSecond', 'The second'),
@@ -34,6 +34,6 @@ test('[31-21] a save of one command file has the build run that file again and n
   writeFileSync(saved, readFileSync(saved, 'utf8').replace('The first', 'The first, saved'))
   assert.deepEqual(errors(await buildSaved(folder)), [])
   assert.deepEqual([runsOf('keptFirst'), runsOf('keptSecond')], [2, 1], 'the save runs the file it changed alone')
-  const kept = readdirSync(join(folder, '.tent', 'cache', 'commands'))
+  const kept = readdirSync(join(folder, '.forjr', 'cache', 'commands'))
   assert.equal(kept.filter((one) => one.startsWith('commands.first.')).length, 1, 'one file of the saved command file')
 })

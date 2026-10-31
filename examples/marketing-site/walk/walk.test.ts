@@ -13,7 +13,7 @@ import {
   type Page,
   webkit,
 } from 'playwright-core'
-import { build, folder, type Running, rows, start, tent } from './app.ts'
+import { build, folder, type Running, rows, start, forjr } from './app.ts'
 import { type Files, files } from './files.ts'
 
 const engines: Record<string, BrowserType> = { chromium, firefox, webkit }
@@ -90,7 +90,7 @@ for (const engine of chosen) {
     }
 
     async function alive(page: Page) {
-      await page.locator('#tent[data-t-alive]').waitFor({ timeout: 15000 })
+      await page.locator('#forjr[data-f-alive]').waitFor({ timeout: 15000 })
     }
 
     /** Waits until nothing moves: the fonts and pictures are in, every animation and transition has ended, and the number has counted. */
@@ -550,7 +550,7 @@ for (const engine of chosen) {
       const answers = await page.evaluate(async (input) => {
         const all: { status: number; code?: string }[] = []
         for (let k = 3; k <= 61; k++) {
-          const answer = await fetch('/_t/call/sendMessage', {
+          const answer = await fetch('/_f/call/sendMessage', {
             method: 'POST',
             headers: { 'content-type': 'application/json' },
             body: JSON.stringify({ input: { ...input, text: `${input.text} (${k})` } }),
@@ -563,7 +563,7 @@ for (const engine of chosen) {
       const refused = answers.findIndex((one) => one.status !== 200)
       assert.ok(refused >= 0, 'a send is refused')
       assert.equal(refused + 3, 61, `the first refused send is the 61st: ${JSON.stringify(answers.slice(-3))}`)
-      assert.deepEqual(answers[answers.length - 1], { status: 429, code: 'T0005' })
+      assert.deepEqual(answers[answers.length - 1], { status: 429, code: 'F0005' })
       assert.equal((await rows('messages', running.data)).length, before + 2 + refused)
       await context.close()
       // The address is refused until its minute is over, and the steps after this one are the same visitor's.
@@ -596,7 +596,7 @@ for (const engine of chosen) {
         release = done
       })
       // The page code is held back, so what is seen is the first paint: the HTML and its head alone.
-      await again.route('**/_t/b/browser/page.*.js', async (route) => {
+      await again.route('**/_f/b/browser/page.*.js', async (route) => {
         await held
         await route.continue()
       })
@@ -608,7 +608,7 @@ for (const engine of chosen) {
       await later.waitForFunction(() => getComputedStyle(document.body).backgroundColor !== 'rgba(0, 0, 0, 0)')
       const paper = await later.evaluate(() => getComputedStyle(document.body).backgroundColor)
       assert.equal(paper, 'rgb(14, 17, 16)', 'the first paint is dark')
-      assert.equal(await later.locator('#tent[data-t-alive]').count(), 0, 'the page had not come alive')
+      assert.equal(await later.locator('#forjr[data-f-alive]').count(), 0, 'the page had not come alive')
       // The motion of the style file runs with the page code held back too, so the first paint is taken once it ends.
       // Firefox takes no picture of a page whose code is still held, as it waits for the page to load its fonts.
       await settle(later)
@@ -639,12 +639,12 @@ for (const engine of chosen) {
       await videos(running.origin, '10')
     })
 
-    test(`[04-2.11] tent export, served by a plain server of files, walks steps 1, 2, 4, 5 and 7 to 10 (${engine})`, async (t) => {
+    test(`[04-2.11] forjr export, served by a plain server of files, walks steps 1, 2, 4, 5 and 7 to 10 (${engine})`, async (t) => {
       let host: Files | undefined
       try {
         host = await files()
         const out = mkdtempSync(join(tmpdir(), 'marketing-site-site-'))
-        await tent(['export', '--out', out, '--origin', host.origin, '--data', running.data])
+        await forjr(['export', '--out', out, '--origin', host.origin, '--data', running.data])
         host.serve(out)
         const at = host.origin
         for (const [step, walk] of [
@@ -699,23 +699,23 @@ for (const engine of chosen) {
         await paced()
         const html = await (await fetch(`${running.origin}/`)).text()
         const main = /<script type="module" src="([^"]+)"/.exec(html)?.[1]
-        const record = /<script type="application\/json" id="tent-page">([^<]+)<\/script>/.exec(html)?.[1]
+        const record = /<script type="application\/json" id="forjr-page">([^<]+)<\/script>/.exec(html)?.[1]
         assert.ok(main && record, 'the page names its page code and its record')
         const screen: unknown = JSON.parse(record).load?.screen
         assert.equal(typeof screen, 'string')
         const weighed = await Promise.all(
-          [main, `/_t/b/${String(screen)}`].map((one) => sent(new URL(one, running.origin).href)),
+          [main, `/_f/b/${String(screen)}`].map((one) => sent(new URL(one, running.origin).href)),
         )
         const total = weighed.reduce((sum, one) => sum + one.bytes, 0)
         const bars = JSON.parse(readFileSync(join(folder, '..', '..', 'budgets.json'), 'utf8'))
         const bar = Number(bars['page.weight']?.bar)
-        const map = String(await tent(['map']))
+        const map = String(await forjr(['map']))
         const packages = map
           .split('\n')
           .filter((line) => /browser \d+ bytes/.test(line))
           .map((line) => line.trim())
         const weights = {
-          files: [main, `/_t/b/${String(screen)}`].map((one, place) => ({ file: one, ...weighed[place] })),
+          files: [main, `/_f/b/${String(screen)}`].map((one, place) => ({ file: one, ...weighed[place] })),
           total,
           bar,
           packages,

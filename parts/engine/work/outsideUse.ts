@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { At } from '../../flows/index.ts'
 import { gather } from '../counts/gather.ts'
 import { modelAllowed } from '../counts/limits.ts'
@@ -18,14 +18,14 @@ const numbersOf = (value: unknown): Record<string, number> =>
 function modelOf(o: Opened, message: Record<string, unknown>): string {
   const model = String(message.model)
   if (!Object.hasOwn(o.description.models, model))
-    throw new TentError('T0002', `A worker names the model ${model.slice(0, 60)}, which is no model of the app.`)
+    throw new ForjrError('F0002', `A worker names the model ${model.slice(0, 60)}, which is no model of the app.`)
   return model
 }
 
 /**
  * The `may` of a model call that the work on a worker is about to make itself. It is held here, by the writer, to
  * the limits of use of the model for the caller of the task, and to `perRun` of its run and the runs above it, so
- * that many workers do not pass them many times. Throws T7102 at a limit that was reached.
+ * that many workers do not pass them many times. Throws F7102 at a limit that was reached.
  */
 export function mayModel(o: Opened, at: At, message: Record<string, unknown>): null {
   modelAllowed(o, { model: modelOf(o, message), caller: at.as })

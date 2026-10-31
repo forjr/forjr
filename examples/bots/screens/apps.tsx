@@ -1,4 +1,4 @@
-import { component, Form, Link, read, screen, text, useCall } from 'tentjs/ui'
+import { component, Form, Link, read, screen, text, useCall } from 'forjr/ui'
 import { AppMark } from '../components/AppMark'
 import { Frame } from '../components/Frame'
 import { addApp, appList, dropApp } from '../functions/apps'

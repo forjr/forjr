@@ -1,6 +1,6 @@
 import { mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, resolve } from 'node:path'
-import { TentError, text } from '../../../core/index.ts'
+import { ForjrError, text } from '../../../core/index.ts'
 import { finding } from '../../../core/internal.ts'
 import { guardedFetch } from '../../../connect/index.ts'
 import { inVersion31 } from '../../apiVersion.ts'
@@ -15,14 +15,14 @@ async function textOf(from: string, folder: string): Promise<string> {
   const answer = await guardedFetch({ mode: 'live', privateHosts: [new URL(from).origin.replace(/^https:\/\//, '')] })(
     from,
   )
-  if (!answer.ok) throw new TentError('T7013', `${from} answered ${answer.status}, and no description.`)
+  if (!answer.ok) throw new ForjrError('F7013', `${from} answered ${answer.status}, and no description.`)
   return answer.text()
 }
 
 /**
- * `tent api read <file or address> --out <file>`: reads a description of an API, in JSON or in YAML, of the version
+ * `forjr api read <file or address> --out <file>`: reads a description of an API, in JSON or in YAML, of the version
  * 3.0 or 3.1 or the one before them, and writes it into the project as JSON of 3.0 or 3.1, which the build reads
- * with `from`. Any other is T7013, and nothing is written.
+ * with `from`. Any other is F7013, and nothing is written.
  */
 export const command: Command = {
   name: 'api read',
@@ -31,13 +31,13 @@ export const command: Command = {
   run: async ({ args, folder }) => {
     const from = String(args.from)
     const refused = (words: string) => ({
-      findings: [finding('T7013', words, { fix: 'Name a description of an API in version 2.0, 3.0 or 3.1.' })],
+      findings: [finding('F7013', words, { fix: 'Name a description of an API in version 2.0, 3.0 or 3.1.' })],
     })
     let written: string
     try {
       written = await textOf(from, folder)
     } catch (error) {
-      if (error instanceof TentError && error.code !== 'T7013') throw error
+      if (error instanceof ForjrError && error.code !== 'F7013') throw error
       return refused(error instanceof Error ? error.message : `${from} cannot be read.`)
     }
     let read: unknown
@@ -48,7 +48,7 @@ export const command: Command = {
       try {
         read = await readYaml(written)
       } catch (error) {
-        if (error instanceof TentError) throw error
+        if (error instanceof ForjrError) throw error
         return refused(`${from} reads neither as JSON nor as YAML.`)
       }
     }

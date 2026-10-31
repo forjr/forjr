@@ -1,4 +1,4 @@
-import type { Makers } from 'tentjs/engine'
+import type { Makers } from 'forjr/engine'
 import { BroadcastChannel } from 'node:worker_threads'
 
 /**
@@ -6,7 +6,7 @@ import { BroadcastChannel } from 'node:worker_threads'
  * shares, so that the test hears it in whatever room the code runs, and waits until the test has heard it.
  */
 function told(embed: { model: string; texts: number }): Promise<void> {
-  const channel = new BroadcastChannel('tentjs.test.vectors')
+  const channel = new BroadcastChannel('forjr.test.vectors')
   // An embed that nobody hears any more, of an app that was closed, holds the program up no longer.
   channel.unref()
   const id = `${embed.model} ${Math.random()}`

@@ -1,4 +1,4 @@
-import { action, allow, boolean, change, input, link, number, object, python, query, role, text } from 'tentjs'
+import { action, allow, boolean, change, input, link, number, object, python, query, role, text } from 'forjr'
 import { hooks } from '../services/hooks'
 import { notes } from '../tables/notes'
 

@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 
 export default seed(({ db }) => {
   db.orders.add({ name: 'Ann', total: 1999, placedAt: new Date('2026-10-08T09:30:00.000Z') })

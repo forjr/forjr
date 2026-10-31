@@ -4,7 +4,7 @@ import { typeCheck } from './typed.ts'
 
 // A choice of an input, of an output and of a column, written with and without options, beside the other type
 // words: code is handed one of its values, and nothing wider.
-const project = `import { action, change, choice, input, link, list, number, object, query, table, text } from 'tentjs'
+const project = `import { action, change, choice, input, link, list, number, object, query, table, text } from 'forjr'
 
 export const users = table('users', { columns: { name: text(), roles: list(text()) }, access: { read: 'signedIn' } })
 
@@ -51,13 +51,13 @@ export const asSet = change('asSet', {
 `
 
 test('[11-7@9a] a choice of an input, an output and a column is handed to code as its values, written with options or without, in a list and in an object: never as any text', () => {
-  const tentDts = `import type * as app from './app.ts'
-declare module 'tentjs' {
+  const forjrDts = `import type * as app from './app.ts'
+declare module 'forjr' {
   interface Tables {
     users: typeof app.users
     things: typeof app.things
   }
 }
 `
-  assert.deepEqual(typeCheck('choice-input', { 'app.ts': project, 'tent.d.ts': tentDts }), [])
+  assert.deepEqual(typeCheck('choice-input', { 'app.ts': project, 'forjr.d.ts': forjrDts }), [])
 })

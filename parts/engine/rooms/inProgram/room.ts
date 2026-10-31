@@ -1,4 +1,4 @@
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import { pure } from '../pure.ts'
 import type { Called, Draw, Room, RoomInput } from '../room.ts'
 import { drawOf } from './draw.ts'
@@ -14,8 +14,8 @@ interface Held {
   draw?: Draw
 }
 
-const notLoaded = (version: string, what: string): TentError =>
-  new TentError('T0011', `The version ${version} holds no ${what} that its room loaded.`, {
+const notLoaded = (version: string, what: string): ForjrError =>
+  new ForjrError('F0011', `The version ${version} holds no ${what} that its room loaded.`, {
     fix: 'Build the project again, and run the bundle as the build wrote it.',
   })
 
@@ -72,7 +72,7 @@ export function inProgramRoom(o: RoomInput): Room {
       return one.draw
     },
     back() {
-      throw new TentError('T0013', 'The room of the program hands the engine no function by its number.')
+      throw new ForjrError('F0013', 'The room of the program hands the engine no function by its number.')
     },
     program: (start) => startedProgram(start),
     unload(version) {

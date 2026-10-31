@@ -111,6 +111,7 @@ function sorted(value: unknown): unknown {
   return isStored(value) ? sortedRecord(value) : value
 }
 
+/** Takes a record. Answers it with its keys in the order of their names, at every depth: one record, one text. */
 export const sortedRecord = (record: Record<string, unknown>): Record<string, unknown> =>
   Object.fromEntries(
     Object.keys(record)
@@ -337,12 +338,12 @@ export const step: Step = {
     // The project's own `error` screen stands under the name a page loads it by when a view fails in the browser. With
     // none, the page code draws its own, which no module holds.
     const failed = Object.entries(description.screens).find(([, one]) => isStored(one) && one.for === 'error')?.[0]
-    if (failed !== undefined && ofScreens[failed]) ofScreens['tent.error'] = ofScreens[failed]
+    if (failed !== undefined && ofScreens[failed]) ofScreens['forjr.error'] = ofScreens[failed]
     // The style files that several screens import, which every page loads. Only screens are counted: a component's
     // own style file loads with the component, on the pages that draw it, and on no other.
     const counted = new Map<string, number>()
     for (const [name, files] of Object.entries(ofScreens))
-      if (name !== 'tent.error')
+      if (name !== 'forjr.error')
         for (const file of new Set(files.slice(1).filter((one) => one.endsWith('.css'))))
           counted.set(file, (counted.get(file) ?? 0) + 1)
     const styles = [...counted].flatMap(([file, n]) => (n > 1 ? [file] : [])).sort()

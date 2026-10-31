@@ -15,7 +15,7 @@ export interface HistoryFollower {
  * Has the history of a reader follow the history of its writer, with the key of the reader: every `every`
  * milliseconds, 10 seconds where none is given, it asks the writer's pointers, fetches the points and the blobs
  * that lead to each and that it lacks, and moves its own pointer of that name there. So a reader that takes over
- * answers a pull with what was pushed to its writer, and goes back with `tent publish --back`. A turn that fails
+ * answers a pull with what was pushed to its writer, and goes back with `forjr publish --back`. A turn that fails
  * is told to `told`, so that a reader whose history stopped following says so; the next turn tries again.
  */
 export function followHistory(o: {
@@ -29,7 +29,7 @@ export function followHistory(o: {
   let closed = false
   let busy: Promise<void> | undefined
   const once = async (): Promise<void> => {
-    const answer = Object(await asked(reaching, '/_t/sync/have', { points: [], blobs: [], pointers: true }))
+    const answer = Object(await asked(reaching, '/_f/sync/have', { points: [], blobs: [], pointers: true }))
     const pointers: Record<string, unknown> = Object(answer.pointers)
     for (const [name, at] of Object.entries(pointers)) {
       if (closed || typeof at !== 'string' || o.history.pointer(name) === at) continue

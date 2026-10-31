@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Driver } from '../../flows/index.ts'
 import type { AiEnv } from '../face.ts'
 import type { AgentOf } from './agentOf.ts'
@@ -48,8 +48,8 @@ export interface Running {
 }
 
 /** The error of a limit of a run that was reached, naming the limit and the unit. */
-export const reached = (limit: string, unit: string, most: number): TentError =>
-  new TentError('T7102', `The run reached its limit \`${limit}\` of ${most} ${unit}.`, {
+export const reached = (limit: string, unit: string, most: number): ForjrError =>
+  new ForjrError('F7102', `The run reached its limit \`${limit}\` of ${most} ${unit}.`, {
     fields: { limit, unit },
     fix: `Raise \`limits.${limit}\` of the agent, or ask for less in one run.`,
   })

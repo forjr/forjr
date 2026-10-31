@@ -12,7 +12,7 @@ export async function bundleOne(o: {
   small: boolean
 }): Promise<string> {
   const { build } = await import('vite')
-  const mark = '\0tent-one:'
+  const mark = '\0forjr-one:'
   const entry = `${mark}entry`
   const built = await build({
     configFile: false,
@@ -22,7 +22,7 @@ export async function bundleOne(o: {
     mode: o.small ? 'production' : 'development',
     plugins: [
       {
-        name: 'tent:one',
+        name: 'forjr:one',
         enforce: 'pre',
         resolveId(source, importer) {
           if (source === entry) return entry

@@ -1,4 +1,4 @@
-import { screen, read, text, Link, Form } from 'tentjs/ui'
+import { screen, read, text, Link, Form } from 'forjr/ui'
 import { addOrder, failing, openOrders } from './functions'
 
 // What a press does: a call with its busy state, what follows it, a failure, and a box that is pressed.

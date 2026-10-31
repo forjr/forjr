@@ -1,4 +1,4 @@
-import { screen, read, boolean, choice, number, text, Link } from 'tentjs/ui'
+import { screen, read, boolean, choice, number, text, Link } from 'forjr/ui'
 import { itemNamed, itemsOf } from './functions'
 
 export const deskScreen = screen('deskScreen', {

@@ -1,4 +1,4 @@
-import { each, flow, join, mail } from 'tentjs'
+import { each, flow, join, mail } from 'forjr'
 import { allTasks } from './tasks'
 
 export const mailTasks = flow('mailTasks', {

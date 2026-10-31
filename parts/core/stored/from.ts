@@ -82,7 +82,7 @@ function seenIn(value: unknown, seen: { columns: string[]; divides: boolean }): 
 
 /**
  * Takes the columns of a table as they are stored. Reports, for each column that states `from`, what the store
- * could not work out or keep (T1014): another column with `from`, a column through a link, a column that must be
+ * could not work out or keep (F1014): another column with `from`, a column through a link, a column that must be
  * optional and is not, and a result that is not of the type of the column.
  */
 export function heldFrom(told: Told, columns: Record<string, Stored>): void {
@@ -95,14 +95,14 @@ export function heldFrom(told: Told, columns: Record<string, Stored>): void {
       if (named.includes('.'))
         report(
           told,
-          'T1014',
+          'F1014',
           `${where} names \`${named}\`, a column through a link.`,
           'A `from` is worked out from the columns of its own row. Keep the value in a column that a change writes.',
         )
       else if (keptAt(columns, named)?.from !== undefined)
         report(
           told,
-          'T1014',
+          'F1014',
           `${where} names the column \`${named}\`, which states \`from\` itself.`,
           `Write what \`${named}\` is worked out from in its place.`,
         )
@@ -113,7 +113,7 @@ export function heldFrom(told: Told, columns: Record<string, Stored>): void {
     if (column.optional !== true && (seen.divides || maybe.length))
       report(
         told,
-        'T1014',
+        'F1014',
         seen.divides
           ? `${where} divides or takes a remainder, so the column may hold nothing, and it is not optional.`
           : `${where} names the optional column \`${maybe[0]}\`, so the column may hold nothing, and it is not optional.`,
@@ -123,7 +123,7 @@ export function heldFrom(told: Told, columns: Record<string, Stored>): void {
     if (result !== undefined && !fills[result].includes(String(column.kind)))
       report(
         told,
-        'T1014',
+        'F1014',
         `${where} works out a ${result}, and the column is a \`${String(column.kind)}\`.`,
         'Give the column the type of what its `from` works out.',
       )
@@ -132,7 +132,7 @@ export function heldFrom(told: Told, columns: Record<string, Stored>): void {
 
 /**
  * Takes plain writes as they are stored, and the place they stand in. Reports each column of a write that states
- * `from` (T1014): the store works such a column out, and nothing writes it.
+ * `from` (F1014): the store works such a column out, and nothing writes it.
  */
 export function writesHeld(told: Told, where: string, writes: readonly Stored[]): void {
   for (const write of writes) {
@@ -142,7 +142,7 @@ export function writesHeld(told: Told, where: string, writes: readonly Stored[])
       if (optionsOf(keptAt(columns, name)).from !== undefined)
         report(
           told,
-          'T1014',
+          'F1014',
           `${where} writes the column \`${name}\` of ${table}, which states \`from\`.`,
           'Take the column out of the write: the store works it out.',
         )

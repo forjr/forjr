@@ -1,4 +1,4 @@
-import { action, model, text } from 'tentjs'
+import { action, model, text } from 'forjr'
 
 // A model of a provider that `engine.ts` makes, which no test fakes.
 export const painter = model('painter', { provider: 'mine', name: 'p-1', input: { prompt: text() }, output: text() })

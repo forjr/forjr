@@ -103,7 +103,7 @@ test('[52-2] every call crosses: in the test room a project of one of each entry
   await echoed.text()
   const page = await at('/')
   assert.match(await page.text(), /The crossing/)
-  const upload = await at('/_t/files?name=paper.txt', {
+  const upload = await at('/_f/files?name=paper.txt', {
     method: 'POST',
     headers: { 'content-type': 'text/plain', 'content-length': '5', origin: `http://localhost:${port}` },
     body: 'paper',

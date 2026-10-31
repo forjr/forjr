@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 
 export default seed(({ db }) => {
   db.sales.add({ month: 'Jan', amount: 40 })

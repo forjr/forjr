@@ -1,6 +1,6 @@
 import type { Type } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
-import { checkValue, toJsonSchema } from '../../core/internal.ts'
+import { ForjrError } from '../../core/index.ts'
+import { checkValue, tokenCount, toJsonSchema } from '../../core/internal.ts'
 import type { Message, Provider, ReplyEnd, ReplyRequest } from '../face.ts'
 import { ProviderFailure } from '../../core/internal.ts'
 import type { Asking, Tally } from './ask.ts'
@@ -8,7 +8,7 @@ import { ask } from './ask.ts'
 import type { ModelOf } from './record.ts'
 import { cannot } from './record.ts'
 import { handedUnder, mappedBack, namesOf } from './names.ts'
-import { sizeByRule, tokensOf } from './size.ts'
+import { sizeByRule } from './size.ts'
 
 /** What a call that writes is handed beside its request: where its parts go, as they arrive. */
 export interface Writing {
@@ -35,8 +35,8 @@ function keptFor(message: Message, model: string): Message {
 export type Asked = Omit<ReplyRequest, 'fetch' | 'signal' | 'model' | 'key' | 'at'>
 
 /** The error of a request over what a model takes. */
-const tooLarge = (model: string, count: number, takes: number): TentError =>
-  new TentError('T7109', `The request to the model ${model} holds ${count} tokens, over the ${takes} it takes.`, {
+const tooLarge = (model: string, count: number, takes: number): ForjrError =>
+  new ForjrError('F7109', `The request to the model ${model} holds ${count} tokens, over the ${takes} it takes.`, {
     fix: 'Send less: a shorter text, fewer files, or a shorter conversation.',
   })
 
@@ -48,7 +48,7 @@ function countedByRule(tally: Tally, request: Asked, text: string): void {
     tally.counted.push('tokensIn')
   }
   if (tally.units.tokensOut === undefined) {
-    tally.units.tokensOut = tokensOf(text)
+    tally.units.tokensOut = tokenCount(text)
     tally.counted.push('tokensOut')
   }
 }
@@ -161,7 +161,7 @@ export function misfitOf(type: Type, value: unknown): string | undefined {
 /**
  * Takes a model call, the shape of a typed answer and the request. Asks the model for a value of that shape, and
  * checks the answer against it: one that does not fit is asked for once more, with the error, and a second miss is
- * T7108. Answers the value.
+ * F7108. Answers the value.
  */
 export async function filled(asking: Asking, shape: unknown, request: Asked, to: Writing = {}): Promise<unknown> {
   const type = typeOfShape(shape)
@@ -179,8 +179,8 @@ export async function filled(asking: Asking, shape: unknown, request: Asked, to:
   const second = valueOfAnswer(again)
   const missed = misfitOf(type, second)
   if (missed === undefined) return second
-  throw new TentError(
-    'T7108',
+  throw new ForjrError(
+    'F7108',
     `The answer of the model ${first.by} did not fit its shape, also at the second try: ${missed}`,
     {
       fix: 'Write a shape that the model can fill, or ask a model that keeps to it.',

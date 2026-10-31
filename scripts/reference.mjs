@@ -1,4 +1,4 @@
-// Makes the reference of the docs, which `tent docs --reference` prints and which lies in the package as
+// Makes the reference of the docs, which `forjr docs --reference` prints and which lies in the package as
 // `parts/docs/reference.txt`: every word with its options, every hook, every tag with its properties, every
 // command with its flags, and every code, each as its signature or its line, with the first sentence of its page.
 // Every line is made from the types, the lists of the commands, tags and hooks, and the registry of the codes.
@@ -365,7 +365,7 @@ function flagOf(file, property) {
   return optional ? `[${value}]` : value
 }
 
-/** The line of a command: `tent`, its words, and each flag its `args` states. */
+/** The line of a command: `forjr`, its words, and each flag its `args` states. */
 function commandLine(folder, read, entry) {
   const path = existsSync(join(folder, 'parts/cli/commands', `${entry}.ts`))
     ? `parts/cli/commands/${entry}.ts`
@@ -384,7 +384,7 @@ function commandLine(folder, read, entry) {
           .map((one) => flagOf(file, one))
           .filter((one) => one !== '[--data <text>]')
       : []
-  return { name, line: ['tent', name, ...flags].join(' ') }
+  return { name, line: ['forjr', name, ...flags].join(' ') }
 }
 
 /** Every code that the code of the framework names, but in the registry itself and in tests. */
@@ -395,7 +395,7 @@ function namedCodes(folder, path = 'parts', found = new Set()) {
       if (entry.name !== 'tests' && entry.name !== 'node_modules' && !entry.name.startsWith('.'))
         namedCodes(folder, below, found)
     } else if (/\.tsx?$/.test(entry.name) && below !== 'parts/core/codes.ts')
-      for (const [code] of textOf(join(folder, below)).matchAll(/\bT\d{4}\b/g)) found.add(code)
+      for (const [code] of textOf(join(folder, below)).matchAll(/\bF\d{4}\b/g)) found.add(code)
   }
   return found
 }
@@ -434,13 +434,13 @@ export function referenceOf(folder = own, o = { without: [] }) {
   }
   const owed = JSON.parse(textOf(join(folder, 'parts/docs/owed.json')))
   const entries = JSON.parse(textOf(join(folder, 'parts/entries.json')))
-  const givers = ['tentjs', 'tentjs/ui', 'tentjs/test'].map((entry) => exportsOf(folder, read, entries[entry]))
+  const givers = ['forjr', 'forjr/ui', 'forjr/test'].map((entry) => exportsOf(folder, read, entries[entry]))
   const exported = new Map(givers.flatMap((one) => [...one]))
   const out = [
-    '# The reference of Tent.js',
+    '# The reference of Forjr',
     '',
     'Every word with its options, every hook, every tag with its properties, every command with its flags, and every code.',
-    'Each line is made from the types and lists of this version, with the first sentence of its page, which `tent docs <name>` prints.',
+    'Each line is made from the types and lists of this version, with the first sentence of its page, which `forjr docs <name>` prints.',
     '',
     '## Words',
     '',
@@ -502,7 +502,7 @@ export function referenceOf(folder = own, o = { without: [] }) {
     '## Commands',
     '',
     'A command that reaches the engine of an app also takes `[--data <folder>]`, and every command `[--json]`.',
-    '`tent --version`, or `tent -v`, prints the version of the tentjs that runs.',
+    '`forjr --version`, or `forjr -v`, prints the version of the forjr that runs.',
     '',
   )
   const said = new Set()

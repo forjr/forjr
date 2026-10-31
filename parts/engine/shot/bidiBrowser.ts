@@ -3,7 +3,7 @@ import { mkdtempSync, writeFileSync } from 'node:fs'
 import { createServer } from 'node:net'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored } from '../../core/internal.ts'
 import type { Opened } from '../opened.ts'
 import type { Bidi } from './bidi.ts'
@@ -15,9 +15,9 @@ import type { DrawnAt } from './routes.ts'
 import { routesOf } from './routes.ts'
 
 /** The failure of an engine that does not speak WebDriver BiDi on this computer: a test in it is not run. */
-const notRun = (engine: string, why: string): TentError =>
-  new TentError(
-    'T0016',
+const notRun = (engine: string, why: string): ForjrError =>
+  new ForjrError(
+    'F0016',
     `${engine} does not speak WebDriver BiDi on this computer (${why}): a test in it is not run.`,
     {
       fields: { engine: 'notRun' },
@@ -67,7 +67,7 @@ async function firefoxStarted(
   program: string,
   opening: BrowserOpening,
 ): Promise<{ bidi: Bidi; end(): Promise<void>; fresh: boolean }> {
-  const folder = mkdtempSync(join(tmpdir(), 'tent-firefox-'))
+  const folder = mkdtempSync(join(tmpdir(), 'forjr-firefox-'))
   writeFileSync(join(folder, 'user.js'), settingsOf(opening))
   const browser = spawn(
     program,
@@ -79,7 +79,7 @@ async function firefoxStarted(
   const address = await new Promise<string>((done, failed) => {
     let said = ''
     const timer = setTimeout(
-      () => failed(new TentError('T0016', 'Firefox did not start within thirty seconds.')),
+      () => failed(new ForjrError('F0016', 'Firefox did not start within thirty seconds.')),
       30_000,
     )
     const heard = (piece: Buffer): void => {
@@ -126,7 +126,7 @@ const freePort = (): Promise<number> =>
  * Throws as not run where it gives none.
  */
 async function webkitStarted(program: string): Promise<{ bidi: Bidi; end(): Promise<void>; fresh: boolean }> {
-  const folder = mkdtempSync(join(tmpdir(), 'tent-webkit-'))
+  const folder = mkdtempSync(join(tmpdir(), 'forjr-webkit-'))
   const port = await freePort()
   // The driver of Safari takes its port as a word of its own, and that of WebKitGTK after an equals sign.
   const args = program.endsWith('safaridriver') ? ['-p', String(port)] : [`--port=${port}`]
@@ -152,7 +152,7 @@ async function webkitStarted(program: string): Promise<{ bidi: Bidi; end(): Prom
     return { bidi: await bidiAt(address), end, fresh: false }
   } catch (error) {
     await end()
-    throw error instanceof TentError ? error : notRun('WebKit', String(error))
+    throw error instanceof ForjrError ? error : notRun('WebKit', String(error))
   }
 }
 
@@ -164,7 +164,7 @@ const text = (value: string): { type: 'string'; value: string } => ({ type: 'str
  * page of it over WebDriver BiDi. Every request of the page goes through the routes of the engine: one that leaves
  * for another place than the app is made by the engine, under the rule of the guarded fetch, and one for a name of
  * the app's own is answered by the app in this program, which the browser need not find. Answers the page.
- * Throws T0016, as not run where the engine does not speak WebDriver BiDi on this computer.
+ * Throws F0016, as not run where the engine does not speak WebDriver BiDi on this computer.
  *
  * Each page is a browser of its own, where a page of Chromium is a context of the program's one browser: a context
  * of Firefox cannot route its requests through the engine without a door of system access this design does not
@@ -234,7 +234,7 @@ export async function bidiBrowser(o: Opened, at: DrawnAt, opening: BrowserOpenin
     await bidi.send('browsingContext.setViewport', { context, viewport: opening.size, devicePixelRatio: 1 })
     // The page tells the app that a test drives it, which the mode `test` alone reads.
     await bidi.send('storage.setCookie', {
-      cookie: { name: 'tent_test', value: text('1'), domain: new URL(origin).hostname, path: '/' },
+      cookie: { name: 'forjr_test', value: text('1'), domain: new URL(origin).hostname, path: '/' },
     })
     if (opening.cookie)
       await bidi.send('storage.setCookie', {
@@ -316,7 +316,7 @@ export async function bidiBrowser(o: Opened, at: DrawnAt, opening: BrowserOpenin
       },
       async files(expression, paths) {
         const element = await evaluated(expression, 'root')
-        if (typeof element.sharedId !== 'string') throw new TentError('T0001', 'No field of files was found.')
+        if (typeof element.sharedId !== 'string') throw new ForjrError('F0001', 'No field of files was found.')
         await bidi.send('input.setFiles', { context, element: { sharedId: element.sharedId }, files: paths })
       },
       async picture(how = {}) {

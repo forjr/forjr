@@ -52,4 +52,4 @@ const refreshing: Refreshing = {
   refreshed: () => void performReactRefresh(),
 }
 
-globalThis.__tentRefresh = refreshing
+globalThis.__forjrRefresh = refreshing

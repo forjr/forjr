@@ -1,5 +1,5 @@
 import type { Caller, User } from '../core/index.ts'
-import { TentError, table, where } from '../core/index.ts'
+import { ForjrError, table, where } from '../core/index.ts'
 import type { Description, Plan } from '../core/internal.ts'
 import { valueOf } from '../core/internal.ts'
 import type { TableModel } from './model.ts'
@@ -12,7 +12,7 @@ import { callerText } from './callerText.ts'
 /**
  * A `where` rule that is code, once its module is loaded: it is handed the user and a `db` that gives plans only,
  * and answers a filter as it is written: a record from each column to what is asked of it, which is stored here.
- * One that calls `db.sql`, `db.n` or `db.system` is T0013.
+ * One that calls `db.sql`, `db.n` or `db.system` is F0013.
  */
 export type RuleCode = (user: User | undefined, db: object) => Record<string, unknown>
 
@@ -39,8 +39,8 @@ export interface Ruled {
 const rolesOf = (caller: Caller): string[] => caller.key?.roles ?? caller.user?.roles ?? []
 
 /** The error of a rule that reaches for what only code with full access has. */
-const plansAlone = (member: string): TentError =>
-  new TentError('T0013', `A \`where\` rule used \`db.${member}\`: the \`db\` of a rule gives plans alone.`, {
+const plansAlone = (member: string): ForjrError =>
+  new ForjrError('F0013', `A \`where\` rule used \`db.${member}\`: the \`db\` of a rule gives plans alone.`, {
     fix: 'Answer a filter that is written with the plans of `db`. What needs full access is read by a query that states `system`.',
   })
 
@@ -75,9 +75,9 @@ export const ruleResolve =
 /** A filter as an arrow of a rule wrote it, stored. */
 function storedFilter(written: unknown): Filter {
   if (typeof written !== 'object' || written === null)
-    throw new TentError('T0009', 'The arrow of a `where` rule answered no filter.')
+    throw new ForjrError('F0009', 'The arrow of a `where` rule answered no filter.')
   const { filter } = where(written)
-  if (!filter) throw new TentError('T0009', 'The arrow of a `where` rule answered no filter.')
+  if (!filter) throw new ForjrError('F0009', 'The arrow of a `where` rule answered no filter.')
   return filter
 }
 
@@ -85,7 +85,7 @@ function storedFilter(written: unknown): Filter {
  * Takes what a rule is worked out with, a table, and what is asked of its rows. Answers what the rule lets the
  * caller reach, with the name of the rule and the words of a refusal. A table has `nobody` for what it does not
  * state. A `where` rule that is code is asked as a function handed in under `<table>_access_<what>`, and one whose
- * arrow was read is worked out here, with no module loaded. Throws T0009 for a rule that is code and was not handed in.
+ * arrow was read is worked out here, with no module loaded. Throws F0009 for a rule that is code and was not handed in.
  */
 export function ruled(cx: Ruling, model: TableModel, what: 'read' | 'add' | 'change' | 'remove'): Ruled {
   const record = model.access[what] ?? { rule: 'nobody' }
@@ -100,7 +100,7 @@ export function ruled(cx: Ruling, model: TableModel, what: 'read' | 'add' | 'cha
   const filtered = (filter: Filter) => {
     // An entry that is left out while its value holds nothing would open the table to a caller who has none.
     if (holdsGiven(filter))
-      throw new TentError('T1014', `The rule of ${at} answers a filter that holds \`given\`.`, {
+      throw new ForjrError('F1014', `The rule of ${at} answers a filter that holds \`given\`.`, {
         fix: 'Write the entry without `given`: a rule asks the same of every caller.',
       })
     // A filter that comes to nothing reaches no row.
@@ -135,7 +135,7 @@ export function ruled(cx: Ruling, model: TableModel, what: 'read' | 'add' | 'cha
         return filtered(storedFilter(valueOf(record.give, { names: { [names[0]]: user, [names[1]]: db } })))
       }
       const code = cx.rules[`${model.name}_access_${what}`]
-      if (!code) throw new TentError('T0009', `The rule of ${at} is code, and its function was not handed in.`)
+      if (!code) throw new ForjrError('F0009', `The rule of ${at} is code, and its function was not handed in.`)
       return filtered(storedFilter(code(user, db)))
     }
     default:
@@ -160,5 +160,5 @@ const isFilter = (stored: unknown): stored is Filter =>
 /** Reads a record of the description as a filter: the shape of the description holds it to be one. */
 function toFilter(stored: unknown): Filter {
   if (isFilter(stored)) return stored
-  throw new TentError('T0011', 'A rule of the description holds no filter.')
+  throw new ForjrError('F0011', 'A rule of the description holds no filter.')
 }

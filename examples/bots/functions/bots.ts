@@ -1,4 +1,4 @@
-import { boolean, change, choice, date, fail, input, link, list, object, query, start, text } from 'tentjs'
+import { boolean, change, choice, date, fail, input, link, list, object, query, start, text } from 'forjr'
 import { bot } from '../agents/bot'
 import { botColours, botShapes } from '../lib/looks'
 import { bots } from '../tables/bots'

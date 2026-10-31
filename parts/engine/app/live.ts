@@ -5,7 +5,7 @@ import type { Opened } from '../opened.ts'
 import { heldOpen } from '../opened.ts'
 
 /**
- * `app.live`: the opening of `/_t/live` with no network. The scheme and the name it was sent to are those of its
+ * `app.live`: the opening of `/_f/live` with no network. The scheme and the name it was sent to are those of its
  * address. It passes the steps of the door that the opening passes, and throws what the opening was refused with.
  * It answers the end that a page holds, at once: what is sent before the hub is loaded waits for it.
  */

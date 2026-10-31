@@ -1,4 +1,4 @@
-import { change, flow, input, query, text } from 'tentjs'
+import { change, flow, input, query, text } from 'forjr'
 import { marks, orders } from './tables.ts'
 
 export const addOrder = change('addOrder', {

@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { later, TentError } from '../../core/index.ts'
+import { later, ForjrError } from '../../core/index.ts'
 import type { Clock } from '../../core/internal.ts'
 import { rowIds } from '../../data/index.ts'
 import type { Frame, Link } from '../copy/link.ts'
@@ -215,8 +215,8 @@ export async function startWorker(
       const { fetchVersion } = await import('../copy/versions.ts')
       await fetchVersion(o.folder, told, async (fingerprint) => {
         const from = writer()
-        const answer = await reached(from).request(new Request(`${from}/_t/work/blob/${fingerprint}`, { headers }))
-        if (!answer.ok) throw new TentError('T0011', `The writer did not give the file ${fingerprint}.`)
+        const answer = await reached(from).request(new Request(`${from}/_f/work/blob/${fingerprint}`, { headers }))
+        if (!answer.ok) throw new ForjrError('F0011', `The writer did not give the file ${fingerprint}.`)
         return new Uint8Array(await answer.arrayBuffer())
       })
       const served = await servedOn(o.folder, told.version, clock, appMode, room)
@@ -237,7 +237,7 @@ export async function startWorker(
     let served: Opened
     try {
       const told = versions.get(String(task.version))
-      if (!told) throw new TentError('T0011', `This worker does not hold the version ${String(task.version)}.`)
+      if (!told) throw new ForjrError('F0011', `This worker does not hold the version ${String(task.version)}.`)
       served = await told
     } catch (error) {
       one.ended = { t: 'failed', task: id, error: wireError(error, true).error, cpuMs: 0 }
@@ -488,16 +488,16 @@ export async function startWorker(
       case 'saved':
       case 'refused':
         // An end that was refused for the count of a minute is sent again a beat later, and kept until it is saved.
-        if (message.t === 'refused' && message.code === 'T0005') {
+        if (message.t === 'refused' && message.code === 'F0005') {
           const one = held.get(String(message.task))
           const again = message.what === 'progress' ? one?.unsaved.get(Number(message.n)) : one?.ended
           if (again) clock.setTimer(clock.now() + beat, () => send(again))
           return
         }
-        if (message.t === 'refused' && message.code === 'T5108') held.get(String(message.task))?.abort.abort()
+        if (message.t === 'refused' && message.code === 'F5108') held.get(String(message.task))?.abort.abort()
         // A progress that was saved, or refused for good, is sent again no more.
         if (message.what === 'progress') held.get(String(message.task))?.unsaved.delete(Number(message.n))
-        if (message.what !== 'progress' || (message.t === 'refused' && message.code === 'T5108')) {
+        if (message.what !== 'progress' || (message.t === 'refused' && message.code === 'F5108')) {
           held.delete(String(message.task))
           keepHeld()
         }
@@ -522,8 +522,8 @@ export async function startWorker(
           // A call that nobody agreed to is refused with its place, which makes the step wait for the person.
           const place = placeOfSent(error)
           call.reject(
-            new TentError(
-              String(error.code ?? 'T0009'),
+            new ForjrError(
+              String(error.code ?? 'F0009'),
               String(error.message ?? 'The writer refused the call.'),
               place ? { place } : {},
             ),
@@ -552,7 +552,7 @@ export async function startWorker(
     if (closed || link) return
     let opened: Link
     try {
-      opened = reached(writer()).link(new Request(`${writer()}/_t/work`, { headers }))
+      opened = reached(writer()).link(new Request(`${writer()}/_f/work`, { headers }))
     } catch {
       at += 1
       again()

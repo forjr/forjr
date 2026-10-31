@@ -32,20 +32,20 @@ function stored(folder: string, table: string): { columns: string[]; key: string
   }
 }
 
-test('[16-4@3] `_t_meta` is a table of the store with exactly its columns and its key, and holds the layout of each table', (t) => {
+test('[16-4@3] `_f_meta` is a table of the store with exactly its columns and its key, and holds the layout of each table', (t) => {
   const folder = workFolder(t)
   const store = opened(folder)
   assert.deepEqual(Object.keys(metaTable.columns), ['key', 'value'])
   assert.deepEqual(metaTable.key, ['key'])
-  assert.deepEqual(stored(folder, '_t_meta'), { columns: ['key', 'value'], key: ['key'] })
+  assert.deepEqual(stored(folder, '_f_meta'), { columns: ['key', 'value'], key: ['key'] })
   assert.deepEqual(
     store.layout().map((table) => table.name),
-    ['_t_meta'],
+    ['_f_meta'],
   )
 
   made(store, [customers, orders])
   const layout = store.layout()
-  assert.deepEqual(layout.map((table) => table.name).sort(), ['_t_meta', 'customers', 'orders'])
+  assert.deepEqual(layout.map((table) => table.name).sort(), ['_f_meta', 'customers', 'orders'])
   assert.deepEqual(
     layout.find((table) => table.name === 'orders'),
     orders,
@@ -57,8 +57,8 @@ test('[16-4@3] `_t_meta` is a table of the store with exactly its columns and it
   // The layout is kept in the file, one row for each table, so a store that opens it again answers the same.
   const again = opened(folder)
   assert.deepEqual(again.layout(), layout)
-  const rows = again.read({ from: '_t_meta' }, system)
-  assert.deepEqual(rows.tables, ['_t_meta'])
+  const rows = again.read({ from: '_f_meta' }, system)
+  assert.deepEqual(rows.tables, ['_f_meta'])
   const keys = (Array.isArray(rows.value) ? rows.value : []).map((row) => String(row.key))
   for (const name of ['shapeNumber', 'layout:customers', 'layout:orders'])
     assert.ok(keys.includes(name), `${name} in ${keys}`)
@@ -70,14 +70,14 @@ test('[16-4@3] `_t_meta` is a table of the store with exactly its columns and it
   })
 })
 
-test('[16-2@3] T0013: the store refuses a raw text that is more than one statement which reads or writes rows, and a table of the engine', (t) => {
+test('[16-2@3] F0013: the store refuses a raw text that is more than one statement which reads or writes rows, and a table of the engine', (t) => {
   const store = opened(workFolder(t))
   made(store, [customers, orders])
   const refused = [
     'SELECT 1; SELECT 2',
     "SELECT name FROM customers; DELETE FROM customers WHERE name = 'x'",
-    'SELECT * FROM _t_meta',
-    'SELECT name FROM customers WHERE name IN (SELECT value FROM _t_meta)',
+    'SELECT * FROM _f_meta',
+    'SELECT name FROM customers WHERE name IN (SELECT value FROM _f_meta)',
     'COMMIT',
     'BEGIN',
     'ROLLBACK',
@@ -89,7 +89,7 @@ test('[16-2@3] T0013: the store refuses a raw text that is more than one stateme
     'CREATE TEMP TABLE loose (a)',
     'CREATE INDEX loose ON customers (name)',
     'CREATE VIEW loose AS SELECT 1',
-    'CREATE TRIGGER loose AFTER INSERT ON customers BEGIN DELETE FROM _t_meta; END',
+    'CREATE TRIGGER loose AFTER INSERT ON customers BEGIN DELETE FROM _f_meta; END',
     'ALTER TABLE customers ADD COLUMN loose',
     'DROP TABLE customers',
     'VACUUM',
@@ -101,19 +101,19 @@ test('[16-2@3] T0013: the store refuses a raw text that is more than one stateme
   for (const sql of refused) {
     assert.equal(
       codeOf(() => store.sql?.(sql, [])),
-      'T0013',
+      'F0013',
       `outside a write: ${sql}`,
     )
     assert.equal(
       codeOf(() => store.write((tx) => tx.sql(sql, []))),
-      'T0013',
+      'F0013',
       `inside a write: ${sql}`,
     )
   }
   // A write of a table of the engine is refused inside a write too, and leaves nothing.
   assert.equal(
-    codeOf(() => store.write((tx) => tx.sql("UPDATE _t_meta SET value = '9' WHERE key = 'shapeNumber'", []))),
-    'T0013',
+    codeOf(() => store.write((tx) => tx.sql("UPDATE _f_meta SET value = '9' WHERE key = 'shapeNumber'", []))),
+    'F0013',
   )
 
   // What ends a statement is a semicolon outside quoted text and outside a comment, and only white space and
@@ -144,17 +144,17 @@ test('[16-2@3] T0013: the store refuses a raw text that is more than one stateme
   assert.ok(store.layout().some((table) => table.name === 'lines'))
   assert.equal(
     codeOf(() => store.write(() => store.applyTableChanges([{ do: 'dropTable', table: 'lines' }]))),
-    'T0013',
+    'F0013',
   )
   assert.equal(
     codeOf(() => store.applyTableChanges([{ do: 'addTable', table: 'more', layout: tableOf('more', {}) }])),
-    'T0013',
+    'F0013',
     'outside a write',
   )
   assert.ok(store.layout().some((table) => table.name === 'lines'))
 })
 
-test('[16-2@3] T0012: a raw text that writes outside a write, and a write through a store that only reads', (t) => {
+test('[16-2@3] F0012: a raw text that writes outside a write, and a write through a store that only reads', (t) => {
   const folder = workFolder(t)
   const store = opened(folder)
   made(store, [customers])
@@ -165,7 +165,7 @@ test('[16-2@3] T0012: a raw text that writes outside a write, and a write throug
   ])
     assert.equal(
       codeOf(() => store.sql?.(sql, [])),
-      'T0012',
+      'F0012',
       sql,
     )
   // The same text inside a write is taken, and the write reports the table it stated with no ids.
@@ -180,15 +180,15 @@ test('[16-2@3] T0012: a raw text that writes outside a write, and a write throug
   assert.deepEqual(reader.sql?.('SELECT name FROM customers', []), [{ name: 'x' }])
   assert.equal(
     codeOf(() => reader.write((tx) => tx.add('customers', { name: 'z' }, system))),
-    'T0012',
+    'F0012',
   )
   assert.equal(
     codeOf(() => reader.sql?.("UPDATE customers SET name = 'y'", [])),
-    'T0012',
+    'F0012',
   )
 })
 
-test('[16-2@3] T2101, T2103, T2104 and T2107: what the store itself refuses of a row', (t) => {
+test('[16-2@3] F2101, F2103, F2104 and F2107: what the store itself refuses of a row', (t) => {
   const store = opened(workFolder(t))
   made(store, [customers, orders])
   const ada = store.write((tx) => tx.add('customers', { name: 'Ada', email: 'ada@example.com' }, system)).value
@@ -196,25 +196,25 @@ test('[16-2@3] T2101, T2103, T2104 and T2107: what the store itself refuses of a
   assert.equal(order.customer, ada.id)
 
   const twice = () => store.write((tx) => tx.add('customers', { name: 'Eve', email: 'ada@example.com' }, system))
-  assert.equal(codeOf(twice), 'T2101')
+  assert.equal(codeOf(twice), 'F2101')
   assert.throws(twice, (error: { fields?: Record<string, string> }) => 'email' in (error.fields ?? {}))
 
   const gone = '00000000000000000000000000'
   assert.equal(
     codeOf(() => store.write((tx) => tx.change('customers', gone, { name: 'x' }, system))),
-    'T2103',
+    'F2103',
   )
   assert.equal(
     codeOf(() => store.write((tx) => tx.remove('customers', gone, system))),
-    'T2103',
+    'F2103',
   )
   assert.equal(
     codeOf(() => store.write((tx) => tx.add('orders', { customer: gone, total: 1, status: 'open' }, system))),
-    'T2104',
+    'F2104',
   )
   assert.equal(
     codeOf(() => store.write((tx) => tx.change('orders', String(order.id), { customer: gone }, system))),
-    'T2104',
+    'F2104',
   )
   // A value that is not one of a choice, nothing for a required column, and a column the table does not have.
   for (const values of [
@@ -224,12 +224,12 @@ test('[16-2@3] T2101, T2103, T2104 and T2107: what the store itself refuses of a
   ])
     assert.equal(
       codeOf(() => store.write((tx) => tx.add('orders', values, system))),
-      'T2107',
+      'F2107',
       JSON.stringify(values),
     )
   assert.equal(
     codeOf(() => store.write((tx) => tx.change('orders', String(order.id), { total: null }, system))),
-    'T2107',
+    'F2107',
   )
   // Each refusal undid its whole write: the file holds the two rows it held.
   assert.deepEqual(

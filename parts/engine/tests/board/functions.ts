@@ -1,4 +1,4 @@
-import { action, anyone, change, input, list, number, query, role, text } from 'tentjs'
+import { action, anyone, change, input, list, number, query, role, text } from 'forjr'
 import { isMainThread } from 'node:worker_threads'
 import { cards, notices, users } from './tables.ts'
 

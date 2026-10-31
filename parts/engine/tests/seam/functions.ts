@@ -1,4 +1,4 @@
-import { change, object, query, text } from 'tentjs'
+import { change, object, query, text } from 'forjr'
 import { notes } from './tables.ts'
 
 // What a query answers, kept at the top of the module: the engine must be handed this very record.

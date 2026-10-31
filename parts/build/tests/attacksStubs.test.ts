@@ -12,7 +12,7 @@ const generated = /definition["'`]?:\s*["'`](vaultRows|vaultPlain|addToVault|ask
 const takeNothing = ['type', 'require']
 
 /**
- * Builds each way in a project that holds the package `tentjs`, so that a backend file which is answered with
+ * Builds each way in a project that holds the package `forjr`, so that a backend file which is answered with
  * itself builds too, and is found. Answers every browser file that holds a marker text, and each way that did not
  * build whole: with an error, with no bundle, with no screen, or with no generated file where it imports one.
  */
@@ -87,7 +87,7 @@ test('[05-4.24] a screen that imports a helper file, which imports neither side,
     // A query that reads a table the caller may not read: the screen holds the name of the query, and not of its table.
     'plain-data': {
       'screens/way.tsx':
-        "import { read, screen } from 'tentjs/ui'\n" +
+        "import { read, screen } from 'forjr/ui'\n" +
         `import { vaultPlain } from '${vault}'\n` +
         "export const wayScreen = screen('wayScreen', { path: '/way', access: 'anyone', data: { rows: read(vaultPlain) }, view: ({ rows }) => <span>{rows.length}</span> })\n",
     },
@@ -96,8 +96,8 @@ test('[05-4.24] a screen that imports a helper file, which imports neither side,
   assert.deepEqual(leaks, [])
 })
 
-test('[05-4.25] a screen file, a helper, a package and a style file that ask for a backend file as its text or as an address: the build ends with T1005 on the line that asks, and writes no bundle', async () => {
-  // Where each way asks: the line of a screen file after its import of `tentjs/ui`, and the one line of any other file.
+test('[05-4.25] a screen file, a helper, a package and a style file that ask for a backend file as its text or as an address: the build ends with F1005 on the line that asks, and writes no bundle', async () => {
+  // Where each way asks: the line of a screen file after its import of `forjr/ui`, and the one line of any other file.
   const asks: Record<string, string> = {
     'as-text': 'screens/way.tsx:2',
     'as-an-address': 'screens/way.tsx:2',
@@ -143,14 +143,14 @@ test('[05-4.25] a screen file, a helper, a package and a style file that ask for
   const wanted: Record<string, unknown> = {}
   for (const [name, way] of Object.entries(ways)) {
     const one = await reached(name, way)
-    // No bundle, and T1005 alone, on the line that asks. What a bundle held, where one was written, is told with it.
+    // No bundle, and F1005 alone, on the line that asks. What a bundle held, where one was written, is told with it.
     seen[name] = { built: one.built, errors: [...new Set(one.errors)], leaks: one.leaks }
-    wanted[name] = { built: false, errors: [`T1005 ${asks[name]}`], leaks: [] }
+    wanted[name] = { built: false, errors: [`F1005 ${asks[name]}`], leaks: [] }
   }
   assert.deepEqual(seen, wanted)
 })
 
-test('[05-4.26] a backend file that a screen file and a helper name with a question mark or a hash after its name, in a project that holds the package tentjs: the browser files hold its generated file and nothing else of it', async () => {
+test('[05-4.26] a backend file that a screen file and a helper name with a question mark or a hash after its name, in a project that holds the package forjr: the browser files hold its generated file and nothing else of it', async () => {
   const lone = '../functions/alone.ts'
   const ways: Record<string, Way> = {
     'question-mark': {

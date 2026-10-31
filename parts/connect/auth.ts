@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { isStored } from '../core/internal.ts'
 import type { ConnectEnv } from './env.ts'
 import type { Planned, Stored } from './requestOf.ts'
@@ -7,7 +7,7 @@ import { valueOf } from './requestOf.ts'
 /**
  * Takes what the engine hands `connect`, the record of a service, and a request of it. Puts the auth of the
  * service on the request: `bearer` and `basic` as the standard line, `header` as that line, `query` as one more
- * name of the address. A secret is opened here, which throws T0019 where it has no value. `oauth` and an auth
+ * name of the address. A secret is opened here, which throws F0019 where it has no value. `oauth` and an auth
  * of the builder's own are put on elsewhere: the first needs the connection of the user, the second runs last.
  */
 export function authAdded(env: ConnectEnv, stored: Stored, planned: Planned): void {
@@ -25,7 +25,7 @@ export function authAdded(env: ConnectEnv, stored: Stored, planned: Planned): vo
 /**
  * Takes what the engine hands `connect`, the record of a service, its name, a finished request, and the user the
  * call is made for. Answers the request that is sent: the one the signer of the builder's own answers, where the
- * service names one, and the same request otherwise. Throws T0009 where the signer fails.
+ * service names one, and the same request otherwise. Throws F0009 where the signer fails.
  */
 export async function signerRan(
   env: ConnectEnv,
@@ -40,7 +40,7 @@ export async function signerRan(
   try {
     return await signer(request, { service, ...(user === undefined ? {} : { user }) })
   } catch (error) {
-    throw Object.assign(new TentError('T0009', `The signer ${String(auth.by)} of the service ${service} failed.`), {
+    throw Object.assign(new ForjrError('F0009', `The signer ${String(auth.by)} of the service ${service} failed.`), {
       cause: error,
     })
   }

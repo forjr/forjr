@@ -15,7 +15,7 @@ interface Lying {
   path: string
 }
 
-/** A value that the shared file keeps of itself in `_t_meta`. */
+/** A value that the shared file keeps of itself in `_f_meta`. */
 const metaIn = (shared: Store, id: string): unknown =>
   Reflect.get(Object(shared.read({ from: metaTable.name, one: 'get', id }, system).value), 'value')
 
@@ -47,7 +47,7 @@ function heldIn(path: string): { sealed: boolean; n: number } {
   const plain = sqliteStore()
   plain.open(path, { readOnly: true, lazy: true })
   try {
-    const sealed = plain.layout().some((table) => !table.name.startsWith('_t_') && sealedOf(table).length > 0)
+    const sealed = plain.layout().some((table) => !table.name.startsWith('_f_') && sealedOf(table).length > 0)
     return { sealed, n: numberOf(plain) }
   } finally {
     plain.close()

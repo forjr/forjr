@@ -1,6 +1,6 @@
 import { existsSync, readdirSync, readFileSync, statSync } from 'node:fs'
 import { join, resolve } from 'node:path'
-import { boolean, choice, later, list, number, TentError, text } from '../../core/index.ts'
+import { boolean, choice, later, list, number, ForjrError, text } from '../../core/index.ts'
 import { askAccount, finding, write } from '../../core/internal.ts'
 import type { OpenOptions } from '../../engine/index.ts'
 import { createEngine, keptAlone } from '../../engine/index.ts'
@@ -31,16 +31,16 @@ function readerOfSource(): { readBody?: (text: string, o: { tools: string[]; fil
 
 type ReadBodyOf = ReturnType<typeof import('../../build/index.ts')['readBody']>
 
-/** The newest bundle that `tent build` wrote into `.tent/build/` of a folder. Throws where there is none. */
+/** The newest bundle that `forjr build` wrote into `.forjr/build/` of a folder. Throws where there is none. */
 function newestBundle(folder: string): string {
-  const builds = join(folder, '.tent', 'build')
+  const builds = join(folder, '.forjr', 'build')
   const bundles = existsSync(builds)
     ? readdirSync(builds)
         .map((name) => join(builds, name))
         .filter((bundle) => existsSync(join(bundle, 'description.json')))
         .sort((a, b) => statSync(join(b, 'description.json')).mtimeMs - statSync(join(a, 'description.json')).mtimeMs)
     : []
-  if (!bundles.length) throw new Error(`No bundle is in ${builds}: run \`tent build\` first, or name a bundle.`)
+  if (!bundles.length) throw new Error(`No bundle is in ${builds}: run \`forjr build\` first, or name a bundle.`)
   return bundles[0]
 }
 
@@ -68,7 +68,7 @@ function entriesOf(flag: string, written: unknown): Record<string, string> {
 /**
  * Reads the key of a reader from the file that `--key-from` names. A key is kept in a file that only the current
  * user can read: a file that another user may read, one that the current user does not own, and a link are
- * refused before a byte is read, with T0013, the name of the file and how it is closed. Throws where no file is
+ * refused before a byte is read, with F0013, the name of the file and how it is closed. Throws where no file is
  * named, where it is not there, or where it holds no key.
  */
 function keyFrom(folder: string, file: unknown): string {
@@ -77,7 +77,7 @@ function keyFrom(folder: string, file: unknown): string {
   const path = resolve(folder, file)
   const kept = keptAlone(path)
   if (kept.why !== undefined)
-    throw new TentError('T0013', `The key of a reader is not taken from ${path}: ${kept.why}.`, {
+    throw new ForjrError('F0013', `The key of a reader is not taken from ${path}: ${kept.why}.`, {
       fix: `Keep the key in a file of your own that only you can read: ${kept.close}`,
     })
   const key = readFileSync(path, 'utf8').trim()
@@ -103,7 +103,7 @@ function countingFrom(
 
 /**
  * Runs a bundle as a server, until the program is told to end. It never builds. The bundle is the newest in
- * `.tent/build/`, the data folder `.tent/`, the port 3000 and the mode `live`, where they are not named. `--seed`
+ * `.forjr/build/`, the data folder `.forjr/`, the port 3000 and the mode `live`, where they are not named. `--seed`
  * applies the seed to data that is empty. With `--reads <address>` it runs a reader of the writer at that address,
  * with the key of the file that `--key-from` names: `--far` makes it a far one, `--own <address>` states where the
  * other machines reach it, and `--insecure` lets it reach its writer over a connection that is not secure. With
@@ -164,17 +164,17 @@ export const command: Command = {
     if (args['as-root'] !== true && runsAsRoot())
       return {
         findings: [
-          finding('T0013', 'tent start does not run as root or as an administrator: an app needs no such rights.', {
-            fix: 'Start it as a user of its own: tent service prints what does. Type --as-root where you mean it.',
+          finding('F0013', 'forjr start does not run as root or as an administrator: an app needs no such rights.', {
+            fix: 'Start it as a user of its own: forjr service prints what does. Type --as-root where you mean it.',
           }),
         ],
       }
-    const dataFolder = resolve(folder, typeof args.data === 'string' ? args.data : '.tent')
+    const dataFolder = resolve(folder, typeof args.data === 'string' ? args.data : '.forjr')
     // The key of the secrets is taken from a file of its own, and never from a definition of the system.
     if (typeof args['secret-key-from'] === 'string') {
       const key = secretKeyFrom(resolve(folder, args['secret-key-from']))
       if ('finding' in key) return { findings: [key.finding] }
-      process.env.TENT_SECRET_KEY = key.key
+      process.env.FORJR_SECRET_KEY = key.key
     }
     const named = typeof args.bundle === 'string' ? resolve(folder, args.bundle) : undefined
     // A reader needs no bundle: it fetches the running version from its writer.
@@ -239,7 +239,7 @@ export const command: Command = {
         if (typeof args.reads === 'string' || typeof args.works === 'string') key = keyFrom(folder, args['key-from'])
       } catch (error) {
         // A key file that is not kept as a key is a finding, with how the file is closed: no reader is started.
-        if (!(error instanceof TentError)) throw error
+        if (!(error instanceof ForjrError)) throw error
         return { findings: [finding(error.code, error.message, error.fix === undefined ? {} : { fix: error.fix })] }
       }
       if (typeof args.works === 'string') {
@@ -273,7 +273,7 @@ export const command: Command = {
       if (typeof args['versions-from'] === 'string')
         follower = await followServer({
           engine,
-          from: { address: args['versions-from'], key: process.env.TENT_KEY ?? keyFrom(folder, args['key-from']) },
+          from: { address: args['versions-from'], key: process.env.FORJR_KEY ?? keyFrom(folder, args['key-from']) },
           fetch: serverFetch(args.insecure === true ? new URL(args['versions-from']).host : undefined),
           dataFolder,
           ...(typeof args.every === 'string' ? { every: later(new Date(0), args.every).getTime() } : {}),
@@ -326,7 +326,7 @@ export const command: Command = {
       const { port } = runs
       // The app says its name and its running version as it says them to anyone who asks whether it is ready. A
       // reader answers nothing itself until it is current: its name and its version are those of what it runs.
-      const health = await app.request(new Request(`http://localhost:${port}/_t/health`))
+      const health = await app.request(new Request(`http://localhost:${port}/_f/health`))
       const healthy: unknown = health.ok ? Reflect.get(Object(await health.json()), 'value') : undefined
       const said = health.ok
         ? { app: String(Reflect.get(Object(healthy), 'app')), version: String(Reflect.get(Object(healthy), 'version')) }

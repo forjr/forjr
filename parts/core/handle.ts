@@ -12,7 +12,7 @@ function memberOf(working: object, handle: string, member: string): (...args: un
 /**
  * Takes the name of a handle and of one of its members. Answers the member as a marker: reading it does no work,
  * it carries the name `<handle>.<member>`, and a call is forwarded to the working object that the runtime gives for
- * the handle. A call throws T0010 where the slot is empty.
+ * the handle. A call throws F0010 where the slot is empty.
  */
 export function member<Fn>(handle: string, name: string): Fn & Marker
 export function member(handle: string, name: string): unknown {

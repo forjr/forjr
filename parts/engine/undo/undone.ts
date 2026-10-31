@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { By, FileName, Row, SinkChange, Store, Wrote } from '../../data/index.ts'
 import { putBack } from '../../data/index.ts'
 import type { PutBack } from '../archived/archive.ts'
@@ -118,7 +118,7 @@ function standing(o: Opened, net: Net): Row | undefined {
 
 /** Whether a change is of the rows of the app: a table of the engine's own is never taken back. */
 const ofTheApp = (o: Opened, table: string): boolean =>
-  !table.startsWith('_t_') && Object.hasOwn(o.description.tables, table)
+  !table.startsWith('_f_') && Object.hasOwn(o.description.tables, table)
 
 /** What the work did to each row, from its changes in order. */
 function netsOf(o: Opened, changes: SinkChange[]): Map<string, Net> {
@@ -206,7 +206,7 @@ function othersOf(o: Opened, changes: SinkChange[]) {
  * row it removed is put back with its id, and a row it added and removed again is left gone. It is all one write
  * as a change is carried out, made by the caller of the undo: the kept numbers, `onRemove`, the triggers, the
  * searcher and the files follow it, and it can be undone in its turn. Dry, it answers the same and writes nothing.
- * Throws T2028 where the app keeps no archive.
+ * Throws F2028 where the app keeps no archive.
  */
 export async function undoneBy(
   o: Opened,
@@ -215,7 +215,7 @@ export async function undoneBy(
 ): Promise<Undone> {
   const archive = archiveOf(o)
   if (!archive)
-    throw new TentError('T2028', 'This app keeps no archive of its changes: undo reaches back as far as it does.', {
+    throw new ForjrError('F2028', 'This app keeps no archive of its changes: undo reaches back as far as it does.', {
       fix: 'Leave `archive` of `backups` on, the default: undo reaches back as far as the archive.',
     })
   const until = o.clock.now()

@@ -9,7 +9,7 @@ import { publishAnswer } from './serve/publishing.ts'
 import { syncAnswer } from './serve/sync.ts'
 import { valuesAnswer } from './serve/values.ts'
 
-// The rights that each address of `/_t/sync` may be asked with: the handler holds a key to the one its part needs.
+// The rights that each address of `/_f/sync` may be asked with: the handler holds a key to the one its part needs.
 const anyRight = ['read', 'push', 'publish', 'bundle', 'copy', 'far']
 
 /**
@@ -27,7 +27,7 @@ const shownPointers = (history: History, rights: string[]): Record<string, strin
   )
 }
 
-/** The most bytes that a request to `/_t/sync` may hold: blobs one to a request as large as a file may be, JSON within `syncSize`. */
+/** The most bytes that a request to `/_f/sync` may hold: blobs one to a request as large as a file may be, JSON within `syncSize`. */
 function sizeOf(app: App, request: Request): number {
   if (!(request.headers.get('content-type') ?? '').startsWith(blobsType)) return syncLimit(app.description, 'syncSize')
   const bundled = new URL(request.url).searchParams.get('for') === 'bundle'
@@ -36,7 +36,7 @@ function sizeOf(app: App, request: Request): number {
 
 /**
  * Puts the work of the addresses of publishing behind `engine.serve` for one app, over the history of its server:
- * `/_t/sync/have`, `/_t/sync/blobs`, `/_t/sync/points`, `/_t/publish` and `/_t/publish/values`, each called with a
+ * `/_f/sync/have`, `/_f/sync/blobs`, `/_f/sync/points`, `/_f/publish` and `/_f/publish/values`, each called with a
  * key that holds a right. Gives the history's share of the daily upkeep too, which drops what is kept no longer.
  * Where the data folder and the mode of the server are named, it keeps previews of branches beside its app: each
  * runs at a name of its own, is opened again with the server, and is taken away when its branch is merged into a
@@ -74,16 +74,16 @@ export function serveSync(
   }
   engine.serve(
     app,
-    '/_t/sync',
+    '/_f/sync',
     { right: () => anyRight, size: (request) => sizeOf(app, request), ...limits },
     (asked) => syncAnswer(server, asked),
   )
   engine.serve(
     app,
-    '/_t/publish',
+    '/_f/publish',
     { right: () => ['publish'], size: () => syncLimit(app.description, 'syncSize'), ...limits },
     (asked) =>
-      new URL(asked.request.url).pathname === '/_t/publish/values'
+      new URL(asked.request.url).pathname === '/_f/publish/values'
         ? valuesAnswer(app, asked)
         : publishAnswer(publishing, asked),
   )

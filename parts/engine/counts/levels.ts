@@ -10,7 +10,7 @@ import { gather, levelsOf } from './gather.ts'
 
 const system = { kind: 'system' } as const
 
-/** One level as `_t_counting` keeps it under `level`: the size, and the moment up to which its byte-seconds are booked. */
+/** One level as `_f_counting` keeps it under `level`: the size, and the moment up to which its byte-seconds are booked. */
 interface Kept {
   size: number
   at: number
@@ -47,13 +47,13 @@ function dataSize(o: Opened): number {
   return size
 }
 
-/** How many bytes the files of an app hold, by the rows of `_t_files`. */
+/** How many bytes the files of an app hold, by the rows of `_f_files`. */
 function filesSize(o: Opened): number {
   const rows: unknown = o.store.read({ from: filesTable.name }, system).value
   return (Array.isArray(rows) ? rows : []).reduce((all, row) => all + Number(Reflect.get(Object(row), 'size') ?? 0), 0)
 }
 
-/** The levels that `_t_counting` holds of an app, where it holds them. */
+/** The levels that `_f_counting` holds of an app, where it holds them. */
 function keptOf(o: Opened): { files?: Kept; data?: Kept } {
   const row: unknown = o.store.read({ from: countingTable.name, one: 'get', id: 'level' }, system).value
   const value: unknown = Reflect.get(Object(row), 'value')
@@ -86,7 +86,7 @@ function measure(o: Opened, levels: Levels): void {
 
 /**
  * Takes an app that writes its counts now, and its open write. Answers the byte-seconds that its levels stood up to
- * now, and writes into `_t_counting` the moment up to which they are booked, in the write that books them: so a span
+ * now, and writes into `_f_counting` the moment up to which they are booked, in the write that books them: so a span
  * is booked once, also where the program is killed after it.
  */
 function due(o: Opened, tx: Tx): Gathered[] {
@@ -111,7 +111,7 @@ function due(o: Opened, tx: Tx): Gathered[] {
 
 /**
  * Starts the levels of an app that opens as the writer of its data. What stood while it was closed is added at
- * once, from the moment that `_t_counting` holds, and booked with the next write of the counts to the day it is
+ * once, from the moment that `_f_counting` holds, and booked with the next write of the counts to the day it is
  * written: a span below zero as none. The data is measured every `levelEvery` and when the app closes or falls
  * asleep, before what was counted is written.
  */

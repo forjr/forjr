@@ -40,7 +40,7 @@ test('[50-12.1] raw SQL of a function with full access that names another tenant
   assert.equal(await app.call('rawNamesOther', { team: south, other: north }, { as: system }), 0)
 
   // Raw SQL that names a table of the engine, that opens another file, that reads what tells of the file, or that
-  // holds two statements: each is refused with T0013 before it runs, and what it tells holds no path and no SQL.
+  // holds two statements: each is refused with F0013 before it runs, and what it tells holds no path and no SQL.
   const tries: [string, object][] = [
     ['rawMeta', { team: north }],
     ['rawSessions', { team: north }],
@@ -50,7 +50,7 @@ test('[50-12.1] raw SQL of a function with full access that names another tenant
   ]
   for (const [name, input] of tries) {
     const told = await refusal(app.call(name, input, { as: system }))
-    assert.equal(told.code, 'T0013', `${name}: ${told.message}`)
+    assert.equal(told.code, 'F0013', `${name}: ${told.message}`)
     tellsNothing(name, String(told.message), dataFolder)
   }
   // South is untouched: its one order still stands, read for South alone.
@@ -141,7 +141,7 @@ test('[50-12.7] a tenant file laid by hand that is no data file, under an id of 
 const first = `01${'0'.repeat(24)}`
 const last = `01${'0'.repeat(22)}zz`
 
-test('[50-12.11] a folder in the place of a tenant file, under an id of nobody: the upkeep removes it, tent data files --stray names it, and the walk goes on with every other file', async (t) => {
+test('[50-12.11] a folder in the place of a tenant file, under an id of nobody: the upkeep removes it, forjr data files --stray names it, and the walk goes on with every other file', async (t) => {
   const { app, dataFolder } = await deskOf(t)
   const north = await addTeam(app, 'North')
   await addOrder(app, north, 'of the north')
@@ -168,7 +168,7 @@ test('[50-12.11] a folder in the place of a tenant file, under an id of nobody: 
   )
 })
 
-test('[50-12.11] a thing that is no data file, under the id of a tenant with no file: the upkeep moves it aside, tent data files --stray names it, and the walk goes on with every other file', async (t) => {
+test('[50-12.11] a thing that is no data file, under the id of a tenant with no file: the upkeep moves it aside, forjr data files --stray names it, and the walk goes on with every other file', async (t) => {
   const { app, dataFolder } = await deskOf(t)
   const north = await addTeam(app, 'North')
   await addOrder(app, north, 'of the north')
@@ -217,7 +217,7 @@ test('[50-12.5] a backup of one tenant put back under another, by each way a res
 
   // Way one: the command that puts one tenant back. It is refused, and South keeps its own order.
   const one = await refusal(command(app, dataFolder, 'data', { what: 'restore', file: backup, of: south }))
-  assert.equal(one.code, 'T0009', `restore --of: ${one.message}`)
+  assert.equal(one.code, 'F0009', `restore --of: ${one.message}`)
   tellsNothing('restore --of', String(one.message), dataFolder)
 
   // Way two: the whole restore, by the command. South's file in the backup is North's: a read of South after it
@@ -275,8 +275,8 @@ test('[50-12.1] a command that names a tenant by a path, by the id of another ap
   }
   // By the id of another app's row (a user) and by a made-up id: both name no team, so no rows and no file.
   for (const named of [userId, madeUpId(42)]) assert.deepEqual(await rows(named), [], `${named} named a tenant`)
-  // By nothing: a tenant table, with no `of`, is T0002.
-  assert.equal((await refusal(rows(undefined))).code, 'T0002')
+  // By nothing: a tenant table, with no `of`, is F0002.
+  assert.equal((await refusal(rows(undefined))).code, 'F0002')
 
   // A restore and a retry named by a path: each is refused cleanly, and nothing of the data folder is touched.
   assert.ok(

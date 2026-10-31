@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { screen, read, optimistic, useCall, useQuery, Form } from 'tentjs/ui'
+import { screen, read, optimistic, useCall, useQuery, Form } from 'forjr/ui'
 import { addLater, addTodo, drop, finish, inbox, inboxCount, later, staffAdd } from './functions'
 
 // Two lists and a count, and presses that change them: each change is shown before the engine answers it.

@@ -36,7 +36,7 @@ function exportsOf(tree: Node): [string, Node][] {
 }
 
 /**
- * Takes the files of a project. Answers T6018 for what lives in the browser inside a component that is drawn on
+ * Takes the files of a project. Answers F6018 for what lives in the browser inside a component that is drawn on
  * the server alone: a `state` of its own, a `Form`, a property that a press or a state needs, an event handler, a
  * hook, `useField` among them; and for any other export of the file of such a component.
  */
@@ -45,26 +45,26 @@ export function servedFindings(source: Source): Finding[] {
   const found: Finding[] = []
   for (const written of served) {
     const state = propertyOf(written.declared.options, 'state')
-    if (state) found.push(at('T6018', written, state, `\`state\` in \`${written.name}\`: ${why}.`, fix))
+    if (state) found.push(at('F6018', written, state, `\`state\` in \`${written.name}\`: ${why}.`, fix))
     const view = arrowOf(written, 'view')
     if (view)
       walk(view, (node) => {
         const callee = node.type === 'CallExpression' ? unwrap(kid(node, 'callee') ?? node) : undefined
         const name = callee?.type === 'Identifier' ? word(callee, 'name') : undefined
         if (name !== undefined && /^use[A-Z]/.test(name))
-          found.push(at('T6018', written, node, `the hook \`${name}\` in \`${written.name}\`: ${why}.`, fix))
+          found.push(at('F6018', written, node, `the hook \`${name}\` in \`${written.name}\`: ${why}.`, fix))
       })
   }
   for (const tag of tagsOf(source)) {
     if (!served.includes(tag.written)) continue
     // A `Form` answers a person: it is told once, and not again for what it is given.
     if (tag.taken === 'Form') {
-      found.push(at('T6018', tag.written, tag.node, `a \`Form\` in \`${tag.written.name}\`: ${why}.`, fix))
+      found.push(at('F6018', tag.written, tag.node, `a \`Form\` in \`${tag.written.name}\`: ${why}.`, fix))
       continue
     }
     for (const [name, prop] of tag.props)
       if (living(name))
-        found.push(at('T6018', tag.written, prop.node, `\`${name}\` in \`${tag.written.name}\`: ${why}.`, fix))
+        found.push(at('F6018', tag.written, prop.node, `\`${name}\` in \`${tag.written.name}\`: ${why}.`, fix))
   }
   // The file of such a component is answered in a browser with a made text that gives its components alone.
   for (const path of new Set(served.map((one) => one.path))) {
@@ -76,7 +76,7 @@ export function servedFindings(source: Source): Finding[] {
       if (!own.has(name))
         found.push(
           at(
-            'T6018',
+            'F6018',
             first,
             node,
             `\`${name}\` is given by the file of a component that is drawn on the server alone, which a browser never loads.`,

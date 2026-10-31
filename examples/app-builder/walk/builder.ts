@@ -15,8 +15,8 @@ const run = promisify(execFile)
 export const APP_FOLDER = fileURLToPath(new URL('../', import.meta.url))
 export const PRODUCT = join(APP_FOLDER, 'product')
 
-// In this repository the command `tent` is this file, run by the pinned runtime.
-export const TENT = [process.execPath, fileURLToPath(new URL('../../../parts/cli/shell.ts', import.meta.url))]
+// In this repository the command `forjr` is this file, run by the pinned runtime.
+export const FORJR = [process.execPath, fileURLToPath(new URL('../../../parts/cli/shell.ts', import.meta.url))]
 
 type Answer = { ok: boolean; value: unknown }
 
@@ -24,9 +24,9 @@ function isAnswer(value: unknown): value is Answer {
   return typeof value === 'object' && value !== null && 'ok' in value && 'value' in value
 }
 
-/** Carries out `tent <words> --json` in the folder of a project, the product where none is named, and answers its value. */
-export async function tent(words: string[], input?: string, folder = PRODUCT): Promise<unknown> {
-  const [program, ...first] = TENT
+/** Carries out `forjr <words> --json` in the folder of a project, the product where none is named, and answers its value. */
+export async function forjr(words: string[], input?: string, folder = PRODUCT): Promise<unknown> {
+  const [program, ...first] = FORJR
   const child = run(program ?? '', [...first, ...words, '--json'], { cwd: folder })
   if (input !== undefined) {
     child.child.stdin?.end(input)
@@ -35,7 +35,7 @@ export async function tent(words: string[], input?: string, folder = PRODUCT): P
     stdout: error.stdout || error.message,
   }))
   const answer: unknown = said.stdout.trim().startsWith('{') ? JSON.parse(said.stdout) : undefined
-  if (!isAnswer(answer) || !answer.ok) throw new Error(`tent ${words.join(' ')} failed: ${said.stdout}`)
+  if (!isAnswer(answer) || !answer.ok) throw new Error(`forjr ${words.join(' ')} failed: ${said.stdout}`)
   return answer.value
 }
 
@@ -55,11 +55,11 @@ export type Walked = Builder & { writer: ReturnType<typeof fakeWriter>; folder: 
 
 /** Builds the product, and starts its program in the mode `test` on an empty data folder, with the seed applied. */
 export async function startWalk(): Promise<Walked> {
-  const folder = await mkdtemp(join(tmpdir(), 'tent-app-builder-'))
-  const built = await tent(['build', '--out', join(folder, 'bundle')])
+  const folder = await mkdtemp(join(tmpdir(), 'forjr-app-builder-'))
+  const built = await forjr(['build', '--out', join(folder, 'bundle')])
   const bundle = typeof built === 'object' && built !== null && 'bundle' in built ? String(built.bundle) : ''
   // The model is faked, so its key is a word that opens nothing.
-  await tent(['secrets', 'set', 'ANTHROPIC_KEY', '--data', join(folder, 'data')], 'not-a-key')
+  await forjr(['secrets', 'set', 'ANTHROPIC_KEY', '--data', join(folder, 'data')], 'not-a-key')
   const writer = fakeWriter()
   const builder = await startBuilder({
     bundle,
@@ -67,7 +67,7 @@ export async function startWalk(): Promise<Walked> {
     port: await freePort(),
     mode: 'test',
     makers: { providers: () => ({ anthropic: writer }) },
-    tent: TENT,
+    forjr: FORJR,
   })
   await builder.app.seed()
   return {

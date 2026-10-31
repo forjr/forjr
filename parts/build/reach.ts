@@ -2,6 +2,7 @@ import { existsSync, readdirSync, readFileSync } from 'node:fs'
 import { join, relative, sep } from 'node:path'
 import { fingerprintOf } from '../core/internal.ts'
 import { keptWhole, scanned } from './lookups.ts'
+import type { Source } from './projectSource.ts'
 import { namedFile, sourceFile, textOf } from './source.ts'
 import type { SourceFile, Work } from './work.ts'
 
@@ -81,6 +82,27 @@ export function reachPrint(work: Work, file: SourceFile): string {
   const made = print(texts.join('\0'))
   prints.set(file.path, made)
   return made
+}
+
+/**
+ * Takes the source of a project. Answers each file of it with the files of the project it imports, each list in the
+ * order of the paths, by the same reading of an import path as the graph of a build: the files it names by a path
+ * that starts with a dot. A file that holds no tree imports none.
+ */
+export function filesImported(source: Source): Record<string, string[]> {
+  const byFile = new Map(Object.entries(source).map(([path, file]) => [file.file, path] as const))
+  const found: Record<string, string[]> = {}
+  for (const path of Object.keys(source).sort()) {
+    const { file, tree } = source[path]
+    const named = tree
+      ? scanned(tree)
+          .named.map((one) => one.from)
+          .filter((from) => from.startsWith('.'))
+      : []
+    const paths = named.flatMap((from) => byFile.get(namedFile(file, from) ?? '') ?? [])
+    found[path] = [...new Set(paths)].sort()
+  }
+  return found
 }
 
 /** A file of the folder of a project that the build did not read, as a test file, read with what it imports. */

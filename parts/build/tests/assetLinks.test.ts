@@ -12,7 +12,7 @@ test('[05-4.6] an entry of assets that is a link is an asset only where it leads
     '/shop/assets/inside.txt': '/shop/assets/kept/words.txt',
     '/shop/assets/shared.txt': '/shop/shared/words.txt',
     '/shop/assets/backend.txt': '/shop/functions/orders.ts',
-    '/shop/assets/built.txt': '/shop/.tent/build/description.json',
+    '/shop/assets/built.txt': '/shop/.forjr/build/description.json',
     '/shop/assets/near.txt': '/shop/assets-other/words.txt',
     '/shop/assets': '/shop/assets',
     '/shop/assets/outside.txt': '/etc/passwd',
@@ -25,7 +25,7 @@ test('[05-4.6] an entry of assets that is a link is an asset only where it leads
     '/shop/assets/kept/words.txt',
     '/shop/shared/words.txt',
     '/shop/functions/orders.ts',
-    '/shop/.tent/build/description.json',
+    '/shop/.forjr/build/description.json',
     '/shop/assets-other/words.txt',
     '/etc/passwd',
     '/shop-other/words.txt',
@@ -57,7 +57,7 @@ test('[05-4.6] an entry of assets that is a link is an asset only where it leads
   }
 })
 
-test('[05-4.6] a link in assets that leads to a folder, to nothing or out of assets/ is T9002, as a finding, and nothing of what it leads to is in the bundle', async () => {
+test('[05-4.6] a link in assets that leads to a folder, to nothing or out of assets/ is F9002, as a finding, and nothing of what it leads to is in the bundle', async () => {
   const folder = copyOf('screens', 'asset-links')
   const outside = join(folder, '..', 'outside')
   mkdirSync(join(outside, 'kept'), { recursive: true })
@@ -73,13 +73,13 @@ test('[05-4.6] a link in assets that leads to a folder, to nothing or out of ass
     symlinkSync(join(folder, 'gone.txt'), join(folder, 'assets', 'gone.txt'), 'file')
     wanted.push('assets/gone.txt')
     // A backend file of the project itself is no asset by a link.
-    symlinkSync(join(folder, 'tent.ts'), join(folder, 'assets', 'project.txt'), 'file')
+    symlinkSync(join(folder, 'forjr.ts'), join(folder, 'assets', 'project.txt'), 'file')
     wanted.push('assets/project.txt')
   } catch {
     // This system lets this user make no link to a file: the first test holds what such a link would give.
   }
   const made = await buildProject(folder, { for: 'release' })
-  const found = made.findings.filter((one) => one.code === 'T9002')
+  const found = made.findings.filter((one) => one.code === 'F9002')
   assert.deepEqual(found.map((one) => one.where?.file).sort(), wanted.sort())
   for (const one of found) assert.ok(one.fix && one.level === 'error')
   assert.equal(made.bundleFolder, '')

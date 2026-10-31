@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, statSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve, sep } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fingerprintOf, write } from '../../core/internal.ts'
 import { layoutOf } from '../../data/index.ts'
 import { descriptionOf } from '../format.ts'
@@ -63,7 +63,7 @@ export const holdsVersion = (dataFolder: string, version: string): boolean =>
 /**
  * Takes a data folder, one version as a writer told it, and what fetches the bytes of a fingerprint. Fetches the
  * files that the folder of the version lacks, holds every path to stay inside that folder and every file to its
- * fingerprint, and reads the description, which must give that version id. Throws T0011 where it does not.
+ * fingerprint, and reads the description, which must give that version id. Throws F0011 where it does not.
  */
 export async function fetchVersion(
   dataFolder: string,
@@ -71,8 +71,8 @@ export async function fetchVersion(
   blob: (fingerprint: string) => Promise<Uint8Array>,
 ): Promise<void> {
   const folder = resolve(versionFolder(dataFolder, told.version))
-  const wrong = (why: string): TentError =>
-    new TentError('T0011', `The version ${told.version} that the writer told cannot be kept: ${why}.`, {
+  const wrong = (why: string): ForjrError =>
+    new ForjrError('F0011', `The version ${told.version} that the writer told cannot be kept: ${why}.`, {
       fix: 'Run one engine on every machine, and see that the writer holds the bundle as the build wrote it.',
     })
   // The description is written last: a folder that holds one holds the whole version.

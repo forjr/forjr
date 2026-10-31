@@ -1,4 +1,4 @@
-import type { Makers } from 'tentjs/engine'
+import type { Makers } from 'forjr/engine'
 
 // A check of the builder's own: the partner sends its secret in a line, and the id of its call in another.
 export default {

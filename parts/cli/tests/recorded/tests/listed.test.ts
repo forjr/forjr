@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 import { openOrders } from '../functions/open'
 
 test('open orders are listed', async () => {

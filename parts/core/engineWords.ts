@@ -6,7 +6,7 @@ const ownWords = {
   asksFirst: 'A person is asked before this runs.',
   refused: 'The person refused this.',
   unfinished: 'This did not finish.',
-  tooLarge: 'Error T5102: the answer was too large',
+  tooLarge: 'Error F5102: the answer was too large',
   file: 'File {}:',
   summary:
     'Shorten this conversation into at most 300 words. Keep names, numbers, decisions, and what is still open. Write in the language of the conversation.',

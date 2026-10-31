@@ -6,5 +6,5 @@ import { nameOf } from './errors.ts'
  * Answers the finding as a plain record, with the short word of the code and the command that explains it.
  */
 export function finding(code: string, message: string, more: More = {}, level: Finding['level'] = 'error'): Finding {
-  return { code, name: nameOf(code), message, ...more, level, docs: `tent docs ${code}` }
+  return { code, name: nameOf(code), message, ...more, level, docs: `forjr docs ${code}` }
 }

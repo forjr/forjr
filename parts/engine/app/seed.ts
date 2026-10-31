@@ -1,5 +1,5 @@
 import type { Caller, Db } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { runBody } from '../../core/internal.ts'
 import type { Tx, Writing } from '../../data/index.ts'
 import type { App } from '../app.ts'
@@ -66,17 +66,17 @@ export const member =
 
 /**
  * Applies the seed, and ends with its failure where it fails, at once or after a wait: a failure of ours as it
- * is, and what the code of the seed itself threw as T0009, which holds it as its cause. The log holds it too.
+ * is, and what the code of the seed itself threw as F0009, which holds it as its cause. The log holds it too.
  */
 async function saidWhereFailed(o: Opened): Promise<void> {
   try {
     await applied(o)
   } catch (error) {
-    let failed: TentError
-    if (error instanceof TentError) failed = error
+    let failed: ForjrError
+    if (error instanceof ForjrError) failed = error
     else {
       const words = error instanceof Error ? error.message : String(error)
-      failed = new TentError('T0009', `The seed failed: ${words}`, {
+      failed = new ForjrError('F0009', `The seed failed: ${words}`, {
         fix: 'Mend the seed of the project. Each write that it made before it failed stands.',
       })
       failed.cause = error
@@ -124,7 +124,7 @@ async function applied(o: Opened): Promise<void> {
   }
   const kept = entriesOf(o.description).entries.find((one) => one.keep === 'seed')
   if (!kept)
-    throw new TentError('T0011', 'The seed of the bundle is code, and the bundle holds no arrow for it.', {
+    throw new ForjrError('F0011', 'The seed of the bundle is code, and the bundle holds no arrow for it.', {
       fix: 'Build the project again, and run the bundle as the build wrote it.',
     })
   // The seed is loaded by the app's room when it is first applied, beside the version's other code.
@@ -133,7 +133,7 @@ async function applied(o: Opened): Promise<void> {
   try {
     arrow = o.room.entry(o.version, kept.entry)
   } catch (error) {
-    const failed = new TentError('T0011', 'The seed of the bundle is code, and the bundle holds no arrow for it.', {
+    const failed = new ForjrError('F0011', 'The seed of the bundle is code, and the bundle holds no arrow for it.', {
       fix: 'Build the project again, and run the bundle as the build wrote it.',
     })
     failed.cause = error

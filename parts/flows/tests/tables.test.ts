@@ -21,7 +21,7 @@ const kindOf = (name: string): string =>
 
 test('[16-4@7b] the three run tables exist in code with exactly their columns and their keys', () => {
   const asked = {
-    _t_runs: {
+    _f_runs: {
       key: ['id'],
       columns: [
         ...['id', 'flow', 'kind', 'version', 'state', 'input', 'event', 'startedBy', 'as', 'parent', 'parentStep'],
@@ -29,14 +29,14 @@ test('[16-4@7b] the three run tables exist in code with exactly their columns an
         ...['key', 'from', 'trace'],
       ],
     },
-    _t_steps: {
+    _f_steps: {
       key: ['run', 'name', 'repeat'],
       columns: [
         ...['run', 'name', 'repeat', 'state', 'result', 'size', 'error', 'show', 'ask', 'agreed', 'waitsFor'],
         ...['wakeAt', 'tries', 'startedAt', 'endedAt', 'out', 'away', 'progress', 'many'],
       ],
     },
-    _t_schedule: { key: ['flow', 'trigger'], columns: ['flow', 'trigger', 'nextAt'] },
+    _f_schedule: { key: ['flow', 'trigger'], columns: ['flow', 'trigger', 'nextAt'] },
   }
   for (const table of [runsTable, stepsTable, scheduleTable]) {
     const { key, columns } = Object(asked)[table.name]

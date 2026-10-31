@@ -1,4 +1,4 @@
-import { change, event, flow, input, json, query, table, text } from 'tentjs'
+import { change, event, flow, input, json, query, table, text } from 'forjr'
 
 export const news = table('news', {
   columns: { title: text() },

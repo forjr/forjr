@@ -1,5 +1,5 @@
 import { parentPort, threadId, workerData } from 'node:worker_threads'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Clock } from '../../core/internal.ts'
 import { setRuntime } from '../../core/internal.ts'
 import type { Files, Store } from '../../data/index.ts'
@@ -33,16 +33,16 @@ const isStart = (given: unknown): given is Start =>
 
 const start: unknown = workerData
 const port = parentPort
-if (!port || !isStart(start)) throw new TentError('T0009', 'A query thread was started with nothing to work on.')
+if (!port || !isStart(start)) throw new ForjrError('F0009', 'A query thread was started with nothing to work on.')
 
-// Under `tent test` a query of a test notes the words of the environment its code reads and each way out it takes,
+// Under `forjr test` a query of a test notes the words of the environment its code reads and each way out it takes,
 // as the program does; where the program holds what reaches outside, the thread holds it too.
-if (process.env.TENT_TOUCHED) noteWordsRead()
-if (process.env.TENT_TOUCHED || outsideHeld()) noteWaysOut()
+if (process.env.FORJR_TOUCHED) noteWordsRead()
+if (process.env.FORJR_TOUCHED || outsideHeld()) noteWaysOut()
 
 const tell = (told: ThreadTold): void => port.postMessage(told)
 const noWeb = (): never => {
-  throw new TentError('T0013', 'A query thread answers queries, and holds no app.')
+  throw new ForjrError('F0013', 'A query thread answers queries, and holds no app.')
 }
 
 // The moment of the app's clock, which the main thread hands on with each call: a clock that a maker made cannot cross.
@@ -205,7 +205,7 @@ port.on('message', async (job: Job) => {
     gather(o, job.name, { cpuMs: threadMs() - cpu }, { caller: job.caller })
     writeCounts(o)
     // The thread keeps a record of its own of what each test touched here, written after each call of a test.
-    const noted = process.env.TENT_TOUCHED
+    const noted = process.env.FORJR_TOUCHED
     if (job.test !== undefined && noted) writeNotes(noted, `${process.pid}-${threadId}`)
   }
 })

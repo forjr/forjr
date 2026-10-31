@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { screen, useCall, useQuery } from 'tentjs/ui'
+import { screen, useCall, useQuery } from 'forjr/ui'
 import { addUpdate, look, saveField, setBoth, theDoc, updatesOf, whoIsHere } from './functions'
 
 type Field = 'title' | 'body'

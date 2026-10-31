@@ -45,7 +45,7 @@ function playerSwapped(served: string, version: string, files: Record<string, st
   signedFile(join(served, version, 'release.json'), release, keys)
 }
 
-test('[41-12.10] a release list with a wrong signature, a layer whose bytes differ, an older list rightly signed, a release.json of another version, and an archive with a path that leaves its folder are T0026 each time, and the install is as it was', async (t) => {
+test('[41-12.10] a release list with a wrong signature, a layer whose bytes differ, an older list rightly signed, a release.json of another version, and an archive with a path that leaves its folder are F0026 each time, and the install is as it was', async (t) => {
   const folder = releaseFolderOf(t, 'attacks-update')
   const key = releaseKey()
   const stranger = releaseKey()
@@ -59,7 +59,7 @@ test('[41-12.10] a release list with a wrong signature, a layer whose bytes diff
   // A list signed by another key.
   madeRelease(served, '1.0.1', { keys: [key] })
   madeReleases(served, ['1.0.1'], [stranger], 2_000_000)
-  assert.equal(await update(), 'T0026')
+  assert.equal(await update(), 'F0026')
   assert.equal(stateOf(home), before)
   // A layer whose bytes are not those its release states.
   madeReleases(served, ['1.0.1'], [key], 2_000_000)
@@ -67,11 +67,11 @@ test('[41-12.10] a release list with a wrong signature, a layer whose bytes diff
   const bytes = readFileSync(layer)
   bytes[bytes.length >> 1] ^= 1
   writeFileSync(layer, bytes)
-  assert.equal(await update(), 'T0026')
+  assert.equal(await update(), 'F0026')
   assert.equal(stateOf(home), before)
   // An archive whose path leaves its folder, though its release is rightly signed over its bytes.
   playerSwapped(served, '1.0.1', { ...playerOf('1.0.1'), '../../escaped.txt': 'out of the folder' }, [key])
-  assert.equal(await update(), 'T0026')
+  assert.equal(await update(), 'F0026')
   assert.equal(stateOf(home), before)
   assert.equal(existsSync(join(home, 'escaped.txt')), false)
   assert.equal(existsSync(join(home, 'versions', 'escaped.txt')), false)
@@ -82,14 +82,14 @@ test('[41-12.10] a release list with a wrong signature, a layer whose bytes diff
   // An older list, rightly signed, that offers an older version as the newest.
   madeRelease(served, '1.0.2', { keys: [key] })
   madeReleases(served, ['1.0.2'], [key], 1_000_000)
-  assert.equal(await update(), 'T0026')
+  assert.equal(await update(), 'F0026')
   assert.equal(stateOf(home), taken)
   // A newer list whose release.json is that of another version than the one asked for.
   madeReleases(served, ['1.0.2', '1.0.1'], [key], 3_000_000)
   madeRelease(served, '1.0.9', { keys: [key] })
   writeFileSync(join(served, '1.0.2', 'release.json'), readFileSync(join(served, '1.0.9', 'release.json')))
   writeFileSync(join(served, '1.0.2', 'release.json.sig'), readFileSync(join(served, '1.0.9', 'release.json.sig')))
-  assert.equal(await update(), 'T0026')
+  assert.equal(await update(), 'F0026')
   assert.equal(stateOf(home), taken)
 })
 
@@ -104,18 +104,18 @@ test('[41-12.11] a list of known problems with a wrong signature, an older one r
   const read = (): Promise<string> =>
     codeOf(readKnown(home, { from: releases.address, keys: [key.public], fetch: releases.fetch }))
   const known = (made: number, versions: object, keys: TestKey[]): void =>
-    signedFile(join(served, 'known.json'), { format: 'tent.known/1', made, versions }, keys)
+    signedFile(join(served, 'known.json'), { format: 'forjr.known/1', made, versions }, keys)
   known(2_000_000, { '1.0.0': { problem: 'A sentence.', fixed: '1.0.1' } }, [key])
   assert.equal(await read(), 'answered')
   const kept = readFileSync(join(home, 'known.json'), 'utf8')
   known(3_000_000, { '1.0.0': { problem: 'Another sentence.', fixed: '1.0.2' } }, [stranger])
-  assert.equal(await read(), 'T0026')
+  assert.equal(await read(), 'F0026')
   known(1_000_000, { '1.0.0': { problem: 'An old sentence.', fixed: '1.0.1' } }, [key])
-  assert.equal(await read(), 'T0026')
+  assert.equal(await read(), 'F0026')
   known(4_000_000, { '1.0.0': { problem: 'Fetch the fix there.', fixed: 'https://elsewhere.example.com/1.0.1' } }, [
     key,
   ])
-  assert.equal(await read(), 'T0026')
+  assert.equal(await read(), 'F0026')
   known(5_000_000, { '1.0.0': { problem: 'A sentence.', fixed: '1.0.1', from: 'https://elsewhere.example.com/' } }, [
     key,
   ])

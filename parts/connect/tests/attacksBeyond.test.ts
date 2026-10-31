@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { addressWith } from '../guardedAddress.ts'
 import { fetchWith } from '../guardedFetch.ts'
 import { failure, names, refused, standIn } from './servers.ts'
@@ -57,11 +57,11 @@ test('[05-7.1] a name of this computer or of a private network with two dots at 
     }
     for (const mode of ['test', 'live'] as const) {
       const error = await failure(fetchWith({ mode }, lookup)(`https://${name}:${inner.port}/`))
-      assert.ok(error instanceof TentError && error.code === 'T0022', `${name}: ${error.message}`)
+      assert.ok(error instanceof ForjrError && error.code === 'F0022', `${name}: ${error.message}`)
     }
     if (!name.includes('%') && !name.includes('。')) {
       const error = await failure(addressWith(name, { mode: 'live' }, lookup))
-      assert.ok(error instanceof TentError && error.code === 'T0022', `${name}: ${error.message}`)
+      assert.ok(error instanceof ForjrError && error.code === 'F0022', `${name}: ${error.message}`)
     }
     // A name of a private network is refused in development too: there the look-up is followed to the server.
     if (!name.includes('localhost'))

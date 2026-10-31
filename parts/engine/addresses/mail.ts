@@ -1,11 +1,11 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Address } from '../door/address.ts'
 import type { KeptMail } from '../mail/mailbox.ts'
 import { sentMail } from '../mail/mailbox.ts'
 import { fromHere, namesHere } from '../web/proxy.ts'
 import { errorAnswer } from '../wire.ts'
 
-const prefix = '/_t/mail'
+const prefix = '/_f/mail'
 
 /** A text written into a page, so that nothing in it is read as markup. */
 const shown = (text: string): string => text.replace(/[&<>"']/g, (sign) => `&#${sign.charCodeAt(0)};`)
@@ -37,7 +37,7 @@ function messagePage(one: KeptMail): string {
 }
 
 /**
- * `GET /_t/mail` and `GET /_t/mail/<id>`, in the mode `development`: the messages the app sent, and one of them as
+ * `GET /_f/mail` and `GET /_f/mail/<id>`, in the mode `development`: the messages the app sent, and one of them as
  * its receiver would see it. From this computer alone, through no proxy and by its own names; and nowhere in another
  * mode. Whatever else is asked is not found, in the same words. A message is shown in a frame
  * that runs nothing of it and whose links open apart.
@@ -56,8 +56,8 @@ export const address: Address = {
       const mails = app.mode === 'development' && fromHere(about) && namesHere(about) ? sentMail(app) : undefined
       const one = id === undefined ? undefined : mails?.find((mail) => mail.id === id)
       if (!mails || (id !== undefined && !one))
-        throw new TentError('T0001', 'This page cannot be opened.', {
-          fix: 'The mail of an app in development is read at `/_t/mail` from the computer that runs it, or with `tent logs --mail`.',
+        throw new ForjrError('F0001', 'This page cannot be opened.', {
+          fix: 'The mail of an app in development is read at `/_f/mail` from the computer that runs it, or with `forjr logs --mail`.',
         })
       const headers = {
         'content-type': 'text/html; charset=utf-8',

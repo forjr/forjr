@@ -1,5 +1,5 @@
 import './screens.css'
-import { screen, read, role, text, useQuery, useTranslations, Form } from 'tentjs/ui'
+import { screen, read, role, text, useQuery, useTranslations, Form } from 'forjr/ui'
 import { addOrder, failing, openOrders, orderNamed, rates, sneaky, staffOrders, staffRates } from './functions'
 
 export const homeScreen = screen('homeScreen', {

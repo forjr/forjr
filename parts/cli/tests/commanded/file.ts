@@ -1,4 +1,4 @@
-import { anyone, query, text } from 'tentjs'
+import { anyone, query, text } from 'forjr'
 
 // A function whose word is one of the runner's own, which `cli.names` gives another.
 export const file = query('file', {

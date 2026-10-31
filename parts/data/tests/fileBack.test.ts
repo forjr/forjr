@@ -96,7 +96,7 @@ test('[50-5@6] a file that goes back over a column which the switch made require
   const strict = writingFiles(files, required)
   assert.equal(
     codeOf(() => strict((db) => at(db, 'orders').of(s.north).add({ total: 20, code: 'B' }))),
-    'T2107',
+    'F2107',
   )
   files.layout(layoutOf(first))
   bringUp(Object(files.of(north)), layoutOf(first), { back: true, turned: steps })

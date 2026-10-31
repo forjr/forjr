@@ -1,5 +1,5 @@
 import type { DatabaseSync } from 'node:sqlite'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { valueOf } from '../../core/internal.ts'
 import { mustBeHeld, isSealed } from '../keptType.ts'
 import type { ColumnType, TableLayout } from '../store.ts'
@@ -53,12 +53,12 @@ interface Later {
 /** A number as text, as JavaScript writes it. */
 const asText = (value: unknown): unknown => valueOf({ concat: [value] })
 
-/** A text as the number it reads as. Throws T2107 for one that reads as none. */
+/** A text as the number it reads as. Throws F2107 for one that reads as none. */
 function asNumber(table: string, name: string): (value: unknown) => number {
   return (value) => {
     const read = typeof value === 'string' && value.trim() !== '' ? Number(value) : Number.NaN
     if (!Number.isFinite(read))
-      throw new TentError('T2107', `A value of \`${name}\` of \`${table}\` does not read as a number.`, {
+      throw new ForjrError('F2107', `A value of \`${name}\` of \`${table}\` does not read as a number.`, {
         fields: { [name]: 'type' },
       })
     return read
@@ -73,7 +73,7 @@ function asNumber(table: string, name: string): (value: unknown) => number {
  * with `from` out. A number becomes text as JavaScript writes it, a text the number it reads as, a link that is
  * retired the text id of its row, and one that is revived the link again, or nothing where its row is gone. It runs
  * inside a write that said it holds table steps: SQLite drops a table that others link to only while its check of
- * links is off. Throws T2107 for a row that the new table does not take.
+ * links is off. Throws F2107 for a row that the new table does not take.
  */
 export function rebuild(work: Stepping, old: TableLayout, next: TableLayout, carried: Carried = {}): void {
   const { db } = work

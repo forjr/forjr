@@ -11,18 +11,18 @@ const file = 'screens/orders.tsx'
 // line it stands on, and what the sentence of its finding says. A rule that is a folder is held case by case: its
 // findings carry the code of the rule.
 const rules: Record<string, [piece: string, says: RegExp][]> = {
-  T6025: [
+  F6025: [
     ['<Image src={state.photo} alt="A photo" />', /`Image`.*neither written nor known/],
     ['<Image src="https://pictures.example.com/a.png" alt="An address" />', /`Image`.*neither written nor known/],
   ],
-  T6031: [["consent: 'videos'", /kept in the address/]],
-  'T6011/consent': [
+  F6031: [["consent: 'videos'", /kept in the address/]],
+  'F6011/consent': [
     ["consent: 'sounding'", /`consent` names `sounding`, which is not declared/],
     ["consent: 'volume'", /`consent` names the state `volume`, which is no true-or-false state/],
   ],
 }
 
-const warnings = ['T6025', 'T6031']
+const warnings = ['F6025', 'F6031']
 
 /** Holds each rule to its passing and its failing project: the failing one gives exactly its code, once for each mistake, on its line. */
 async function heldTo(held: typeof rules): Promise<void> {
@@ -43,7 +43,7 @@ async function heldTo(held: typeof rules): Promise<void> {
       assert.equal(one.where?.file, file, name)
       assert.ok(one.where?.definition, `a finding of ${name} names its definition`)
       assert.ok(one.message.length > 10 && one.fix, name)
-      assert.equal(one.docs, `tent docs ${code}`)
+      assert.equal(one.docs, `forjr docs ${code}`)
       assert.equal(one.level, warnings.includes(code) ? 'warning' : 'error', name)
     }
   }

@@ -1,5 +1,5 @@
-import type { Finding } from 'tentjs'
-import { screen } from 'tentjs/ui'
+import type { Finding } from 'forjr'
+import { screen } from 'forjr/ui'
 
 export const findingsScreen = screen('findingsScreen', {
   path: '/findings',

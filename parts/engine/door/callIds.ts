@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fingerprintOf, isStored } from '../../core/internal.ts'
 import { storedLimit } from '../limits.ts'
 import type { Opened } from '../opened.ts'
@@ -13,12 +13,12 @@ const going = new WeakMap<object, Map<string, Promise<unknown>>>()
 
 /**
  * Takes the value of the header `Idempotency-Key`, or of the id a page made for its call. Answers it as the id of
- * the call, or nothing where none was sent. Throws T0002 for one that is not 1 to 255 visible characters.
+ * the call, or nothing where none was sent. Throws F0002 for one that is not 1 to 255 visible characters.
  */
 export function callIdOf(given: string | null): string | undefined {
   if (given === null) return undefined
   if (!/^[\x21-\x7e]{1,255}$/.test(given))
-    throw new TentError('T0002', 'An Idempotency-Key is 1 to 255 visible characters.', {
+    throw new ForjrError('F0002', 'An Idempotency-Key is 1 to 255 visible characters.', {
       fields: { 'idempotency-key': 'text' },
       fix: 'Send a key that a program made for this one call, as 22 random letters and digits.',
     })
@@ -32,9 +32,9 @@ const printOf = (name: string, given: unknown): string =>
 /**
  * Takes an app, a change or an action by its name with its input, its caller, the
  * id the call carries, and what carries it out. Carries it out once for the caller and the id: the answer of a
- * call that ran is kept with the id in `_t_once` for `limits.callIdKeep`, and a call sent again with that id
+ * call that ran is kept with the id in `_f_once` for `limits.callIdKeep`, and a call sent again with that id
  * is answered with it and not run again; one that arrives while the first is under way waits for it. A call that
- * failed keeps nothing, and is run when it is sent again. Throws T0002 for an id that came with another call.
+ * failed keeps nothing, and is run when it is sent again. Throws F0002 for an id that came with another call.
  */
 export function keptCall(
   o: Opened,
@@ -57,8 +57,8 @@ export function keptCall(
   if (isStored(held) && fresh) {
     const answer = isStored(held.result) ? held.result : {}
     if (answer.name !== call.name || answer.input !== print)
-      throw new TentError(
-        'T0002',
+      throw new ForjrError(
+        'F0002',
         `The Idempotency-Key ${JSON.stringify(call.id).slice(0, 80)} came with another call.`,
         {
           fields: { 'idempotency-key': 'once' },

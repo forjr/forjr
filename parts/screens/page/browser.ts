@@ -39,7 +39,7 @@ function recordOf(module: unknown): ViewRecord | undefined {
 
 /** What the head of the page tells the page code under a name, where it tells it. */
 function told<Name extends 'app' | 'slash'>(name: Name): { [Key in Name]?: string } {
-  const said = document.querySelector(`head > meta[name="tent-${name}"]`)?.getAttribute('content')
+  const said = document.querySelector(`head > meta[name="forjr-${name}"]`)?.getAttribute('content')
   if (said === null || said === undefined) return {}
   const made: { [Key in Name]?: string } = {}
   made[name] = said
@@ -85,7 +85,7 @@ function reachOf(page: Page, engine: boolean): Reach {
     },
     back: (heard) => window.addEventListener('popstate', heard),
     busy: (on) => {
-      const holder = document.querySelector('body > div#tent')
+      const holder = document.querySelector('body > div#forjr')
       if (on) holder?.setAttribute('aria-busy', 'true')
       else holder?.removeAttribute('aria-busy')
     },
@@ -105,7 +105,7 @@ function reachOf(page: Page, engine: boolean): Reach {
     saving: () => Object(Reflect.get(navigator, 'connection') ?? {}).saveData === true,
     moved: (address, step) => {
       // The step that is left keeps where the page stood, so that going back puts it there again.
-      if (step) window.history.replaceState({ ...Object(window.history.state), tentAt: window.scrollY }, '')
+      if (step) window.history.replaceState({ ...Object(window.history.state), forjrAt: window.scrollY }, '')
       if (step) window.history.pushState(null, '', under(address))
       else window.history.replaceState(null, '', under(address))
     },
@@ -122,12 +122,12 @@ function reachOf(page: Page, engine: boolean): Reach {
             return
           }
           // Going back puts the page where it stood when it was left, once the screen is drawn.
-          const at: unknown = Reflect.get(Object(window.history.state), 'tentAt')
+          const at: unknown = Reflect.get(Object(window.history.state), 'forjrAt')
           if (how.back && typeof at === 'number') return window.scrollTo(0, at)
           if (how.keep || how.back) return
           window.scrollTo(0, 0)
           // The focus goes to the heading of the new screen, or to the screen itself.
-          const heading = document.querySelector('body > div#tent h1') ?? document.querySelector('body > div#tent')
+          const heading = document.querySelector('body > div#forjr h1') ?? document.querySelector('body > div#forjr')
           if (heading instanceof HTMLElement) {
             if (!heading.hasAttribute('tabindex')) heading.setAttribute('tabindex', '-1')
             heading.focus({ preventScroll: true })
@@ -242,12 +242,12 @@ function reachOf(page: Page, engine: boolean): Reach {
 
 /**
  * Marks the holder of the drawing once the screen lives in the browser: from then on a press is taken. A tool that
- * drives a page waits for `data-t-alive` on the element with the id `tent`.
+ * drives a page waits for `data-f-alive` on the element with the id `forjr`.
  */
 function Living(o: { holder: Element; alive: () => void; children?: Drawable }): Drawable {
   const { holder, alive } = o
   useEffect(() => {
-    holder.setAttribute('data-t-alive', '')
+    holder.setAttribute('data-f-alive', '')
     alive()
   }, [holder, alive])
   return o.children
@@ -269,13 +269,13 @@ function zoned(store: PageStore, reach: Reach): void {
 /** Brings the page to life, where this file was loaded by a page of an app. */
 async function alive(): Promise<void> {
   // The two are found by their place and their kind, so that no element of a view can stand in for either.
-  const holder = document.querySelector('body > div#tent')
-  const block = document.querySelector('body > script[type="application/json"]#tent-page')
+  const holder = document.querySelector('body > div#forjr')
+  const block = document.querySelector('body > script[type="application/json"]#forjr-page')
   if (!holder || !block) return
   const page: Page = JSON.parse(block.textContent ?? '{}')
   // In development the part `refresh` registers the component each view is drawn through as its family: it is told
   // which before the first module of a view runs.
-  if (process.env.NODE_ENV !== 'production') globalThis.__tentRefresh?.views(drawingOf)
+  if (process.env.NODE_ENV !== 'production') globalThis.__forjrRefresh?.views(drawingOf)
   // In the inspect mode its part is loaded first, and takes the token out of the address at once.
   if (page.inspect) await loaders.inspect()
   // A screen that is handed `grant` or `ask` presses with the part that sends a press of the engine's own.
@@ -334,7 +334,7 @@ async function alive(): Promise<void> {
   // In development: React's own runtime of Fast Refresh, which the part `refresh` laid on the page before this file;
   // whether it draws again what a swap took in place; and the record of the page that a failure drew the `error`
   // screen in the place of, which the next good save draws again.
-  const refreshing = process.env.NODE_ENV === 'production' ? undefined : globalThis.__tentRefresh
+  const refreshing = process.env.NODE_ENV === 'production' ? undefined : globalThis.__forjrRefresh
   let swapping = false
   let broken: Page | undefined
   // How many times the page itself mounted the screen anew: a failure after a swap does it.
@@ -359,7 +359,7 @@ async function alive(): Promise<void> {
     // The project's own `error` screen is loaded only then; the one of the page code is at hand.
     const instead =
       now.load.error === ''
-        ? builtIn['tent.error']
+        ? builtIn['forjr.error']
         : recordOf(await import(/* @vite-ignore */ new URL(`${base}${now.load.error}`, document.baseURI).href))
     if (!instead) return
     // On live data the error is what any caller sees of a failure, and in the other modes the failure itself.
@@ -450,7 +450,7 @@ async function alive(): Promise<void> {
           moves: () => store.moves?.() ?? [],
           send: (body) =>
             navigator.sendBeacon(
-              named({ base: page.exported ? (page.base ?? '') : '' }, '/_t/vitals'),
+              named({ base: page.exported ? (page.base ?? '') : '' }, '/_f/vitals'),
               new Blob([body], { type: 'text/plain' }),
             ),
         }),

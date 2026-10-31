@@ -6,7 +6,7 @@ import { guardOf } from '../guarded.ts'
 import { asked, dataFolderOf } from '../reach.ts'
 
 /**
- * `tent export --out <folder>`: writes the site, or the public part of the app, out as files for any host of
+ * `forjr export --out <folder>`: writes the site, or the public part of the app, out as files for any host of
  * files. It builds the project as a release and has the engine that runs on the data folder write it out with
  * its data; with none running it starts one for the length of the command.
  */

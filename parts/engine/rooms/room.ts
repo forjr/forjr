@@ -17,7 +17,7 @@ export interface RoomInput {
 
 /**
  * Where an app's code runs. `crosses` says whether its code lives in a heap of its own: then each call is numbered
- * and kept open for `ways`. `load` loads the modules of a version and runs their tops, T0011 for one that does not
+ * and kept open for `ways`. `load` loads the modules of a version and runs their tops, F0011 for one that does not
  * load; `entry` is asked once for each entry when the version is loaded, and the engine keeps what it answers;
  * `draw` answers the draw of the page code for a version; `back` calls a function the room's code handed the engine
  * in an open call; `program` starts a program that runs the app's own code; `unload` lets a version go.

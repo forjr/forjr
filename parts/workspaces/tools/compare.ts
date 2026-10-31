@@ -1,11 +1,11 @@
-import { TentError, text } from '../../core/index.ts'
+import { ForjrError, text } from '../../core/index.ts'
 import type { Change } from '../../history/index.ts'
 import { historyOf } from '../state.ts'
 import type { ProjectTool } from './face.ts'
 
 /** The error of a word that names no point of the history. */
-const noPoint = (word: string): TentError =>
-  new TentError('T9107', `No point ${JSON.stringify(word).slice(0, 80)} is in the history of the workspace.`, {
+const noPoint = (word: string): ForjrError =>
+  new ForjrError('F9107', `No point ${JSON.stringify(word).slice(0, 80)} is in the history of the workspace.`, {
     fields: { point: word },
   })
 

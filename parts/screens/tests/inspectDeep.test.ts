@@ -9,7 +9,7 @@ test('[34-3] the inspect mode tells an element that one tag drew deep inside a l
     type,
     props,
   }))
-  Reflect.apply(Reflect.get(globalThis, '__tentTags'), undefined, ['screens/grid.tsx', { '3:5': [10, 40] }])
+  Reflect.apply(Reflect.get(globalThis, '__forjrTags'), undefined, ['screens/grid.tsx', { '3:5': [10, 40] }])
   const tag = made('Grid', {}, undefined, false, { fileName: '/p/screens/grid.tsx', lineNumber: 3, columnNumber: 5 })
   const use = { memoizedProps: tag.props, type: 'Grid', return: null }
   let looks = 0

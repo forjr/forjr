@@ -17,9 +17,9 @@ const running = (app: TestApp): string | undefined => app.versions().find((one) 
 function keptIn(file: string): string[] {
   if (!existsSync(file)) return []
   // A file that never kept a version holds no table for them.
-  const holds = readFile(file, `SELECT count(*) AS "n" FROM "sqlite_master" WHERE "name" = '_t_history'`)[0]?.n === 1
+  const holds = readFile(file, `SELECT count(*) AS "n" FROM "sqlite_master" WHERE "name" = '_f_history'`)[0]?.n === 1
   if (!holds) return []
-  return readFile(file, `SELECT "rowId", "value" FROM "_t_history" WHERE "tableName" = 'notes' ORDER BY "id"`).map(
+  return readFile(file, `SELECT "rowId", "value" FROM "_f_history" WHERE "tableName" = 'notes' ORDER BY "id"`).map(
     (row) => `${String(row.rowId)} ${String(Object(JSON.parse(String(row.value))).body)}`,
   )
 }

@@ -10,8 +10,8 @@ import { readPoint } from './rows.ts'
 
 /**
  * Goes to a branch: records the present where no point holds it yet, writes the files of the branch's point as
- * going back does, and sets `on` to the branch, with `now` on its point. Answers that point. Throws T9107 for a
- * branch that is not there, and T0013, before anything is recorded or written, where a file of the branch would
+ * going back does, and sets `on` to the branch, with `now` on its point. Answers that point. Throws F9107 for a
+ * branch that is not there, and F0013, before anything is recorded or written, where a file of the branch would
  * be written over one that no point holds.
  */
 export function switchTo(file: SqliteFile, project: string, name: string, by: Writer): Point {

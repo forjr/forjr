@@ -6,9 +6,9 @@ const data: ColumnType = { kind: 'json', optional: true }
 const moment: ColumnType = { kind: 'date', optional: true }
 const whole: ColumnType = { kind: 'number', whole: true, optional: true }
 
-/** `_t_runs`: one row for each run, with an index by which the runner finds its next wake, and one for the runs of a key. */
+/** `_f_runs`: one row for each run, with an index by which the runner finds its next wake, and one for the runs of a key. */
 export const runsTable: TableLayout = {
-  name: '_t_runs',
+  name: '_f_runs',
   columns: {
     id: text,
     flow: text,
@@ -45,9 +45,9 @@ export const runsTable: TableLayout = {
   search: [],
 }
 
-/** `_t_steps`: one row for each step that has begun, by its run, its name and its repeat number. */
+/** `_f_steps`: one row for each step that has begun, by its run, its name and its repeat number. */
 export const stepsTable: TableLayout = {
-  name: '_t_steps',
+  name: '_f_steps',
   columns: {
     run: text,
     name: text,
@@ -75,9 +75,9 @@ export const stepsTable: TableLayout = {
   search: [],
 }
 
-/** `_t_schedule`: the next time each timed trigger fires, by its flow and its place in the flow's `on`. */
+/** `_f_schedule`: the next time each timed trigger fires, by its flow and its place in the flow's `on`. */
 export const scheduleTable: TableLayout = {
-  name: '_t_schedule',
+  name: '_f_schedule',
   columns: { flow: text, trigger: text, nextAt: moment },
   key: ['flow', 'trigger'],
   indexes: [],

@@ -28,7 +28,7 @@ function failureLines(failure: Record<string, unknown>): string[] {
     `${String(failure.code)} ${String(failure.message)}${typeof failure.failed === 'string' ? ` (${failure.failed})` : ''}`,
     ...(where ? [`  at ${placeOf(where)}`] : []),
     // The trace of the failure, with the command that prints its tree on this computer.
-    ...(typeof failure.trace === 'string' ? [`  trace ${failure.trace}: tent logs --trace ${failure.trace}`] : []),
+    ...(typeof failure.trace === 'string' ? [`  trace ${failure.trace}: forjr logs --trace ${failure.trace}`] : []),
     ...lines.map(
       (one) => `${one.line === where?.line ? '  >' : '   '} ${String(one.line).padStart(wide)} | ${String(one.text)}`,
     ),
@@ -78,7 +78,7 @@ export function overlayOn(document: Document): (shown: Overlay) => void {
     }
     if (!panel) {
       panel = document.createElement('div')
-      panel.id = 'tent-overlay'
+      panel.id = 'forjr-overlay'
       panel.setAttribute('role', 'alert')
       panel.style.cssText = look
       document.body.append(panel)
@@ -122,7 +122,7 @@ export function markOn(document: Document): (reset: (() => void) | undefined) =>
     }
     if (mark) return
     mark = document.createElement('p')
-    mark.id = 'tent-kept'
+    mark.id = 'forjr-kept'
     mark.style.cssText = markLook
     const button = document.createElement('button')
     button.type = 'button'

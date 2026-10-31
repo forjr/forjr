@@ -18,7 +18,7 @@ export interface PageRecord {
   traces(): string[]
 }
 
-/** The number of the write that a mark of `Tent-At` names: its last number. */
+/** The number of the write that a mark of `Forjr-At` names: its last number. */
 const writeOf = (at: unknown): number => (typeof at === 'string' ? Number(at.split('.').pop()) : Number.NaN)
 
 /** A message of the connection, read from JSON, or nothing for one that does not read. */
@@ -79,7 +79,7 @@ export function recorded(reach: Reach): { reach: Reach; record: PageRecord } {
     // One watch too many is sent again by the page; any other failure ends the watch.
     if (watch && told.t === 'failed') {
       const error: unknown = told.error
-      if (typeof error === 'object' && error !== null && Reflect.get(error, 'code') === 'T0005') watch.landed = false
+      if (typeof error === 'object' && error !== null && Reflect.get(error, 'code') === 'F0005') watch.landed = false
       else if (typeof told.id === 'string') watches.delete(told.id)
     }
     // Every watch that the engine names here holds the answer it was sent, or held already.

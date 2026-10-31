@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 import { features } from './tables/features'
 
 export default seed([

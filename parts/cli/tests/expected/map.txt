@@ -1,8 +1,4 @@
-tasksApp
-functions
-  query greeting(): anyone, plain
-screens
-  homeScreen: /, anyone
-    data: greeting from greeting
-page
-  screen homeScreen: browser/screens.home.0cbd1035970d.js 722 bytes
+tasksApp  no test record: run forjr test
+~ seen in the code; code: its code may reach more than is named
+screen homeScreen  screens/home.tsx:4  anyone (why: the first screen runs before any sign-in exists)  /  browser 721 bytes  asks greeting  code
+query greeting  functions/greeting.ts:3  anyone (why: the first screen runs before any sign-in exists)  asked by homeScreen

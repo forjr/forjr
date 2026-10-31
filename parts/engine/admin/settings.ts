@@ -2,7 +2,7 @@ import type { Admin } from '../admin.ts'
 import { valuesAsked } from '../values/asked.ts'
 
 /**
- * `tent settings set <name> <value>`, `remove <name>` and `list`, on an engine that runs: the engine writes the
+ * `forjr settings set <name> <value>`, `remove <name>` and `list`, on an engine that runs: the engine writes the
  * file, uses the new value at once, and runs every live group again. A value is held to the type of its setting.
  * On many machines the readers are told, and the command is answered once each uses the new value.
  */

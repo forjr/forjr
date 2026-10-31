@@ -1,15 +1,15 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { beats, heavyWith, joined, heavyMoment, system, untilAsync, workingOn } from './heavyApps.ts'
 import { notDropped } from './started.ts'
 
 /** The error that a promise is refused with. */
-async function refusal(work: Promise<unknown>): Promise<TentError> {
+async function refusal(work: Promise<unknown>): Promise<ForjrError> {
   try {
     await work
   } catch (error) {
-    if (error instanceof TentError) return error
+    if (error instanceof ForjrError) return error
     throw error
   }
   assert.fail('the call was answered')
@@ -69,10 +69,10 @@ test('[51-5] a link that is cut with no close: the worker is back within the win
   )
 })
 
-test('[51-2] [51-5] a call of an action whose caller is answered T0008 before its task was handed out has its run stopped; one that waited in the queue when the writer stopped is stopped at the opening', async (t) => {
+test('[51-2] [51-5] a call of an action whose caller is answered F0008 before its task was handed out has its run stopped; one that waited in the queue when the writer stopped is stopped at the opening', async (t) => {
   const app = await heavyWith(t)
   const late = await refusal(app.call('encodeOnSlow', { n: 1 }, system))
-  assert.equal(late.code, 'T0008')
+  assert.equal(late.code, 'F0008')
   const run = String(Object(late.fields).run)
   await untilAsync('the run is stopped', () => app.runs.read(run)?.state === 'stopped')
   const waiting = app.call('encodeNarrow', { n: 2 }, system)

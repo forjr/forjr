@@ -7,7 +7,7 @@ import type { About } from '../web/proxy.ts'
 import { plainAddress } from '../web/proxy.ts'
 
 // The header in which the command line of this computer names the caller it acts for.
-const header = 'tent-caller'
+const header = 'forjr-caller'
 
 /** Whether a request came from where the commands of an engine come from: this computer, through no proxy. */
 export function fromCommands(about: About): boolean {
@@ -17,9 +17,9 @@ export function fromCommands(about: About): boolean {
 
 /**
  * The first way of step 3: the command line of this computer, which sends the admin token of the engine and the
- * caller it acts for in `Tent-Caller`: a user id, `nobody` or `system`. The header is read only beside the right
+ * caller it acts for in `Forjr-Caller`: a user id, `nobody` or `system`. The header is read only beside the right
  * admin token, on a request of this computer that came through no proxy. Answers that caller, or nothing for any
- * other request. Throws T2103 for an id that names no user.
+ * other request. Throws F2103 for an id that names no user.
  */
 export function adminCaller(o: Opened, request: Request, about: About): Caller | undefined {
   const named = request.headers.get(header)
@@ -27,7 +27,7 @@ export function adminCaller(o: Opened, request: Request, about: About): Caller |
   return callerWritten(o, named)
 }
 
-/** A request without the admin token and `Tent-Caller`, as the builder's `onRequest` is handed it. */
+/** A request without the admin token and `Forjr-Caller`, as the builder's `onRequest` is handed it. */
 export function withoutAdmin(request: Request): Request {
   const headers = new Headers(request.headers)
   headers.delete('authorization')

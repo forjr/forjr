@@ -7,8 +7,8 @@ import type { Step } from '../work.ts'
 /**
  * Reads the calls of each service that names a published description in `from`: the file is read here and never
  * while the app runs, and only the calls that `use` names reach the description, beside those that `calls`
- * writes; `from` names the calls that the file gave. What the reading finds is T7013, on the line of the service; a
- * call that both give is T1007.
+ * writes; `from` names the calls that the file gave. What the reading finds is F7013, on the line of the service; a
+ * call that both give is F1007.
  */
 export const step: Step = {
   order: 4.2,
@@ -40,7 +40,7 @@ export const step: Step = {
       for (const [call, record] of Object.entries(read.calls)) {
         if (Object.hasOwn(calls, call)) {
           work.findings.push(
-            finding('T1007', `${name}: the call ${call} is written in \`calls\` and read from \`from\`.`, {
+            finding('F1007', `${name}: the call ${call} is written in \`calls\` and read from \`from\`.`, {
               fix: 'Give the written call another name, or take it out of `use`.',
               where,
             }),

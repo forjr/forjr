@@ -44,7 +44,7 @@ test('[50-6] a file that lies at the place of another tenant is held against its
   assert.equal(said(), 2)
   await app.kill()
   assert.deepEqual(
-    readFile(`${atSouth}.refused`, `SELECT "value" FROM "_t_meta" WHERE "key" = 'tenant'`).map((row) => row.value),
+    readFile(`${atSouth}.refused`, `SELECT "value" FROM "_f_meta" WHERE "key" = 'tenant'`).map((row) => row.value),
     [JSON.stringify(north)],
   )
 })

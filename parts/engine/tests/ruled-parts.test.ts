@@ -13,7 +13,7 @@ test('[05-7.14] the address of a part that answers 404, or whose bytes are not t
   const told = async (from: string, own?: string): Promise<string> => {
     const list = [lineOf('tool', '1.0.0', from, bytes)]
     const error = await refusal(fetchPart('tool', { list, folder, mode: 'development', ...(own ? { from: own } : {}) }))
-    assert.equal(error.code, 'T0016')
+    assert.equal(error.code, 'F0016')
     const all: string[] = []
     for (let one: unknown = error, depth = 0; one instanceof Error && depth < 10; one = one.cause, depth++)
       all.push(one.message, JSON.stringify(Object.entries(one)))
@@ -42,30 +42,30 @@ test("[22-6] what a call of fetchPart does not give is taken from where it is ma
   const server = await partServer(t, { '/tool.tgz': bytes })
   const list = [lineOf('tool', '1.0.0', `${server.origin}/tool.tgz`, bytes)]
   const home = workFolder(t)
-  const kept = process.env.TENT_HOME
+  const kept = process.env.FORJR_HOME
   t.after(() => {
-    if (kept === undefined) delete process.env.TENT_HOME
-    else process.env.TENT_HOME = kept
+    if (kept === undefined) delete process.env.FORJR_HOME
+    else process.env.FORJR_HOME = kept
     Reflect.deleteProperty(globalThis, 'partOfTheTest')
   })
-  process.env.TENT_HOME = home
+  process.env.FORJR_HOME = home
 
   // Outside a call the mode is `live`, where an address of this computer is refused without a secure connection.
   const outside = await refusal(fetchPart('tool', { list }))
-  assert.equal(outside.code, 'T0016')
+  assert.equal(outside.code, 'F0016')
   assert.match(outside.message, /secure connection/)
   assert.deepEqual(server.asked, [])
 
   // In a call of an app on live data it is `live` too, and in one of an app in development it is `development`.
   Reflect.set(globalThis, 'partOfTheTest', () => fetchPart('tool', { list }))
   const live = await needing(t, 'live')
-  assert.equal((await refusal(live.app.call('readsPart', {}, { as: nobody }))).code, 'T0016')
+  assert.equal((await refusal(live.app.call('readsPart', {}, { as: nobody }))).code, 'F0016')
   assert.deepEqual(server.asked, [])
   const development = await needing(t, 'development')
   const place = placeOf(home, 'tool', '1.0.0')
   assert.equal(await development.app.call('readsPart', {}, { as: nobody }), place)
   assert.deepEqual(server.asked, ['/tool.tgz'])
-  // The part lies in `fetched/` of the runner's folder, which `TENT_HOME` names here, and in no folder of the package.
+  // The part lies in `fetched/` of the runner's folder, which `FORJR_HOME` names here, and in no folder of the package.
   assert.equal(readFileSync(join(place, 'tool.txt'), 'utf8'), 'the tool')
   assert.equal(existsSync(join(import.meta.dirname, '..', '..', '..', 'fetched')), false)
   // Once it is there, a call on live data is answered its folder.
@@ -87,7 +87,7 @@ test('[22-6] inside a call a fetch is waited for as long as limits.fetchTime of 
 
   Reflect.set(globalThis, 'partOfTheTest', () => fetchPart('tool', { list, folder }))
   const late = await refusal(app.call('readsPart', {}, { as: nobody }))
-  assert.equal(late.code, 'T0016')
+  assert.equal(late.code, 'F0016')
   // The fetch was handed what was left of the 400 ms of the project when the file was asked for: no more than
   // those, and not the two minutes.
   assert.ok(cutAt(late.message) > 0 && cutAt(late.message) <= 400, late.message)
@@ -119,7 +119,7 @@ test('[22-6] two calls for one part at once share a download only where they ask
     fetchPart('tool', { list, folder: first, mode: 'development' }),
   ])
   assert.equal(live.status, 'rejected')
-  assert.equal(Reflect.get(Object(Reflect.get(live, 'reason')), 'code'), 'T0016')
+  assert.equal(Reflect.get(Object(Reflect.get(live, 'reason')), 'code'), 'F0016')
   assert.deepEqual(development, { status: 'fulfilled', value: placeOf(first, 'tool', '1.0.0') })
   assert.deepEqual(server.asked, ['/tool.tgz'])
 

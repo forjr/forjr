@@ -10,8 +10,8 @@ import { copied, typed } from './typed.ts'
 
 const functions = 'functions/orders.ts'
 
-test('[40-4] tent history branch makes and lists branches, --switch goes to one that exists, and merge asks before it merges', async (t) => {
-  // Through `tent dev`, whose points keep their descriptions: so the merge tells its changes in the terms of the app.
+test('[40-4] forjr history branch makes and lists branches, --switch goes to one that exists, and merge asks before it merges', async (t) => {
+  // Through `forjr dev`, whose points keep their descriptions: so the merge tells its changes in the terms of the app.
   let dev: Dev | undefined
   t.after(() => dev?.close())
   const project = copied(t, 'history-branch', 'merging')
@@ -55,7 +55,7 @@ test('[40-4] tent history branch makes and lists branches, --switch goes to one 
   assert.equal(switchedToNew.on, 'fresh', '--switch makes the branch first where it is not there')
 })
 
-test('[40-4] tent history merge --settle with the clash file there is T9102, and settles once it is gone', async (t) => {
+test('[40-4] forjr history merge --settle with the clash file there is F9102, and settles once it is gone', async (t) => {
   const project = copied(t, 'history-settle', 'merging')
   await history(project, 'save', 'start')
   await history(project, 'branch', 'side', '--switch')
@@ -64,14 +64,14 @@ test('[40-4] tent history merge --settle with the clash file there is T9102, and
   edit(project, { 'notes.md': [['2. Orders are sent the same day.', '2. Orders are sent within the hour.']] })
   const merged = Object(await history(project, 'merge', 'side', '--yes'))
   assert.equal(merged.clashes.length, 1)
-  assert.ok(existsSync(join(project, 'tent.clash.ts')))
+  assert.ok(existsSync(join(project, 'forjr.clash.ts')))
   assert.equal(textIn(project, 'notes.md').includes('within the hour'), true, 'ours stays')
 
   const refused = await typed(project, 'history', 'merge', '--settle', '--json')
   assert.equal(refused.ended, 2, refused.printed)
-  assert.equal(refused.answer.findings?.[0].code, 'T9102', refused.printed)
+  assert.equal(refused.answer.findings?.[0].code, 'F9102', refused.printed)
 
-  rmSync(join(project, 'tent.clash.ts'))
+  rmSync(join(project, 'forjr.clash.ts'))
   const settled = Object(await history(project, 'merge', '--settle'))
   assert.equal(settled.point.kind, 'merge')
   assert.equal(settled.checked, true)

@@ -1,4 +1,4 @@
-import { screen, read } from 'tentjs/ui'
+import { screen, read } from 'forjr/ui'
 import { Badge } from '@acme/ui'
 import { allOrders } from '../functions'
 import styles from './orders.module.css'

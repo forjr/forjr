@@ -1,4 +1,4 @@
-import { action, change, input, log, query, table, text } from 'tentjs'
+import { action, change, input, log, query, table, text } from 'forjr'
 
 // A person with a private and a sealed column: neither value may leave through a key of the right `operate`.
 export const people = table('people', {

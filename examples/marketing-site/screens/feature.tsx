@@ -1,4 +1,4 @@
-import { anyone, asset, Image, Link, message, read, screen, useTranslations } from 'tentjs/ui'
+import { anyone, asset, Image, Link, message, read, screen, useTranslations } from 'forjr/ui'
 import { Markdown } from '../components/Markdown'
 import { SiteFrame } from '../components/SiteFrame'
 import { featureIds, getFeature } from '../functions/features'

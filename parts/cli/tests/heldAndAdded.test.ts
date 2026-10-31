@@ -6,9 +6,9 @@ import type { Finding } from '../../core/index.ts'
 import { finding } from '../../core/internal.ts'
 import { heldAndAdded } from '../heldAndAdded.ts'
 
-// A save of `tent dev` loads its version beside our rules, not after them, and switches only where neither found an error.
+// A save of `forjr dev` loads its version beside our rules, not after them, and switches only where neither found an error.
 
-const built = (findings: Finding[] = []) => ({ findings, versionId: 'v2', list: '/project/.tent/build/v2.json' })
+const built = (findings: Finding[] = []) => ({ findings, versionId: 'v2', list: '/project/.forjr/build/v2.json' })
 
 test('[31-21] the version of a save is loaded while our rules hold its build, and is the one to switch to where they find no error', async () => {
   const order: string[] = []
@@ -27,13 +27,13 @@ test('[31-21] the version of a save is loaded while our rules hold its build, an
   })
   // The version is asked for before the rules have answered.
   await new Promise((done) => setImmediate(done))
-  assert.deepEqual(order, ['add /project/.tent/build/v2.json', 'rules'])
-  answer([finding('T6001', 'a warning of our rules', {}, 'warning')])
+  assert.deepEqual(order, ['add /project/.forjr/build/v2.json', 'rules'])
+  answer([finding('F6001', 'a warning of our rules', {}, 'warning')])
   const { found, version } = await held
   assert.equal(version, 'v2')
   assert.deepEqual(
     found.map((one) => one.code),
-    ['T6001'],
+    ['F6001'],
   )
 })
 
@@ -46,13 +46,13 @@ test('[31-21] a save whose rules find an error is not switched to, a build that 
   const ruled = await heldAndAdded({
     ...built(),
     running: 'v1',
-    rules: async () => [finding('T6001', 'an error of our rules')],
+    rules: async () => [finding('F6001', 'an error of our rules')],
     add,
   })
   assert.equal(ruled.version, undefined)
   assert.equal(added.length, 1, 'it was loaded beside the rules')
   const broken = await heldAndAdded({
-    ...built([finding('T1001', 'an error of the build')]),
+    ...built([finding('F1001', 'an error of the build')]),
     running: 'v1',
     rules: async () => [],
     add,
@@ -70,7 +70,7 @@ test('[31-21] a save whose rules find an error is not switched to, a build that 
   assert.deepEqual([failed.version, failed.failed], [undefined, refused])
 })
 
-test('[31-21] the round of tent dev holds a save against our rules through the one that loads its version beside them: its build runs no rule', () => {
+test('[31-21] the round of forjr dev holds a save against our rules through the one that loads its version beside them: its build runs no rule', () => {
   const dev = readFileSync(join(import.meta.dirname, '..', 'dev.ts'), 'utf8')
   const build = dev.slice(
     dev.indexOf('const build = async'),
@@ -81,8 +81,8 @@ test('[31-21] the round of tent dev holds a save against our rules through the o
   assert.ok(dev.includes('heldAndAdded('))
 })
 
-test('[31-21] tent dev holds every build against our rules on their own thread, and runs none of them on its own', () => {
+test('[31-21] forjr dev holds every build against our rules on their own thread, and runs none of them on its own', () => {
   const dev = readFileSync(join(import.meta.dirname, '..', 'dev.ts'), 'utf8')
-  assert.ok(!dev.includes('rulesOver'), 'no rule is carried out on the thread of tent dev')
+  assert.ok(!dev.includes('rulesOver'), 'no rule is carried out on the thread of forjr dev')
   assert.ok(dev.includes('rulesThread('))
 })

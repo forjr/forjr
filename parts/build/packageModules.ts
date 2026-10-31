@@ -65,7 +65,7 @@ const moduleNameOf = (named: string): string => `package.${named.replace(/^@/, '
  * Takes the work of a build, the description the stubs are written from, the side, and the address of each name of
  * the page code in a browser. In development, has the builder make one module of each package that the screens
  * import, with what they share, or takes them as they were kept. Answers them, with the name each is imported by:
- * `./<file>` beside the modules of a browser, and `tent-package:<file>` on the server, which the page code answers
+ * `./<file>` beside the modules of a browser, and `forjr-package:<file>` on the server, which the page code answers
  * with the first file of that name it was asked for. Each file is named by the fingerprint of what was built, so a
  * package installed anew is never answered by an older module. Answers nothing for a release, and for screens that
  * import no package.
@@ -103,7 +103,7 @@ export async function packageModules(
     const final = named.get(one.name)?.name
     if (asked === undefined || final === undefined) continue
     const file = final.slice(side.length + 1)
-    packaged[asked] = side === 'browser' ? `./${file}` : `tent-package:${file}`
+    packaged[asked] = side === 'browser' ? `./${file}` : `forjr-package:${file}`
     styles[packaged[asked]] = [...new Set(stylesOf(one.name))]
       .map((style) => named.get(style)?.name ?? '')
       .filter(Boolean)

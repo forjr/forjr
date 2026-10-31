@@ -1,6 +1,6 @@
 import { standChance } from '../core/internal.ts'
 
-// Loaded first into the program of each test file of an app under `tent test`, before any module of the engine:
+// Loaded first into the program of each test file of an app under `forjr test`, before any module of the engine:
 // the `Date` and the `Math.random` that every module finds are these. The code of a call of a test app reads the
 // clock and the source of numbers of that app, which the engine tells by a name on the global object once it loads;
 // the test's own code, the runner and every program without a test app read the runtime's own.
@@ -16,7 +16,7 @@ const isChance = (value: unknown): value is Chance =>
 
 /** What the code under way reads, where it is the code of a call of an app with a source of its own. */
 function chanceNow(): Chance | undefined {
-  const ask: unknown = Reflect.get(globalThis, Symbol.for('tent.chance'))
+  const ask: unknown = Reflect.get(globalThis, Symbol.for('forjr.chance'))
   const told: unknown = typeof ask === 'function' ? Reflect.apply(ask, undefined, []) : undefined
   return isChance(told) ? told : undefined
 }

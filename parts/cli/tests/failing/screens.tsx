@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { screen, Form } from 'tentjs/ui'
+import { screen, Form } from 'forjr/ui'
 import { explode } from './functions'
 
 // What a test switches on by a save: the view on the server throws as it draws.

@@ -1,4 +1,4 @@
-import { flow, list, text } from 'tentjs'
+import { flow, list, text } from 'forjr'
 
 export const followUp = flow('followUp', {
   input: { title: text(), lines: list(text()) },

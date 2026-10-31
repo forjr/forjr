@@ -1,6 +1,6 @@
 import type { IncomingMessage } from 'node:http'
 import type { Readable } from 'node:stream'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { FileBody } from './fileBody.ts'
 import { FileRequest } from './fileBody.ts'
 import { hostOf } from './forms.ts'
@@ -49,7 +49,7 @@ const ofBody = ['content-type', 'content-encoding', 'content-language', 'content
 
 /** Fails as the runtime's own `fetch` fails for what is no refusal of ours, with the failure as its cause. */
 const failed = (cause: unknown): unknown =>
-  cause instanceof TentError || cause instanceof TypeError ? cause : new TypeError('fetch failed', { cause })
+  cause instanceof ForjrError || cause instanceof TypeError ? cause : new TypeError('fetch failed', { cause })
 
 /**
  * Answers the body of an answer as the standard stream that a `Response` holds. `ended` is called once, when the
@@ -236,6 +236,6 @@ export function fetchWith(o: FetchGuard, lookup: Lookup): GuardedFetch {
  * Makes the one function that every outgoing request of the framework's own parts passes. Takes what it is held
  * to: `privateHosts` of the project, the mode, `plain` for the form that the engine puts in the place of the
  * runtime's own `fetch`, `roots`, and `bodyTravels`. The fetch it answers throws
- * T0022 for an address that is refused, and T0023 for an answer that passed its size or its time.
+ * F0022 for an address that is refused, and F0023 for an answer that passed its size or its time.
  */
 export const guardedFetch = (o: FetchGuard): GuardedFetch => fetchWith(o, systemLookup)

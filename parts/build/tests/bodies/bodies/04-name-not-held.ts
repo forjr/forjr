@@ -1,4 +1,4 @@
-import { query } from 'tentjs'
+import { query } from 'forjr'
 
 export const nameNotHeld = query('nameNotHeld', {
   access: 'everyone',

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { list } from '../admin/list.ts'
 import type { Address } from '../door/address.ts'
 import { adminClosed, adminWords } from '../door/adminAsked.ts'
@@ -16,11 +16,13 @@ import { sentKey } from '../keys/form.ts'
 import { operated } from './operated.ts'
 import { isWritten } from '../../core/internal.ts'
 
-const prefix = '/_t/admin/'
+const prefix = '/_f/admin/'
 
-const notFound = (name: string): TentError =>
-  new TentError('T0001', `The engine has no command ${JSON.stringify(name).slice(0, 60)}.`, {
-    fix: 'See `tent docs commands` for the commands of this version.',
+const notFound = (name: string): ForjrError =>
+  new ForjrError('F0001', `The engine has no command ${JSON.stringify(name).slice(0, 60)}.`, {
+    fix: 'See `forjr docs commands` for the commands of this version.',
+    // A command knows a running engine that has no command of a name by this field, never by the words of the message.
+    fields: { command: name.slice(0, 60) },
   })
 
 /**
@@ -50,7 +52,7 @@ function failed(o: Opened, name: string, error: unknown): Response {
 }
 
 /**
- * `POST /_t/admin`: the engine proves that it holds its token, before a command sends the token. The body is
+ * `POST /_f/admin`: the engine proves that it holds its token, before a command sends the token. The body is
  * `{ "number": "<64 characters of base sixteen>" }`, a number that the command drew, and the answer is
  * `{ proof }`, the fingerprint of the token with that number. No token is asked: what is answered tells nothing
  * of the token. It is answered on a request of this computer that came through no proxy, as a command is.
@@ -60,8 +62,8 @@ async function proved(o: Opened, request: Request, about: About): Promise<Respon
   try {
     const body = readJson(await bodyOf(request, limitOf(o.description, 'callSize')))
     if (!isWritten(body) || !isProofNumber(body.number) || Object.keys(body).length !== 1)
-      throw new TentError(
-        'T0002',
+      throw new ForjrError(
+        'F0002',
         'An engine is asked with one record: { "number": "<64 characters of base sixteen>" }.',
         {
           fields: { number: 'type' },
@@ -74,16 +76,16 @@ async function proved(o: Opened, request: Request, about: About): Promise<Respon
 }
 
 /**
- * `POST /_t/admin/<command>`: a command of this computer. It passes step 1 of the door, then the admin token, on a
+ * `POST /_f/admin/<command>`: a command of this computer. It passes step 1 of the door, then the admin token, on a
  * request of this computer that came through no proxy. Its body is `{ "args": { ... } }`, and it is answered in
- * the wire form with the value of the command. `POST /_t/admin`, with no command, is the question of `proved`.
+ * the wire form with the value of the command. `POST /_f/admin`, with no command, is the question of `proved`.
  */
 export const address: Address = {
   order: 1,
   match(request) {
     const { pathname } = new URL(request.url)
     if (request.method !== 'POST') return false
-    if (pathname === '/_t/admin') return { prove: true }
+    if (pathname === '/_f/admin') return { prove: true }
     if (!pathname.startsWith(prefix)) return false
     const name = pathname.slice(prefix.length)
     // A key, and no admin token, asks the run commands and the log of an app on a server: another address takes it.

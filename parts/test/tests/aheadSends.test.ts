@@ -14,7 +14,7 @@ async function plannedAt(address: string): Promise<string[]> {
 }
 
 // A flow that each added row of `todos` sets off, whose code sends out: the change that adds one now sends data out.
-const flows = `import { flow } from 'tentjs'
+const flows = `import { flow } from 'forjr'
 import { todos } from './functions'
 
 export const tellOthers = flow('tellOthers', {
@@ -26,6 +26,21 @@ export const tellOthers = flow('tellOthers', {
 `
 
 test('[44-8] a change whose write sets off a flow whose code fetches shows nothing ahead', async () => {
+  const plain = await served('optimistic', { for: 'dev' })
+  assert.ok(
+    (await plannedAt(`${plain.address}/todos`)).includes('addTodo'),
+    'addTodo is shown ahead where it sends nothing',
+  )
+  const sending = await served('optimistic', {
+    for: 'dev',
+    change: (folder) => writeFileSync(join(folder, 'flows.ts'), flows),
+  })
+  const planned = await plannedAt(`${sending.address}/todos`)
+  assert.ok(planned.includes('finish'), `the page is handed plans: ${planned.join(', ')}`)
+  assert.equal(planned.includes('addTodo'), false, 'a change that sends data out is not shown ahead')
+})
+
+test('[44-8] a change that sends data out, as one whose write sets off a flow that sends, shows nothing ahead', async () => {
   const plain = await served('optimistic', { for: 'dev' })
   assert.ok(
     (await plannedAt(`${plain.address}/todos`)).includes('addTodo'),

@@ -1,10 +1,10 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 
 // How deep a JSON value of a call may nest.
 const deepest = 64
 
-const refused = (words: string): TentError =>
-  new TentError('T0002', `The body of the call is refused: ${words}.`, {
+const refused = (words: string): ForjrError =>
+  new ForjrError('F0002', `The body of the call is refused: ${words}.`, {
     fields: { '': 'type' },
     fix: 'Send one JSON value, written as the standard says, in UTF-8.',
   })
@@ -14,7 +14,7 @@ const space = /[ \t\n\r]*/y
 
 /**
  * Takes the bytes of the body of a call. Reads them as one JSON value, by the strict rules of the door, and
- * answers the value. Throws T0002 for bytes that are no UTF-8, for text that is no JSON, for a value that nests
+ * answers the value. Throws F0002 for bytes that are no UTF-8, for text that is no JSON, for a value that nests
  * more than 64 deep, for a key named `__proto__`, for two keys of one name in one record, for a number that is
  * not finite once it is read, and for a text that holds half of a character.
  */

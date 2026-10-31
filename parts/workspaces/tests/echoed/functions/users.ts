@@ -1,4 +1,4 @@
-import { anyone, caller, change, input, query, text } from 'tentjs'
+import { anyone, caller, change, input, query, text } from 'forjr'
 import { notes, users } from '../tables/users'
 
 export const addUser = change('addUser', {

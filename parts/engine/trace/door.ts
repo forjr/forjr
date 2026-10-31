@@ -50,7 +50,7 @@ export function doorSpan(o: Opened, request: Request, about: About, handed: stri
     ...(parent ? { under: parent } : {}),
   }
   const span = openSpan(o, opening)
-  const state = /(?:^|,)\s*tent=([a-z]+)/.exec(request.headers.get('tracestate') ?? '')?.[1]
+  const state = /(?:^|,)\s*forjr=([a-z]+)/.exec(request.headers.get('tracestate') ?? '')?.[1]
   if (span && parent && state && moves.includes(state)) {
     const seen = pressed.get(o) ?? new Set<string>()
     pressed.set(o, seen)

@@ -10,7 +10,7 @@ const moment = (ms = 50): Promise<void> => new Promise((done) => setTimeout(done
 // The work that fills the summary of an order, in a file of its own so that a change of it changes that work alone.
 const work = (words: string): string =>
   [
-    "import { action, text } from 'tentjs'",
+    "import { action, text } from 'forjr'",
     '',
     "export const summarize = action('summarize', {",
     "  access: 'nobody',",
@@ -22,7 +22,7 @@ const work = (words: string): string =>
     '',
   ].join('\n')
 
-test('[51-9] tent publish says how many values a changed work makes old, with perDay of its by, or that it states none', async (t) => {
+test('[51-9] forjr publish says how many values a changed work makes old, with perDay of its by, or that it states none', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder)
   const here = computer(t, folder, 'here')
@@ -30,8 +30,8 @@ test('[51-9] tent publish says how many values a changed work makes old, with pe
   writeFileSync(join(here.project, 'functions', 'summary.ts'), work('an order:'))
   here.edit(
     'tables/orders.ts',
-    "import { boolean, choice, number, table, text } from 'tentjs'",
-    "import { boolean, choice, number, table, text } from 'tentjs'\nimport { summarize } from '../functions/summary'",
+    "import { boolean, choice, number, table, text } from 'forjr'",
+    "import { boolean, choice, number, table, text } from 'forjr'\nimport { summarize } from '../functions/summary'",
   )
   here.edit(
     'tables/orders.ts',

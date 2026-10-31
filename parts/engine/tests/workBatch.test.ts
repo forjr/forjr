@@ -5,7 +5,7 @@ import { joiningKeys, readyWorker, writerOf } from './workLink.ts'
 
 const moment = (): Promise<void> => new Promise((done) => setTimeout(done, 20))
 
-test('[51-6] [51-11.6] two entries of two callers are each handed the rows of their own caller; a read from inside the batch that names no entry is T0013, and one under an entry is held to that entry caller', async (t) => {
+test('[51-6] [51-11.6] two entries of two callers are each handed the rows of their own caller; a read from inside the batch that names no entry is F0013, and one under an entry is held to that entry caller', async (t) => {
   const { app } = await writerOf(t)
   const ada = await addUser(app, 'Ada')
   const bo = await addUser(app, 'Bo')
@@ -28,7 +28,7 @@ test('[51-6] [51-11.6] two entries of two callers are each handed the rows of th
   worker.send({ t: 'started', task: id })
   worker.send({ t: 'call', id: 'c1', task: id, what: 'read', plan: { from: 'notes' } })
   const none = await worker.next('answer')
-  assert.equal(Object(none.error).code, 'T0013')
+  assert.equal(Object(none.error).code, 'F0013')
   // Asked under the entry of Ada, the read answers what Ada may read, and nothing of Bo.
   worker.send({ t: 'call', id: 'c2', task: id, entry: 0, what: 'read', plan: { from: 'notes' } })
   const under = await worker.next('answer')

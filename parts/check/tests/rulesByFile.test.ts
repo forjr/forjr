@@ -20,12 +20,12 @@ function largeProject(): string {
     mkdirSync(join(folder, path, '..'), { recursive: true })
     writeFileSync(join(folder, path), text)
   }
-  put('tent.ts', "import { project } from 'tentjs'\n\nexport const shelf = project('shelf', { title: 'Shelf' })\n")
+  put('forjr.ts', "import { project } from 'forjr'\n\nexport const shelf = project('shelf', { title: 'Shelf' })\n")
   for (let n = 0; n < 100; n++)
     put(
       `functions/f${n}.ts`,
       [
-        "import { change, input, query, table, text } from 'tentjs'",
+        "import { change, input, query, table, text } from 'forjr'",
         '',
         `export const items${n} = table('items${n}', { columns: { title: text() }, access: { read: 'anyone', add: 'signedIn' } })`,
         '',
@@ -44,13 +44,13 @@ function largeProject(): string {
   for (let k = 0; k < 4; k++)
     put(
       `components/shared${k}.tsx`,
-      `import { component } from 'tentjs/ui'\n\nexport const Shared${k} = component('Shared${k}', { view: () => <span>Shared ${k}</span> })\n`,
+      `import { component } from 'forjr/ui'\n\nexport const Shared${k} = component('Shared${k}', { view: () => <span>Shared ${k}</span> })\n`,
     )
   for (let n = 0; n < 200; n++)
     put(
       `screens/s${n}.tsx`,
       [
-        "import { screen, read, Link } from 'tentjs/ui'",
+        "import { screen, read, Link } from 'forjr/ui'",
         `import { label${n % 100} } from '../functions/f${n % 100}'`,
         `import { Shared${n % 4} } from '../components/shared${n % 4}'`,
         '',
@@ -74,11 +74,11 @@ function largeProject(): string {
   // whose promise nothing waits for, a secret opened, and a connection of the code's own.
   put(
     'functions/started.ts',
-    "import { now, query, text } from 'tentjs'\n\nconst started = now()\n\nexport const since = query('since', { access: 'anyone', output: text(), run: () => String(started) })\n",
+    "import { now, query, text } from 'forjr'\n\nconst started = now()\n\nexport const since = query('since', { access: 'anyone', output: text(), run: () => String(started) })\n",
   )
   put(
     'flows/hasty.ts',
-    `import { change, flow, input, table, text } from 'tentjs'
+    `import { change, flow, input, table, text } from 'forjr'
 
 export const orders = table('orders', { columns: { title: text() }, access: { read: 'signedIn' } })
 
@@ -100,7 +100,7 @@ export const hasty = flow('hasty', {
   )
   put(
     'functions/outside.ts',
-    "import { action, text } from 'tentjs'\n\nexport const outside = action('outside', { access: 'signedIn', output: text(), run: async () => String((await fetch('http://127.0.0.1:9/')).status) + ({ reveal: () => '' }).reveal() })\n",
+    "import { action, text } from 'forjr'\n\nexport const outside = action('outside', { access: 'signedIn', output: text(), run: async () => String((await fetch('http://127.0.0.1:9/')).status) + ({ reveal: () => '' }).reveal() })\n",
   )
   return folder
 }
@@ -128,7 +128,7 @@ test('[31-21] on the large project, what our rules find at each save, with the r
   const first = await buildSaved(folder)
   const found = await rulesOver(first)
   const codes = new Set(found.map((one) => one.code))
-  for (const code of ['T6013', 'T1014', 'T5002', 'T7014', 'T7015'])
+  for (const code of ['F6013', 'F1014', 'F5002', 'F7014', 'F7015'])
     assert.ok(codes.has(code), `${code} is found:\n${told(found).join('\n')}`)
   assert.deepEqual(told(found), told(await wholeCheck(first)))
 
@@ -138,13 +138,13 @@ test('[31-21] on the large project, what our rules find at each save, with the r
   const again = await rulesOver(next)
   assert.deepEqual(told(again), told(await wholeCheck(next)))
   assert.ok(
-    told(again).some((line) => line.startsWith('T6013 screens/s5.tsx:')),
+    told(again).some((line) => line.startsWith('F6013 screens/s5.tsx:')),
     'the saved file is checked anew',
   )
   const kept = (findings: Finding[], file: string, code: string): Finding | undefined =>
     findings.find((one) => one.code === code && one.where?.file === file)
-  assert.equal(kept(again, 'functions/outside.ts', 'T7015'), kept(found, 'functions/outside.ts', 'T7015'))
-  assert.equal(kept(again, 'screens/s3.tsx', 'T6013'), kept(found, 'screens/s3.tsx', 'T6013'))
+  assert.equal(kept(again, 'functions/outside.ts', 'F7015'), kept(found, 'functions/outside.ts', 'F7015'))
+  assert.equal(kept(again, 'screens/s3.tsx', 'F6013'), kept(found, 'screens/s3.tsx', 'F6013'))
 })
 
 test('[31-21] our rules on a thread of their own find, at a first build and after a save, what they find on the thread of the program, finding for finding', async (t) => {
@@ -161,7 +161,7 @@ test('[31-21] our rules on a thread of their own find, at a first build and afte
   const again = await thread.over(next)
   assert.deepEqual(again, await rulesOver(next))
   assert.ok(
-    told(again).some((line) => line.startsWith('T6013 screens/s5.tsx:')),
+    told(again).some((line) => line.startsWith('F6013 screens/s5.tsx:')),
     'the saved file is checked anew',
   )
 })
@@ -169,7 +169,7 @@ test('[31-21] our rules on a thread of their own find, at a first build and afte
 test('[31-21] a build of a session hands our rules its source and its description as the check reads them before it writes the bundle, and they find there what they find in the whole build, at a first build and after a save', async (t) => {
   const folder = largeProject()
   t.after(() => rmSync(folder, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }))
-  const bundle = join(folder, '.tent', 'build')
+  const bundle = join(folder, '.forjr', 'build')
   for (const round of ['first', 'saved']) {
     if (round === 'saved')
       save(folder, 'screens/s5.tsx', '<h1>Screen 5</h1>', '<Link to="//away.example">Screen 5</Link>')

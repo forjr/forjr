@@ -1,4 +1,4 @@
-import { list, project, table, text } from 'tentjs'
+import { list, project, table, text } from 'forjr'
 
 // A rule of a signed-in caller lets in whoever the app's own sign-up lets in.
 export const signedUp = project('signedUp', { backups: { every: false } })

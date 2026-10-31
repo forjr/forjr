@@ -1,5 +1,5 @@
 import os
 
 
-def run(input, tent):
-    return f"outer in {os.getpid()}, {tent.call('inner', {})}"
+def run(input, forjr):
+    return f"outer in {os.getpid()}, {forjr.call('inner', {})}"

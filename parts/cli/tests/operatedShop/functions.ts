@@ -1,4 +1,4 @@
-import { change, input, query, table, text } from 'tentjs'
+import { change, input, query, table, text } from 'forjr'
 
 // A function and a row for a signed-in caller, offered to the API, which a key of the right `operate` does not reach.
 export const orders = table('orders', { columns: { title: text() }, access: { read: 'signedIn', add: 'signedIn' } })

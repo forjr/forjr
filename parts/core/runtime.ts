@@ -1,4 +1,4 @@
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 
 /** What the engine puts into the slot: the one way by which a word of this part reaches the work behind it. */
 export interface Runtime {
@@ -22,10 +22,10 @@ export function setRuntime(runtime: Runtime | null): void {
 /** Answers what stands in the slot, or `null` where it is empty. */
 export const filled = (): Runtime | null => slot
 
-/** Takes the name of what is being used. Answers the runtime. Throws T0010 where the slot is empty. */
+/** Takes the name of what is being used. Answers the runtime. Throws F0010 where the slot is empty. */
 export function runtime(used: string): Runtime {
   if (!slot) {
-    throw new TentError('T0010', `${used} was used with no engine: nothing stands in the runtime slot.`, {
+    throw new ForjrError('F0010', `${used} was used with no engine: nothing stands in the runtime slot.`, {
       fix: 'Run the code inside an engine, or hand a runtime to setRuntime in a test.',
     })
   }

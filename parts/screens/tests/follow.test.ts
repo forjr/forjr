@@ -12,7 +12,7 @@ type Message = Record<string, unknown>
 const settled = () => new Promise((done) => setTimeout(done, 2))
 
 /**
- * What stands for the engine in these tests: an engine that runs one version and answers T0007 for any other, with
+ * What stands for the engine in these tests: an engine that runs one version and answers F0007 for any other, with
  * one live connection that the test speaks through.
  */
 function engine(o: { mode?: Page['mode']; fails?: string; moves?: string } = {}) {
@@ -27,7 +27,7 @@ function engine(o: { mode?: Page['mode']; fails?: string; moves?: string } = {})
   let policy: ((one: { directive: string; uri: string }) => void) | undefined
   const stale = (): object => ({
     ok: false,
-    error: { code: 'T0007', name: 'version-gone', message: 'This page is out of date.', running },
+    error: { code: 'F0007', name: 'version-gone', message: 'This page is out of date.', running },
   })
   const record = (version: string): Page =>
     pageOf('s', {
@@ -41,7 +41,7 @@ function engine(o: { mode?: Page['mode']; fails?: string; moves?: string } = {})
     post: async (address, body) => {
       sent.push({ address, body })
       if (Object(body).version !== running) return stale()
-      if (address === `/_t/call/${o.fails}`) return { ok: false, error: { code: 'T0002', name: 'bad', message: 'No.' } }
+      if (address === `/_f/call/${o.fails}`) return { ok: false, error: { code: 'F0002', name: 'bad', message: 'No.' } }
       return { ok: true, value: { by: running, input: Object(body).input } }
     },
     get: async (address) => {
@@ -114,7 +114,7 @@ test('[31-12] a page that is told a new version asks for its screen again under 
   far.tell({ t: 'version', version: 'v2' })
   await settled()
   // The screen is asked for again under the new version, at the address the page shows.
-  assert.deepEqual(far.sent, [{ address: '/_t/screen?path=%2Fs&version=v2' }])
+  assert.deepEqual(far.sent, [{ address: '/_f/screen?path=%2Fs&version=v2' }])
   // The module of the screen that the page does not hold is loaded, and the style file is the new one.
   assert.deepEqual(far.loaded, [['browser/s.v2.js']])
   assert.deepEqual(far.styled, [['browser/styles.v2.css']])
@@ -153,7 +153,7 @@ test('[31-12] a page told a version that was left again before it asked follows 
   await settled()
   assert.deepEqual(
     far.sent.map((one) => one.address),
-    ['/_t/screen?path=%2Fs&version=v2', '/_t/screen?path=%2Fs&version=v3'],
+    ['/_f/screen?path=%2Fs&version=v2', '/_f/screen?path=%2Fs&version=v3'],
   )
   assert.equal(far.page.page.version, 'v3')
   assert.deepEqual(far.gone, [], 'no address is loaded anew')
@@ -164,15 +164,15 @@ test('[31-17] a call from a page whose version is gone: the page follows the run
   far.page.ask('openOrders', {}, live)
   await settled()
   far.switched('v2')
-  // The call is answered T0007 with the version that runs: the page follows it, and sends the call once more.
+  // The call is answered F0007 with the version that runs: the page follows it, and sends the call once more.
   const typed = { name: 'What the person typed', total: 12 }
   assert.deepEqual(await far.page.call('addOrder', typed), { by: 'v2', input: typed })
   assert.deepEqual(
     far.sent.map((one) => [one.address, Object(one.body).version]),
     [
-      ['/_t/call/addOrder', 'v1'],
-      ['/_t/screen?path=%2Fs&version=v2', undefined],
-      ['/_t/call/addOrder', 'v2'],
+      ['/_f/call/addOrder', 'v1'],
+      ['/_f/screen?path=%2Fs&version=v2', undefined],
+      ['/_f/call/addOrder', 'v2'],
     ],
   )
   assert.deepEqual(Object(far.sent[2].body).input, typed)
@@ -190,7 +190,7 @@ test('[31-17] a call from a page whose version is gone: the page follows the run
   // A call that fails under the new version fails as itself, and the page stays.
   const failing = engine({ fails: 'addOrder' })
   failing.switched('v2')
-  await assert.rejects(failing.page.call('addOrder', typed), (thrown) => Object(thrown).code === 'T0002')
+  await assert.rejects(failing.page.call('addOrder', typed), (thrown) => Object(thrown).code === 'F0002')
   assert.deepEqual(failing.gone, [])
   assert.equal(failing.page.page.version, 'v2')
 })
@@ -198,11 +198,11 @@ test('[31-17] a call from a page whose version is gone: the page follows the run
 test('[31-17] only where the call fails again for its version does the page load its address anew', async () => {
   const far = engine({ moves: 'v3' })
   far.switched('v2')
-  // The engine moves on once more while the page follows: the second try is answered T0007 too.
-  await assert.rejects(far.page.call('addOrder', { total: 1 }), (thrown) => Object(thrown).code === 'T0007')
+  // The engine moves on once more while the page follows: the second try is answered F0007 too.
+  await assert.rejects(far.page.call('addOrder', { total: 1 }), (thrown) => Object(thrown).code === 'F0007')
   assert.deepEqual(far.gone, ['/s'])
   assert.equal(
-    far.sent.filter((one) => one.address === '/_t/call/addOrder').length,
+    far.sent.filter((one) => one.address === '/_f/call/addOrder').length,
     2,
     'the call is sent twice at most',
   )
@@ -211,7 +211,7 @@ test('[31-17] only where the call fails again for its version does the page load
 test('[31-12] the findings that the engine sends are shown as an overlay, and an empty list takes it away', async () => {
   const far = engine({ mode: 'development' })
   await settled()
-  const found = [{ code: 'T1005', message: 'A screen file imports a backend file as its text.', level: 'error' }]
+  const found = [{ code: 'F1005', message: 'A screen file imports a backend file as its text.', level: 'error' }]
   far.tell({ t: 'findings', findings: found })
   assert.deepEqual(far.overlays, [{ findings: found, blocked: [] }])
   far.tell({ t: 'findings', findings: [] })
@@ -239,7 +239,7 @@ test('[21-11@6] in the mode development what the content policy blocked is shown
   ])
   // What was blocked twice is shown once, and stands beside the findings.
   far.refuse('script-src-elem', 'https://js.stripe.com/v3/')
-  far.tell({ t: 'findings', findings: [{ code: 'T8000', message: 'A type does not fit.' }] })
+  far.tell({ t: 'findings', findings: [{ code: 'F8000', message: 'A type does not fit.' }] })
   assert.equal(far.overlays.at(-1)?.blocked.length, 1)
   assert.equal(far.overlays.at(-1)?.findings.length, 1)
 

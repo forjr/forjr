@@ -1,5 +1,5 @@
 // The memory there is for programs on this computer, and how many test programs run at once: of the framework's run
-// and of `tent test` alike.
+// and of `forjr test` alike.
 import { execFileSync } from 'node:child_process'
 import { readFileSync } from 'node:fs'
 import { availableParallelism, freemem } from 'node:os'

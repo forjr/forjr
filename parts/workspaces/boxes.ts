@@ -56,7 +56,7 @@ function foundOf(printed: unknown): Finding | undefined {
   return finding(code, message, { ...placed, ...(typeof fix === 'string' ? { fix } : {}) }, leveled)
 }
 
-/** What `tent <command> --json` printed in a box: its findings, and the version of the bundle where it wrote one. */
+/** What `forjr <command> --json` printed in a box: its findings, and the version of the bundle where it wrote one. */
 function printedOf(out: string): { findings: Finding[]; version?: string } {
   let read: unknown
   try {
@@ -74,7 +74,7 @@ function printedOf(out: string): { findings: Finding[]; version?: string } {
 
 /**
  * Takes what the box of a workspace is made with. Answers the box as the workspaces hold it: a build is
- * `tent build --out <work>/builds/<n> --json` in the box, with `--dev` for the test side, whose printed findings are read, and whose bundle the
+ * `forjr build --out <work>/builds/<n> --json` in the box, with `--dev` for the test side, whose printed findings are read, and whose bundle the
  * host reads as data and hands to an engine, whose room loads its code. The box is started at the first build.
  */
 export function heldBox(o: BoxOptions): HeldBox {
@@ -95,14 +95,14 @@ export function heldBox(o: BoxOptions): HeldBox {
     const out = join(at.work, 'builds', `${Date.now()}-${builds}`)
     rmSync(atHost(out, at), { recursive: true, force: true })
     // The test side is a development build, which the inspect mode reads the places of a page from.
-    const ran = await o.sandbox.run(at, `tent build ${kind === 'dev' ? '--dev ' : ''}--out ${quoted(out)} --json`)
+    const ran = await o.sandbox.run(at, `forjr build ${kind === 'dev' ? '--dev ' : ''}--out ${quoted(out)} --json`)
     const { findings, version } = printedOf(ran.out)
     const file = join(atHost(out, at), 'description.json')
     if (version === undefined || !existsSync(file)) {
       // A build that wrote nothing tells why: its findings, or else what it printed.
       const told = findings.length
         ? findings
-        : [finding('T0011', `The build in the box ended with ${ran.code}: ${ran.err.slice(0, 400)}`, {})]
+        : [finding('F0011', `The build in the box ended with ${ran.code}: ${ran.err.slice(0, 400)}`, {})]
       return { versionId: '', findings: told, description: Object(undefined), bundle: '' }
     }
     // The description is read as data, as the engine reads that of a bundle: the host never loads what the box built.
@@ -112,11 +112,11 @@ export function heldBox(o: BoxOptions): HeldBox {
 
   async function checkNow(): Promise<Finding[]> {
     const at = await boxNow()
-    const ran = await o.sandbox.run(at, 'tent check --json')
+    const ran = await o.sandbox.run(at, 'forjr check --json')
     const { findings } = printedOf(ran.out)
     // A check that printed nothing it could read tells what it printed, so that it never passes unread.
     if (findings.length || ran.code === 0) return findings
-    return [finding('T0011', `The check in the box ended with ${ran.code}: ${ran.err.slice(0, 400)}`, {})]
+    return [finding('F0011', `The check in the box ended with ${ran.code}: ${ran.err.slice(0, 400)}`, {})]
   }
 
   // One command at a time in a box: a second waits for the first, for each reads and writes its work.

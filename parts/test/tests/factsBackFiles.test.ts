@@ -14,7 +14,7 @@ test('[40-3b] app.facts with back turns a rename round in the files of tenants t
   }
   const plain = await app.facts(older)
   assert.ok(
-    plain.tableFindings.some((one) => /^T200[2-4]$/.test(one.code)),
+    plain.tableFindings.some((one) => /^F200[2-4]$/.test(one.code)),
     JSON.stringify(plain.tableFindings),
   )
   assert.deepEqual((await app.facts(older, { back: true })).tableFindings, [])

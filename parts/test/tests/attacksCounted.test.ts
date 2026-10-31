@@ -15,8 +15,8 @@ test('[45-19.3] a kept count tells how many linked rows there are to whoever rea
     tables,
     readFileSync(tables, 'utf8')
       .replace(
-        "import { anyone, count, max, min, number, sum, table, text } from 'tentjs'",
-        "import { anyone, count, max, min, number, role, sum, table, text } from 'tentjs'",
+        "import { anyone, count, max, min, number, sum, table, text } from 'forjr'",
+        "import { anyone, count, max, min, number, role, sum, table, text } from 'forjr'",
       )
       .replace(
         "openOrders: number({ from: count({ of: orders, by: 'customer', where: { status: 'open' } }) }),",

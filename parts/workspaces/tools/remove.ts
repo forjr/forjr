@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError, text } from '../../core/index.ts'
-import { definitionsOf } from '../policy.ts'
+import { ForjrError, text } from '../../core/index.ts'
+import { definitionsOf } from '../../core/internal.ts'
 import { pathIn } from '../paths.ts'
 import { describedNow, writeHeld } from '../written.ts'
 import type { ProjectTool } from './face.ts'
@@ -41,7 +41,7 @@ export const removeTool: ProjectTool = {
       return { removed: input.path, point: point.id }
     }
     if (typeof input.name !== 'string')
-      throw new TentError('T0002', '`remove` takes a `name` or a `path`.', { fields: { name: 'required' } })
+      throw new ForjrError('F0002', '`remove` takes a `name` or a `path`.', { fields: { name: 'required' } })
     const name = input.name
     const { description } = await describedNow(at)
     const all = definitionsOf(description)

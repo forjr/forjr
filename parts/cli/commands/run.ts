@@ -25,7 +25,7 @@ export const command: Command = {
   needs: 'engine',
   run: async ({ args, folder }) => {
     if ((args.times === undefined) !== (args.to === undefined))
-      throw new Error('`--times` takes two moments: tent run <flow> --times <from> <to>.')
+      throw new Error('`--times` takes two moments: forjr run <flow> --times <from> <to>.')
     if (typeof args.times === 'string')
       return asked({ folder, data: args.data }, 'runs', {
         what: 'start',

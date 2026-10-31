@@ -1,4 +1,4 @@
-import { json, python, text } from 'tentjs'
+import { json, python, text } from 'forjr'
 import { notes } from './tables.ts'
 
 export const plain = python('plain', { file: 'py/plain.py', input: {}, output: text(), access: 'signedIn' })

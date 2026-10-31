@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isPath, isStored } from '../../core/internal.ts'
 import type { Address } from '../door/address.ts'
 import { refusedCall } from '../door/failure.ts'
@@ -17,11 +17,11 @@ import { namedFor } from '../gradual/served.ts'
 import { screenCaller } from '../door/scopes.ts'
 import { nameAfter } from '../web/decoded.ts'
 
-const prefix = '/_t/part/'
+const prefix = '/_f/part/'
 
 /** A part that is not found: one of a screen that the caller may not see, and one that the screen does not use. */
-const notFound = (name: string): TentError =>
-  new TentError('T0001', `No screen at that address draws the part ${JSON.stringify(name).slice(0, 80)}.`, {
+const notFound = (name: string): ForjrError =>
+  new ForjrError('F0001', `No screen at that address draws the part ${JSON.stringify(name).slice(0, 80)}.`, {
     fix: 'Ask for a part that the screen at `path` uses, for a caller who may see that screen.',
   })
 
@@ -42,9 +42,9 @@ function usesOf(description: Parameters<typeof screenNamedAt>[0], screen: string
 }
 
 /**
- * `GET /_t/part/<component>?props=<JSON>`, in the mode `test` alone: the component drawn alone as a page, with the
+ * `GET /_f/part/<component>?props=<JSON>`, in the mode `test` alone: the component drawn alone as a page, with the
  * props it is handed, open to the caller of the test, for `app.open(Component, { props })`. The props are held to the
- * declared types of the component (T0002). In every other mode, and for a name that is no component, it is not found.
+ * declared types of the component (F0002). In every other mode, and for a name that is no component, it is not found.
  */
 async function drawnAlone(
   app: Opened,
@@ -60,14 +60,14 @@ async function drawnAlone(
       ? app.description.components[name]
       : undefined
     if (app.mode !== 'test' || !isStored(component))
-      throw new TentError('T0001', `Nothing answers GET ${prefix}${JSON.stringify(name).slice(0, 80)}.`, {
+      throw new ForjrError('F0001', `Nothing answers GET ${prefix}${JSON.stringify(name).slice(0, 80)}.`, {
         fix: 'A component is drawn alone in the mode `test`, for `app.open(Component, { props })`.',
       })
     let given: unknown
     try {
       given = JSON.parse(url.searchParams.get('props') ?? '{}')
     } catch {
-      throw new TentError('T0002', 'The props of a component drawn alone are one record of JSON.', {
+      throw new ForjrError('F0002', 'The props of a component drawn alone are one record of JSON.', {
         fields: { props: 'type' },
       })
     }
@@ -88,10 +88,10 @@ async function drawnAlone(
 }
 
 /**
- * `POST /_t/part/<component>`, with `{ props, path, version }`: one use of a component that is drawn on the server
+ * `POST /_f/part/<component>`, with `{ props, path, version }`: one use of a component that is drawn on the server
  * alone, drawn again for a living page, as the caller, for whom a key is nobody as for a screen. The request is held to the screen at `path`: its rule for
- * the caller, and that it uses the component. `props` are held to the declared types of the component (T0002), and
- * a version that is gone is T0007. Answers `{ html, answers, mark }`, and counts as a request for a screen.
+ * the caller, and that it uses the component. `props` are held to the declared types of the component (F0002), and
+ * a version that is gone is F0007. Answers `{ html, answers, mark }`, and counts as a request for a screen.
  */
 export const address: Address = {
   order: 1,

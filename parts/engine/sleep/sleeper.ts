@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Clock } from '../../core/internal.ts'
 import type { App } from '../app.ts'
 import { isUpload } from '../door/web.ts'
@@ -29,7 +29,7 @@ import { ownDue } from './ownDue.ts'
 /** An app that sleeps, as the engine holds it: what finds it by a name, and what wakes it. */
 export interface Sleeper {
   names(host: string, scheme: string): boolean
-  // What a request for `/_t/health` is answered while it sleeps: ready, or the error of the waking that failed.
+  // What a request for `/_f/health` is answered while it sleeps: ready, or the error of the waking that failed.
   health(): Response
   // The most bytes that the body of a request for it may hold.
   size(asked: Addressed): number
@@ -67,8 +67,8 @@ const recheck = 1000
 const retries = [5_000, 30_000, 180_000]
 
 /** The error of a member of an app that sleeps which answers at once, and which what was kept does not answer. */
-export const asleepError = (name: string): TentError =>
-  new TentError('T0013', `The app ${name} sleeps, and this member answers only an app that is open.`, {
+export const asleepError = (name: string): ForjrError =>
+  new ForjrError('F0013', `The app ${name} sleeps, and this member answers only an app that is open.`, {
     fix: 'Call `await app.ready()` first: it wakes the app, and answers when it is open.',
   })
 
@@ -97,7 +97,9 @@ export async function sleepingApp(
     dataFolder,
     secrets: {},
     settings: {},
-    mcp: { request: () => Promise.reject(new TentError('T0013', 'No client of MCP is joined to an app that sleeps.')) },
+    mcp: {
+      request: () => Promise.reject(new ForjrError('F0013', 'No client of MCP is joined to an app that sleeps.')),
+    },
   }
   // The one thing of the makers that stays while the app sleeps: the timer of its due moment stands on it.
   let clock: Clock = (options.makers?.clock ?? program.makers.clock)?.(input) ?? systemClock
@@ -219,7 +221,7 @@ export async function sleepingApp(
   }
   /** Opens the app again, once for every request and member that asks for it at the same time. */
   function wake(member = false): Promise<App> {
-    if (closed) return Promise.reject(new TentError('T0013', `The app ${description.app.name} was closed.`))
+    if (closed) return Promise.reject(new ForjrError('F0013', `The app ${description.app.name} was closed.`))
     if (app && !falling) return Promise.resolve(app)
     waking ??= (async () => {
       await falling

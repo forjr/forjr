@@ -1,4 +1,4 @@
-import { change, emit, event, flow, input, object, query, text } from 'tentjs'
+import { change, emit, event, flow, input, object, query, text } from 'forjr'
 import { marks } from './tables.ts'
 
 // The event is declared in this file alone: the tests of the engine describe every export of it as a definition.

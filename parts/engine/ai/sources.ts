@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { ToolSource } from '../../core/internal.ts'
 import { outsideCalls, underWay, within } from '../context.ts'
 
@@ -11,11 +11,11 @@ const isSource = (value: unknown): value is ToolSource =>
 
 /**
  * `engine.offer`: keeps a source of tools under its name for every app of an engine, in the place of one offered
- * before under that name. Throws T0013 for a source that has not `tools` and `call`.
+ * before under that name. Throws F0013 for a source that has not `tools` and `call`.
  */
 export function offerSource(token: string, name: string, source: unknown): void {
   if (!isSource(source))
-    throw new TentError('T0013', `The source ${JSON.stringify(name).slice(0, 80)} has not \`tools\` and \`call\`.`, {
+    throw new ForjrError('F0013', `The source ${JSON.stringify(name).slice(0, 80)} has not \`tools\` and \`call\`.`, {
       fix: 'Offer an object with `tools(o)`, which answers the specs of its tools, and `call(o)`, which carries one out.',
     })
   const held = offered.get(token) ?? new Map<string, ToolSource>()

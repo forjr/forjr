@@ -14,7 +14,7 @@ import { basename, extname, join, relative, sep } from 'node:path'
 import { Readable } from 'node:stream'
 import { pipeline } from 'node:stream/promises'
 import type { CallContext } from '../context.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Opened } from '../opened.ts'
 import { mayDownload } from '../stored/access.ts'
 import { bytesFor, fileRow, fileStore, putFile } from '../stored/files.ts'
@@ -55,12 +55,12 @@ class Answered {
 export const pythonFailed = (
   message: string,
   fix = 'Mend the code of the `python`: the log holds what it did.',
-): TentError => new TentError('T7119', message, { fix })
+): ForjrError => new ForjrError('F7119', message, { fix })
 
 /**
  * Takes an app, the call context of a call, a file id that it names, and the folder of the call. Lays a copy of the
  * file in the folder, named by the engine with the ending of its kind, after the rule of a download was held for the
- * caller: on a worker the writer holds that rule and hands the bytes. Answers its path. Throws T0001 for a file
+ * caller: on a worker the writer holds that rule and hands the bytes. Answers its path. Throws F0001 for a file
  * that the caller may not have.
  */
 export async function copyInFolder(o: Opened, cx: CallContext, id: unknown, folder: string): Promise<string> {
@@ -75,7 +75,7 @@ export async function copyInFolder(o: Opened, cx: CallContext, id: unknown, fold
   }
   const file = fileRow(o, id)
   if (!file || !mayDownload(o, caller, file))
-    throw new TentError('T0001', `No file has the id ${(JSON.stringify(id) ?? 'nothing').slice(0, 60)}.`, {
+    throw new ForjrError('F0001', `No file has the id ${(JSON.stringify(id) ?? 'nothing').slice(0, 60)}.`, {
       fix: 'Name the id of a file that the caller of the call may download.',
     })
   await bytesFor(o, file)
@@ -144,7 +144,7 @@ export async function storedFromFolder(o: Opened, cx: CallContext, path: string)
 /**
  * Takes an app, the caller, the name of the definition, the stored type of its output, what Python answered, and
  * the folder of the call. Answers the output with each file that Python wrote into the folder stored as a loose
- * file of the caller, by its id. Throws T7119 for a path that lies outside the folder, also after every link is
+ * file of the caller, by its id. Throws F7119 for a path that lies outside the folder, also after every link is
  * followed, that is no plain file, or whose file is larger than `uploadSize`: nothing is stored then.
  */
 export async function outputOf(

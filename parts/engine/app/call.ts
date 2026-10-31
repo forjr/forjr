@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { App } from '../app.ts'
 import { called } from '../door/call.ts'
 import type { Opened } from '../opened.ts'
@@ -12,7 +12,7 @@ import { shownFailure } from '../failed/failure.ts'
 
 /**
  * `app.call`: a function called through steps 5 to 10 of the door, with no web request. An error that is no
- * `TentError` is the fault of the code of the app: the promise is refused with T0009, and the error is its cause.
+ * `ForjrError` is the fault of the code of the app: the promise is refused with F0009, and the error is its cause.
  * On a reader a query is answered there, and anything else is the writer's.
  */
 export const member =
@@ -37,10 +37,10 @@ export const member =
         called(o, named, input, { caller, own: true, waits: true }),
       )
     } catch (error) {
-      if (error instanceof TentError) throw error
+      if (error instanceof ForjrError) throw error
       // In development and in a test, the definition and the line of its source, as the overlay names them.
       const place = o.mode === 'live' ? undefined : shownFailure(o, named, error).where
-      const failed = new TentError('T0009', error instanceof Error ? error.message : String(error), {
+      const failed = new ForjrError('F0009', error instanceof Error ? error.message : String(error), {
         fix: 'The code of the app failed: the log holds the error with its trace.',
         ...(place ? { where: { file: place.file, line: place.line, definition: named } } : {}),
       })

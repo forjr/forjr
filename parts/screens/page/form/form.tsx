@@ -238,8 +238,8 @@ export function FormDrawn<const What extends Stub>(given: FormProps<What>): Draw
     ) as Record<string, string>,
     failed:
       sent && !told.length
-        ? sent.error.code.startsWith('T')
-          ? textOf(store.words, 'tent.failed', {}, store.page.language)
+        ? sent.error.code.startsWith('F')
+          ? textOf(store.words, 'forjr.failed', {}, store.page.language)
           : sent.error.message
         : undefined,
     listeners: new Set<() => void>(),
@@ -325,8 +325,8 @@ export function FormDrawn<const What extends Stub>(given: FormProps<What>): Draw
   const failedWords = (error: WireError): string =>
     Object.hasOwn(store.words, `fail.${error.code}`)
       ? textOf(store.words, `fail.${error.code}`, error.fields ?? {}, store.page.language)
-      : error.code.startsWith('T')
-        ? textOf(store.words, 'tent.failed', {}, store.page.language)
+      : error.code.startsWith('F')
+        ? textOf(store.words, 'forjr.failed', {}, store.page.language)
         : error.message
   const send = (event: FormEvent): void => {
     event.preventDefault()
@@ -538,13 +538,13 @@ export function FormDrawn<const What extends Stub>(given: FormProps<What>): Draw
       const scaled = await scaledDown(file, false)
       const query = new URLSearchParams({ name: sentName(file, scaled), ...(name ? { for: name } : {}), field })
       const answer = await uploaded(
-        named(store.page, `/_t/files?${query}`),
+        named(store.page, `/_f/files?${query}`),
         scaled,
         (share) => step((at + share) / files.length),
         store.page.pass,
       )
       if ('id' in answer) ids.push(answer.id)
-      else refused(seenOf({ code: 'T0009', name: 'failed', ...answer.error }))
+      else refused(seenOf({ code: 'F0009', name: 'failed', ...answer.error }))
     }
     return ids
   }
@@ -579,11 +579,11 @@ export function FormDrawn<const What extends Stub>(given: FormProps<What>): Draw
   const hidden: [string, string][] = posted
     ? Object.entries(posted.form)
     : [
-        ['t-at', atOf(store)],
+        ['f-at', atOf(store)],
         // A page in the inspect mode keeps it through a form that is sent with no script.
         ...(partHeld('inspect')?.fields(store) ?? []),
-        ['t-form', key],
-        ['t-version', store.page.version],
+        ['f-form', key],
+        ['f-version', store.page.version],
         ...Object.entries(isStored(carried) ? carried : {}).flatMap(([field, value]) => carriedAs(field, value)),
       ]
   return (
@@ -596,7 +596,7 @@ export function FormDrawn<const What extends Stub>(given: FormProps<What>): Draw
       noValidate
       // With no script the form posts itself, with the hidden fields that say where it was sent from.
       method="post"
-      action={named(store.page, posted ? posted.post : `/_t/form/${encodeURIComponent(name ?? '')}`)}
+      action={named(store.page, posted ? posted.post : `/_f/form/${encodeURIComponent(name ?? '')}`)}
       onSubmit={send}
       onInput={(event) => {
         onInput?.(event)

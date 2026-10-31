@@ -29,13 +29,13 @@ export interface BrowserOptions {
  * every step of the door, in the program and with no network.
  */
 export interface TestBrowser {
-  /** Calls a function at `/_t/call/`, as a press of a page does. `as` states another user than the one of its last page. */
+  /** Calls a function at `/_f/call/`, as a press of a page does. `as` states another user than the one of its last page. */
   call(fn: Fn, input?: unknown, o?: { as?: string }): Promise<WireAnswer>
-  /** Reads a query or an action at `/_t/read/`, as a page asks it again. */
+  /** Reads a query or an action at `/_f/read/`, as a page asks it again. */
   read(fn: Fn, input?: unknown, o?: { as?: string }): Promise<WireAnswer>
   /** A request for a screen: its status, its headers and its HTML. The browser keeps the user that the page was drawn for. */
   page(path: string): Promise<{ status: number; headers: Record<string, string>; html: string }>
-  /** Uploads a file at `/_t/files`, with the bytes as the body. */
+  /** Uploads a file at `/_f/files`, with the bytes as the body. */
   upload(
     bytes: Uint8Array<ArrayBuffer> | string,
     o: { name: string; kind?: string; for?: Fn; field?: string },
@@ -119,7 +119,7 @@ export const browser =
 
     /** The record of a page that its HTML holds, where it holds one. */
     const recordIn = (html: string): unknown => {
-      const record = /<script type="application\/json" id="tent-page">([\s\S]*?)<\/script>/.exec(html)?.[1]
+      const record = /<script type="application\/json" id="forjr-page">([\s\S]*?)<\/script>/.exec(html)?.[1]
       return record === undefined ? undefined : JSON.parse(record)
     }
 
@@ -128,7 +128,7 @@ export const browser =
       let path = shown
       // Where the screen sends the new caller on, as to the sign-in, the browser follows, as a page does.
       for (let hop = 0; hop < 5; hop++) {
-        const answer = await send('GET', `/_t/screen?path=${encodeURIComponent(path)}`)
+        const answer = await send('GET', `/_f/screen?path=${encodeURIComponent(path)}`)
         const wire: unknown = await answer.json().catch(() => undefined)
         const value: unknown = Reflect.get(Object(wire), 'value')
         if (Reflect.get(Object(wire), 'ok') !== true) return
@@ -178,8 +178,8 @@ export const browser =
     }
 
     return {
-      call: (fn, input, how) => asked('/_t/call/', fn, input, how),
-      read: (fn, input, how) => asked('/_t/read/', fn, input, how),
+      call: (fn, input, how) => asked('/_f/call/', fn, input, how),
+      read: (fn, input, how) => asked('/_f/read/', fn, input, how),
       async page(path) {
         await opened()
         const answer = await send('GET', path)
@@ -196,7 +196,7 @@ export const browser =
         if (how.for !== undefined) asks.set('for', nameOf(how.for))
         if (how.field !== undefined) asks.set('field', how.field)
         const body = typeof bytes === 'string' ? new TextEncoder().encode(bytes) : bytes
-        const answer = await send('POST', `/_t/files?${asks}`, {
+        const answer = await send('POST', `/_f/files?${asks}`, {
           headers: {
             'content-type': how.kind ?? 'application/octet-stream',
             'content-length': String(body.length),

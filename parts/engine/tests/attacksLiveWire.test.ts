@@ -116,7 +116,7 @@ test('[05-5.3] a watch whose query is a record with a toString of its own, and o
     one.end()
   }
   // The engine did not stop for any of them: it answers a call, and the page beside them is sent what changes.
-  assert.equal((await send(app, `${origin}/_t/call/countCards`, {})).status, 200)
+  assert.equal((await send(app, `${origin}/_f/call/countCards`, {})).status, 200)
   await addCard(app, 'second', 2)
   await untilTried('the page that stayed was sent the card', () => stays.of('rows').length === 1)
 })
@@ -136,7 +136,7 @@ test('[05-5.5] a thousand watches and unwatches a second on one connection close
     flood.text({ t: 'watch', id: `w${n}`, query: 'cardsAt', input: { rank: n } })
     flood.text({ t: 'unwatch', id: `w${n}` })
   }
-  const called = send(app, `${origin}/_t/call/countCards`, {})
+  const called = send(app, `${origin}/_f/call/countCards`, {})
   const watched = other.watch('count', 'countCards')
   assert.equal((await called).status, 200)
   assert.equal((await watched).t, 'result')
@@ -166,7 +166,7 @@ test('[05-5.5] a thousand watches and unwatches a second on one connection close
   await untilTried('the connection that flooded with no network was closed', () => inside.closed())
   await quiet()
   assert.ok(runsOf(dataFolder, 'cardsAt') - ran <= 50)
-  assert.equal((await send(app, `${origin}/_t/call/countCards`, {})).status, 200)
+  assert.equal((await send(app, `${origin}/_f/call/countCards`, {})).status, 200)
 })
 
 test('[05-5.10] a page that opens a connection, watches a query that changes often and never reads is closed once more than 1 MB waits for it, and its watch is run no more', async (t) => {
@@ -219,7 +219,7 @@ test('[05-5.11] a hundred watches of heavy queries from one address wait for the
   let longest = 0
   for (let n = 0; n < 30; n++) {
     const from = performance.now()
-    assert.equal((await send(app, `${origin}/_t/call/countCards`, {})).status, 200)
+    assert.equal((await send(app, `${origin}/_f/call/countCards`, {})).status, 200)
     longest = Math.max(longest, performance.now() - from)
     await liveMoment(5)
   }
@@ -242,7 +242,7 @@ test('[05-5.11] a hundred watches of heavy queries from one address wait for the
   // One write that every one of them read runs each again, and a call is answered meanwhile.
   await app.call('turnCards', {}, { as: system })
   const from = performance.now()
-  assert.equal((await send(app, `${origin}/_t/call/countCards`, {})).status, 200)
+  assert.equal((await send(app, `${origin}/_f/call/countCards`, {})).status, 200)
   assert.ok(performance.now() - from < 1000)
   await untilTried('each of the hundred was run again', () => runsOf(dataFolder, 'cardsAt') >= ran + 100, 3000)
   assert.ok(performance.now() - began < 60_000)

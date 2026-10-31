@@ -1,4 +1,4 @@
-import { query } from 'tentjs'
+import { query } from 'forjr'
 import { shop } from '../app/shop.ts'
 import intro from './intro.txt'
 

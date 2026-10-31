@@ -99,7 +99,7 @@ test('[20-1a] a sealed column returns its value, and is readable neither in the 
   // A change keeps the earlier version of the row, which holds the sealed text as the row held it.
   const changed = write((db) => at(db, 'customers').change(String(added.id), { taxNo: 'TR-7654321' }))
   assert.equal(changed.taxNo, 'TR-7654321')
-  const earlier = store.read({ from: '_t_history' }, system).value
+  const earlier = store.read({ from: '_f_history' }, system).value
   assert.ok(Array.isArray(earlier) && earlier.length === 1)
   assert.ok(!JSON.stringify(earlier).includes('TR-1234567'))
   assert.ok(JSON.stringify(earlier).includes('sealed:customers.taxNo.'))
@@ -122,23 +122,23 @@ test('[20-1a] a sealed column returns its value, and is readable neither in the 
   for (const read of reads)
     assert.equal(
       codeOf(() => write(read)),
-      'T2011',
+      'F2011',
     )
   // With no key at hand a read and a write of a sealed column fail, and say so.
   const bare = writing(store, description, system)
   assert.equal(
     codeOf(() => bare((db) => at(db, 'customers').get(String(added.id)))),
-    'T0019',
+    'F0019',
   )
   assert.equal(
     codeOf(() => bare((db) => at(db, 'customers').add({ name: 'Bolt', team: team.id, taxNo: 'x' }))),
-    'T0019',
+    'F0019',
   )
   // A row whose sealed columns hold nothing needs no key.
   assert.equal(bare((db) => at(db, 'customers').add({ name: 'Bolt', team: team.id })).name, 'Bolt')
 })
 
-test('[20-1a] a column with from holds what its expression gives after every write, and a write to it is T2107', (t) => {
+test('[20-1a] a column with from holds what its expression gives after every write, and a write to it is F2107', (t) => {
   const store = shopStore(t)
   const write = writing(store, description, system, { seal, now: () => Date.parse('2026-10-13T22:30:00Z') })
   const ada = write((db) => at(db, 'users').add({ name: 'Ada', email: 'ada@example.com', roles: [] }))
@@ -183,14 +183,14 @@ test('[20-1a] a column with from holds what its expression gives after every wri
     () => write((db) => at(db, 'orders').change(String(order.id), { label: 'mine' })),
     () => write((db) => at(db, 'orders').change(String(order.id), { placedOn: null })),
   ])
-    assert.equal(codeOf(wrong), 'T2107')
+    assert.equal(codeOf(wrong), 'F2107')
   assert.deepEqual(
     write((db) => at(db, 'orders').get(String(order.id))),
     byZero,
   )
 })
 
-test('[20-13] a value that does not fit its column is T2107, and null clears an optional column and is refused for a required one', (t) => {
+test('[20-13] a value that does not fit its column is F2107, and null clears an optional column and is refused for a required one', (t) => {
   const store = shopStore(t)
   const write = writing(store, description, system, { seal })
   const thing = write((db) => at(db, 'things').add({ must: 'here', title: 'a title', count: 1, names: ['a'] }))
@@ -222,7 +222,7 @@ test('[20-13] a value that does not fit its column is T2107, and null clears an 
       () => write((db) => at(db, 'things').add({ must: 'x', [column]: value })),
       () => write((db) => at(db, 'things').change(String(thing.id), { [column]: value })),
     ]) {
-      assert.equal(codeOf(call), 'T2107', `${column}: ${String(value)}`)
+      assert.equal(codeOf(call), 'F2107', `${column}: ${String(value)}`)
       // The error names the column, and for a value inside a list or an object the place inside it.
       const named = Object.keys(fieldsOf(call))
       assert.ok(named.length > 0 && named.every((name) => name === column || name.startsWith(`${column}.`)), `${named}`)
@@ -231,16 +231,16 @@ test('[20-13] a value that does not fit its column is T2107, and null clears an 
   // Nothing for a required column, and a value past a limit of its type.
   assert.equal(
     codeOf(() => write((db) => at(db, 'things').add({ title: 'no must' }))),
-    'T2107',
+    'F2107',
   )
   const team = write((db) => at(db, 'teams').add({ name: 'North' }))
   assert.equal(
     codeOf(() => write((db) => at(db, 'customers').add({ name: 'x'.repeat(81), team: team.id }))),
-    'T2107',
+    'F2107',
   )
   assert.equal(
     codeOf(() => write((db) => at(db, 'lines').add({ order: thing.id, qty: 0 }))),
-    'T2107',
+    'F2107',
   )
   // Not one of them wrote anything.
   assert.deepEqual(

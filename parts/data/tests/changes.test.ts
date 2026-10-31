@@ -118,15 +118,15 @@ test('[20-4] a rename and a removal apply only with the statement, and what is r
   // A table under a new name with no `was`, a column under a new name with no `was`, a column that is gone and a
   // table that is gone are each found, and nothing is switched.
   const unstated: [object[], string[], string[]?][] = [
-    [[shop, table('memos', { columns: { title: text(), body: text(), old: text() }, access }), drafts], ['T2004']],
+    [[shop, table('memos', { columns: { title: text(), body: text(), old: text() }, access }), drafts], ['F2004']],
     // A new column that every row must hold a value in is also held against the rows, which have none in it.
     [
       [shop, table('notes', { columns: { title: text(), words: text(), old: text() }, access }), drafts],
-      ['T2004'],
-      ['T2004', 'T2001'],
+      ['F2004'],
+      ['F2004', 'F2001'],
     ],
-    [[shop, table('notes', { columns: { title: text(), body: text() }, access }), drafts], ['T2002']],
-    [[shop, notes], ['T2003']],
+    [[shop, table('notes', { columns: { title: text(), body: text() }, access }), drafts], ['F2002']],
+    [[shop, notes], ['F2003']],
   ]
   for (const [definitions, codes, withRows = codes] of unstated) {
     const next = described(definitions)
@@ -173,11 +173,11 @@ test('[20-4] a rename and a removal apply only with the statement, and what is r
   )
   assert.equal(
     codeOf(() => raw(store, 'SELECT "title" FROM "drafts"')),
-    'T0009',
+    'F0009',
   )
   assert.equal(
     codeOf(() => raw(store, 'SELECT "old" FROM "memos"')),
-    'T0009',
+    'F0009',
   )
   assert.equal(rowsOf(store, stated, 'memos').length, 2)
   assert.deepEqual(cleanSteps(appTables(store)), [])
@@ -229,7 +229,7 @@ test('[20-4] a checked change is refused when one row does not fit, and names th
     assert.deepEqual(findMisfits(store, steps), [{ table: 'people', column, rows }])
     const [found, ...others] = factsOf(store, next).tableFindings
     assert.deepEqual(others, [])
-    assert.equal(found.code, 'T2001')
+    assert.equal(found.code, 'F2001')
     assert.match(found.message, new RegExp(`\\b${rows} rows? `))
     assert.match(found.message, new RegExp(`\`people\\.${column}\``))
     assert.match(String(found.fix), /new column/)
@@ -250,12 +250,12 @@ test('[20-4] a checked change is refused when one row does not fit, and names th
   const row = { name: 'Di', nick: 'd', code: 'w', age: 20, kind: 'a' }
   assert.equal(
     codeOf(() => write((db) => at(db, 'people').add({ ...row, code: 'x' }))),
-    'T2101',
+    'F2101',
   )
   // The store itself holds the row to what the column now is.
   const stored = (values: Row) => codeOf(() => store.write((tx) => tx.add('people', values, system)))
-  assert.equal(stored({ ...row, nick: undefined }), 'T2107')
-  assert.equal(stored({ ...row, kind: 'c' }), 'T2107')
+  assert.equal(stored({ ...row, nick: undefined }), 'F2107')
+  assert.equal(stored({ ...row, kind: 'c' }), 'F2107')
   assert.equal(stored(row), undefined)
 
   // Any other change of type is never applied by itself.
@@ -272,7 +272,7 @@ test('[20-4] a checked change is refused when one row does not fit, and names th
     const other = started(t, [shop]).store
     switched(other, before)
     const after = described([shop, table('things', { columns: { v: Object(to) }, access })])
-    assert.deepEqual(foundIn(other, after), ['T2001'], JSON.stringify([from, to]))
+    assert.deepEqual(foundIn(other, after), ['F2001'], JSON.stringify([from, to]))
     assert.match(planned(other, after).findings[0].message, /`things\.v`/)
   }
 })
@@ -307,14 +307,14 @@ test('[20-4] a vector column whose model changed is refused with the count of it
   // The model's own name changed, and the column does not say what becomes of its vectors.
   const [found, ...others] = factsOf(store, app({ named: 'large' })).tableFindings
   assert.deepEqual(others, [])
-  assert.equal(found.code, 'T2001')
+  assert.equal(found.code, 'F2001')
   assert.match(found.message, /\b2 rows /)
   assert.match(found.message, /openai\/small/)
   assert.match(found.message, /openai\/large/)
   assert.match(String(found.fix), /old/)
   // A change of the size is never applied by itself.
-  assert.deepEqual(foundIn(store, app({ size: 4 })), ['T2001'])
-  assert.deepEqual(foundIn(store, app({ size: 4, old: 'drop' })), ['T2001'])
+  assert.deepEqual(foundIn(store, app({ size: 4 })), ['F2001'])
+  assert.deepEqual(foundIn(store, app({ size: 4, old: 'drop' })), ['F2001'])
 
   // `old: 'keep'`: every vector stays, and only the model is recorded.
   assert.deepEqual(
@@ -425,7 +425,7 @@ test('[20-4] adding sealed to a column that holds rows, and adding a column with
   const { steps } = planned(store, next)
   assert.equal(
     codeOf(() => store.write((tx) => applySteps(tx, store, steps), { steps: true })),
-    'T0019',
+    'F0019',
   )
   assert.equal(placeOf(store, 'customers'), place)
   assert.deepEqual(at(reading(store, first, system), 'customers').all(), before)
@@ -453,7 +453,7 @@ test('[20-4] adding sealed to a column that holds rows, and adding a column with
   ])
 })
 
-test('[20-4] a rebuild of a table that other tables link to leaves every link whole, and one that would leave a link without its row is undone with T2104', (t) => {
+test('[20-4] a rebuild of a table that other tables link to leaves every link whole, and one that would leave a link without its row is undone with F2104', (t) => {
   const { store, description } = started(t, [
     shop,
     table('customers', { columns: { name: text() }, access }),
@@ -480,11 +480,11 @@ test('[20-4] a rebuild of a table that other tables link to leaves every link wh
   // The store holds the links again once the write has ended.
   assert.equal(
     codeOf(() => write((db) => at(db, 'orders').add({ customer: '0'.repeat(26), net: 1 }))),
-    'T2104',
+    'F2104',
   )
   assert.equal(
     codeOf(() => store.write((tx) => tx.remove('customers', acme, system))),
-    'T2102',
+    'F2102',
   )
 
   // A write that builds the table anew and takes a row away that others link to is undone, whole.
@@ -497,7 +497,7 @@ test('[20-4] a rebuild of a table that other tables link to leaves every link wh
       { steps: true },
     ),
   )
-  assert.equal(undone, 'T2104')
+  assert.equal(undone, 'F2104')
   assert.equal(placeOf(store, 'customers'), rebuilt)
   assert.deepEqual(linked(), before)
   assert.equal(at(reading(store, description, system), 'customers').count(), 2)

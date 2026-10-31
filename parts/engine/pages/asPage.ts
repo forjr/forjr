@@ -5,9 +5,9 @@ import { ownHeaders, ownPage } from './own.ts'
 
 /** The page of the engine that a code of a refusal is shown with. */
 function kindOf(code: string, status: number): OwnKind {
-  if (code === 'T0007') return 'outOfDate'
-  if (code === 'T0005' || status === 429) return 'tooMany'
-  if (code === 'T0006' || status === 401) return 'signIn'
+  if (code === 'F0007') return 'outOfDate'
+  if (code === 'F0005' || status === 429) return 'tooMany'
+  if (code === 'F0006' || status === 401) return 'signIn'
   if (status === 404) return 'notFound'
   return 'error'
 }

@@ -2,13 +2,13 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { typeCheck } from './typed.ts'
 
-const project = `import { project } from 'tentjs'
+const project = `import { project } from 'forjr'
 
 export const shop = project('shop', {})
 `
 
 test('[23-14@10f] `step.now()` is a `Date` and `step.random()` a number, at once, as the runner hands them', () => {
-  const flows = `import { flow } from 'tentjs'
+  const flows = `import { flow } from 'forjr'
 
 export const timed = flow('timed', {
   run: async ({ step }) => {
@@ -18,8 +18,8 @@ export const timed = flow('timed', {
   },
 })
 `
-  assert.deepEqual(typeCheck('step-now', { 'tent.ts': project, 'flows.ts': flows }), [])
-  const wrong = `import { flow } from 'tentjs'
+  assert.deepEqual(typeCheck('step-now', { 'forjr.ts': project, 'flows.ts': flows }), [])
+  const wrong = `import { flow } from 'forjr'
 
 export const timed = flow('timed', {
   run: async ({ step }) => {
@@ -29,14 +29,14 @@ export const timed = flow('timed', {
 })
 `
   assert.deepEqual(
-    typeCheck('step-now-wrong', { 'tent.ts': project, 'flows.ts': wrong }).map((one) => [one.file, one.line]),
+    typeCheck('step-now-wrong', { 'forjr.ts': project, 'flows.ts': wrong }).map((one) => [one.file, one.line]),
     [['flows.ts', 5]],
     'a `Date` is no text',
   )
 })
 
 test("[23-22@10f] a step with `onFail: 'goOn'` is typed to answer its result or `{ failed: true, code, message }`, and one without it its result alone", () => {
-  const flows = `import { flow } from 'tentjs'
+  const flows = `import { flow } from 'forjr'
 
 export const charging = flow('charging', {
   run: async ({ step }) => {
@@ -53,8 +53,8 @@ export const charging = flow('charging', {
   },
 })
 `
-  assert.deepEqual(typeCheck('step-go-on', { 'tent.ts': project, 'flows.ts': flows }), [])
-  const wrong = `import { flow } from 'tentjs'
+  assert.deepEqual(typeCheck('step-go-on', { 'forjr.ts': project, 'flows.ts': flows }), [])
+  const wrong = `import { flow } from 'forjr'
 
 export const charging = flow('charging', {
   run: async ({ step }) => {
@@ -64,7 +64,7 @@ export const charging = flow('charging', {
 })
 `
   assert.deepEqual(
-    typeCheck('step-go-on-wrong', { 'tent.ts': project, 'flows.ts': wrong }).map((one) => [one.file, one.line]),
+    typeCheck('step-go-on-wrong', { 'forjr.ts': project, 'flows.ts': wrong }).map((one) => [one.file, one.line]),
     [['flows.ts', 6]],
     'a step with no `onFail` answers no failure',
   )

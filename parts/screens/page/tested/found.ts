@@ -20,7 +20,7 @@ interface Found {
 export type Finding = { found: Found } | { missed: 'none' | 'two'; count: number; holds: string }
 
 // What the page code lays over a page of its own, and which is no part of the screen.
-const notScreen = '#tent-overlay'
+const notScreen = '#forjr-overlay'
 
 /** Every element of the page that a reader hears, but what the page code lays over it. */
 const shown = (selector: string): Element[] =>

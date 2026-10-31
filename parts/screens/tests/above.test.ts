@@ -55,7 +55,7 @@ test('[32-5] a move with above shows the screen over the one that is shown, with
   page.set({ tab: 'paid' })
   page.goTo('/orders/7', { above: true })
   await settled()
-  assert.deepEqual(at.asked, ['/_t/screen?path=%2Forders%2F7&version=v1&above=1'])
+  assert.deepEqual(at.asked, ['/_f/screen?path=%2Forders%2F7&version=v1&above=1'])
   assert.deepEqual(at.steps, ['/orders', '/orders/7'])
   // The page still shows its screen, with its state, and the upper screen lies over it.
   assert.equal(page.page.screen, 'listScreen')

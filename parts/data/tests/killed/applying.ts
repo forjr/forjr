@@ -25,7 +25,7 @@ if (!writer.layout().some((one) => one.name === 'entries'))
   writer.write(() => writer.applyTableChanges([{ do: 'addTable', table: 'entries', layout: entries }]), { steps: true })
 
 // What the reader holds: the number of its last write, its rows, its kept changes, and its running fingerprint.
-const number = (store) => store.read({ from: '_t_meta', one: 'get', id: 'n' }, system).value?.value ?? 0
+const number = (store) => store.read({ from: '_f_meta', one: 'get', id: 'n' }, system).value?.value ?? 0
 const n = number(reader)
 const kept = reader.read({ from: changesTable.name }, system).value
 const held = reader.layout().some((one) => one.name === 'entries') ? reader.read({ from: 'entries', count: true }, system).value : 0

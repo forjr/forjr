@@ -1,10 +1,10 @@
 import { createHmac, createPublicKey, verify as verifySigned } from 'node:crypto'
-import { sameSecret, TentError } from '../core/index.ts'
+import { sameSecret, ForjrError } from '../core/index.ts'
 import { isStored } from '../core/internal.ts'
 
-/** T7118: a call coming in whose signature does not hold, or whose time lies too far from now. */
-const notVerified = (why: string): TentError =>
-  new TentError('T7118', `The call could not be verified: ${why}.`, {
+/** F7118: a call coming in whose signature does not hold, or whose time lies too far from now. */
+const notVerified = (why: string): ForjrError =>
+  new ForjrError('F7118', `The call could not be verified: ${why}.`, {
     fix: 'Send the call as the provider signs it, with the secret that the app holds, and a time near now.',
   })
 
@@ -112,7 +112,7 @@ interface Held {
  * Takes the `verify` of a call coming in, its secret, the headers and the exact bytes that arrived, the moment,
  * how far from it the time of a call may lie in either direction, and how many entries of a signature are looked
  * at. Checks the signature over the bytes, in constant time, by the scheme: `'standard'`, `'stripe'`, `'github'` or
- * `{ header, encoding, prefix, id }`. Answers the id of the call where the scheme has one. Throws T7118 where the
+ * `{ header, encoding, prefix, id }`. Answers the id of the call where the scheme has one. Throws F7118 where the
  * signature is wrong or missing, or the time lies too far from now. A scheme `{ by }` is the engine's to ask.
  */
 export function checkSignature(o: {

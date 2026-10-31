@@ -62,7 +62,7 @@ const roundLine = (ran: Ran[]): string => {
 }
 
 /**
- * `tent test --watch`: runs every test of the project, and then on each save runs first the tests that touched the
+ * `forjr test --watch`: runs every test of the project, and then on each save runs first the tests that touched the
  * definitions the save changed, as the record of the tests names them, and then the rest. What it prints is told to
  * `out`, a line at a time: each test as it ends, `passed <file>: <name>` or `failed <file>: <name>`, and a line that
  * ends each round. It runs until `stopped` comes, and saves are taken one round at a time, in their order.
@@ -101,7 +101,7 @@ export async function watchTests(
   const watcher = await watchProject(folder, (file) => {
     const path = relative(folder, file).replaceAll('\\', '/')
     // A save of a test, of what a run writes or of the engine's own folder changes no definition.
-    if (/^(tests|results|\.tent|node_modules)\//.test(path) || path === 'tent.d.ts') return
+    if (/^(tests|results|\.forjr|node_modules)\//.test(path) || path === 'forjr.d.ts') return
     clearTimeout(due)
     due = setTimeout(() => {
       round = round.then(again).catch((error: unknown) => o.out(`the round failed: ${String(error)}`))

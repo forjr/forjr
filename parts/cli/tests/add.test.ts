@@ -40,21 +40,21 @@ function packed(folder: string, name: string): string {
   return join(folder, `${name}-1.0.0.tgz`)
 }
 
-/** The stored shape of what `tent add` prints with `--json`, around its value. */
+/** The stored shape of what `forjr add` prints with `--json`, around its value. */
 const shape = object({
   ok: boolean(),
   value: object({ package: text(), scripts: boolean(), dependencies: json() }),
   findings: list(object({})),
 })
 
-test('[15-6@5] `tent add` installs a package into the project with its install scripts switched off, and prints its stored shape with --json', async (t) => {
+test('[15-6@5] `forjr add` installs a package into the project with its install scripts switched off, and prints its stored shape with --json', async (t) => {
   const folder = emptied(t, 'add')
   assert.equal((await typed(folder, 'new', 'add-app')).ended, 0)
   const project = join(folder, 'add-app')
   const ours = readFileSync(join(root, 'package.json'), 'utf8')
   const lock = readFileSync(join(root, 'package-lock.json'), 'utf8')
   const file = packed(folder, 'marker')
-  // The package file is the one that `tent new` wrote: `tent add` finds it and writes none.
+  // The package file is the one that `forjr new` wrote: `forjr add` finds it and writes none.
   const before = JSON.parse(readFileSync(join(project, 'package.json'), 'utf8'))
   assert.equal(before.name, 'add-app')
 
@@ -82,7 +82,7 @@ test('[15-6@5] `tent add` installs a package into the project with its install s
   assert.deepEqual(checked.answer.findings, [])
 })
 
-test('[15-6@5] `tent add --allow-scripts` runs the install scripts of the package, and a package that cannot be installed ends the command with what npm said', async (t) => {
+test('[15-6@5] `forjr add --allow-scripts` runs the install scripts of the package, and a package that cannot be installed ends the command with what npm said', async (t) => {
   const folder = emptied(t, 'add-scripts')
   assert.equal((await typed(folder, 'new', 'add-app')).ended, 0)
   const project = join(folder, 'add-app')

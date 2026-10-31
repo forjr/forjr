@@ -1,4 +1,4 @@
-import { file, link, number, role, table, text, vector } from 'tentjs'
+import { file, link, number, role, table, text, vector } from 'forjr'
 import { embedder } from '../models/models'
 
 export const guides = table('guides', {

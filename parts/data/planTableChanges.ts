@@ -7,7 +7,8 @@ import type { ColumnType, TableLayout, TableStep } from './store.ts'
 import { wasOf } from './wasOf.ts'
 
 const wayForward = 'Add a new column, fill it with a change, then remove the old one.'
-const wayOfRows = 'Take the version with `--move`, which moves the rows: `tent publish --move`, or `tent start --move`.'
+const wayOfRows =
+  'Take the version with `--move`, which moves the rows: `forjr publish --move`, or `forjr start --move`.'
 
 // The kinds between which every row may convert: a number to text and back, a choice to text and back.
 const converts = ['number text', 'text number', 'choice text', 'text choice']
@@ -51,7 +52,7 @@ function becomes(old: ColumnType, next: ColumnType, oldValues: unknown): Becomes
 /**
  * The steps that lead from the type a column has to the type it is to have. A change that every row converts to,
  * and one that the rows must be held against, is the step `retype`, which `findMisfits` checks. A change that is
- * never applied by itself is found (T2001).
+ * never applied by itself is found (F2001).
  */
 function typeSteps(
   table: string,
@@ -69,7 +70,7 @@ function typeSteps(
   if (typeof act === 'object') {
     to.findings.push(
       finding(
-        'T2001',
+        'F2001',
         `The type of \`${table}.${column}\` ${act.never}, and such a change is never applied by itself.`,
         {
           fix: wayForward,
@@ -130,7 +131,7 @@ function tableSteps(held: TableLayout, asked: TableLayout, renames: Map<string, 
     else if (added.length)
       to.findings.push(
         finding(
-          'T2004',
+          'F2004',
           `The column \`${table}.${column}\` is gone and \`${added.join('`, `')}\` is new, with no \`was\`.`,
           {
             fix: `State \`was: ['${column}']\` on the column that is the same one under a new name, or name \`${column}\` in \`removed\` of the table.`,
@@ -139,7 +140,7 @@ function tableSteps(held: TableLayout, asked: TableLayout, renames: Map<string, 
       )
     else
       to.findings.push(
-        finding('T2002', `The column \`${table}.${column}\` is gone, and \`removed\` does not name it.`, {
+        finding('F2002', `The column \`${table}.${column}\` is gone, and \`removed\` does not name it.`, {
           fix: `Name \`${column}\` in \`removed\` of the table, or state \`was: ['${column}']\` on the column it became.`,
         }),
       )
@@ -178,17 +179,17 @@ function moveFinding(table: string, was: string | undefined, now: string | undef
     was !== undefined && now !== undefined
       ? `Move its rows in two versions, each taken with \`--move\`: one in which \`${table}\` states no \`tenant\`, which brings its rows into the shared file, then one in which its tenants are of \`${now}\`.`
       : wayOfRows
-  return finding('T2001', `The table \`${table}\` ${what}. Such a change is never applied by itself.`, { fix })
+  return finding('F2001', `The table \`${table}\` ${what}. Such a change is never applied by itself.`, { fix })
 }
 
 /**
  * Takes the layout a data file holds, the layout a description asks for, and in `removed` the tables that the
  * project says were removed. Answers the steps that lead from the first to the second, in the order in which they
- * are carried out, and what was found: a column or a table that is gone with no statement (T2002, T2003), a name
- * that is gone while another is new (T2004), and a change of type that is never applied by itself (T2001). A stated
+ * are carried out, and what was found: a column or a table that is gone with no statement (F2002, F2003), a name
+ * that is gone while another is new (F2004), and a change of type that is never applied by itself (F2001). A stated
  * rename goes on with its rows, and a link to the renamed table follows it. A stated removal is retired and not
  * dropped, and what was retired and is asked for again is revived. A table that gains or loses `tenant`, or whose
- * tenants are of another table, is found (T2001, naming `--move`) and given no step: it reads no row, so it finds the
+ * tenants are of another table, is found (F2001, naming `--move`) and given no step: it reads no row, so it finds the
  * table whether it holds rows or not. Whether the rows fit a step is `findMisfits` to say.
  */
 export function planTableChanges(
@@ -239,13 +240,13 @@ export function planTableChanges(
     if (o.removed?.includes(table.name)) retired.push({ do: 'retireTable', table: table.name })
     else if (fresh.length)
       findings.push(
-        finding('T2004', `The table \`${table.name}\` is gone and \`${fresh.join('`, `')}\` is new, with no \`was\`.`, {
+        finding('F2004', `The table \`${table.name}\` is gone and \`${fresh.join('`, `')}\` is new, with no \`was\`.`, {
           fix: `State \`was: ['${table.name}']\` on the table that is the same one under a new name, or name \`${table.name}\` in \`removed\` of the project.`,
         }),
       )
     else
       findings.push(
-        finding('T2003', `The table \`${table.name}\` is gone, and \`removed\` of the project does not name it.`, {
+        finding('F2003', `The table \`${table.name}\` is gone, and \`removed\` of the project does not name it.`, {
           fix: `Name \`${table.name}\` in \`removed\` of the project, or state \`was: ['${table.name}']\` on the table it became.`,
         }),
       )

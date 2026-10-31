@@ -1,4 +1,4 @@
-import { screen, Link } from 'tentjs/ui'
+import { screen, Link } from 'forjr/ui'
 import { ordersScreen } from './orders'
 
 export const orderScreen = screen('orderScreen', {

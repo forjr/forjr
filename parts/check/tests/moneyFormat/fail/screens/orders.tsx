@@ -1,4 +1,4 @@
-import { screen, read, useField, useTranslations, Form } from 'tentjs/ui'
+import { screen, read, useField, useTranslations, Form } from 'forjr/ui'
 import { addOrder, openOrders } from '../functions/orders'
 
 /** The total of an order as money, three ways. */

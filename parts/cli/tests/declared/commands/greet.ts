@@ -1,4 +1,4 @@
-import { command, role } from 'tentjs/cli'
+import { command, role } from 'forjr/cli'
 
 // A command of the app's own that the staff alone run.
 export const greet = command('greet', {

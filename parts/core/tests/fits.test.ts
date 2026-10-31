@@ -144,7 +144,7 @@ const words: [string, object, object, { text?: Wrong; number?: Wrong; flag?: Wro
 // A value of another kind than the option takes, for each kind.
 const other: Record<string, unknown> = { text: 5, number: true, flag: 'yes', record: 5 }
 
-test('[13-7] an option whose value is of another kind than the description takes is T1014 on its definition and is left out, for every word, and nothing is thrown', () => {
+test('[13-7] an option whose value is of another kind than the description takes is F1014 on its definition and is left out, for every word, and nothing is thrown', () => {
   let cases = 0
   for (const [name, word, needed, kinds] of words)
     for (const [kind, wrong] of Object.entries(kinds))
@@ -162,7 +162,7 @@ test('[13-7] an option whose value is of another kind than the description takes
         // The finding stands on the definition, and the two that are written beside it give none.
         assert.ok(found.length > 0, said)
         for (const finding of found)
-          assert.match(finding, new RegExp(`^T1014 ${name === 'project' ? 'shop' : 'one'}: `), `${said}: ${finding}`)
+          assert.match(finding, new RegExp(`^F1014 ${name === 'project' ? 'shop' : 'one'}: `), `${said}: ${finding}`)
         // What is left is a description that the build can finish and write: no function and no value of another kind.
         const done = finish(description, { modules: {}, sources: {} })
         assert.equal(typeof write(done).text, 'string', said)
@@ -225,11 +225,11 @@ test('[13-7] an option whose value is of another kind than the description takes
     })
     assert.deepEqual(
       findings.map((finding) => `${finding.code} ${finding.message}`),
-      [`T1014 one: \`options.deep.1.value\` ${words}, and such a value has no stored form.`],
+      [`F1014 one: \`options.deep.1.value\` ${words}, and such a value has no stored form.`],
       what,
     )
     assert.equal('one' in description.models, false, what)
-    // One step inside the option, where the reviewer found a `Date` stored as an empty record.
+    // One step inside the option, where a `Date` would be stored as an empty record.
     const near = describe({
       definitions: [
         { value: project('shop', {}) },

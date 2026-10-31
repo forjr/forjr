@@ -18,14 +18,14 @@ export interface Works {
   at: number
 }
 
-/** A value of `_t_meta` of a store or of a write, or nothing. */
+/** A value of `_f_meta` of a store or of a write, or nothing. */
 function noteOf(on: Store | Tx, key: string): unknown {
   const plan = { from: metaTable.name, one: 'get' as const, id: key }
   const row: unknown = 'write' in on ? on.read(plan, system).value : on.read(plan, system)
   return isStored(row) ? row.value : undefined
 }
 
-/** Writes one value of `_t_meta` inside a write, or takes it away where it is nothing. */
+/** Writes one value of `_f_meta` inside a write, or takes it away where it is nothing. */
 export function setNote(tx: Tx, key: string, value: unknown): void {
   const there = tx.read({ from: metaTable.name, one: 'get', id: key }, system) !== undefined
   if (value === undefined) {
@@ -34,7 +34,7 @@ export function setNote(tx: Tx, key: string, value: unknown): void {
   else tx.add(metaTable.name, { key, value }, system)
 }
 
-/** Takes a filled column. Answers the key of `_t_meta` under which the shared file keeps its works. */
+/** Takes a filled column. Answers the key of `_f_meta` under which the shared file keeps its works. */
 export const worksKey = (column: FilledColumn): string => `works.${column.table}.${column.column}`
 /** The name of the walk of a filled column, for the rows that were there before it. */
 export const walkName = (column: FilledColumn): string => `${column.table}.${column.column}`

@@ -1,4 +1,4 @@
-import { service } from 'tentjs'
+import { service } from 'forjr'
 
 Reflect.set(globalThis, 'crossingLoaded', [...(Reflect.get(globalThis, 'crossingLoaded') ?? []), import.meta.url])
 

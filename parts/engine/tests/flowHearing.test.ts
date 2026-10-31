@@ -57,7 +57,7 @@ test('[46-4] a second stop ends the run with no mark of the stop and no progress
     () => app.runs.read(run)?.steps.some((step) => step.name === 'onStop.undo') === true,
     'onStop works',
   )
-  assert.equal(app.runs.read(run)?.error?.code, 'T5106', 'while onStop works the run keeps the mark of its stop')
+  assert.equal(app.runs.read(run)?.error?.code, 'F5106', 'while onStop works the run keeps the mark of its stop')
   app.runs.stop(run)
   await untilState(app, run, 'stopped')
   assert.equal(app.runs.read(run)?.error, undefined, 'the stop has ended: its mark is gone')

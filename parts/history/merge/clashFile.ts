@@ -5,7 +5,7 @@ import type { Clashed } from './files.ts'
 import type { LinesApart } from './lines.ts'
 
 const head =
-  '// tent.clash.ts - written by `tent history merge`. Put the definition you want into its own file, then remove this file.'
+  '// forjr.clash.ts - written by `forjr history merge`. Put the definition you want into its own file, then remove this file.'
 
 /** A value as a line of the clash file shows it: as JSON, and nothing as `nothing`. */
 const shown = (value: unknown): string => (value === undefined ? 'nothing' : (JSON.stringify(value) ?? 'nothing'))
@@ -35,7 +35,7 @@ const span = (places: LinesApart[]): string => {
 }
 
 /**
- * Takes what a merge left as ours, and the descriptions of the two sides. Answers the text of `tent.clash.ts`:
+ * Takes what a merge left as ours, and the descriptions of the two sides. Answers the text of `forjr.clash.ts`:
  * for each thing a numbered line that says where it is and what clashed, then what the person needs to choose:
  * the two definitions under names of their own, or the lines of each side in a comment.
  */

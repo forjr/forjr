@@ -24,7 +24,7 @@ export async function sequencedApp(t: TestContext): Promise<{
   const maya = await app.user({ name: 'Maya', roles: [] })
   const orders: string[] = []
   for (const total of [50, 150, 250, 350])
-    orders.push(String(Reflect.get(Object(await app.as(maya).call('addOrder', { item: 'tent', total })), 'id')))
+    orders.push(String(Reflect.get(Object(await app.as(maya).call('addOrder', { item: 'forjr', total })), 'id')))
   return { app, maya, orders }
 }
 

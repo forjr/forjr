@@ -12,9 +12,9 @@ import { pageCode } from '../pageCode.ts'
 // save into the look alone, which answers the modules that a page takes in place.
 
 const files: Record<string, string> = {
-  'tent.ts': "import { project } from 'tentjs'\nexport const shelf = project('shelf', { title: 'Shelf' })\n",
+  'forjr.ts': "import { project } from 'forjr'\nexport const shelf = project('shelf', { title: 'Shelf' })\n",
   'functions/notes.ts': [
-    "import { query, text } from 'tentjs'",
+    "import { query, text } from 'forjr'",
     '',
     "export const label = query('label', { access: 'anyone', output: text(), run: () => 'Label first' })",
     '',
@@ -31,7 +31,7 @@ const files: Record<string, string> = {
   ].join('\n'),
   'components/card.tsx': [
     "import { useState } from 'react'",
-    "import { component } from 'tentjs/ui'",
+    "import { component } from 'forjr/ui'",
     '',
     "export const Card = component('Card', {",
     '  view: () => {',
@@ -43,7 +43,7 @@ const files: Record<string, string> = {
   ].join('\n'),
   'screens/one.tsx': [
     "import { useState } from 'react'",
-    "import { screen, read, boolean } from 'tentjs/ui'",
+    "import { screen, read, boolean } from 'forjr/ui'",
     "import { label } from '../functions/notes'",
     "import { greeting } from '../shared'",
     "import { Badge } from '../ui/Badge'",
@@ -68,7 +68,7 @@ const files: Record<string, string> = {
     '',
   ].join('\n'),
   'screens/two.tsx': [
-    "import { screen } from 'tentjs/ui'",
+    "import { screen } from 'forjr/ui'",
     "import { Card } from '../components/card'",
     '',
     "export const twoScreen = screen('twoScreen', { path: '/two', access: 'anyone', view: () => <Card /> })",
@@ -163,21 +163,21 @@ test('[31-22] in development each module of a file of the project is made with t
   const one = browser('src.screens.one.tsx.js')
   // The transform signs the hooks of a view, and the build registers the view under the place of its file.
   assert.match(one, /\$RefreshSig\$\(\)/)
-  assert.match(one, /__tentRefresh\?\.register\(type, "screens\/one\.tsx " \+ id/)
+  assert.match(one, /__forjrRefresh\?\.register\(type, "screens\/one\.tsx " \+ id/)
   assert.match(one, /\$RefreshReg\$\(oneScreen\.options\?\.view, "oneScreen\$view"\)/)
-  assert.match(one, /__tentRefresh\?\.held\("browser\/src\.screens\.one\.tsx\.js", import\.meta\.url\)/)
+  assert.match(one, /__forjrRefresh\?\.held\("browser\/src\.screens\.one\.tsx\.js", import\.meta\.url\)/)
   assert.match(browser('src.components.card.tsx.js'), /\$RefreshReg\$\(Card\.options\?\.view, "Card\$view"\)/)
   // A file of React components alone has each registered by the transform itself, as React's own transform does.
   assert.match(browser('src.ui.Badge.tsx.js'), /\$RefreshReg\$\(_c\d*, "Badge"\)/)
   // A module that draws on the server holds nothing of it.
   const server = readFileSync(join(laid, 'server', 'src.screens.one.tsx.js'), 'utf8')
-  assert.doesNotMatch(server, /Refresh(Reg|Sig)\$|__tentRefresh/)
+  assert.doesNotMatch(server, /Refresh(Reg|Sig)\$|__forjrRefresh/)
   // Nor does any file of a release.
   const release = await buildProject(folder, { for: 'release' })
   const shipped = readdirSync(join(release.bundleFolder, 'browser'))
     .filter((file) => file.endsWith('.js'))
     .map((file) => readFileSync(join(release.bundleFolder, 'browser', file), 'utf8'))
-  for (const text of shipped) assert.doesNotMatch(text, /\$Refresh(Reg|Sig)\$|__tentRefresh/)
+  for (const text of shipped) assert.doesNotMatch(text, /\$Refresh(Reg|Sig)\$|__forjrRefresh/)
 })
 
 test('[31-22] the part refresh, with React runtime of Fast Refresh, lies in the development form of the page code alone: the small form and the form for one file hold nothing of it', async () => {
@@ -185,7 +185,7 @@ test('[31-22] the part refresh, with React runtime of Fast Refresh, lies in the 
   assert.equal(typeof page.browserDev.parts.refresh, 'string')
   const refresh = readFileSync(join(folder, page.browserDev.parts.refresh), 'utf8')
   assert.match(refresh, /performReactRefresh/)
-  assert.match(refresh, /__tentRefresh/)
+  assert.match(refresh, /__forjrRefresh/)
   // The part runs before the main file, and takes nothing of it.
   assert.doesNotMatch(refresh, /from ["']\.\/page\./)
   assert.equal(Object.hasOwn(page.browser.parts, 'refresh'), false)
@@ -197,5 +197,5 @@ test('[31-22] the part refresh, with React runtime of Fast Refresh, lies in the 
     ...Object.values(page.single.parts),
   ]
   for (const file of small)
-    assert.doesNotMatch(readFileSync(join(folder, file), 'utf8'), /__tentRefresh|performReactRefresh|RefreshSig/, file)
+    assert.doesNotMatch(readFileSync(join(folder, file), 'utf8'), /__forjrRefresh|performReactRefresh|RefreshSig/, file)
 })

@@ -15,7 +15,7 @@ export const address: Address = {
   order: 7,
   match(request) {
     const { pathname } = new URL(request.url)
-    const ours = pathname.startsWith('/_t/') || pathname === '/_t' || pathname.startsWith('/api/')
+    const ours = pathname.startsWith('/_f/') || pathname === '/_f' || pathname.startsWith('/api/')
     return request.method === 'GET' && !ours && { name: pathname }
   },
   // Step 4 counts a request for a screen for its address, on a count of its own.

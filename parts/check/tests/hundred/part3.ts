@@ -1,4 +1,4 @@
-import { action, change, fail, flow, input, link, number, query, table, text } from 'tentjs'
+import { action, change, fail, flow, input, link, number, query, table, text } from 'forjr'
 
 export const things3 = table('things3', {
   columns: { name: text(), size: number({ default: 0 }), note: text({ optional: true }) },

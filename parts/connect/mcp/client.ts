@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fingerprintOf, isStored, written } from '../../core/internal.ts'
 import { eventsOf } from '../events.ts'
 import type { OutsideTool } from './env.ts'
@@ -73,11 +73,11 @@ interface Sent {
 
 // What the client says of itself: it can put a question with yes and no to the person.
 const can = { elicitation: {} }
-const clientInfo = { name: 'tent', version: '1' }
+const clientInfo = { name: 'forjr', version: '1' }
 
 /** A failure of the server, as every failure of an outside service is. */
-const failed = (message: string, body?: unknown): TentError =>
-  new TentError('T7115', message, { ...(body === undefined ? {} : { service: { body } }) })
+const failed = (message: string, body?: unknown): ForjrError =>
+  new ForjrError('F7115', message, { ...(body === undefined ? {} : { service: { body } }) })
 
 /** The message of the data of one event of a stream, where that data is JSON. */
 function messageOf(data: string): Record<string, unknown> | undefined {
@@ -130,7 +130,7 @@ const knowsNot = (status: number, error: unknown): boolean =>
  * Takes how a server is reached, how long a request may take and how large its answer may be, and the form the
  * server was found to speak. Answers a client of it: the newest form is asked first, and the older one where the
  * server answers that it does not know it; there each request is the opening, its note and the request. It keeps
- * no session between two requests. A failure of the server is T7115.
+ * no session between two requests. A failure of the server is F7115.
  */
 export function mcpClient(
   o: Way & { timeout: number; size: number; form?: Remembered; session?: KeptSession },
@@ -309,7 +309,7 @@ export function mcpClient(
    * waits, and the answer is sent to the server in its session, after which the stream is read on to the answer of
    * the call.
    */
-  function heldAsk(question: Question): TentError {
+  function heldAsk(question: Question): ForjrError {
     const { message } = question
     const params = isStored(message.params) ? message.params : {}
     if (!answerable(String(message.method), params)) {
@@ -331,7 +331,7 @@ export function mcpClient(
     return askedFor(String(message.method), params, { state })
   }
 
-  /** The result of a request as the server answered it: its failure is T7115, and what it asks for is passed up. */
+  /** The result of a request as the server answered it: its failure is F7115, and what it asks for is passed up. */
   function resultOf(answer: Sent): Record<string, unknown> {
     if (answer.question) throw heldAsk(answer.question)
     const error = answer.message?.error
@@ -402,21 +402,21 @@ function answerable(method: string, params: Record<string, unknown>): boolean {
 /**
  * The failure that passes up what a server asked for, with its state and the key it is answered under. A question
  * with yes and no names it in `fields.question`, and a model call holds what the server asked in `fields.sample`,
- * as JSON, with the words that are told where no model answers it. Anything else is T7115 that names it.
+ * as JSON, with the words that are told where no model answers it. Anything else is F7115 that names it.
  */
-function askedFor(method: string, params: Record<string, unknown>, at?: { state: string; key?: string }): TentError {
+function askedFor(method: string, params: Record<string, unknown>, at?: { state: string; key?: string }): ForjrError {
   const answers = at && answerable(method, params) ? { state: at.state, ...(at.key ? { key: at.key } : {}) } : undefined
   if (answers && method === methods.question)
-    return new TentError('T7115', `The server asks the person: ${String(params.message)}`, {
+    return new ForjrError('F7115', `The server asks the person: ${String(params.message)}`, {
       fields: { question: String(params.message ?? ''), ...answers },
     })
   const words = `The server asked for ${method}, which the engine does not answer.`
-  if (answers) return new TentError('T7115', words, { fields: { sample: JSON.stringify(params), ...answers } })
+  if (answers) return new ForjrError('F7115', words, { fields: { sample: JSON.stringify(params), ...answers } })
   return failed(words)
 }
 
 /** The failure of a call whose server needs more first: what it asks for, passed up, under its key and its state. */
-function moreAsked(result: Record<string, unknown>): TentError {
+function moreAsked(result: Record<string, unknown>): ForjrError {
   const requests = isStored(result.inputRequests) ? Object.entries(result.inputRequests) : []
   const [[key, first] = ['', undefined]] = requests
   const method = isStored(first) ? String(first.method) : 'something'

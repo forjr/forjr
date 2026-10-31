@@ -18,7 +18,7 @@ export const stripe = service('stripe', {
 
 ## Errors
 
-`code.T7013`: an operation that is not in the file, and two calls of one name.
+`code.F7013`: an operation that is not in the file, and two calls of one name.
 
 ## See also
 

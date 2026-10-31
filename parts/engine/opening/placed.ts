@@ -20,8 +20,8 @@ import { refused } from './frame.ts'
 /**
  * Takes the frame of an opening and its data, which stands open. Brings the data to what the app is among its
  * machines: for a writer it applies the table changes, after a backup where one could lose something, and writes
- * down the version that runs; for a reader it writes down whom it reads. Throws T0013 for a store that cannot be
- * copied where the app runs on many machines, T0030 for the folder of a reader or of a stopped writer that is
+ * down the version that runs; for a reader it writes down whom it reads. Throws F0013 for a store that cannot be
+ * copied where the app runs on many machines, F0030 for the folder of a reader or of a stopped writer that is
  * opened as a writer, and what a table change is refused with.
  */
 export async function placed(f: UnderWay, data: Data): Promise<void> {
@@ -40,7 +40,7 @@ export async function placed(f: UnderWay, data: Data): Promise<void> {
   const copied = (): void => {
     if (many && !o.store.copy)
       throw refused(
-        'T0013',
+        'F0013',
         'An app on many machines needs a store that can be copied, and the store of this app gives no `copy`.',
         'Run the app on the SQLite store, or give the store of your own `copy`.',
       )
@@ -49,9 +49,9 @@ export async function placed(f: UnderWay, data: Data): Promise<void> {
   const asWriter = (role: Here['role']): void => {
     if (role === 'reader' || role === 'stopped')
       throw refused(
-        'T0030',
+        'F0030',
         `The data folder ${dataFolder} is that of ${role === 'reader' ? 'a reader' : 'a writer that was stopped by the machine that took over'}: it is not opened as a writer.`,
-        'Start it with `--reads <the address of the writer>`, or make it the writer with `tent take-over`.',
+        'Start it with `--reads <the address of the writer>`, or make it the writer with `forjr take-over`.',
       )
   }
   let keeps = false

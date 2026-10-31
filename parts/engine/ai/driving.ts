@@ -40,7 +40,7 @@ export async function driveAgents(
       level: 'info',
       message: `No reader of source was handed to the engine, so ${sequenced.map(([name]) => name).join(', ')} offer no sequence: they work by tool calls alone.`,
       data: JSON.stringify({
-        fix: 'Start the app with the build tools installed, as `tent start` does, to offer sequences.',
+        fix: 'Start the app with the build tools installed, as `forjr start` does, to offer sequences.',
       }),
     })
   const ours = ai.agentDriver(env)

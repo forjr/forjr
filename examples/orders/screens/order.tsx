@@ -1,6 +1,6 @@
 import { ArrowLeft, Check, Download, FileText, Paperclip } from 'lucide-react'
 import type { ReactNode } from 'react'
-import { Form, Link, read, screen, useField, useTranslations } from 'tentjs/ui'
+import { Form, Link, read, screen, useField, useTranslations } from 'forjr/ui'
 import { StaffFrame, Waiting } from '../components/frames'
 import { Avatar, Badge, button, Card, Heading, label } from '../components/ui'
 import { attachReceipt, getOrder, markPaid } from '../functions/orders'
@@ -121,7 +121,7 @@ export const orderScreen = screen('orderScreen', {
             <div className="flex flex-col gap-4 p-5">
               {order.receipt ? (
                 <a
-                  href={`/_t/files/${order.receipt}`}
+                  href={`/_f/files/${order.receipt}`}
                   download
                   className="flex items-center gap-3 rounded-field border border-base-300 p-3 transition-colors hover:bg-base-200"
                 >

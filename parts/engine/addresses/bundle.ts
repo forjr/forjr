@@ -1,11 +1,11 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Address } from '../door/address.ts'
 import type { Opened } from '../opened.ts'
 import { keptBytes } from '../keptBytes.ts'
 import { askedMark, isSteady, moduleMarkOf, servedOf } from '../moduleMarks.ts'
 import { errorAnswer } from '../wire.ts'
 
-const prefix = '/_t/b/'
+const prefix = '/_f/b/'
 
 /** The kind of a file by its ending, as a browser is told it. Any other file is bytes. */
 const kinds: Record<string, string> = {
@@ -107,7 +107,7 @@ function versionNaming(app: Opened, kept: Opened[], path: string): Opened | unde
 }
 
 /**
- * `GET /_t/b/<path inside the bundle>`: a file of the bundle that a browser or a command line loads. Only a file
+ * `GET /_f/b/<path inside the bundle>`: a file of the bundle that a browser or a command line loads. Only a file
  * under `browser/`, `cli/` or `assets/` that the description of a kept version names is served, and any other address there is not found.
  * The files are the same for every caller: the request passes step 1 of the door and no other, and is answered
  * with a caching time of one year; a module of development at its address with no fingerprint, and its source map,
@@ -175,12 +175,12 @@ export const address: Address = {
       headers['content-length'] = String(bytes.length)
       return new Response(new Uint8Array(bytes), { headers })
     } catch (error) {
-      return errorAnswer(app, 'bundle', error instanceof TentError ? error : notFound(''))
+      return errorAnswer(app, 'bundle', error instanceof ForjrError ? error : notFound(''))
     }
   },
 }
 
-const notFound = (path: string): TentError =>
-  new TentError('T0001', `No file of the bundle is served at ${JSON.stringify(path).slice(0, 120)}.`, {
+const notFound = (path: string): ForjrError =>
+  new ForjrError('F0001', `No file of the bundle is served at ${JSON.stringify(path).slice(0, 120)}.`, {
     fix: 'A page loads the files that its record names, under `browser/` and `assets/`.',
   })

@@ -1,4 +1,4 @@
-import { action, anyone, change, input, list, object, query, secrets, table, text } from 'tentjs'
+import { action, anyone, change, input, list, object, query, secrets, table, text } from 'forjr'
 
 const open = anyone('a test reads what only a machine with the key opens')
 

@@ -1,6 +1,6 @@
 import { ChevronLeft, ChevronRight, Plus, Search, SearchX } from 'lucide-react'
 import { useEffect, useState } from 'react'
-import { choice, Link, number, read, role, screen, text, useTranslations } from 'tentjs/ui'
+import { choice, Link, number, read, role, screen, text, useTranslations } from 'forjr/ui'
 import { StaffFrame, Waiting } from '../components/frames'
 import { Avatar, Badge, button, Card, DOTS, Empty, PageHeader, table } from '../components/ui'
 import { orderCount, ordersByStatus, orderStats } from '../functions/orders'

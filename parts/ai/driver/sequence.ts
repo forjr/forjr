@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { checkSequence, runBody, sequenceShape } from '../../core/internal.ts'
 import type { Message, ToolCall } from '../face.ts'
 import type { Running } from './running.ts'
@@ -36,12 +36,12 @@ const refusal = (code: string, message: string, line: number): { refused: Refuse
  */
 async function readOnce(r: Running, text: string): Promise<{ body: object[] } | { refused: Refused }> {
   const read = r.env.read
-  if (!read) return refusal('T7121', 'No reader of source is at hand here: call the tools one at a time.', 1)
+  if (!read) return refusal('F7121', 'No reader of source is at hand here: call the tools one at a time.', 1)
   const tools = r.offered.map((one) => one.entry.told)
   const made = await read(text, { tools, fill: r.told.typed })
-  if ('why' in made) return refusal('T7121', `A sequence may not hold ${made.why}, on line ${made.line}.`, made.line)
+  if ('why' in made) return refusal('F7121', `A sequence may not hold ${made.why}, on line ${made.line}.`, made.line)
   const [miss] = sequenceShape(made.body)
-  if (miss) return refusal('T7121', `A sequence may not hold ${miss}.`, 1)
+  if (miss) return refusal('F7121', `A sequence may not hold ${miss}.`, 1)
   const [found] = checkSequence(r.told.description, r.agent.name, made.body, {
     specs: [...r.told.specs, ...r.told.outside],
   })
@@ -49,14 +49,14 @@ async function readOnce(r: Running, text: string): Promise<{ body: object[] } | 
   for (const told of calledIn(made.body)) {
     const tool = r.offered.find((one) => one.entry.told === told)
     if (tool && tool.kind !== 'source' && r.env.may(tool.entry.tool) === false)
-      return refusal('T3101', `The sequence calls ${told}, which the starter may not use.`, 1)
+      return refusal('F3101', `The sequence calls ${told}, which the starter may not use.`, 1)
   }
   return { body: made.body }
 }
 
 /** Whether what ended a sequence ends the run: a limit of the run itself. */
 const endsRun = (error: unknown): boolean =>
-  error instanceof TentError && error.code === 'T7102' && error.fields?.limit === 'perRun'
+  error instanceof ForjrError && error.code === 'F7102' && error.fields?.limit === 'perRun'
 
 /**
  * Takes a run, the numbers of the `model` step and of the call among the tools of its answer, and the call of
@@ -94,7 +94,7 @@ export async function sequenceCall(r: Running, n: number, m: number, call: ToolC
       return {
         who: 'tool',
         id: call.id,
-        error: failedText(new TentError('T5102', 'too large'), s.line, s.made, { words, result: limits.result }),
+        error: failedText(new ForjrError('F5102', 'too large'), s.line, s.made, { words, result: limits.result }),
       }
     return { who: 'tool', id: call.id, result: value }
   } catch (error) {

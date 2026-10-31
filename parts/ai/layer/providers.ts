@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { shippedProviders } from '../../core/internal.ts'
 import type { AiEnv, Provider } from '../face.ts'
 import { anthropic } from '../providers/anthropic.ts'
@@ -16,7 +16,7 @@ export const ships = (name: string): boolean => shippedProviders.includes(name)
 
 /**
  * Takes what the engine hands `ai`, a model, and the version it is called on. Answers its provider: a stand-in of
- * a test, one made in `engine.ts` by the name the model gives, and otherwise one that ships. Throws T7113 for a
+ * a test, one made in `engine.ts` by the name the model gives, and otherwise one that ships. Throws F7113 for a
  * name that is neither.
  */
 export function providerOf(env: AiEnv, model: ModelOf, version: string): Provider {
@@ -31,9 +31,9 @@ export function providerOf(env: AiEnv, model: ModelOf, version: string): Provide
 }
 
 /** The error of a model that names a provider which neither ships nor is made. */
-export const missing = (model: string, provider: string): TentError =>
-  new TentError(
-    'T7113',
+export const missing = (model: string, provider: string): ForjrError =>
+  new ForjrError(
+    'F7113',
     `The model ${model} names the provider ${provider}, which neither ships nor is made in \`engine.ts\`.`,
     {
       fix: `Make it in \`providers\` of the makers of \`engine.ts\`, by the name ${provider}, or name a provider that ships.`,

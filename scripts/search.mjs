@@ -17,7 +17,7 @@ const entryFiles = existsSync(entries) ? Object.values(JSON.parse(readFileSync(e
 // What the search starts from. What one of these gives counts as used, and so does what it imports.
 const starts = held.filter(
   (file) =>
-    /^(?:tests|parts\/[^/]+\/tests)\/[^/]+\.test\.ts$/.test(file) ||
+    /^(?:tests(?:\/rigs|\/examples|\/(?:apps|browsers)\/[^/]+)?|parts\/[^/]+\/tests)\/[^/]+\.test\.ts$/.test(file) ||
     /^parts\/.+\/list\.ts$/.test(file) ||
     /^(?:scripts|rig)\//.test(file) ||
     /^docs\/[^/]+\.mjs$/.test(file),

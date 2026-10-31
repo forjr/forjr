@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 
 // Two notes whose addresses differ only in capitals, one whose value holds a slash, and one with a sign that
 // cannot stand in the name of a file on every system.

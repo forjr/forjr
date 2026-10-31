@@ -1,5 +1,5 @@
 // Runs in the head before the first paint, so a page chosen dark is never drawn light first.
-const kept = document.cookie.split('; ').find((one) => /^(__Host-)?tent_state\.tillwise=/.test(one))
+const kept = document.cookie.split('; ').find((one) => /^(__Host-)?forjr_state\.tillwise=/.test(one))
 let states = {}
 try {
   states = kept

@@ -69,3 +69,37 @@ test('[31-22] a package that is not installed when it is watched is told as a ch
   writeFileSync(join(at.folder, 'node_modules', 'tiny-words', 'index.js'), 'export const word = "Word second"\n')
   assert.ok(await toldSoon(at), 'a changed file of it reloads the pages')
 })
+
+test('[31-22] a package that an install lays anew, its folder removed and written again, is still watched: forjr dev goes on, and a changed file of it reloads the pages', async (t) => {
+  const folder = join(process.cwd(), 'results', 'packagesWatched', `packages-${Math.random().toString(36).slice(2)}`)
+  t.after(() => rmSync(folder, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }))
+  installed(folder, 'Word first')
+  let told = 0
+  const packages = packagesWatched(folder, () => {
+    told += 1
+  })
+  t.after(() => packages.close())
+  packages.watch(['tiny-words'])
+  // An install removes the folder of the package and writes it again.
+  rmSync(join(folder, 'node_modules', 'tiny-words'), { recursive: true, force: true })
+  await new Promise((done) => setTimeout(done, 300))
+  installed(folder, 'Word second')
+  // The next save sets the packages to watch again, as forjr dev does after each build.
+  packages.watch(['tiny-words'])
+  await new Promise((done) => setTimeout(done, 300))
+  told = 0
+  writeFileSync(join(folder, 'node_modules', 'tiny-words', 'index.js'), 'export const word = "Word third"\n')
+  for (let n = 0; n < 100 && told === 0; n++) await new Promise((done) => setTimeout(done, 20))
+  assert.ok(told > 0, 'a changed file of the package laid anew reloads the pages')
+})
+
+test('[31-22] packages set to watch after the watching ended are not watched: a build that ends after forjr dev closed leaves no watch that holds its program open', async (t) => {
+  const at = watching(t)
+  installed(at.folder, 'Word first')
+  const watches = (): number => process.getActiveResourcesInfo().filter((one) => one === 'FSEventWrap').length
+  const before = watches()
+  const packages = packagesWatched(at.folder, () => undefined)
+  packages.close()
+  packages.watch(['tiny-words'])
+  assert.equal(watches(), before, 'no watch is laid once the watching ended')
+})

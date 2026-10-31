@@ -11,11 +11,11 @@ import { list as callers } from '../callers/list.ts'
 import { drivenSession } from '../drivenSession.ts'
 import { addUser, codeOf, running, send, testClock } from './apps.ts'
 
-/** The rows of `_t_sessions` as the data file holds them, read beside the engine. */
+/** The rows of `_f_sessions` as the data file holds them, read beside the engine. */
 function sessionRows(dataFolder: string): Record<string, unknown>[] {
   const data = new DatabaseSync(join(dataFolder, 'data.db'), { readOnly: true })
   try {
-    return data.prepare('SELECT * FROM "_t_sessions" ORDER BY "createdAt", rowid').all()
+    return data.prepare('SELECT * FROM "_f_sessions" ORDER BY "createdAt", rowid').all()
   } finally {
     data.close()
   }
@@ -26,7 +26,7 @@ function sessionRows(dataFolder: string): Record<string, unknown>[] {
  * it was drawn for, as `as`, as every page of a browser does.
  */
 async function who(app: App, origin: string, cookie?: string, as?: string, from?: string): Promise<unknown> {
-  const answer = await send(app, `${origin}/_t/call/whoAmI`, {
+  const answer = await send(app, `${origin}/_f/call/whoAmI`, {
     ...(cookie === undefined ? {} : { headers: { cookie } }),
     ...(as === undefined ? {} : { body: JSON.stringify({ input: {}, as }) }),
     ...(from === undefined ? {} : { from }),
@@ -47,9 +47,9 @@ test('[17-5] app.session makes a session for a user as sessions.start does, with
   const heard: Record<string, unknown>[] = []
   engine.on('session.started', (told) => void heard.push({ ...told }))
   const line = app.session(ada)
-  assert.match(line, /^tent_session\.desk=[A-Za-z0-9_-]{43}$/)
+  assert.match(line, /^forjr_session\.desk=[A-Za-z0-9_-]{43}$/)
   assert.equal(await who(app, origin, line, ada), ada)
-  // It is a session as any other: a row of `_t_sessions` that holds the fingerprint of the cookie, never the cookie.
+  // It is a session as any other: a row of `_f_sessions` that holds the fingerprint of the cookie, never the cookie.
   const rows = sessionRows(dataFolder)
   assert.deepEqual(
     rows.map((row) => row.user),
@@ -63,25 +63,25 @@ test('[17-5] app.session makes a session for a user as sessions.start does, with
   assert.equal(await who(app, origin, again, ada), ada)
   assert.equal(await who(app, origin, line, ada), ada)
   // The roles are those of the row today, as of every session.
-  const page = await send(app, `${origin}/_t/call/whoAmI`, { headers: { cookie: line } })
-  assert.equal(page.error.code, 'T3101', 'a call of a session names the user its page was drawn for')
+  const page = await send(app, `${origin}/_f/call/whoAmI`, { headers: { cookie: line } })
+  assert.equal(page.error.code, 'F3101', 'a call of a session names the user its page was drawn for')
 })
 
-test('[17-5] app.session of an id that names no row of users is T2103, and of no user at all too', async (t) => {
+test('[17-5] app.session of an id that names no row of users is F2103, and of no user at all too', async (t) => {
   const { app, dataFolder } = await desk(t)
-  assert.equal(await codeOf(Promise.resolve().then(() => app.session('nobody-of-that-id'))), 'T2103')
+  assert.equal(await codeOf(Promise.resolve().then(() => app.session('nobody-of-that-id'))), 'F2103')
   for (const none of ['nobody', 'system'])
-    assert.equal(await codeOf(Promise.resolve().then(() => app.session(none))), 'T2103', none)
-  assert.equal(await codeOf(Promise.resolve().then(() => app.session({ kind: 'system' }))), 'T2103')
+    assert.equal(await codeOf(Promise.resolve().then(() => app.session(none))), 'F2103', none)
+  assert.equal(await codeOf(Promise.resolve().then(() => app.session({ kind: 'system' }))), 'F2103')
   assert.equal(sessionRows(dataFolder).length, 0)
 })
 
-test('[17-5] app.session is given in the modes development and test, and in the mode live it is T0013 and writes no session', async (t) => {
+test('[17-5] app.session is given in the modes development and test, and in the mode live it is F0013 and writes no session', async (t) => {
   for (const mode of ['development', 'test', 'live'] as const) {
     const { app, origin, dataFolder } = await running(t, { open: { mode } })
     const bob = String((await addUser(app, 'Bob')).user?.id)
     if (mode === 'live') {
-      assert.equal(await codeOf(Promise.resolve().then(() => app.session(bob))), 'T0013', mode)
+      assert.equal(await codeOf(Promise.resolve().then(() => app.session(bob))), 'F0013', mode)
       assert.equal(sessionRows(dataFolder).length, 0, mode)
       continue
     }
@@ -104,7 +104,7 @@ test('[17-5] no address of a running app makes anyone a user: the engine holds n
     ['frame', 'identify', 'key', 'session', 'token'],
   )
   // A session cookie that the engine did not make names nobody, and one that `app.session` made names its user.
-  assert.equal(await who(app, origin, `tent_session.desk=${'a'.repeat(43)}`), 'no user')
+  assert.equal(await who(app, origin, `forjr_session.desk=${'a'.repeat(43)}`), 'no user')
   assert.equal(await who(app, origin, app.session(ada), ada), ada)
 })
 
@@ -137,7 +137,7 @@ test('[21-21@5] a signed-in caller is held to callerPerMinute, by who they are a
   })
   const cookie = app.session(ada)
   const body = JSON.stringify({ input: {}, as: ada })
-  const status = async (o: Parameters<typeof send>[2]) => (await send(app, `${origin}/_t/call/whoAmI`, o)).status
+  const status = async (o: Parameters<typeof send>[2]) => (await send(app, `${origin}/_f/call/whoAmI`, o)).status
   // Four calls of the user are taken in a minute and the fifth is not, from whichever address they come.
   const seen: number[] = []
   for (const from of ['127.0.0.1', '127.0.0.2', '127.0.0.3', '127.0.0.4', '127.0.0.5'])

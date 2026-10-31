@@ -1,4 +1,4 @@
-import { query } from 'tentjs'
+import { query } from 'forjr'
 
 const LABELS = { open: 'Open orders', paid: 'Paid orders' }
 const TABS = ['open', 'paid']

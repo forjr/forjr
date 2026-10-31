@@ -1,6 +1,6 @@
 import type { Description } from './description.ts'
 import type { Finding } from './errors.ts'
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 import { finding } from './finding.ts'
 import type { Fault } from './itself.ts'
 import { faultOf } from './itself.ts'
@@ -64,15 +64,15 @@ function nameHeld(told: Told, kind: string, exportName: string | undefined): voi
   if (exportName !== undefined && exportName !== name)
     report(
       told,
-      'T1002',
+      'F1002',
       `it is exported as ${exportName} and states the name ${name}.`,
       'Give the export and the definition one name.',
     )
   // A component is written as a tag, so its name starts with a capital letter.
-  if (kind === 'component' ? !/^[A-Z][a-zA-Z0-9]*$/.test(name) : !isCamelCase(name) && !name.startsWith('_t_'))
+  if (kind === 'component' ? !/^[A-Z][a-zA-Z0-9]*$/.test(name) : !isCamelCase(name) && !name.startsWith('_f_'))
     report(
       told,
-      'T1013',
+      'F1013',
       kind === 'component'
         ? 'its name is not a capital letter followed by letters and digits.'
         : 'its name is not camelCase letters and digits.',
@@ -80,12 +80,12 @@ function nameHeld(told: Told, kind: string, exportName: string | undefined): voi
         ? 'Start the name with a capital letter, and write letters and digits alone.'
         : 'Start the name with a small letter, and write letters and digits alone.',
     )
-  if (name.startsWith('_t_') || reservedNames.includes(name) || (kind === 'table' && reservedTables.includes(name)))
-    report(told, 'T1009', `the name \`${name}\` is reserved.`, 'Give the definition another name.')
+  if (name.startsWith('_f_') || reservedNames.includes(name) || (kind === 'table' && reservedTables.includes(name)))
+    report(told, 'F1009', `the name \`${name}\` is reserved.`, 'Give the definition another name.')
 }
 
 /**
- * Reports what was loaded with a value that no stored form holds, by the way to that value: T1014. Such a value
+ * Reports what was loaded with a value that no stored form holds, by the way to that value: F1014. Such a value
  * holds itself, is nested more than 200 deep, stands in too many places, or is of a kind that a written value may
  * not hold.
  */
@@ -93,13 +93,13 @@ function leftOut(told: Told, fault: Fault): void {
   const fix =
     'Write a value that a stored form holds: text, a number, true, false, a list, a record, or a word of ours.'
   const such = fault.why === 'itself' ? 'a value that holds itself' : 'such a value'
-  if (told.name) report(told, 'T1014', `\`${fault.at}\` ${fault.words}, and ${such} has no stored form.`, fix)
-  else told.findings.push(finding('T1014', 'A value that has no stored form was handed to describe.', { fix }))
+  if (told.name) report(told, 'F1014', `\`${fault.at}\` ${fault.words}, and ${such} has no stored form.`, fix)
+  else told.findings.push(finding('F1014', 'A value that has no stored form was handed to describe.', { fix }))
 }
 
 /**
  * The net around one definition. Carries a piece of the work of describing it out, and answers whether it ended.
- * Whatever is thrown there is a finding on that definition, T1014 with the words of the error, or the code of a
+ * Whatever is thrown there is a finding on that definition, F1014 with the words of the error, or the code of a
  * failure of ours: it is what nobody foresaw, and `describe` never throws for what a definition holds.
  */
 function ended(told: Told, work: () => void): boolean {
@@ -109,7 +109,7 @@ function ended(told: Told, work: () => void): boolean {
   } catch (error) {
     const words = error instanceof Error ? error.message : 'a value was thrown that is no error'
     const fix = 'Write the definition so that reading it throws nothing.'
-    const code = error instanceof TentError ? error.code : 'T1014'
+    const code = error instanceof ForjrError ? error.code : 'F1014'
     if (told.name) report(told, code, `it could not be described: ${words}`, fix)
     else told.findings.push(finding(code, `What was handed to describe could not be read: ${words}`, { fix }))
     return false
@@ -122,7 +122,7 @@ function offered(told: Told, kind: string, o: Stored, project: Stored): void {
   const reserved = (why: string) =>
     report(
       told,
-      'T1009',
+      'F1009',
       `the name \`${told.name}\` is reserved ${why}.`,
       'Give it another name, or name it in `names` of the project.',
     )
@@ -138,7 +138,7 @@ function offered(told: Told, kind: string, o: Stored, project: Stored): void {
     if (String(tool).length > 64)
       report(
         told,
-        'T1014',
+        'F1014',
         'its name is longer than the 64 characters that a tool of MCP may have.',
         'Give its tool a shorter name in `mcp.names` of the project.',
       )
@@ -326,10 +326,10 @@ function readAgain(reads: Read[], all: Map<string, Entry>, namesNow: () => strin
 
 /**
  * Takes the definitions of a project as the build loaded them, with the messages and the assets. Answers the
- * description, and what was found: a name that differs from its export (T1002), an unknown option (T1003), a name
- * used twice (T1004), two forms at once (T1007), a required option left out (T1008), a reserved name (T1009), a
- * time, a size or a schedule that does not read (T1011), no project or more than one (T1012), a name of the wrong
- * form (T1013), and a value that is not allowed (T1014). It reads no file and asks no engine.
+ * description, and what was found: a name that differs from its export (F1002), an unknown option (F1003), a name
+ * used twice (F1004), two forms at once (F1007), a required option left out (F1008), a reserved name (F1009), a
+ * time, a size or a schedule that does not read (F1011), no project or more than one (F1012), a name of the wrong
+ * form (F1013), and a value that is not allowed (F1014). It reads no file and asks no engine.
  */
 export function describe(input: {
   definitions: Loaded[]
@@ -379,12 +379,12 @@ export function describe(input: {
     } else if (isSeed) seed = loaded
     else if (!one || !kinds.includes(one.kind))
       findings.push(
-        finding('T1014', 'A value that is no definition was handed to describe.', {
+        finding('F1014', 'A value that is no definition was handed to describe.', {
           fix: 'Hand it what a word of ours returned.',
         }),
       )
     else if (all.has(one.name))
-      report(told(one.name, loaded), 'T1004', 'two definitions have this name.', 'Give one of them another name.')
+      report(told(one.name, loaded), 'F1004', 'two definitions have this name.', 'Give one of them another name.')
     else {
       all.set(one.name, { ...one, loaded })
       made.push({ ...one, loaded })
@@ -395,19 +395,19 @@ export function describe(input: {
   const written = projects.length + projectsLeftOut
   if (written !== 1)
     findings.push(
-      finding('T1012', written ? 'A project has more than one `project`.' : 'A project has no `project`.', {
+      finding('F1012', written ? 'A project has more than one `project`.' : 'A project has no `project`.', {
         fix: 'Write exactly one `project`.',
       }),
     )
   for (const place of noDefinition) {
     const words = `place ${place} of the list that was handed to describe holds no definition.`
     const fix = 'Hand it a list of what the words of ours returned, each with where it stands.'
-    if (projects[0]) report(told(projects[0].name, projects[0].loaded), 'T1014', words, fix)
-    else findings.push(finding('T1014', `P${words.slice(1)}`, { fix }))
+    if (projects[0]) report(told(projects[0].name, projects[0].loaded), 'F1014', words, fix)
+    else findings.push(finding('F1014', `P${words.slice(1)}`, { fix }))
   }
   const projectOptions = projects[0]?.options ?? {}
   const description: Description = {
-    format: 'tent.description/1',
+    format: 'forjr.description/2',
     app: { name: projects[0]?.name ?? '', needsEngine: coreVersion },
     project: {},
     tables: {},
@@ -546,14 +546,14 @@ export function describe(input: {
   if (room.passed && projects[0])
     report(
       told(projects[0].name, projects[0].loaded),
-      'T1014',
+      'F1014',
       `the states that are kept \`in: 'device'\` could hold ${room.bytes} bytes together, and their one cookie holds 3500.`,
       "Keep the larger ones `in: 'browser'`.",
     )
   const toldTenant = (name: string): Told => told(name, all.get(name)?.loaded ?? seed ?? { value: {} })
   heldToTenants(
     description,
-    (name, message, fix) => report(toldTenant(name), 'T2013', message, fix),
+    (name, message, fix) => report(toldTenant(name), 'F2013', message, fix),
     (part, name, work) => {
       if (ended(toldTenant(name), work)) return
       if (part === 'seed') delete description.seed
@@ -585,7 +585,7 @@ function seedOf(told: Told, loaded: Loaded): Stored {
   if (Array.isArray(data)) {
     const writes = data.filter((one) => isStored(one) && isMarked(one)).map((one) => ({ ...one }))
     if (writes.length !== data.length)
-      report(told, 'T1014', 'the starter data holds what is no write.', 'Write orders.add(...) and its like.')
+      report(told, 'F1014', 'the starter data holds what is no write.', 'Write orders.add(...) and its like.')
     heldValue(told, 'the starter data', writes, ['input', 'caller'])
     writesHeld(told, 'the starter data', writes)
     return { writes }

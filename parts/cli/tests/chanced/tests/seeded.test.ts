@@ -2,7 +2,7 @@ import test from 'node:test'
 import assert from 'node:assert/strict'
 import { writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 import { drawn } from '../functions/drawn'
 
 /** What the app's code draws in a test app of a random seed, on a held clock at one moment. */

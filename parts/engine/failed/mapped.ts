@@ -62,7 +62,7 @@ function moduleAt(o: Opened, at: string): Module | undefined {
     const place = bundlesOf(o).find((bundle) => isUnder(bundle, file))
     return place === undefined ? undefined : { place, path: relative(resolve(place), file).split(sep).join('/') }
   }
-  const asked = /^https?:\/\/[^/]+\/_t\/b\/([^?#]+)(\?[^#]*)?(#.*)?$/.exec(at)
+  const asked = /^https?:\/\/[^/]+\/_f\/b\/([^?#]+)(\?[^#]*)?(#.*)?$/.exec(at)
   const path = asked?.[1]
   if (path === undefined || path.split('/').some((one) => one === '..' || one === '')) return undefined
   // A module of development has one address in every version: the mark it was loaded at names its version.
@@ -81,7 +81,7 @@ function isUnder(folder: string, file: string): boolean {
 }
 
 // The packages that the framework itself is: its own, and the React that its page code holds.
-const ours = ['tentjs', 'react', 'react-dom', 'scheduler']
+const ours = ['forjr', 'react', 'react-dom', 'scheduler']
 
 /**
  * Takes the path of a source as a map of the build names it, from the folder of the project. Answers what it is:

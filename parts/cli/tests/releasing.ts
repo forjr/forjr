@@ -100,7 +100,7 @@ export const runtimePath = process.platform === 'win32' ? 'runtime/node.exe' : '
 
 /** The player of a test version: a program that says which version it is. */
 export const playerOf = (version: string): Record<string, string> => ({
-  'player/tent.mjs': `console.log(JSON.stringify({ version: ${JSON.stringify(version)} }))\n`,
+  'player/forjr.mjs': `console.log(JSON.stringify({ version: ${JSON.stringify(version)} }))\n`,
 })
 
 /**
@@ -138,7 +138,7 @@ export function madeRelease(
   signedFile(
     join(at, 'release.json'),
     {
-      format: 'tent.release/1',
+      format: 'forjr.release/1',
       version,
       day: '2026-11-02',
       fix: false,
@@ -150,7 +150,7 @@ export function madeRelease(
   )
   signedFile(
     join(at, 'trust.json'),
-    { format: 'tent.trust/1', made: o.trust?.made ?? 1, keys: o.trust?.keys ?? o.keys.map((one) => one.public) },
+    { format: 'forjr.trust/1', made: o.trust?.made ?? 1, keys: o.trust?.keys ?? o.keys.map((one) => one.public) },
     o.keys,
   )
 }
@@ -160,7 +160,7 @@ export function madeReleases(served: string, versions: string[], keys: TestKey[]
   signedFile(
     join(served, 'releases.json'),
     {
-      format: 'tent.releases/1',
+      format: 'forjr.releases/1',
       made,
       versions: versions.map((version) => ({ version, day: '2026-11-02', fix: false })),
     },
@@ -184,7 +184,7 @@ export function installedFrom(home: string, version: string, keys: TestKey[], ru
   writeFileSync(join(home, 'current'), `${version}\n`)
   writeFileSync(
     join(home, 'trust.json'),
-    JSON.stringify({ format: 'tent.trust/1', made: 1, keys: keys.map((one) => one.public) }),
+    JSON.stringify({ format: 'forjr.trust/1', made: 1, keys: keys.map((one) => one.public) }),
   )
 }
 

@@ -14,11 +14,11 @@ The new list, in order. Where waiting is allowed and the arrow answers a promise
 
 ## Errors
 
-`code.T0013`: an arrow that answers a promise where waiting is not allowed.
+`code.F0013`: an arrow that answers a promise where waiting is not allowed.
 
-`code.T0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
+`code.F0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
 
-`code.T1014`: a reference in the place of its list: it takes an arrow, which only a body and a view can hold.
+`code.F1014`: a reference in the place of its list: it takes an arrow, which only a body and a view can hold.
 
 ## See also
 

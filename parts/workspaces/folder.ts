@@ -1,12 +1,12 @@
 import { existsSync, lstatSync, mkdirSync, readdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { isId } from '../engine/index.ts'
 import type { Workspace } from './face.ts'
 
 /** The record of a workspace as `workspace.json` holds it. */
 interface Kept {
-  format: 'tent.workspace/1'
+  format: 'forjr.workspace/1'
   id: string
   owner: string
   name?: string
@@ -36,8 +36,8 @@ export const foldersOf = (folder: string, id: string): Folders => {
 }
 
 /** The error of an id that names no workspace: any id that has not the form of the id of a row is one. */
-export const noWorkspace = (id: unknown): TentError =>
-  new TentError('T0001', `No workspace ${JSON.stringify(id).slice(0, 40)} is there.`, {
+export const noWorkspace = (id: unknown): ForjrError =>
+  new ForjrError('F0001', `No workspace ${JSON.stringify(id).slice(0, 40)} is there.`, {
     fix: 'Name a workspace by the id that `create` answered.',
   })
 
@@ -58,7 +58,7 @@ export function readWorkspace(folder: string, id: string, address: (id: string) 
     return undefined
   }
   const of = (name: string): unknown => Reflect.get(Object(read), name)
-  if (of('format') !== 'tent.workspace/1' || of('id') !== id || typeof of('owner') !== 'string') return undefined
+  if (of('format') !== 'forjr.workspace/1' || of('id') !== id || typeof of('owner') !== 'string') return undefined
   const name = of('name')
   const live: unknown = of('live')
   const liveRecord = Object(live)
@@ -79,7 +79,7 @@ export function readWorkspace(folder: string, id: string, address: (id: string) 
 export function writeWorkspace(workspace: Workspace): void {
   mkdirSync(workspace.folder, { recursive: true })
   const record: Kept = {
-    format: 'tent.workspace/1',
+    format: 'forjr.workspace/1',
     id: workspace.id,
     owner: workspace.owner,
     ...(workspace.name === undefined ? {} : { name: workspace.name }),

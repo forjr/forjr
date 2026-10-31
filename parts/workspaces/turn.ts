@@ -1,5 +1,5 @@
 import type { Caller, Finding } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { finding, wordsOf } from '../core/internal.ts'
 import { rowIds } from '../engine/index.ts'
 import type { App } from '../engine/index.ts'
@@ -53,11 +53,11 @@ export const shownOf = (row: TurnRow): Turn => ({
   ...(row.stopped === undefined ? {} : { stopped: row.stopped }),
 })
 
-/** The record of an agent of the product's app: T0001 where the app holds none of that name. */
+/** The record of an agent of the product's app: F0001 where the app holds none of that name. */
 export function agentOf(app: App, name: string): object {
   const record: unknown = Object.hasOwn(app.description.flows, name) ? app.description.flows[name] : undefined
   if (typeof record !== 'object' || record === null || Reflect.get(record, 'agent') === undefined)
-    throw new TentError('T0001', `The product's app holds no agent ${JSON.stringify(name).slice(0, 60)}.`)
+    throw new ForjrError('F0001', `The product's app holds no agent ${JSON.stringify(name).slice(0, 60)}.`)
   return record
 }
 
@@ -65,7 +65,7 @@ export function agentOf(app: App, name: string): object {
 function failureOf(error: unknown): Finding {
   const [code, fix] = [Reflect.get(Object(error), 'code'), Reflect.get(Object(error), 'fix')]
   return finding(
-    typeof code === 'string' ? code : 'T0009',
+    typeof code === 'string' ? code : 'F0009',
     error instanceof Error ? error.message : String(error),
     typeof fix === 'string' ? { fix } : {},
   )
@@ -156,9 +156,9 @@ async function endOf(app: App, run: string): Promise<TurnRow['stopped'] | 'on' |
     return 'on'
   } catch (error) {
     const code: unknown = Reflect.get(Object(error), 'code')
-    if (code === 'T5106') return 'person'
-    if (code === 'T7102') return 'budget'
-    if (code === 'T7111') return 'refused'
+    if (code === 'F5106') return 'person'
+    if (code === 'F7102') return 'budget'
+    if (code === 'F7111') return 'refused'
     return 'failed'
   }
 }
@@ -310,7 +310,7 @@ function follow(held: Held, one: One, row: TurnRow, asked: Asked): Turning {
  * Takes what the workspaces hold, the workspace, the agent of the product, the person's message and the options.
  * Starts a turn: records a point of the kind `turn`, takes a snapshot of the test data, writes the row, starts the
  * agent with the project tools, and builds and checks until it passes. One turn works on a
- * workspace at a time: a second waits, is refused with T7103, or stops the first, as `then` says. Answers the turn
+ * workspace at a time: a second waits, is refused with F7103, or stops the first, as `then` says. Answers the turn
  * once it ended, or with `wait: false` once its run started.
  */
 export async function turnOn(held: Held, id: string, agent: string, message: string, o: TurnOptions): Promise<Turn> {
@@ -318,7 +318,7 @@ export async function turnOn(held: Held, id: string, agent: string, message: str
   const record = agentOf(held.o.app, agent)
   while (one.turning) {
     if (o.then === 'refuse')
-      throw new TentError('T7103', `A turn works on the workspace ${id} already.`, {
+      throw new ForjrError('F7103', `A turn works on the workspace ${id} already.`, {
         fix: 'Wait for the turn that works, or start this one with `then: "wait"` or `"stop"`.',
       })
     if (o.then === 'stop') await one.turning.stop()

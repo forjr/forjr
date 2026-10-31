@@ -8,7 +8,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { type Browser, chromium } from 'playwright-core'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 
 type Engine = 'chromium' | 'firefox' | 'webkit'
 type App = Awaited<ReturnType<typeof testApp>>
@@ -74,7 +74,7 @@ for (const engine of ENGINES.filter((one) => CHOSEN.includes(one))) {
     walk.after(() => app.close())
     const calendarService = app.fake('calendar', { createEvent: () => ({ id: 'e1', sent: true }) })
     app.fake('mailbox', { searchMail: () => ({ mails: [{ from: 'ada@example.com', subject: 'A call?' }] }) })
-    // An engine that `app.open` cannot drive on this computer fails here with T0016, which `tent test` names not run.
+    // An engine that `app.open` cannot drive on this computer fails here with F0016, which `forjr test` names not run.
     const page = await signIn(app, engine)
 
     await walk.test(
@@ -223,8 +223,8 @@ for (const engine of ENGINES.filter((one) => CHOSEN.includes(one))) {
   })
 }
 
-// In this repository the command `tent` is this file, run by the pinned runtime.
-const TENT = fileURLToPath(new URL('../../../parts/cli/shell.ts', import.meta.url))
+// In this repository the command `forjr` is this file, run by the pinned runtime.
+const FORJR = fileURLToPath(new URL('../../../parts/cli/shell.ts', import.meta.url))
 const WINDOW = fileURLToPath(new URL('../desktop/target/release/bots.exe', import.meta.url))
 
 /** Starts a program of the test's own, and answers it with the first line of its standard error that fits. */
@@ -259,14 +259,14 @@ test('[04-5.7] opens the app in its desktop window: the same screens, in the win
 }, async (step) => {
   const folder = await mkdtemp(join(tmpdir(), 'bots-window-'))
   const project = fileURLToPath(new URL('..', import.meta.url))
-  const built = spawnSync(process.execPath, [TENT, 'build', '--out', join(folder, 'bundle')], {
+  const built = spawnSync(process.execPath, [FORJR, 'build', '--out', join(folder, 'bundle')], {
     cwd: project,
     encoding: 'utf8',
   })
   assert.equal(built.status, 0, built.stderr)
   const server = started(
     process.execPath,
-    [TENT, 'start', join(folder, 'bundle'), '--mode', 'test', '--seed', '--port', '0', '--data', join(folder, 'data')],
+    [FORJR, 'start', join(folder, 'bundle'), '--mode', 'test', '--seed', '--port', '0', '--data', join(folder, 'data')],
     {},
     /https?:\/\/[^\s]+:\d+/,
   )
@@ -295,12 +295,12 @@ test('[04-5.7] opens the app in its desktop window: the same screens, in the win
   const view = browser.contexts()[0]
   const shown = view.pages()[0] ?? (await view.waitForEvent('page'))
   await shown.waitForURL(/\/sign-in/, { timeout: 30000 })
-  await shown.locator('#tent[data-t-alive]').waitFor()
+  await shown.locator('#forjr[data-f-alive]').waitFor()
   await shown.getByLabel('Email').fill('sam@example.com')
   await shown.getByLabel('Password').fill('a long secret')
   await shown.getByRole('button', { name: 'Sign in' }).click()
   await shown.waitForURL(/\/bots$/)
-  await shown.locator('#tent[data-t-alive]').waitFor()
+  await shown.locator('#forjr[data-f-alive]').waitFor()
   await shown.getByRole('link', { name: 'Chief', exact: true }).waitFor()
   await shown.getByRole('link', { name: 'Calendar', exact: true }).waitFor()
   assert.equal(await shown.getByRole('textbox', { name: 'Message' }).getAttribute('placeholder'), 'Message Chief')

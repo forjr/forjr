@@ -25,17 +25,17 @@ test('[40-4] a branch is named by any text with no colon and no white space that
   for (const name of ['a:b', 'a b', 'tab\there', 'now', 'on', 'live', ''])
     assert.equal(
       codeOf(() => history.branch(name)),
-      'T0002',
+      'F0002',
       name,
     )
   history.branch('feature/one')
   assert.equal(
     codeOf(() => history.branch('feature/one')),
-    'T0002',
+    'F0002',
   )
   assert.equal(
     codeOf(() => history.branch('elsewhere', 'nothing-like-a-point')),
-    'T9107',
+    'F9107',
   )
 })
 
@@ -68,7 +68,7 @@ test('[40-4] a switch records the present, writes the files of the branch as goi
   assert.equal(history.pointer('on'), 'main')
   assert.equal(
     codeOf(() => history.switch(project, 'nowhere', ada)),
-    'T9107',
+    'F9107',
   )
 })
 

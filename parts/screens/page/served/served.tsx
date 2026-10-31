@@ -24,21 +24,21 @@ export interface ServedUse {
 const sent: { component: string; html: string }[] =
   typeof document === 'undefined'
     ? []
-    : [...document.querySelectorAll('[data-t-part]')].map((element) => ({
-        component: element.getAttribute('data-t-part') ?? '',
+    : [...document.querySelectorAll('[data-f-part]')].map((element) => ({
+        component: element.getAttribute('data-f-part') ?? '',
         html: element.innerHTML,
       }))
 
 /** The elements inside a part that are places of its living children for one mark, and inside no other such place. */
 function placesIn(part: Element, mark: string): Record<string, Element> {
   const found: Record<string, Element> = {}
-  for (const element of part.querySelectorAll('[data-t-child]')) {
-    const [own, named] = (element.getAttribute('data-t-child') ?? '').split(':')
+  for (const element of part.querySelectorAll('[data-f-child]')) {
+    const [own, named] = (element.getAttribute('data-f-child') ?? '').split(':')
     if (own !== mark || named === undefined || Object.hasOwn(found, named)) continue
     // A place inside another place is the living child's own, and none of the part.
     if (
-      element.parentElement?.closest('[data-t-child]') &&
-      part.contains(element.parentElement.closest('[data-t-child]'))
+      element.parentElement?.closest('[data-f-child]') &&
+      part.contains(element.parentElement.closest('[data-f-child]'))
     )
       continue
     found[named] = element
@@ -69,7 +69,7 @@ export function Served(o: ServedUse): Drawable {
     const html = use(drawing)
     store.partsMet?.push({ component: name, props: o.props, html })
     return createElement('div', {
-      'data-t-part': name,
+      'data-f-part': name,
       style: { display: 'contents' },
       dangerouslySetInnerHTML: { __html: html },
     })
@@ -99,8 +99,8 @@ function Living(o: ServedUse): Drawable {
   useLayoutEffect(() => {
     if (!element.current) return
     const found = placesIn(element.current, mark)
-    for (const place of Object.values(found)) if (!Reflect.get(place, 'tentLiving')) place.replaceChildren()
-    for (const place of Object.values(found)) Reflect.set(place, 'tentLiving', true)
+    for (const place of Object.values(found)) if (!Reflect.get(place, 'forjrLiving')) place.replaceChildren()
+    for (const place of Object.values(found)) Reflect.set(place, 'forjrLiving', true)
     setPlaces(found)
   }, [mark])
   useEffect(() => {
@@ -113,7 +113,7 @@ function Living(o: ServedUse): Drawable {
     // Of two askings the later one stands, and the part keeps what it shows until the answer is there.
     void store.drawnPart(name, o.props).then((answer) => {
       if (!answer || mine !== turn.current || !element.current) return
-      mergedInto(element.current, answer.html, (kept) => Reflect.get(kept, 'tentLiving') === true, answer.mark)
+      mergedInto(element.current, answer.html, (kept) => Reflect.get(kept, 'forjrLiving') === true, answer.mark)
       setMark(answer.mark)
     })
   }, [asked, name, store, o.props])
@@ -122,7 +122,7 @@ function Living(o: ServedUse): Drawable {
     null,
     createElement('div', {
       ref: element,
-      'data-t-part': name,
+      'data-f-part': name,
       style: { display: 'contents' },
       suppressHydrationWarning: true,
       dangerouslySetInnerHTML: { __html: html ?? '' },

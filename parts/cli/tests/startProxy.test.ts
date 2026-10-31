@@ -5,7 +5,7 @@ import { test } from 'node:test'
 import { startWords } from './startWords.ts'
 import { copied, typed } from './typed.ts'
 
-test('[15-6@4] `tent start --proxy` ends the command for an entry that is none of its words, and for entries with no from: whom the engine believes is not guessed at, and nothing is started', async (t) => {
+test('[15-6@4] `forjr start --proxy` ends the command for an entry that is none of its words, and for entries with no from: whom the engine believes is not guessed at, and nothing is started', async (t) => {
   const project = copied(t, 'start-proxy')
   const data = join(project, '..', 'data')
   const started = (...proxy: string[]) =>

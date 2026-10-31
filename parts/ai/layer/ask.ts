@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { AiEnv, Base, CallAt, Method, Provider, Units } from '../face.ts'
 import type { ProviderFailure } from '../../core/internal.ts'
 import { failureOf } from '../../core/internal.ts'
@@ -48,20 +48,20 @@ export type Attempt<T> = (o: {
 }) => Promise<T>
 
 const codeOf: Partial<Record<ProviderFailure['kind'], { code: string; words: string }>> = {
-  notAccepted: { code: 'T7110', words: 'did not accept the request' },
-  refused: { code: 'T7106', words: 'refused for what was asked' },
-  cutOff: { code: 'T7107', words: 'gave an answer that was cut off' },
+  notAccepted: { code: 'F7110', words: 'did not accept the request' },
+  refused: { code: 'F7106', words: 'refused for what was asked' },
+  cutOff: { code: 'F7107', words: 'gave an answer that was cut off' },
 }
 
 /** The error of a failure that no second model is asked for. */
-function finalOf(model: string, failure: ProviderFailure): TentError {
+function finalOf(model: string, failure: ProviderFailure): ForjrError {
   const known = codeOf[failure.kind]
   if (known)
-    return new TentError(known.code, `The model ${model} ${known.words}: ${failure.message}`, {
+    return new ForjrError(known.code, `The model ${model} ${known.words}: ${failure.message}`, {
       fix:
-        known.code === 'T7110'
+        known.code === 'F7110'
           ? 'Check the key of the model, its name, and what the request holds.'
-          : known.code === 'T7107'
+          : known.code === 'F7107'
             ? 'Ask for a shorter answer, or give the model more room in its options.'
             : 'Ask for something else.',
     })
@@ -69,11 +69,11 @@ function finalOf(model: string, failure: ProviderFailure): TentError {
 }
 
 /** The error of a call that every model failed, naming each and its reason. */
-function allFailed(reasons: { model: string; reason: string; message?: string }[]): TentError {
+function allFailed(reasons: { model: string; reason: string; message?: string }[]): ForjrError {
   const named = reasons.map(
     (one) => `${one.model}: ${one.reason}${one.message ? ` (${one.message.slice(0, 200)})` : ''}`,
   )
-  return new TentError('T7104', `Every model that could answer failed. ${named.join('; ')}.`, {
+  return new ForjrError('F7104', `Every model that could answer failed. ${named.join('; ')}.`, {
     fix: 'Try again later, or list another model in `fallback`.',
   })
 }
@@ -88,8 +88,8 @@ const onward = (failure: ProviderFailure): boolean =>
 /**
  * Takes a model call and what one try of it does. Asks the model, and where it fails as the table of a second
  * provider says, tries it again and then the next model in its `fallback`, each held to its ability, its limits and
- * its time. Tells `used` of every try. Answers what the try that worked answered. Throws T7001 for a call the asked
- * model cannot do, T7102 for a limit of the asked model, T7104 when every model failed, and T7106, T7107 and T7110
+ * its time. Tells `used` of every try. Answers what the try that worked answered. Throws F7001 for a call the asked
+ * model cannot do, F7102 for a limit of the asked model, F7104 when every model failed, and F7106, F7107 and F7110
  * as the failure says.
  */
 export async function ask<T>(asking: Asking, attempt: Attempt<T>): Promise<T> {
@@ -109,7 +109,7 @@ export async function ask<T>(asking: Asking, attempt: Attempt<T>): Promise<T> {
       try {
         await env.allow({ model: model.name, call: method, caller, ...(run ? { run } : {}) })
       } catch (error) {
-        if (error instanceof TentError && error.code === 'T7102') continue
+        if (error instanceof ForjrError && error.code === 'F7102') continue
         throw error
       }
     }
@@ -163,7 +163,7 @@ export async function ask<T>(asking: Asking, attempt: Attempt<T>): Promise<T> {
           told(false, 'stopped')
           throw asking.signal.reason ?? error
         }
-        if (error instanceof TentError) {
+        if (error instanceof ForjrError) {
           told(false, error.code)
           throw error
         }

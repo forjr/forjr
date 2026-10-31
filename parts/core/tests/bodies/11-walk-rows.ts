@@ -1,4 +1,4 @@
-import { change, each, round, sum, where } from 'tentjs'
+import { change, each, round, sum, where } from 'forjr'
 
 export const walkRows = change('walkRows', {
   access: 'everyone',

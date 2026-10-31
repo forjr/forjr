@@ -2,7 +2,7 @@ import { here } from '../../data/index.ts'
 import type { Admin } from '../admin.ts'
 
 /**
- * `tent take-over`: makes this machine the writer. With `--look` it changes nothing, and answers what the machine
+ * `forjr take-over`: makes this machine the writer. With `--look` it changes nothing, and answers what the machine
  * knows and what it may lack: its kind and its number, when its writer last answered it a beat, since when it
  * was not current, the number of every other reader it was told of, and how many files of tenants it is still
  * fetching. Without, it takes over, and answers the epoch and the number of its last write.

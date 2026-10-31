@@ -11,7 +11,7 @@ test('[51-5] an action that states callerGone stop has its work stopped when its
     ['encodeGoesOn', false],
   ] as const) {
     const leaving = new AbortController()
-    const asked = fetch(`${origin}/_t/call/${name}`, {
+    const asked = fetch(`${origin}/_f/call/${name}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ input: { n: 5 } }),

@@ -1,5 +1,5 @@
 import { ShoppingBag } from 'lucide-react'
-import { Link, read, screen, useTranslations } from 'tentjs/ui'
+import { Link, read, screen, useTranslations } from 'forjr/ui'
 import { CustomerFrame, Waiting } from '../components/frames'
 import { Badge, Card, DOTS, Empty, PageHeader, Stat, table } from '../components/ui'
 import { myOrders } from '../functions/orders'

@@ -57,7 +57,7 @@ export interface WorkHub {
   // The runner settles the try of one entry of a task, in the write it hands: its machine time is booked there.
   settled(tx: Tx, s: Settled): void
   answer(j: Joined, link: Link, message: Record<string, unknown>): void
-  // Opens the link of a worker at `/_t/work`: not found without a key of `workers` or of the right `work`, and over a connection that is not secure without `insecure`.
+  // Opens the link of a worker at `/_f/work`: not found without a key of `workers` or of the right `work`, and over a connection that is not secure without `insecure`.
   link(request: Request, about: About): Link
   // Loads what the link needs, once a key of the right `work` is made in an app that loaded none.
   linkable(): Promise<void>

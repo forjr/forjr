@@ -1,4 +1,5 @@
 import type { Finding } from '../core/index.ts'
+import type { MapAnswer, MapLine } from '../core/internal.ts'
 import type { Change } from '../history/index.ts'
 import type { Impact } from '../publish/index.ts'
 import type { Failure } from './testFailed.ts'
@@ -94,4 +95,42 @@ export function isImpact(value: unknown): value is Impact {
     }) &&
     isListOf(o.untested, isText)
   )
+}
+
+/** Whether a value is one line of the map, as data. */
+function isMapLine(value: unknown): value is MapLine {
+  const o = fieldsOf(value)
+  const isEdge = (one: unknown): boolean => {
+    const edge = fieldsOf(one)
+    return typeof edge.kind === 'string' && typeof edge.name === 'string' && (edge.by === 'known' || edge.by === 'seen')
+  }
+  return (
+    typeof o.name === 'string' &&
+    typeof o.kind === 'string' &&
+    isListOf(o.doors, (one): one is string => typeof one === 'string') &&
+    Array.isArray(o.out) &&
+    o.out.every(isEdge) &&
+    Array.isArray(o.in) &&
+    o.in.every(isEdge) &&
+    typeof o.code === 'boolean' &&
+    typeof o.weight === 'number'
+  )
+}
+
+/** Whether a value is an answer of the map: the app, one definition, one column, one file of definitions, or a helper. */
+export function isMapAnswer(value: unknown): value is MapAnswer {
+  const o = fieldsOf(value)
+  const isText = (one: unknown): one is string => typeof one === 'string'
+  if (typeof o.app === 'string')
+    return (
+      isListOf(o.lines, isMapLine) &&
+      typeof o.more === 'number' &&
+      ['built', 'unbuilt', 'none'].includes(String(o.page))
+    )
+  if (o.line !== undefined)
+    return isMapLine(o.line) && typeof o.last === 'number' && typeof o.text === 'string' && isListOf(o.near, isMapLine)
+  if (typeof o.column === 'string')
+    return typeof o.words === 'string' && [o.reads, o.writes, o.mayReach].every((one) => isListOf(one, isMapLine))
+  if (typeof o.file !== 'string') return false
+  return isListOf(o.lines, isMapLine) || (isListOf(o.imports, isText) && isListOf(o.importedBy, isText))
 }

@@ -17,7 +17,7 @@ import {
   secret,
   table,
   text,
-} from 'tentjs'
+} from 'forjr'
 
 export const users = table('users', {
   columns: { name: text({ optional: true }), roles: list(text()) },

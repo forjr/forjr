@@ -1,4 +1,4 @@
-import { boolean, TentError } from '../../core/index.ts'
+import { boolean, ForjrError } from '../../core/index.ts'
 import { knownModel } from '../../core/internal.ts'
 import type { Admin } from '../admin.ts'
 import { wordOf } from '../admin.ts'
@@ -37,7 +37,7 @@ async function tried(
   } catch (error) {
     return {
       ok: false,
-      code: String(Reflect.get(Object(error), 'code') ?? 'T0009'),
+      code: String(Reflect.get(Object(error), 'code') ?? 'F0009'),
       message: String(Reflect.get(Object(error), 'message') ?? error),
     }
   }
@@ -74,7 +74,7 @@ async function triedModel(o: Opened, name: string): Promise<object> {
 }
 
 /**
- * `tent models test [name]`: sends one small request for each fixed call that a model of the app has, or the one
+ * `forjr models test [name]`: sends one small request for each fixed call that a model of the app has, or the one
  * that `name` names, to its real server, as the system, and answers for each model which calls its server answered,
  * with the code of each that it did not, and whether the reasoning of a model that gives it arrived.
  */
@@ -84,8 +84,8 @@ export const admin: Admin = {
     const names = Object.keys(o.description.models)
     const named = Reflect.get(args, 'name') === undefined ? undefined : wordOf(args, 'name', 'the name of a model')
     if (named !== undefined && !names.includes(named))
-      throw new TentError('T0001', `No model named ${named} can be reached.`, {
-        fix: '`tent models` lists the models of the app.',
+      throw new ForjrError('F0001', `No model named ${named} can be reached.`, {
+        fix: '`forjr models` lists the models of the app.',
       })
     const tried: object[] = []
     for (const name of named === undefined ? names : [named]) tried.push(await triedModel(o, name))

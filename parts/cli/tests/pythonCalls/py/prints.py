@@ -1,4 +1,4 @@
-def run(input, tent):
+def run(input, forjr):
     print("a line that print wrote")
-    tent.log("a line that tent.log wrote")
+    forjr.log("a line that forjr.log wrote")
     return 7

@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { isStored } from '../core/internal.ts'
 import type { App } from '../engine/index.ts'
 import { sampleOf } from './sample.ts'
@@ -12,7 +12,7 @@ const counted = new WeakMap<object, { n: number }>()
  * `app.make(table, count, (i) => values)`: writes that many rows of a table as the system, as `app.user` does. A
  * column that the function gives a value for, by the number of the row from 0, takes it; one that may be left
  * out, has a default or is worked out by the engine is left out; every other is filled with a sample of its type
- * (`sampleOf`), a link with a row of its table that is made first. Answers the rows, in order. Throws T0002 for a table that is none,
+ * (`sampleOf`), a link with a row of its table that is made first. Answers the rows, in order. Throws F0002 for a table that is none,
  * and for a column whose kind it cannot fill.
  */
 export const make =
@@ -20,7 +20,7 @@ export const make =
   async (table: string, count: number, values?: (i: number) => Row): Promise<Row[]> => {
     const stated = app.description.tables[table]
     if (!isStored(stated))
-      throw new TentError('T0002', `\`app.make\` names no table ${JSON.stringify(table).slice(0, 80)}.`, {
+      throw new ForjrError('F0002', `\`app.make\` names no table ${JSON.stringify(table).slice(0, 80)}.`, {
         fields: { table: 'values' },
       })
     const columns: Row = isStored(stated.columns) ? stated.columns : {}

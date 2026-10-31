@@ -116,7 +116,7 @@ test('[50-2] the rows of a tenant table live in the file of their tenant and in 
   assert.equal(typeof metaOf(file, 'fingerprint'), 'string')
 })
 
-test('[50-2] [16-2@3] a row keeps to the file of its tenant: T2109 for a plan without of, for another tenant in the column and for a second file, and T2104 for a tenant that is none', (t) => {
+test('[50-2] [16-2@3] a row keeps to the file of its tenant: F2109 for a plan without of, for another tenant in the column and for a second file, and F2104 for a tenant that is none', (t) => {
   const folder = folderOf(t)
   const files = filesOf(t, desk, {}, folder)
   const s = seedDesk(files, desk)
@@ -128,15 +128,15 @@ test('[50-2] [16-2@3] a row keeps to the file of its tenant: T2109 for a plan wi
   // A plan and a write made in code without `of`.
   assert.equal(
     codeOf(() => at(db, 'orders').all()),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() => at(db, 'orders').get(String(order.id))),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() => at(db, 'orders').count()),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() =>
@@ -144,29 +144,29 @@ test('[50-2] [16-2@3] a row keeps to the file of its tenant: T2109 for a plan wi
         .where({ id: { in: at(db, 'orders').pick(['team']) } })
         .all(),
     ),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() => write((db) => at(db, 'orders').add({ total: 1 }))),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() => write((db) => at(db, 'orders').change(String(order.id), { total: 2 }))),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() => write((db) => at(db, 'orders').remove(String(order.id)))),
-    'T2109',
+    'F2109',
   )
 
   // A row is added with the tenant of `of`, and its `tenant` column cannot be changed.
   assert.equal(
     codeOf(() => write((db) => at(db, 'orders').of(s.north).add({ total: 1, team: s.south }))),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() => write((db) => at(db, 'orders').of(s.north).change(String(order.id), { team: s.south }))),
-    'T2109',
+    'F2109',
   )
   // The same tenant written again changes nothing, and is taken.
   assert.equal(
@@ -183,7 +183,7 @@ test('[50-2] [16-2@3] a row keeps to the file of its tenant: T2109 for a plan wi
         at(db, 'orders').of(s.south).add({ total: 200 })
       }),
     ),
-    'T2109',
+    'F2109',
   )
   assert.deepEqual(
     at(db, 'orders')
@@ -201,7 +201,7 @@ test('[50-2] [16-2@3] a row keeps to the file of its tenant: T2109 for a plan wi
         at(db, 'orders').of(s.north).add({ total: 100 })
       }),
     ),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() =>
@@ -210,7 +210,7 @@ test('[50-2] [16-2@3] a row keeps to the file of its tenant: T2109 for a plan wi
         at(db, 'teams').add({ name: 'Far' })
       }),
     ),
-    'T2109',
+    'F2109',
   )
   assert.equal(at(db, 'teams').where({ name: 'Far' }).count(), 0)
   assert.equal(at(db, 'orders').of(s.north).count(), 1)
@@ -230,7 +230,7 @@ test('[50-2] [16-2@3] a row keeps to the file of its tenant: T2109 for a plan wi
   const theirs = write((db) => at(db, 'orders').of(s.south).add({ total: 7 }))
   assert.equal(
     codeOf(() => write((db) => at(db, 'lines').of(s.north).add({ order: theirs.id, qty: 1 }))),
-    'T2104',
+    'F2104',
   )
   assert.equal(write((db) => at(db, 'lines').of(s.south).add({ order: theirs.id, qty: 1 })).order, theirs.id)
   // A link into the shared file is held against the shared file.
@@ -242,7 +242,7 @@ test('[50-2] [16-2@3] a row keeps to the file of its tenant: T2109 for a plan wi
           .add({ total: 1, placedBy: '0'.repeat(26) }),
       ),
     ),
-    'T2104',
+    'F2104',
   )
 
   // An id that is not the id of a row names no tenant: it reads nothing, writes nothing and touches no file.
@@ -253,17 +253,17 @@ test('[50-2] [16-2@3] a row keeps to the file of its tenant: T2109 for a plan wi
     assert.equal(at(db, 'orders').of(id).count(), 0, id)
     assert.equal(
       codeOf(() => write((db) => at(db, 'orders').of(id).add({ total: 1 }))),
-      'T2104',
+      'F2104',
       id,
     )
     assert.equal(
       codeOf(() => write((db) => at(db, 'orders').of(id).change(String(order.id), { total: 1 }))),
-      'T2104',
+      'F2104',
       id,
     )
     assert.equal(
       codeOf(() => write((db) => at(db, 'orders').of(id).remove(String(order.id)))),
-      'T2104',
+      'F2104',
       id,
     )
     assert.equal(files.has({ table: 'teams', id }), false, id)
@@ -273,22 +273,22 @@ test('[50-2] [16-2@3] a row keeps to the file of its tenant: T2109 for a plan wi
   // A table that no tenant table names has no file either.
   assert.equal(files.of({ table: '../teams', id: s.north }, { make: true }), undefined)
   assert.equal(files.of({ table: 'users', id: s.ada }, { make: true }), undefined)
-  // A tenant whose row is not in the shared file: no rows, T2104 for a write, and no file.
+  // A tenant whose row is not in the shared file: no rows, F2104 for a write, and no file.
   const gone = `${s.north.slice(0, 25)}${s.north.endsWith('0') ? '1' : '0'}`
   assert.deepEqual(at(db, 'orders').of(gone).all(), [])
   assert.equal(
     codeOf(() => write((db) => at(db, 'orders').of(gone).add({ total: 1 }))),
-    'T2104',
+    'F2104',
   )
   assert.equal(files.has(teamFile(gone)), false)
   // A tenant with no file: a change and a removal find no row.
   assert.equal(
     codeOf(() => write((db) => at(db, 'orders').of(s.east).change(String(order.id), { total: 1 }))),
-    'T2103',
+    'F2103',
   )
   assert.equal(
     codeOf(() => write((db) => at(db, 'orders').of(s.east).remove(String(order.id)))),
-    'T2103',
+    'F2103',
   )
   assert.equal(files.has(teamFile(s.east)), false)
   assert.deepEqual(filesUnder(folder).sort(), before)
@@ -397,9 +397,9 @@ test('[50-2] a link into the shared file is read under the rule of the caller, a
     [['system', 10]],
   )
   assert.deepEqual(at(db, 'orders').of(s.south).history(String(made.adas.id)), [])
-  assert.equal(storedIn(files.of(teamFile(s.north)), '_t_history').length, 1)
-  assert.equal(storedIn(files.of(teamFile(s.south)), '_t_history').length, 0)
-  assert.equal(storedIn(files.shared, '_t_history').length, 0)
+  assert.equal(storedIn(files.of(teamFile(s.north)), '_f_history').length, 1)
+  assert.equal(storedIn(files.of(teamFile(s.south)), '_f_history').length, 0)
+  assert.equal(storedIn(files.shared, '_f_history').length, 0)
 
   // Raw SQL with `of` runs in the file of that tenant, and without it in the shared file.
   const full = readingFiles(files, desk, system, { system: true })
@@ -424,7 +424,7 @@ test('[50-2] a link into the shared file is read under the rule of the caller, a
         run('update orders set total = 0', [], { of: s.south })
       }),
     ),
-    'T2109',
+    'F2109',
   )
   assert.deepEqual(sql('select count(*) c from orders where total = 0', [], { of: s.north }), [{ c: 0 }])
 })
@@ -490,7 +490,7 @@ test('[50-2] a file that was opened to read alone and closed leaves no file besi
   assert.equal(alone.read({ from: 'orders', count: true }, system).value, 1)
   assert.equal(
     codeOf(() => alone.write((tx) => tx.add('orders', { total: 1, team: s.north }, system))),
-    'T0012',
+    'F0012',
   )
   alone.close()
   assert.deepEqual(beside(), [])

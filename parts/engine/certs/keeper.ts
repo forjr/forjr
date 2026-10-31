@@ -109,7 +109,7 @@ export function keepCertificates(o: {
   if (URL.parse(from)?.protocol !== 'https:') {
     o.say(
       'warning',
-      `T0013 secure.from is ${JSON.stringify(from.slice(0, 120))}, and an authority is named by an address over https: no certificate is asked for, and no secure connection is served.`,
+      `F0013 secure.from is ${JSON.stringify(from.slice(0, 120))}, and an authority is named by an address over https: no certificate is asked for, and no secure connection is served.`,
     )
     return {
       listed,

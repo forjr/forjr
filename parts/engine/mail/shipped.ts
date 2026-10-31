@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Mailer } from '../makers.ts'
 import type { Opened } from '../opened.ts'
 import { valuesOf } from '../values/ofApp.ts'
@@ -13,17 +13,17 @@ export function mailSecret(o: Opened): string | undefined {
 // The port of each kind of address where it names none.
 const ports: Record<string, number> = { 'smtps:': 465, 'smtp:': 587 }
 
-/** Throws T0020 for a mail secret whose value is no address of a mail server. */
-const noServer = (secret: string): TentError =>
-  new TentError('T0020', `The secret ${secret} holds no address of a mail server.`, {
+/** Throws F0020 for a mail secret whose value is no address of a mail server. */
+const noServer = (secret: string): ForjrError =>
+  new ForjrError('F0020', `The secret ${secret} holds no address of a mail server.`, {
     fix: `Set ${secret} to smtps://user:password@host:465, or smtp://user:password@host:587.`,
   })
 
 /**
  * Takes an app. Answers the mailer that ships, for an app whose project names its mail server as a secret, and
  * nothing for one that names none. The server is the one that the secret holds, at the one address that the
- * address rule of the guarded fetch answers for its name, which is looked up once for the message. Throws T0019
- * for a secret with no value, T0020 for one that holds no address of a mail server, and T0022 for a server whose
+ * address rule of the guarded fetch answers for its name, which is looked up once for the message. Throws F0019
+ * for a secret with no value, F0020 for one that holds no address of a mail server, and F0022 for a server whose
  * address is private or local and not listed in `privateHosts`.
  */
 export async function shippedMailer(o: Opened): Promise<Mailer | undefined> {
@@ -33,7 +33,7 @@ export async function shippedMailer(o: Opened): Promise<Mailer | undefined> {
   try {
     url = new URL(valuesOf(o).secrets.value(secret))
   } catch (error) {
-    if (error instanceof TentError) throw error
+    if (error instanceof ForjrError) throw error
     throw noServer(secret)
   }
   const port = url.port === '' ? ports[url.protocol] : Number(url.port)

@@ -1,4 +1,4 @@
-import { project, table, text, where } from 'tentjs'
+import { project, table, text, where } from 'forjr'
 
 export const apart = project('apart', {
   limits: { queryTime: '1 second', changeTime: '1 second', actionTime: '5 seconds' },

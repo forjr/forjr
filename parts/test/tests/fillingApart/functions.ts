@@ -1,4 +1,4 @@
-import { action, link, table, text } from 'tentjs'
+import { action, link, table, text } from 'forjr'
 
 export const summarize = action('summarize', {
   access: 'nobody',

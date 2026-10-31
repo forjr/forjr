@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { failureOf } from '../door/failure.ts'
 import type { Opened } from '../opened.ts'
 import { everyAnswer, wireError } from '../wire.ts'
@@ -26,7 +26,7 @@ export function problemAnswer(o: Opened, name: string, error: unknown): Response
   }
   const headers: Record<string, string> = { ...everyAnswer, 'content-type': 'application/problem+json; charset=utf-8' }
   if (status === 401) headers['www-authenticate'] = 'Bearer'
-  if (error instanceof TentError && error.code === 'T0005')
+  if (error instanceof ForjrError && error.code === 'F0005')
     headers['retry-after'] = String(untilNextMinute(o.clock.now()))
   return new Response(JSON.stringify(body), { status, headers })
 }

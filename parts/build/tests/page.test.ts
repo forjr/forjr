@@ -76,14 +76,14 @@ async function drawerOf(bundleFolder: string, description: Description) {
 
 /** The drawing of a document, with each name that React makes for an element written as one. */
 function drawingOf(html: string | undefined): string {
-  const found = /<div id="tent">([\s\S]*)<\/div>\n<script type="application\/json" id="tent-page">/.exec(html ?? '')
+  const found = /<div id="forjr">([\s\S]*)<\/div>\n<script type="application\/json" id="forjr-page">/.exec(html ?? '')
   assert.ok(found, 'the document holds a drawing')
   return found[1].replace(/_R_[a-zA-Z0-9]+_/g, 'ID')
 }
 
 test('[31-14] two builds by one release hold the same files of the page code, and a development build and a release build hold its two forms', async () => {
   const { page } = await pageCode()
-  assert.equal(page.format, 'tent.page/1')
+  assert.equal(page.format, 'forjr.page/1')
   assert.match(page.fingerprint, /^[0-9a-f]{64}$/)
   const pageFiles = (bundleFolder: string) =>
     Object.fromEntries(Object.entries(filesOf(bundleFolder)).filter(([path]) => ofPage(path)))
@@ -119,7 +119,7 @@ test('[31-14] two builds by one release hold the same files of the page code, an
   ]) {
     const main = await import(pathToFileURL(file).href)
     assert.deepEqual(Object.keys(main.names).sort(), Object.keys(page.browser.names).sort())
-    assert.equal(typeof main.names['tentjs/ui'].Link, 'function')
+    assert.equal(typeof main.names['forjr/ui'].Link, 'function')
   }
   const exportsOf = (text: string) => [...text.matchAll(/export const (\w+)/g)].map((found) => found[1])
   for (const name of Object.keys(page.browser.names)) {
@@ -130,7 +130,7 @@ test('[31-14] two builds by one release hold the same files of the page code, an
     assert.deepEqual(exportsOf(one), exportsOf(other), name)
   }
   assert.ok(
-    exportsOf(readFileSync(join(first.bundleFolder, named(first.description).names['tentjs/ui']), 'utf8')).includes(
+    exportsOf(readFileSync(join(first.bundleFolder, named(first.description).names['forjr/ui']), 'utf8')).includes(
       'Link',
     ),
   )
@@ -178,17 +178,14 @@ test('[31-14] a page with a package that imports react and react-dom, and one th
     file.endsWith('.js'),
   )
   const code = files.map((file: string) => readFileSync(join(made.bundleFolder, file), 'utf8')).join('\n')
-  for (const name of ['react', 'react-dom', 'tentjs/ui', 'react/jsx-runtime'])
+  for (const name of ['react', 'react-dom', 'forjr/ui', 'react/jsx-runtime'])
     assert.ok(
       code.includes(`"./${browser.page.names[name].slice('browser/'.length)}"`),
       `the screen imports ${name} from its small file`,
     )
   assert.ok(!/\brequire\(/.test(code), 'no module keeps a call of `require`, which a browser cannot answer')
   assert.ok(code.length < 4000, `the modules of the screen hold no React of their own: ${code.length} characters`)
-  assert.ok(
-    !/from\s*"(react|react-dom|tentjs\/ui)[/"]/.test(code),
-    'no name of the page code is left as it was written',
-  )
+  assert.ok(!/from\s*"(react|react-dom|forjr\/ui)[/"]/.test(code), 'no name of the page code is left as it was written')
 })
 
 test('[13-1@5] the description of a project with screens passes the shape of the format and the schema that the build writes from it', async () => {
@@ -260,7 +257,7 @@ test('[13-4@5] two builds of one project with screens give the same bytes on eve
   }
 })
 
-test('[31-4] the two built-in screens, tent.notFound and tent.error, are views of the page code: page.json names none of them, and the server file draws their words', async () => {
+test('[31-4] the two built-in screens, forjr.notFound and forjr.error, are views of the page code: page.json names none of them, and the server file draws their words', async () => {
   const { folder, page } = await pageCode()
   assert.equal(Object.hasOwn(page, 'screens'), false)
   const { draw } = await import(pathToFileURL(join(folder, page.server)).href)
@@ -271,7 +268,7 @@ test('[31-4] the two built-in screens, tent.notFound and tent.error, are views o
       version: 'v',
       mode: 'test',
       status: 404,
-      screen: 'tent.notFound',
+      screen: 'forjr.notFound',
       origin: 'http://localhost',
       path: '/x',
       params: {},

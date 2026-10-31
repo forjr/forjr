@@ -1,5 +1,5 @@
 import { callerText } from '../../data/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { storedLimit } from '../limits.ts'
 import { noLink } from '../noLink.ts'
 import type { Opened } from '../opened.ts'
@@ -34,12 +34,12 @@ function callerOfTask(o: Opened, out: OutTask) {
 }
 
 /**
- * `GET /_t/work/file/...`: a file that the task names by its fingerprint, or by its id one that its caller may
+ * `GET /_f/work/file/...`: a file that the task names by its fingerprint, or by its id one that its caller may
  * download or that the engine keeps for the progress of its step.
  */
 export async function fileOfTask(o: Opened, key: WorkerKey, request: Request): Promise<Response> {
   const found = taskOf(o, key, request)
-  const asked = decodeURIComponent(new URL(request.url).pathname.slice('/_t/work/file/'.length))
+  const asked = decodeURIComponent(new URL(request.url).pathname.slice('/_f/work/file/'.length))
   if (!found || !asked) throw noLink()
   let fingerprint: string | undefined
   if (/^[0-9a-f]{64}$/.test(asked)) fingerprint = found.out.files?.includes(asked) ? asked : undefined
@@ -61,21 +61,21 @@ export async function fileOfTask(o: Opened, key: WorkerKey, request: Request): P
 }
 
 /**
- * `POST /_t/work/file?task=...`: takes the bytes of a file that the work of a task made, held to
+ * `POST /_f/work/file?task=...`: takes the bytes of a file that the work of a task made, held to
  * `limits.workFileSize`, as a loose file of the starter of its run under a name of the engine's own; with `carry=1`,
- * a value too large for a frame, which belongs to the writer alone. Answers `{ id }`. T5108 for a task that is not
+ * a value too large for a frame, which belongs to the writer alone. Answers `{ id }`. F5108 for a task that is not
  * out to the worker of this key.
  */
 export async function takeFile(o: Opened, key: WorkerKey, request: Request): Promise<Response> {
   const found = taskOf(o, key, request)
-  if (!found) throw new TentError('T5108', 'The task that the file names is not out to this worker.')
+  if (!found) throw new ForjrError('F5108', 'The task that the file names is not out to this worker.')
   const params = new URL(request.url).searchParams
   const carry = params.get('carry') === '1'
   const kind = params.get('kind') ?? undefined
   const caller = callerOfTask(o, found.out)
-  if (!request.body) throw new TentError('T0002', 'A file that a worker posts carries its bytes.')
-  const tooMuch = (): TentError =>
-    new TentError('T0005', 'This worker posted more files than `workHeld` lets the writer hold for it.', {
+  if (!request.body) throw new ForjrError('F0002', 'A file that a worker posts carries its bytes.')
+  const tooMuch = (): ForjrError =>
+    new ForjrError('F0005', 'This worker posted more files than `workHeld` lets the writer hold for it.', {
       fix: 'Post fewer or smaller files, or raise `workHeld` of the project.',
     })
   // What one worker posted and the writer still holds for its tasks is held to `limits.workHeld`, as the bytes
@@ -95,7 +95,7 @@ export async function takeFile(o: Opened, key: WorkerKey, request: Request): Pro
       most: Math.min(size, left),
     })
   } catch (error) {
-    if (left < size && error instanceof TentError && error.code === 'T0003') throw tooMuch()
+    if (left < size && error instanceof ForjrError && error.code === 'F0003') throw tooMuch()
     throw error
   }
   // Two files that were posted at once may pass the bound together: the later one is let go of.

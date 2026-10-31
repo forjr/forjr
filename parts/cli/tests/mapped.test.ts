@@ -8,11 +8,11 @@ import { root, typed } from './typed.ts'
 // A project with three packages of its own, laid in its `node_modules/` as an install lays them: one that draws in a
 // screen, one that both a screen and a function use, and one that a function reaches the network with.
 const files: Record<string, string> = {
-  'tent.ts': `import { project } from 'tentjs'
+  'forjr.ts': `import { project } from 'forjr'
 
 export const mapped = project('mapped', { title: 'Mapped' })
 `,
-  'functions/sales.ts': `import { action, anyone, change, input, number, query, table, text } from 'tentjs'
+  'functions/sales.ts': `import { action, anyone, change, input, number, query, table, text } from 'forjr'
 import { monthName } from 'month-words'
 import { fetchJson } from 'net-reader'
 
@@ -38,7 +38,7 @@ export const saleWords = action('saleWords', {
   run: async ({ input }) => \`\${monthName(input.month)} \${JSON.stringify(await fetchJson('http://127.0.0.1:9/'))}\`,
 })
 `,
-  'screens/home.tsx': `import { read, screen, Form } from 'tentjs/ui'
+  'screens/home.tsx': `import { read, screen, Form } from 'forjr/ui'
 import { BarLine } from 'tiny-bars'
 import { monthName } from 'month-words'
 import { addSale, allSales } from '../functions/sales'
@@ -115,53 +115,58 @@ function laid(t: TestContext): string {
   return folder
 }
 
-test('[43-4] the map lists each package the project imports, with where it is used, whether it reaches the browser, its bytes in the page and its ways out; and each screen with its address, its access, its queries, its calls and its components with their packages', async (t) => {
+test('[43-4] the map lists each package the project imports, with where it is used, whether it reaches the browser, its bytes in the page and its ways out; and each screen with its address, its access, its queries, its calls and the packages it imports', async (t) => {
   const folder = laid(t)
   const map = await typed(folder, 'map')
   assert.equal(map.ended, 0, map.printed)
-  const text = map.printed
-  const block = (title: string): string[] => {
-    const lines = text.split('\n')
-    const from = lines.indexOf(title)
-    assert.ok(from >= 0, `the map has ${title}:\n${text}`)
-    const rest = lines.slice(from + 1)
-    const to = rest.findIndex((line) => !line.startsWith('  '))
-    return to < 0 ? rest : rest.slice(0, to)
-  }
-  const packages = block('packages')
-  const line = (name: string): string => {
-    const found = packages.find((one) => one.startsWith(`  ${name}:`))
-    assert.ok(found, `the map lists ${name}:\n${packages.join('\n')}`)
+  const lines = map.printed.split('\n')
+  const line = (start: string): string => {
+    const found = lines.find((one) => one.startsWith(`${start}  `) || one === start)
+    assert.ok(found, `the map has ${start}:\n${map.printed}`)
     return found
   }
   // Where each is used, whether it reaches the browser with its bytes in the page, and its ways out.
-  assert.match(line('tiny-bars'), /screens homeScreen/)
-  assert.match(line('tiny-bars'), /browser \d+ bytes/)
-  assert.doesNotMatch(line('tiny-bars'), /reaches/)
-  assert.match(line('month-words'), /screens homeScreen/)
-  assert.match(line('month-words'), /backend functions\/sales\.ts/)
-  assert.match(line('month-words'), /browser \d+ bytes/)
-  assert.match(line('net-reader'), /backend functions\/sales\.ts/)
-  assert.doesNotMatch(line('net-reader'), /browser/)
-  assert.match(line('net-reader'), /reaches net/)
-  const bytes = (name: string): number => Number(/browser (\d+) bytes/.exec(line(name))?.[1])
+  assert.match(line('package tiny-bars'), / {2}browser \d+ bytes(?: |$)/)
+  assert.match(line('package tiny-bars'), / {2}imported by homeScreen(?: |$)/)
+  assert.doesNotMatch(line('package tiny-bars'), /reaches/)
+  assert.match(line('package month-words'), / {2}browser \d+ bytes(?: |$)/)
+  assert.match(line('package month-words'), / {2}imported by homeScreen(?: |$)/)
+  assert.match(line('package month-words'), / {2}files functions\/sales\.ts(?: |$)/)
+  assert.match(line('package net-reader'), / {2}files functions\/sales\.ts(?: |$)/)
+  assert.match(line('package net-reader'), / {2}reaches net(?: |$)/)
+  assert.doesNotMatch(line('package net-reader'), /browser/)
+  const bytes = (name: string): number => Number(/ {2}browser (\d+) bytes/.exec(line(`package ${name}`))?.[1])
   assert.ok(bytes('tiny-bars') > 0 && bytes('month-words') > 0)
   assert.notEqual(bytes('tiny-bars'), bytes('month-words'))
 
-  // Each screen: its address and access, the queries of its data, the functions it calls, its components with their packages.
-  const screens = block('screens').join('\n')
-  assert.match(screens, /homeScreen: \/, anyone/)
-  assert.match(screens, /data: sales from allSales/)
-  assert.match(screens, /calls: addSale/)
-  assert.match(screens, /components: BarLine of tiny-bars$/m)
+  // The screen: its access and address, the query of its data, the change it calls, the packages it imports.
+  const home = line('screen homeScreen')
+  for (const field of ['anyone', '/', 'asks allSales', 'calls ~addSale'])
+    assert.ok(home.split('  ').includes(field), `${field}: ${home}`)
+  const imports = home.split('  ').find((one) => one.startsWith('imports '))
+  assert.deepEqual(imports?.slice('imports '.length).split(', ').sort(), ['month-words', 'tiny-bars'])
 
-  // The same with --json, as the description holds it.
+  // The same with --json, as data.
   const json = await typed(folder, 'map', '--json')
   assert.equal(json.ended, 0, json.printed)
-  assert.equal(Object(json.answer).value, text.endsWith('\n') ? text : `${text}\n`)
+  const value = Object(json.answer.value)
+  const of = (kind: string, name: string) =>
+    value.lines.find((one: { kind: string; name: string }) => one.kind === kind && one.name === name)
+  assert.equal(of('package', 'tiny-bars')?.browser?.bytes, bytes('tiny-bars'))
+  assert.deepEqual(of('package', 'net-reader')?.reaches, ['net'])
+  assert.equal(of('package', 'net-reader')?.browser, undefined)
+  assert.deepEqual(of('package', 'month-words')?.files, ['functions/sales.ts'])
+  assert.equal(of('screen', 'homeScreen')?.rule, 'anyone')
+  assert.deepEqual(
+    of('screen', 'homeScreen')
+      ?.out.filter((one: { kind: string }) => one.kind === 'imports')
+      .map((one: { name: string }) => one.name)
+      .sort(),
+    ['month-words', 'tiny-bars'],
+  )
 })
 
-test('[43-4] the map gives the bytes in the page of each screen module and each style file, and tent build tells the bytes in the page of each package of the project', async (t) => {
+test('[43-4] the map gives the bytes in the page of each file of a screen and of the style files every page loads, and forjr build tells the bytes in the page of each package of the project', async (t) => {
   const folder = laid(t)
   const built = await typed(folder, 'build', '--json')
   assert.equal(built.ended, 0, built.printed)
@@ -169,20 +174,18 @@ test('[43-4] the map gives the bytes in the page of each screen module and each 
   const bundle = String(Object(value).bundle)
   const description: unknown = JSON.parse(readFileSync(join(bundle, 'description.json'), 'utf8'))
   const browser = Object(Object(description).browser)
-  const sized = (file: string): string => `${file} ${statSync(join(bundle, file)).size} bytes`
 
-  // The map of the same files: the page of each screen, its module and its style files, and the style files of the project.
-  const map = await typed(folder, 'map')
+  // The map of the one screen: a line for each file a page loads for it, with the bytes of that file in the bundle.
+  const map = await typed(folder, 'map', 'homeScreen')
   assert.equal(map.ended, 0, map.printed)
   const lines = map.printed.split('\n')
-  assert.ok(lines.includes('page'), map.printed)
-  const page = lines.slice(lines.indexOf('page') + 1)
   const homeFiles: string[] = Object(browser.screens).homeScreen
   assert.ok(homeFiles.length > 0)
-  assert.ok(page.includes(`  screen homeScreen: ${homeFiles.map(sized).join(', ')}`), map.printed)
-  // No style file is shared by several screens: the map names none.
+  for (const file of homeFiles)
+    assert.ok(lines.includes(`browser ${file} ${statSync(join(bundle, file)).size} bytes`), map.printed)
+  // No style file is shared by several screens: the first line of the map names none.
   assert.equal(browser.styles, undefined)
-  assert.ok(!page.some((line) => line.startsWith('  styles:')), map.printed)
+  assert.doesNotMatch((await typed(folder, 'map')).printed.split('\n')[0], /browser styles/)
 
   // The build tells what each package of the project weighs in the page, and nothing of one that reaches no browser.
   const packages = Object(Object(description).packages)

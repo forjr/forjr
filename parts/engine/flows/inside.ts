@@ -22,7 +22,7 @@ const makings = new WeakMap<object, Making>()
 // The signal of work whose place carries none, as one a worker tells: a step takes as long as its work takes.
 const never = new AbortController().signal
 
-/** Answers the app as the version of a run serves it. Throws T0007 for a version that can no longer be loaded. */
+/** Answers the app as the version of a run serves it. Throws F0007 for a version that can no longer be loaded. */
 export function servedFor(o: Opened, version: string): Opened {
   const served = version === o.version ? o : o.versions?.get(version)?.served
   if (!served) throw versionGone(version)

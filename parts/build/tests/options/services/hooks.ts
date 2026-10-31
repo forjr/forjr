@@ -1,4 +1,4 @@
-import { get, object, post, secret, service, text } from 'tentjs'
+import { get, object, post, secret, service, text } from 'forjr'
 
 export const hooks = service('hooks', {
   url: 'https://hooks.example.com',

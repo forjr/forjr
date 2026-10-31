@@ -130,24 +130,24 @@ test('[50-12.2] an id made to leave the folder names no tenant for a caller: no 
           answer === undefined ||
             answer === 0 ||
             (Array.isArray(answer) && answer.length === 0) ||
-            ['T3101', 'T2103', 'T2104'].includes(String(answer)),
+            ['F3101', 'F2103', 'F2104'].includes(String(answer)),
           `${JSON.stringify(id)} as ${who}: ${JSON.stringify(answer)}`,
         )
     }
     // Raw SQL, which is full access, takes the same ids and no other.
     assert.equal(
       codeOf(() => sql('select count(*) c from orders', [], { of: id })),
-      'T2104',
+      'F2104',
       id,
     )
     assert.equal(
       codeOf(() => rawWrite(files, (run) => run("update orders set note = 'in'", [], { of: id }))),
-      'T2104',
+      'F2104',
       id,
     )
     assert.equal(
       codeOf(() => rawWrite(files, (run) => run('delete from orders', [], { of: id }))),
-      'T2104',
+      'F2104',
       id,
     )
   }
@@ -212,7 +212,7 @@ test('[50-12.2] an id made to leave the folder touches no file through the files
     assert.equal(second.has(file), false, what)
     assert.equal(
       codeOf(() => second.path(file)),
-      'T2104',
+      'F2104',
       what,
     )
     second.remove(file)
@@ -221,7 +221,7 @@ test('[50-12.2] an id made to leave the folder touches no file through the files
     // One tenant put back: the backup is a true one, and the tenant is none.
     await assert.rejects(
       restore(second, join(kept, name), { of: file }),
-      (error: unknown) => error instanceof Error && 'code' in error && error.code === 'T2104',
+      (error: unknown) => error instanceof Error && 'code' in error && error.code === 'F2104',
       what,
     )
     // The change of a tenant's file, under the name of a file that is none.
@@ -241,7 +241,7 @@ test('[50-12.2] an id made to leave the folder touches no file through the files
   assert.equal(at(readingFiles(second, board), 'users').count(), 4)
 })
 
-test('[50-12.10] the first change of one tenant file, handed to applyChange under the file of another tenant, is T0009 where it would make the file and is refused before where a file stands, by its steps (T0013) or by its running fingerprint (T0033), and nothing is applied: neither the file nor the kept change', (t) => {
+test('[50-12.10] the first change of one tenant file, handed to applyChange under the file of another tenant, is F0009 where it would make the file and is refused before where a file stands, by its steps (F0013) or by its running fingerprint (F0033), and nothing is applied: neither the file nor the kept change', (t) => {
   const { first, second, folder, changes, link } = twoSets(t)
   const s = seedBoard(first)
   // West is a tenant of both sets, and has a file in neither.
@@ -255,7 +255,7 @@ test('[50-12.10] the first change of one tenant file, handed to applyChange unde
   const nextOfEast = changes.at(-1)
   writingFiles(first, board)((db) => at(db, 'users').add({ name: 'Di' }))
   const ofShared = changes.at(-1)
-  const kept = () => storedIn(second.shared, '_t_changes').length
+  const kept = () => storedIn(second.shared, '_f_changes').length
   const tasksOf = (file: FileName) => storedIn(second.of(file), 'tasks').map((row) => row.title)
   const northHeld = tasksOf(teamFile(s.north))
   for (const file of second.open()) second.close(file)
@@ -266,7 +266,7 @@ test('[50-12.10] the first change of one tenant file, handed to applyChange unde
   for (const only of [undefined, 'file'] as const)
     assert.equal(
       codeOf(() => applyChange(second, { ...ofEast, file: west }, only ? { only } : {})),
-      'T0009',
+      'F0009',
       String(only),
     )
   assert.equal(second.has(west), false)
@@ -278,7 +278,7 @@ test('[50-12.10] the first change of one tenant file, handed to applyChange unde
   // By its steps, where they make a table that is there:
   assert.equal(
     codeOf(() => applyChange(second, { ...ofEast, file: teamFile(s.south) })),
-    'T0013',
+    'F0013',
   )
   // and by its running fingerprint, where it holds no step: the next change of East, and one of the shared file.
   assert.ok(nextOfEast && nextOfEast.layout === undefined && ofShared && ofShared.layout === undefined)
@@ -286,12 +286,12 @@ test('[50-12.10] the first change of one tenant file, handed to applyChange unde
     for (const file of [teamFile(s.south), teamFile(s.north)])
       assert.equal(
         codeOf(() => applyChange(second, { ...change, file })),
-        'T0033',
+        'F0033',
       )
   // A later change under the name of a tenant with no file does not fit either, and leaves no file.
   assert.equal(
     codeOf(() => applyChange(second, { ...nextOfEast, file: west })),
-    'T0033',
+    'F0033',
   )
   assert.equal(second.has(west), false)
   assert.deepEqual(tasksOf(teamFile(s.south)), [])
@@ -303,7 +303,7 @@ test('[50-12.10] the first change of one tenant file, handed to applyChange unde
   assert.ok(store)
   assert.equal(
     codeOf(() => applyChange(store, { ...ofEast, file: west }, { only: 'file' })),
-    'T0009',
+    'F0009',
   )
   assert.deepEqual(storedIn(store, 'tasks'), [])
   assert.equal(metaOf(store, 'tenant'), undefined)
@@ -318,13 +318,13 @@ test('[50-12.10] the first change of one tenant file, handed to applyChange unde
 /** What the file of one tenant holds of the tables of the app, of the earlier versions of its rows, and of itself. */
 const heldBy = (files: Files, tenant: string): Record<string, unknown> =>
   Object.fromEntries(
-    ['orders', 'lines', 'tasks', 'drops', '_t_history', '_t_meta'].map((name) => [
+    ['orders', 'lines', 'tasks', 'drops', '_f_history', '_f_meta'].map((name) => [
       name,
       storedIn(files.of(teamFile(tenant)), name),
     ]),
   )
 
-test('[50-12.3] a change that is handed two tenants and writes to both is T2109, and neither file is written', (t) => {
+test('[50-12.3] a change that is handed two tenants and writes to both is F2109, and neither file is written', (t) => {
   const files = filesOf(t, board)
   const s = seedBoard(files)
   const sql = rawOf(files)
@@ -352,7 +352,7 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
             task(db, other)
           }),
         ),
-        'T2109',
+        'F2109',
       )
       unwritten('two adds')
       // The code of the change holds on to the error and goes on: the write is undone all the same.
@@ -366,9 +366,9 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
             return 'answered'
           }),
         ),
-        'T2109',
+        'F2109',
       )
-      assert.equal(caught, 'T2109')
+      assert.equal(caught, 'F2109')
       unwritten('an error that the change caught')
       // The writes as they are stored, a change and a removal for the second file, and a row that is changed in both.
       assert.equal(
@@ -380,7 +380,7 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
             ]),
           ),
         ),
-        'T2109',
+        'F2109',
       )
       unwritten('stored writes')
     }
@@ -391,7 +391,7 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
           task(db, s.south)
         }),
       ),
-      'T2109',
+      'F2109',
     )
     assert.equal(
       codeOf(() =>
@@ -400,7 +400,7 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
           at(db, 'tasks').of(s.north).remove(s.first)
         }),
       ),
-      'T2109',
+      'F2109',
     )
     unwritten('a change and a removal')
   }
@@ -414,7 +414,7 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
         at(db, 'teams').change(s.south, { name: 'in both' })
       }),
     ),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() =>
@@ -423,7 +423,7 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
         task(db, s.north)
       }),
     ),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() =>
@@ -432,7 +432,7 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
         run("update orders set note = 'in both'", [], { of: s.south })
       }),
     ),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() =>
@@ -441,7 +441,7 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
         run("update orders set note = 'in both'", [], { of: s.north })
       }),
     ),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() =>
@@ -450,7 +450,7 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
         run("update teams set name = 'in both'")
       }),
     ),
-    'T2109',
+    'F2109',
   )
   unwritten('the shared file and raw SQL')
 
@@ -463,7 +463,7 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
         task(db, s.north)
       }),
     ),
-    'T2109',
+    'F2109',
   )
   assert.equal(
     codeOf(() =>
@@ -472,7 +472,7 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
         task(db, s.east)
       }),
     ),
-    'T2109',
+    'F2109',
   )
   unwritten('a tenant with no file')
   assert.deepEqual(storedIn(files.of(teamFile(s.east)), 'tasks'), [])
@@ -482,13 +482,13 @@ test('[50-12.3] a change that is handed two tenants and writes to both is T2109,
   assert.equal(writingFiles(files, board, person(s.bob))((db) => task(db, s.south)).team, s.south)
 })
 
-test('[50-12.4] the tenant column of a row is written anew by no change: T2109; and a row whose column raw SQL wrote anew stays in the file it was written in', (t) => {
+test('[50-12.4] the tenant column of a row is written anew by no change: F2109; and a row whose column raw SQL wrote anew stays in the file it was written in', (t) => {
   const files = filesOf(t, board)
   const s = seedBoard(files)
   const sql = rawOf(files)
   const teamOf = (name: string, id: string) => sql(`select team from ${name} where id = ?`, [id], { of: s.north })
   // Raw SQL of a tenant makes the tables that its file lacks, so the rows are what is held here.
-  const rowsOf = (tenant: string) => ({ ...heldBy(files, tenant), _t_meta: undefined })
+  const rowsOf = (tenant: string) => ({ ...heldBy(files, tenant), _f_meta: undefined })
   const before = { south: rowsOf(s.south) }
 
   // Through a change: a member of the team, a caller who may write the tasks of both teams, and the system.
@@ -505,12 +505,12 @@ test('[50-12.4] the tenant column of a row is written anew by no change: T2109; 
     for (const to of [s.south, s.east, `${s.north.slice(0, 25)}${s.north.endsWith('0') ? '1' : '0'}`, '../x']) {
       assert.equal(
         codeOf(() => write((db) => at(db, name).of(s.north).change(id, { team: to }))),
-        'T2109',
+        'F2109',
         `${name} to ${to}`,
       )
       assert.equal(
         codeOf(() => write((db) => db.write([{ change: name, of: s.north, id, values: { team: to } }]))),
-        'T2109',
+        'F2109',
         `${name} to ${to}, as it is stored`,
       )
       // The other columns of the same write are not written either.
@@ -522,7 +522,7 @@ test('[50-12.4] the tenant column of a row is written anew by no change: T2109; 
               .change(id, { ...more, team: to }),
           ),
         ),
-        'T2109',
+        'F2109',
         `${name} to ${to}, with another column`,
       )
     }
@@ -530,7 +530,7 @@ test('[50-12.4] the tenant column of a row is written anew by no change: T2109; 
     if (name === 'tasks')
       assert.equal(
         codeOf(() => write((db) => at(db, 'tasks').of(s.north).add({ title: 'moved', team: s.south }))),
-        'T2109',
+        'F2109',
       )
     // The column is not cleared, and takes the tenant it holds.
     assert.notEqual(
@@ -559,7 +559,7 @@ test('[50-12.4] the tenant column of a row is written anew by no change: T2109; 
   const asSystem = writingFiles(files, board)
   assert.equal(
     codeOf(() => asSystem((db) => at(db, 'tasks').of(s.south).change(s.first, { title: 'found' }))),
-    'T2103',
+    'F2103',
   )
   assert.equal(asSystem((db) => at(db, 'tasks').of(s.north).change(s.first, { title: 'found' })).title, 'found')
   assert.deepEqual(sql('select title from tasks where id = ?', [s.first], { of: s.north }), [{ title: 'found' }])

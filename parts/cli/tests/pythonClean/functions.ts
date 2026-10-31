@@ -1,4 +1,4 @@
-import { number, object, python } from 'tentjs'
+import { number, object, python } from 'forjr'
 
 export const mean = python('mean', {
   file: 'mean.py',

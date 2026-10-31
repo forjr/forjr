@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { fail, mail, TentError } from '../../core/index.ts'
+import { fail, mail, ForjrError } from '../../core/index.ts'
 import type { Runtime } from '../../core/internal.ts'
 import { runBody, setRuntime } from '../../core/internal.ts'
 import type { Driver, FlowBody } from '../index.ts'
@@ -126,7 +126,7 @@ test('[23-20] a driver given with `drive` is called for a flow record of its kin
   ])
   // A starter who is gone: the engine knows nobody of that id, and the run fails with what it threw.
   const gone = b.start('helper', {}, { startedBy: { kind: 'user', id: 'gone' } })
-  assert.equal(await codeOf(b.runner.wait(gone)), 'T3101')
+  assert.equal(await codeOf(b.runner.wait(gone)), 'F3101')
 })
 
 test('[23-16] a refused wait-for saves `{ approved: false }`, and the flow goes on', async (t) => {
@@ -146,7 +146,7 @@ test('[23-16] a refused wait-for saves `{ approved: false }`, and the flow goes 
   assert.deepEqual(await b.runner.wait(run), { said: refused, after: 'refused' })
   assert.deepEqual(b.runner.read(run)?.steps[0].result, refused, 'the refusal is saved as the result of the step')
   // An answer for a step that waits no more is refused.
-  assert.throws(() => b.runner.approve(run, 'approval'), { code: 'T0002' })
+  assert.throws(() => b.runner.approve(run, 'approval'), { code: 'F0002' })
   // A wait-for that nobody answers gives up at its `timeout`.
   const late = b.start('asks')
   await b.until(late, 'waiting')
@@ -166,7 +166,7 @@ test('[23-17] a flow that states `output` answers only what the type names, and 
   assert.deepEqual(await b.runner.wait(b.start('viaDone')), { name: 'Bob', total: 1 })
   assert.deepEqual(await b.runner.wait(b.start('free')), { name: 'Ada', anything: true })
   const misfit = b.start('misfits')
-  assert.equal(await codeOf(b.runner.wait(misfit)), 'T0009')
+  assert.equal(await codeOf(b.runner.wait(misfit)), 'F0009')
   assert.equal(b.runner.read(misfit)?.state, 'failed')
   assert.match(String(b.runner.read(misfit)?.error?.message), /does not fit its output/)
 })
@@ -203,7 +203,7 @@ test('[23-22] a step that states `onFail: goOn` and whose tries are used up answ
   const failed = [
     { failed: true, code: 'no-stock', message: 'There is none left.' },
     // An error in the code of the app is what no caller is shown: its words stay in the row of the step.
-    { failed: true, code: 'T0009', message: 'Something went wrong.' },
+    { failed: true, code: 'F0009', message: 'Something went wrong.' },
     undefined,
   ]
   assert.deepEqual(answers.at(-2), failed, 'on the pass that the step failed in')
@@ -247,7 +247,7 @@ test("[23-22] a flow's own `onFail`, read and as code, is carried out once when 
     outside: {
       record: { onFail: { module: 'server/flows.js', export: 'outside_onFail' } },
       run: async () => {
-        throw new TentError('T0002', 'The run fails outside a step.')
+        throw new ForjrError('F0002', 'The run fails outside a step.')
       },
       onFail: async ({ failure }) => void handed.push(failure),
     },
@@ -260,7 +260,7 @@ test("[23-22] a flow's own `onFail`, read and as code, is carried out once when 
   const run = b.start('asCode', { name: 'Ada' })
   const waiter = b.runner.wait(run).catch((error: unknown) => {
     order.push('the caller that waits is answered')
-    return error instanceof TentError ? error.code : 'another error'
+    return error instanceof ForjrError ? error.code : 'another error'
   })
   assert.equal(await waiter, 'not-paid', 'the run is failed with its first error')
   assert.deepEqual(
@@ -298,8 +298,8 @@ test("[23-22] a flow's own `onFail`, read and as code, is carried out once when 
   assert.equal(b.runner.read(read)?.steps.at(-1)?.result, 'not-paid')
 
   // A run that failed outside a step names no step, and a stopped run carries no `onFail` out.
-  assert.equal(await codeOf(b.runner.wait(b.start('outside'))), 'T0002')
-  assert.deepEqual(handed.at(-1), { code: 'T0002', message: 'The run fails outside a step.' })
+  assert.equal(await codeOf(b.runner.wait(b.start('outside'))), 'F0002')
+  assert.deepEqual(handed.at(-1), { code: 'F0002', message: 'The run fails outside a step.' })
   const stopped = b.start('waits')
   await b.until(stopped, 'waiting')
   b.runner.stop(stopped)

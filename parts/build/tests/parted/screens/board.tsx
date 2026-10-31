@@ -1,4 +1,4 @@
-import { screen, asset, text, Image } from 'tentjs/ui'
+import { screen, asset, text, Image } from 'forjr/ui'
 import { Mark } from '../components/Mark'
 
 export const boardScreen = screen('boardScreen', {

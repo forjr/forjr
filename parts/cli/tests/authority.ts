@@ -235,7 +235,7 @@ interface Question {
 /** Starts the stand-in on a free port of this computer, ended with the test. */
 export async function startAuthority(t: TestContext, o: { plainPort: number; securePort: number }): Promise<Authority> {
   const rootKey = generateKeyPairSync('ec', { namedCurve: 'P-256' })
-  const rootName = named('the test authority of Tent.js')
+  const rootName = named('the test authority of Forjr')
   const now = Date.now()
   const rootDer = certificate({
     publicKey: rootKey.publicKey.export({ type: 'spki', format: 'der' }),

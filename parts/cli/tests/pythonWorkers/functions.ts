@@ -1,4 +1,4 @@
-import { action, file, files, json, list, number, object, python, text } from 'tentjs'
+import { action, file, files, json, list, number, object, python, text } from 'forjr'
 
 export const putFile = action('putFile', {
   access: 'signedIn',

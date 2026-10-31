@@ -1,6 +1,6 @@
 # Code in other languages
 
-An app is written in TypeScript, and Tent.js runs Python itself. Code in Rust, Go or any other language joins an app in one of four ways: a native package from npm, WebAssembly, an outside MCP server program, or an HTTP service of its own. This page says how each is done, what each fits best, and where each runs.
+An app is written in TypeScript, and Forjr runs Python itself. Code in Rust, Go or any other language joins an app in one of four ways: a native package from npm, WebAssembly, an outside MCP server program, or an HTTP service of its own. This page says how each is done, what each fits best, and where each runs.
 
 ## Python
 
@@ -25,12 +25,12 @@ pub fn fibonacci(n: u32) -> u32 {
 `napi build --platform --release` builds it for the system it runs on, and its release workflow builds it for each other system and publishes each as a package of its own, which the main package names as optional, so npm takes the one for the computer it installs on. Then:
 
 ```sh
-tent add @shop/fast
+forjr add @shop/fast
 ```
 
 ```ts
 // functions/fibonacci.ts
-import { action, number, role } from 'tentjs'
+import { action, number, role } from 'forjr'
 import { fibonacci } from '@shop/fast'
 
 export const fib = action('fib', {
@@ -41,7 +41,7 @@ export const fib = action('fib', {
 })
 ```
 
-A package that ships its files ready-built for each system, as those of napi-rs do, installs with no script. One that builds its native part on the computer while it is installed needs `tent add <package> --allow-scripts`, and a compiler on that computer.
+A package that ships its files ready-built for each system, as those of napi-rs do, installs with no script. One that builds its native part on the computer while it is installed needs `forjr add <package> --allow-scripts`, and a compiler on that computer.
 
 **Fits best** code that must be as fast as the machine allows, or that wraps a library of the system: pictures, sound, compression, a parser. A call answers at once, with no crossing between programs.
 
@@ -79,7 +79,7 @@ writeFileSync(to, `export const wasm = '${readFileSync(from).toString('base64')}
 
 ```ts
 // functions/fibonacci.ts
-import { action, number, role } from 'tentjs'
+import { action, number, role } from 'forjr'
 import { wasm } from '../lib/fib.ts'
 
 export const fib = action('fib', {
@@ -95,7 +95,7 @@ export const fib = action('fib', {
 })
 ```
 
-`lib/fib.ts` imports neither `tentjs` nor `tentjs/ui`, so it is a helper file that a backend file may import. A package from npm that carries its WebAssembly inside its JavaScript is imported as any package. In a page, WebAssembly runs once `unlock: { wasm: true }` of `project` opens the content policy to it (`option.project.unlock`).
+`lib/fib.ts` imports neither `forjr` nor `forjr/ui`, so it is a helper file that a backend file may import. A package from npm that carries its WebAssembly inside its JavaScript is imported as any package. In a page, WebAssembly runs once `unlock: { wasm: true }` of `project` opens the content policy to it (`option.project.unlock`).
 
 **Fits best** work that is computation alone - a parser, a codec, a solver, the same rules on the server and in the browser - and code of another language that must run on every system with no build for each. WebAssembly reaches only what it is handed, and answers what it works out: the action reads the data and the files and hands them in.
 
@@ -107,7 +107,7 @@ An MCP server is a program in any language that offers tools by the Model Contex
 
 ```ts
 // services/maps.ts
-import { secret, service } from 'tentjs'
+import { secret, service } from 'forjr'
 
 export const maps = service('maps', {
   mcp: { command: ['maps-server', '--stdio'], env: { MAPS_KEY: secret('MAPS_KEY') } },
@@ -116,7 +116,7 @@ export const maps = service('maps', {
 
 ```ts
 // agents/planner.ts
-import { agent } from 'tentjs'
+import { agent } from 'forjr'
 import { writer } from '../models/writer'
 import { maps } from '../services/maps'
 
@@ -128,7 +128,7 @@ export const planner = agent('planner', {
 })
 ```
 
-`tent mcp approve maps` asks the program for its tools, shows each, and writes them into `mcp.lock.json`: a tool that changed since is held back (`code.T7112`). A server on another machine is a `service` with `url` and `mcp: true` (`option.service.mcp`).
+`forjr mcp approve maps` asks the program for its tools, shows each, and writes them into `mcp.lock.json`: a tool that changed since is held back (`code.F7112`). A server on another machine is a `service` with `url` and `mcp: true` (`option.service.mcp`).
 
 **Fits best** what an agent should use as tools, in whatever language its makers wrote it: an existing MCP server, or one of the builder's own that keeps a state for its client, as a browser it drives. A tool of it counts as one that sends data out, so a person is asked first unless `trust` names it.
 
@@ -140,7 +140,7 @@ Code in any language that answers HTTP is a `service`: each of its calls is a fu
 
 ```ts
 // services/pricing.ts
-import { list, number, object, post, secret, service, text } from 'tentjs'
+import { list, number, object, post, secret, service, text } from 'forjr'
 
 export const pricing = service('pricing', {
   url: 'https://pricing.shop.example',
@@ -153,7 +153,7 @@ export const pricing = service('pricing', {
 
 ```ts
 // functions/quote.ts
-import { action, list, number, role, text } from 'tentjs'
+import { action, list, number, role, text } from 'forjr'
 import { pricing } from '../services/pricing'
 
 export const quote = action('quote', {

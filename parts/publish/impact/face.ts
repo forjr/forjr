@@ -19,7 +19,7 @@ export interface Reached {
   under: Reached[]
 }
 
-/** What a change reaches before it lands, the weightiest part first, as `tent impact --json` prints it. */
+/** What a change reaches before it lands, the weightiest part first, as `forjr impact --json` prints it. */
 export interface Impact {
   against: string
   rights: ImpactLine[]

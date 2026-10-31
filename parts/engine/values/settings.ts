@@ -1,12 +1,12 @@
 import { statSync } from 'node:fs'
 import type { Type } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { checkValue } from '../../core/internal.ts'
 import type { ValuesMode } from './files.ts'
 import { readValues, valuesFile, writeValues } from './files.ts'
 
-/** One setting as `tent settings list` shows it. */
+/** One setting as `forjr settings list` shows it. */
 interface SettingShown {
   name: string
   value?: unknown
@@ -74,10 +74,10 @@ export function settingValues(dataFolder: string, held: ValuesMode, description:
   }
   const now = (name: string): unknown =>
     Object.hasOwn(read(), name) ? handed(typeOf(name), read()[name]) : defaultOf(typeOf(name))
-  /** Holds a name to a setting of the project. Throws T0002 for any other. */
+  /** Holds a name to a setting of the project. Throws F0002 for any other. */
   const known = (name: unknown): string => {
     if (typeof name === 'string' && Object.hasOwn(stated(), name)) return name
-    throw new TentError('T0002', `The project states no setting ${JSON.stringify(name)?.slice(0, 80)}.`, {
+    throw new ForjrError('F0002', `The project states no setting ${JSON.stringify(name)?.slice(0, 80)}.`, {
       fix: `Name a setting of \`project\`: ${Object.keys(stated()).sort().join(', ') || 'it states none'}.`,
       fields: { name: 'values' },
     })
@@ -101,8 +101,8 @@ export function settingValues(dataFolder: string, held: ValuesMode, description:
         try {
           given = JSON.parse(String(value))
         } catch {
-          throw new TentError(
-            'T0002',
+          throw new ForjrError(
+            'F0002',
             `The setting ${name} is no text, so its value is read as JSON, and this is none.`,
             {
               fix: 'Write the value as JSON: a number as `20`, a switch as `true`, a list as `["a","b"]`.',
@@ -113,7 +113,7 @@ export function settingValues(dataFolder: string, held: ValuesMode, description:
       }
       const found = type ? checkValue(type, given) : []
       if (found.length)
-        throw new TentError('T0002', `The value does not fit the setting ${name}: ${found[0].message}`, {
+        throw new ForjrError('F0002', `The value does not fit the setting ${name}: ${found[0].message}`, {
           fix: 'Give the setting a value of the type that the project states for it.',
           fields: { value: Object.values(found[0].fields ?? {})[0] ?? 'type' },
         })

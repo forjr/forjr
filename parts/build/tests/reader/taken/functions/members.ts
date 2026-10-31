@@ -1,4 +1,4 @@
-import { allow, change, fail, link, list, number, query, role, table, text, where } from 'tentjs'
+import { allow, change, fail, link, list, number, query, role, table, text, where } from 'forjr'
 
 const MOST = 20
 

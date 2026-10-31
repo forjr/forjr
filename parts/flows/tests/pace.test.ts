@@ -20,7 +20,7 @@ function changed(b: Bench, id: string, name: string): void {
   b.store.write((tx) => b.runner.fired(tx, { table: 'orders', kind: 'changed', row: { id, name } }))
 }
 
-/** The rows of `_t_runs` of a flow, read as they stand, each with its state. */
+/** The rows of `_f_runs` of a flow, read as they stand, each with its state. */
 const rowsOf = (b: Bench, flow: string) => b.runner.find({ flow })
 
 test('[46-3] `debounce` on a table trigger with no key makes one run for each row, after the last of ten quick changes, with the last change', async (t) => {

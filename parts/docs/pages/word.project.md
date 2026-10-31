@@ -9,7 +9,7 @@ export const shop = project('shop', {
 })
 ```
 
-Its name is the name of a definition as any other: no table, function or other definition of the project has it too (`code.T1004`). So the project of an app whose table is `bots` is named `botsApp`, with `title: 'Bots'`.
+Its name is the name of a definition as any other: no table, function or other definition of the project has it too (`code.F1004`). So the project of an app whose table is `bots` is named `botsApp`, with `title: 'Bots'`.
 
 ## Options
 

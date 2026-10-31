@@ -5,7 +5,7 @@ import { copyOf } from './projects.ts'
 
 const system = { as: { kind: 'system' } } as const
 
-test('[45-10] a slow query that reads a whole table gives a note T2029 with the exact index line, in the log with the file of the table and in the facts that `tent check` is handed, once a version; one that reads by an index gives none', async (t) => {
+test('[45-10] a slow query that reads a whole table gives a note F2029 with the exact index line, in the log with the file of the table and in the facts that `forjr check` is handed, once a version; one that reads by an index gives none', async (t) => {
   const { app, dataFolder } = await appIn(t, copyOf(t, 'advised'))
   const values = Array.from({ length: 200 }, (_, i) => ({
     status: i % 3 ? 'paid' : 'open',
@@ -33,9 +33,9 @@ test('[45-10] a slow query that reads a whole table gives a note T2029 with the 
   assert.deepEqual(note.data.index, ['status', 'placedAt'])
   assert.equal(note.data.table, 'orders')
   assert.equal(note.data.place, 'tables/tables.ts')
-  assert.equal(note.data.code, 'T2029')
-  // The facts that `tent check` is handed hold the note, which it writes at the line of the table.
-  const advised = (await app.facts()).tableFindings.filter((one) => one.code === 'T2029')
+  assert.equal(note.data.code, 'F2029')
+  // The facts that `forjr check` is handed hold the note, which it writes at the line of the table.
+  const advised = (await app.facts()).tableFindings.filter((one) => one.code === 'F2029')
   assert.equal(advised.length, 1)
   assert.equal(advised[0].level, 'note')
   assert.match(advised[0].message, /the whole table `orders`/)

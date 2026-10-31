@@ -11,7 +11,7 @@ import { copied, typed } from './typed.ts'
 
 const system = { kind: 'system' } as const
 
-/** The stored shape of what `tent access role add` and `tent access role remove` print with `--json`. */
+/** The stored shape of what `forjr access role add` and `forjr access role remove` print with `--json`. */
 const shape = object({
   ok: boolean(),
   value: object({ user: text(), roles: list(text()) }),
@@ -24,13 +24,13 @@ async function rolesOf(app: App, id: string): Promise<unknown> {
   return Reflect.get(Object(row), 'roles')
 }
 
-test('[15-6@7a] [22-11] `tent access role add` gives a user a role and `tent access role remove` takes it away, on an engine that runs, and each prints its stored shape with --json', async (t) => {
+test('[15-6@7a] [22-11] `forjr access role add` gives a user a role and `forjr access role remove` takes it away, on an engine that runs, and each prints its stored shape with --json', async (t) => {
   const project = copied(t, 'role-running')
   const built = await buildProject(project, { for: 'dev' })
   assert.deepEqual(built.findings, [])
   const engine = createEngine({ port: 0 })
   try {
-    const app = await engine.open(built.bundleFolder, { dataFolder: join(project, '.tent'), mode: 'test' })
+    const app = await engine.open(built.bundleFolder, { dataFolder: join(project, '.forjr'), mode: 'test' })
     const ada = String(Object(await app.call('addUser', { name: 'Ada', roles: [] }, { as: system })).id)
 
     const added = await typed(project, 'access', 'role', 'add', ada, 'staff', '--json')
@@ -55,18 +55,18 @@ test('[15-6@7a] [22-11] `tent access role add` gives a user a role and `tent acc
     assert.match(asText.printed, /editor/)
     assert.match(asText.printed, /staff/)
 
-    // The id of no user is T2103, a word that is neither `add` nor `remove` is refused, and nothing is written.
+    // The id of no user is F2103, a word that is neither `add` nor `remove` is refused, and nothing is written.
     const none = await typed(project, 'access', 'role', 'add', 'nobody-of-that-id', 'staff', '--json')
     assert.equal(none.ended, 1)
     assert.deepEqual(
       none.answer.findings?.map((one) => one.code),
-      ['T2103'],
+      ['F2103'],
     )
     const odd = await typed(project, 'access', 'role', 'give', ada, 'staff', '--json')
     assert.notEqual(odd.ended, 0)
     assert.deepEqual(await rolesOf(app, ada), ['editor', 'staff'])
 
-    // `tent access` itself is typed as before, and prints its table.
+    // `forjr access` itself is typed as before, and prints its table.
     const table = await typed(project, 'access', '--json')
     assert.equal(table.ended, 0, table.printed)
     assert.ok(Array.isArray(Object(table.answer.value).tables))
@@ -75,13 +75,13 @@ test('[15-6@7a] [22-11] `tent access role add` gives a user a role and `tent acc
   }
 })
 
-test('[15-6@7a] with no engine running `tent access role add` starts one for the length of the command, on the development data, and leaves nothing running', async (t) => {
+test('[15-6@7a] with no engine running `forjr access role add` starts one for the length of the command, on the development data, and leaves nothing running', async (t) => {
   const project = copied(t, 'role-none')
   const none = await typed(project, 'access', 'role', 'add', 'nobody-of-that-id', 'staff', '--json')
   assert.equal(none.ended, 1, none.printed)
   assert.deepEqual(
     none.answer.findings?.map((one) => one.code),
-    ['T2103'],
+    ['F2103'],
   )
-  assert.equal(existsSync(join(project, '.tent', 'engine.json')), false)
+  assert.equal(existsSync(join(project, '.forjr', 'engine.json')), false)
 })

@@ -1,6 +1,6 @@
 import { isDeepStrictEqual } from 'node:util'
 import type { Type } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { checkValue, projectZone } from '../core/internal.ts'
 import type { DbContext } from './context.ts'
 import { begin, boundOf, noKey } from './context.ts'
@@ -29,16 +29,16 @@ import { shownWrite } from './shown.ts'
 
 type What = 'add' | 'change' | 'remove'
 
-const misfit = (model: TableModel, column: string, check: string, words: string): TentError =>
-  new TentError('T2107', `\`${column}\` of \`${model.name}\` ${words}.`, { fields: { [column]: check } })
+const misfit = (model: TableModel, column: string, check: string, words: string): ForjrError =>
+  new ForjrError('F2107', `\`${column}\` of \`${model.name}\` ${words}.`, { fields: { [column]: check } })
 
 /**
- * The write of this `db`, in the file it is at work in, or T0012 for a `db` that only reads. The write of the
+ * The write of this `db`, in the file it is at work in, or F0012 for a `db` that only reads. The write of the
  * files of tenants is opened by its first asking, so it is asked for when a row is about to be written.
  */
 function writeOf(cx: DbContext): Tx {
   if (cx.mode !== 'write' || !cx.write)
-    throw new TentError('T0012', 'A write was tried through a db that only reads.', {
+    throw new ForjrError('F0012', 'A write was tried through a db that only reads.', {
       fix: 'Write inside a change. An action and a step of a flow call a change.',
     })
   return cx.write(cx.at)
@@ -56,9 +56,9 @@ function forTenant(model: TableModel, rule: Ruled, file: WriteFile): Ruled {
 }
 
 /** Tells that a rule refused a write, and answers the error for it. */
-function denied(cx: DbContext, model: TableModel, what: What, rule: Ruled): TentError {
+function denied(cx: DbContext, model: TableModel, what: What, rule: Ruled): ForjrError {
   cx.o.noted?.({ kind: 'refused', table: model.name, what, rule: rule.rule })
-  return new TentError('T3101', rule.why)
+  return new ForjrError('F3101', rule.why)
 }
 
 /** What a rule lets this `db` reach of a table: everything where no rule limits it. */
@@ -83,13 +83,13 @@ function named(cx: DbContext, model: TableModel, what: What, values: Row): [stri
     // A change of a guarded column is refused whatever value it gives, and an add that gives one.
     if (guarded.includes(name) && (what === 'change' || value !== null)) {
       cx.o.noted?.({ kind: 'refused', table: model.name, what, rule: 'guarded' })
-      throw new TentError('T3101', `${model.name}.${what} may not write \`${name}\`: only code with full access does.`)
+      throw new ForjrError('F3101', `${model.name}.${what} may not write \`${name}\`: only code with full access does.`)
     }
   }
   return given
 }
 
-/** Holds one value against the type of its column. Throws T2107, which names the column and the place inside it. */
+/** Holds one value against the type of its column. Throws F2107, which names the column and the place inside it. */
 function fits(model: TableModel, column: string, type: Type, value: unknown): void {
   // A vector is held to its size and to finite numbers, with a code of its own.
   if (type.kind === 'vector') {
@@ -103,8 +103,8 @@ function fits(model: TableModel, column: string, type: Type, value: unknown): vo
       .flatMap((one) => Object.entries(one.fields ?? {}))
       .map(([name, check]) => [name ? `${column}.${name}` : column, check]),
   )
-  throw new TentError(
-    'T2107',
+  throw new ForjrError(
+    'F2107',
     `The value of \`${column}\` does not fit its column of \`${model.name}\`: ${found[0].message}`,
     { fields },
   )
@@ -122,7 +122,7 @@ function defaultOf(cx: DbContext, model: TableModel, column: string, type: Type,
 
 /**
  * Seals the values of the sealed columns that a write gives, bound to the row, and keeps beside each one that is
- * found its fingerprint. Throws T0019 with no key at hand.
+ * found its fingerprint. Throws F0019 with no key at hand.
  */
 function sealedIn(cx: DbContext, model: TableModel, values: Row, id: string): void {
   for (const column of model.findable)
@@ -201,11 +201,11 @@ export function addRow(cx: DbContext, table: string, written: Row, of?: unknown)
 
 /**
  * Finds the row that a change or a removal names, with the rule as a filter. A row that is not there, or that the
- * caller may not read, is T2103. One they may read and may not touch is T3101.
+ * caller may not read, is F2103. One they may read and may not touch is F3101.
  */
 function found(cx: DbContext, model: TableModel, what: What, id: string, file: WriteFile): Row {
   const missing = () =>
-    new TentError('T2103', `No row of \`${model.name}\` is found under the id ${JSON.stringify(id)}.`)
+    new ForjrError('F2103', `No row of \`${model.name}\` is found under the id ${JSON.stringify(id)}.`)
   const rule = forTenant(model, reachOf(cx, model, what), file)
   // A caller whose rule reaches nothing of that tenant opens no file, and learns nothing of the tenant.
   if (file.at && rule.reach === 'none' && forTenant(model, reachOf(cx, model, 'read'), file).reach === 'none')
@@ -268,7 +268,7 @@ function linking(cx: DbContext, table: string, column: string, id: string): Row[
 /**
  * Removes a row that was found, with no rule asked. What each link that points at it says with `onRemove` is
  * carried out first, row by row, so that every row it removes or clears is told: a link that refuses stops the
- * removal with T2102 before anything is written.
+ * removal with F2102 before anything is written.
  */
 function removeFound(cx: DbContext, model: TableModel, before: Row, seen: Set<string>): void {
   const tx = writeOf(cx)
@@ -284,8 +284,8 @@ function removeFound(cx: DbContext, model: TableModel, before: Row, seen: Set<st
     .map((link) => ({ ...link, rows: linking(cx, link.table, link.column, id) }))
   const refusing = links.find((link) => link.onRemove === 'refuse' && link.rows.length)
   if (refusing)
-    throw new TentError(
-      'T2102',
+    throw new ForjrError(
+      'F2102',
       `The row of \`${model.name}\` cannot be removed: ${refusing.rows.length} of \`${refusing.table}\` link to it through \`${refusing.column}\`.`,
       { fix: "Remove those rows first, or state `onRemove: 'remove'` or `onRemove: 'clear'` on the link." },
     )

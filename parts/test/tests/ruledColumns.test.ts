@@ -83,9 +83,9 @@ test('[45-5] a caller outside the read rule is refused a filter, a sort and a gr
       return String(Reflect.get(Object(error), 'code'))
     }
   }
-  assert.equal(await code(app.as(plain).call('paidAbove', { least: 4500 })), 'T0013')
-  assert.equal(await code(app.as(plain).call('bySalary', {})), 'T0013')
-  assert.equal(await code(app.as(plain).call('bySalaryGroup', {})), 'T0013')
+  assert.equal(await code(app.as(plain).call('paidAbove', { least: 4500 })), 'F0013')
+  assert.equal(await code(app.as(plain).call('bySalary', {})), 'F0013')
+  assert.equal(await code(app.as(plain).call('bySalaryGroup', {})), 'F0013')
   // For a caller inside the rule each answers.
   assert.deepEqual(
     rowsOf(await app.as(hr).call('paidAbove', { least: 4500 })).map((one) => one.name),
@@ -113,7 +113,7 @@ test('[45-5] a caller outside the read rule is refused a filter, a sort and a gr
   )
 })
 
-test('[45-6] where on a findable sealed column finds the row, the same value in another findable column does not match, nothing is stored open, and a sort or a range on it is T2026', async (t) => {
+test('[45-6] where on a findable sealed column finds the row, the same value in another findable column does not match, nothing is stored open, and a sort or a range on it is F2026', async (t) => {
   const { app, dataFolder, hr } = await ruled(t)
   await app.as(hr).call('addAccount', { email: 'ada@example.com' })
   await app.as(hr).call('addAccount', { email: 'bob@example.com', spare: 'ada@example.com' })
@@ -138,8 +138,8 @@ test('[45-6] where on a findable sealed column finds the row, the same value in 
   } finally {
     file.close()
   }
-  await assert.rejects(app.as(hr).call('sortedEmails', {}), { code: 'T2026' })
-  await assert.rejects(app.as(hr).call('emailsAfter', { email: 'b' }), { code: 'T2026' })
+  await assert.rejects(app.as(hr).call('sortedEmails', {}), { code: 'F2026' })
+  await assert.rejects(app.as(hr).call('emailsAfter', { email: 'b' }), { code: 'F2026' })
 })
 
 test('[45-5] a row that code with full access read is held to the read rule of a column again where it leaves through a typed answer, a field of a group too', async (t) => {

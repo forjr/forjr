@@ -77,7 +77,7 @@ test('[50-5@6] a switch forward again while the pass of a switch back runs is he
     (told) => told.refused ?? 'taken',
     (error: unknown) => String(Object(error).code),
   )
-  assert.ok(['T2001', 'behind'].includes(again), `the switch forward was ${again}`)
+  assert.ok(['F2001', 'behind'].includes(again), `the switch forward was ${again}`)
   assert.equal(running(app), first)
   await passed(app, dataFolder)
   assert.deepEqual(

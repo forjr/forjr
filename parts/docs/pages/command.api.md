@@ -1,11 +1,11 @@
-# `tent api`
+# `forjr api`
 
-`tent api read` turns a published description of an API into the JSON that the build reads from a service's `from`: a file in YAML, and one of the version before 3.0, become JSON of version 3.1.
+`forjr api read` turns a published description of an API into the JSON that the build reads from a service's `from`: a file in YAML, and one of the version before 3.0, become JSON of version 3.1.
 
 ## Usage
 
 ```
-tent api read <file or address> --out <file>
+forjr api read <file or address> --out <file>
 ```
 
 ## Options
@@ -20,7 +20,7 @@ A file of version 3.0 or 3.1 that is JSON already is written as it is. The reade
 ## Example
 
 ```
-tent api read https://example.com/stripe.yaml --out services/stripe.openapi.json
+forjr api read https://example.com/stripe.yaml --out services/stripe.openapi.json
 ```
 
 ## Output
@@ -33,8 +33,8 @@ With `--json`:
 
 ## Errors
 
-`code.T7013` for what is no description of an API in version 2.0, 3.0 or 3.1, and for a text that reads neither as JSON nor as YAML: nothing is written. `code.T0016` where the reader of YAML cannot be fetched.
+`code.F7013` for what is no description of an API in version 2.0, 3.0 or 3.1, and for a text that reads neither as JSON nor as YAML: nothing is written. `code.F0016` where the reader of YAML cannot be fetched.
 
 ## See also
 
-`option.service.from`, `option.service.use`, `code.T7013`
+`option.service.from`, `option.service.use`, `code.F7013`

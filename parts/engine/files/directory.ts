@@ -3,9 +3,9 @@ import type { Said } from './held.ts'
 
 const system = { kind: 'system' } as const
 
-/** `_t_tenants`: the directory of the data files of tenants, one row for each file. A table of this machine alone. */
+/** `_f_tenants`: the directory of the data files of tenants, one row for each file. A table of this machine alone. */
 export const directoryTable: TableLayout = {
-  name: '_t_tenants',
+  name: '_f_tenants',
   columns: {
     tableName: { kind: 'text' },
     rowId: { kind: 'text' },

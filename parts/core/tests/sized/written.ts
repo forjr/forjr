@@ -1,6 +1,6 @@
 // A program of its own that has a body write a value out which is small in memory and very long once written.
 // Run: node written.ts. It says `ready` once it is loaded, then one line of JSON: how each way of writing ended.
-import { concat, join, TentError } from '../../index.ts'
+import { concat, join, ForjrError } from '../../index.ts'
 import { valueOf } from '../../internal.ts'
 
 // A list that holds a list twice, thirty times over: thirty-one lists in memory, and a thousand million entries
@@ -27,7 +27,7 @@ for (const [name, way] of Object.entries(ways)) {
     way()
     code = 'nothing was thrown'
   } catch (error) {
-    code = error instanceof TentError ? error.code : String(error)
+    code = error instanceof ForjrError ? error.code : String(error)
   }
   ended[name] = { code, ms: Math.round(performance.now() - from) }
 }

@@ -1,4 +1,4 @@
-import { action, anyone, boolean, change, fail, input, sessions, text } from 'tentjs'
+import { action, anyone, boolean, change, fail, input, sessions, text } from 'forjr'
 import { users } from './tables.ts'
 
 const open = anyone('a test signs in')

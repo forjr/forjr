@@ -48,7 +48,7 @@ export async function contextOf(browser: Browser, options: BrowserContextOptions
 }
 
 // A page takes a press only once its code has loaded: the drawing carries this mark from then on.
-export const alive = (page: Page) => page.locator('#tent[data-t-alive]').waitFor()
+export const alive = (page: Page) => page.locator('#forjr[data-f-alive]').waitFor()
 
 export async function signIn(page: Page, email: string): Promise<void> {
   await alive(page)

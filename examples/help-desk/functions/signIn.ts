@@ -14,7 +14,7 @@ import {
   sessions,
   text,
   token,
-} from 'tentjs'
+} from 'forjr'
 
 export const keepCode = change('keepCode', {
   access: 'nobody',

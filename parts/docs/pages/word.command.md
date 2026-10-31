@@ -1,6 +1,6 @@
 # `command`
 
-A command of the app's own command line that is written in code. It is a helper word, written in a file that imports `tentjs/cli`.
+A command of the app's own command line that is written in code. It is a helper word, written in a file that imports `forjr/cli`.
 
 ## Example
 

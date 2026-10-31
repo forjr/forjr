@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { stepsThenRows } from './applySteps.ts'
 import type { Change } from './changes.ts'
 import { cleanSteps } from './cleanSteps.ts'
@@ -60,7 +60,7 @@ export const rowsText = (n: number): string => (n === 1 ? '1 row' : `${n} rows`)
  * came by. With `clean` the file also drops what it holds retired, and with a `Seal` the rows of a column that
  * gains or loses `sealed` are sealed and opened. Without `thread` the write is one of the store it is handed, and
  * nothing is answered; with it, the change of a file thread. Throws the first finding of a change that is never
- * applied by itself, and T2001 where rows of the file do not fit a step, with the tenant and the count: nothing is
+ * applied by itself, and F2001 where rows of the file do not fit a step, with the tenant and the count: nothing is
  * written then.
  */
 export function bringUp(
@@ -76,7 +76,7 @@ export function bringUp(
     held,
     steps: relinked,
   } = underNewNames(
-    store.layout().filter((one) => !one.name.startsWith('_t_')),
+    store.layout().filter((one) => !one.name.startsWith('_f_')),
     plan,
   )
   const stood = String(heldMeta(store, 'table'))
@@ -93,17 +93,17 @@ export function bringUp(
   const planned = planTableChanges(held, asked, { removed })
   const steps = [...relinked, ...planned.steps]
   const [found] = planned.findings
-  if (found) throw new TentError(found.code, found.message, found.fix === undefined ? {} : { fix: found.fix })
+  if (found) throw new ForjrError(found.code, found.message, found.fix === undefined ? {} : { fix: found.fix })
   const [misfit] = findMisfits(store, steps)
   if (misfit)
-    throw new TentError(
-      'T2001',
+    throw new ForjrError(
+      'F2001',
       `${rowsText(misfit.rows)} of \`${misfit.table}\` ${misfit.rows === 1 ? 'does' : 'do'} not fit what \`${misfit.table}.${misfit.column}\` becomes, in the data file of ${table} ${String(heldMeta(store, 'tenant'))}.`,
-      { fix: 'Change those rows so that they fit, and bring the file up again: `tent data files --retry`.' },
+      { fix: 'Change those rows so that they fit, and bring the file up again: `forjr data files --retry`.' },
     )
   return fileWrite(store, { ...(o.thread ? { thread: o.thread } : {}), steps: true }, (tx, stepping) => {
     stepsThenRows(tx, stepping, steps, o.seal ? { seal: o.seal } : {}, () => {
-      const drops = o.clean ? cleanSteps(stepping.layout().filter((one) => !one.name.startsWith('_t_'))) : []
+      const drops = o.clean ? cleanSteps(stepping.layout().filter((one) => !one.name.startsWith('_f_'))) : []
       if (drops.length) stepping.applyTableChanges(drops)
     })
     if (table !== stood) setMeta(tx, 'table', table)

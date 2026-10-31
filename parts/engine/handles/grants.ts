@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Tx } from '../../data/index.ts'
 import type { CallContext } from '../context.ts'
 import { hasFullAccess } from '../full.ts'
@@ -28,7 +28,7 @@ const openIn = (cx: CallContext): Tx | undefined => (cx.writing ? cx.writing.tx(
 
 /**
  * The working object behind the handle `grants`: what people allowed programs. `list()` answers the caller's own,
- * at once; with full access `list(user)` answers any user's (T0013 without). `end(id)` ends one of the caller's
+ * at once; with full access `list(user)` answers any user's (F0013 without). `end(id)` ends one of the caller's
  * own, and with full access any; it writes, so it works where a change or an action does.
  */
 export const handle = (o: Opened): object => ({
@@ -36,7 +36,7 @@ export const handle = (o: Opened): object => ({
     const cx = callOf('`grants.list`')
     const own = ownUser(cx)
     if (user !== undefined && user !== own && !hasFullAccess(cx))
-      throw new TentError('T0013', `${cx.work.name} used \`grants.list\` for another user than its caller.`, {
+      throw new ForjrError('F0013', `${cx.work.name} used \`grants.list\` for another user than its caller.`, {
         fix: "Name no user for the caller's own, or state `system: 'why'` on the definition.",
       })
     const whose = typeof user === 'string' ? user : own

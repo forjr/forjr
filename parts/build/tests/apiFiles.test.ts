@@ -8,7 +8,7 @@ import { copyOf, errorsOf, filesOf } from './projects.ts'
 const isRecord = (value: unknown): value is Record<string, unknown> =>
   typeof value === 'object' && value !== null && !Array.isArray(value)
 
-test('[24-5] the calls that `use` names are read from the file into the description beside the written ones, and typed in `tent.d.ts`', async () => {
+test('[24-5] the calls that `use` names are read from the file into the description beside the written ones, and typed in `forjr.d.ts`', async () => {
   const folder = copyOf('apied', 'apied-read')
   const made = await buildProject(folder, { for: 'dev' })
   assert.deepEqual(errorsOf(made.findings), [])
@@ -21,7 +21,7 @@ test('[24-5] the calls that `use` names are read from the file into the descript
   assert.ok(isRecord(stripe.from))
   assert.equal(stripe.from.file, 'services/stripe.openapi.json')
   assert.equal(typeof stripe.from.fingerprint, 'string')
-  const typed = readFileSync(join(folder, 'tent.d.ts'), 'utf8').replace(/\s+/g, ' ')
+  const typed = readFileSync(join(folder, 'forjr.d.ts'), 'utf8').replace(/\s+/g, ' ')
   assert.ok(
     typed.includes(
       'interface Services { stripe: { getChargesCharge(input: { "charge": string; "Stripe-Account"?: string }): Promise<{ "id"?: string; "paid"?: boolean }>; postRefunds(input: { "charge": string }): Promise<{ "id": string }> } }',
@@ -30,7 +30,7 @@ test('[24-5] the calls that `use` names are read from the file into the descript
   )
 })
 
-test('[24-5] an operation that is not there is T7013, an error, and a part taken as `json` a warning, each on the line of the service', async () => {
+test('[24-5] an operation that is not there is F7013, an error, and a part taken as `json` a warning, each on the line of the service', async () => {
   const folder = copyOf('apied', 'apied-missing')
   const file = join(folder, 'services', 'stripe.openapi.json')
   const text = readFileSync(file, 'utf8')
@@ -44,7 +44,7 @@ test('[24-5] an operation that is not there is T7013, an error, and a part taken
     readFileSync(service, 'utf8').replace("'GetChargesCharge'", "'GetChargesCharge', 'GetNothing'"),
   )
   const made = await buildProject(folder, { for: 'dev' })
-  const found = made.findings.filter((one) => one.code === 'T7013')
+  const found = made.findings.filter((one) => one.code === 'F7013')
   assert.deepEqual(found.map((one) => [one.level, one.where?.file, one.where?.line]).sort(), [
     ['error', 'services/stripe.ts', 3],
     ['warning', 'services/stripe.ts', 3],
@@ -53,14 +53,14 @@ test('[24-5] an operation that is not there is T7013, an error, and a part taken
   assert.equal(made.bundleFolder, '')
 })
 
-test('[24-5] a call that both `calls` and `from` give is T1007', async () => {
+test('[24-5] a call that both `calls` and `from` give is F1007', async () => {
   const folder = copyOf('apied', 'apied-twice')
   const service = join(folder, 'services', 'stripe.ts')
   writeFileSync(service, readFileSync(service, 'utf8').replace('createRefund: post(', 'postRefunds: post('))
   const made = await buildProject(folder, { for: 'dev' })
   assert.deepEqual(
     made.findings.map((one) => one.code),
-    ['T1007'],
+    ['F1007'],
   )
   assert.match(made.findings[0].message, /postRefunds/)
 })

@@ -1,4 +1,4 @@
-import { model } from 'tentjs'
+import { model } from 'forjr'
 
 const writes = { abilities: ['reply'], takes: 100_000 }
 

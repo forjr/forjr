@@ -23,8 +23,8 @@ const inOrder = (): Promise<{ name: string; way: Way }[]> => {
 /**
  * Step 3 of the door: takes an app, a request and what the engine knows of it. Works out the caller by the first
  * way that names one, each tried in its order, and answers it with the name of that way, the name of its file.
- * Where none names one the caller is nobody, and no way is named. Throws what a way throws: T0005 for one request
- * too many that would reach `identify`, and T0009 for an error in it.
+ * Where none names one the caller is nobody, and no way is named. Throws what a way throws: F0005 for one request
+ * too many that would reach `identify`, and F0009 for an error in it.
  */
 export async function namedCaller(o: Opened, request: Request, about: About): Promise<{ caller: Caller; by?: string }> {
   for (const { name, way } of await inOrder()) {

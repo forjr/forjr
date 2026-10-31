@@ -166,11 +166,11 @@ test('[45-1] an app with an archive and no reader keeps no change in its data fi
     try {
       const tables = db.prepare("SELECT name FROM sqlite_master WHERE type = 'table'").all()
       const names = tables.map((one) => String(one.name))
-      const kept = names.includes('_t_changes')
-        ? Number(db.prepare('SELECT count(*) AS n FROM _t_changes').get()?.n)
+      const kept = names.includes('_f_changes')
+        ? Number(db.prepare('SELECT count(*) AS n FROM _f_changes').get()?.n)
         : 0
       assert.equal(kept, 0, 'no change is kept in the data file')
-      assert.equal(db.prepare("SELECT 1 FROM _t_here WHERE key = 'sum'").get(), undefined, 'no running fingerprint')
+      assert.equal(db.prepare("SELECT 1 FROM _f_here WHERE key = 'sum'").get(), undefined, 'no running fingerprint')
     } finally {
       db.close()
     }
@@ -226,7 +226,7 @@ test('[45-1] writes that never reached the archive are a gap: a backup is taken 
   await assert.rejects(
     command(held.app, held.dataFolder, 'data', { what: 'restore', at: momentOf(inGap), dry: true }),
     (error) => {
-      assert.equal(Reflect.get(Object(error), 'code'), 'T0009')
+      assert.equal(Reflect.get(Object(error), 'code'), 'F0009')
       assert.match(String(Reflect.get(Object(error), 'message')), /gap/)
       return true
     },
@@ -253,7 +253,7 @@ test('[45-17] an undo that reaches into a gap of the archive is refused and name
   const killed = killedNow(held.dataFolder)
   await held.reopen(() => asKilled(held.dataFolder, killed, archived))
   await assert.rejects(held.app.call('undoRun', { run: started.run }, system), (error) => {
-    assert.equal(Reflect.get(Object(error), 'code'), 'T0009')
+    assert.equal(Reflect.get(Object(error), 'code'), 'F0009')
     assert.match(String(Reflect.get(Object(error), 'message')), /gap/)
     return true
   })
@@ -288,7 +288,7 @@ test('[45-1] a part of the archive holds one copy of a change: its record, and b
     for (const one of Array.isArray(rows) ? rows : []) {
       const row = Object(one)
       kinds.add(row.kind)
-      assert.equal(String(row.table).startsWith('_t_'), false, `no row of a table of the engine: ${row.table}`)
+      assert.equal(String(row.table).startsWith('_f_'), false, `no row of a table of the engine: ${row.table}`)
       if (row.kind === 'removed') {
         assert.ok(Object.keys(row.row).length > 1, 'a removed row as it was, to be put back')
         continue

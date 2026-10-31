@@ -19,7 +19,7 @@ test('[05-14.16] a project file named json.py: our side of the Python program st
   const { app, user, dataFolder } = await opened(t, shared)
   const ada = await user()
   assert.equal(await app.call('plain', {}, { as: ada }), 'plain')
-  assert.equal((await refusal(app.call('fails', {}, { as: ada }))).code, 'T7119')
+  assert.equal((await refusal(app.call('fails', {}, { as: ada }))).code, 'F7119')
   assert.match(JSON.stringify(logOf(dataFolder, 'errors')), /ValueError: a value that is wrong/)
 })
 
@@ -28,7 +28,7 @@ test('[05-14.16] a definition whose file is the json.py of the project is carrie
   assert.equal(await app.call('named', {}, { as: await user() }), 'the json of the project')
 })
 
-test('[05-14.16] a project file named like a part of Python that the standard library loads late, random.py: tent.db() still works', async (t) => {
+test('[05-14.16] a project file named like a part of Python that the standard library loads late, random.py: forjr.db() still works', async (t) => {
   const { app, user } = await opened(t, shared)
   await app.write([{ add: 'notes', values: { body: 'one' } }], { as: 'system' })
   assert.deepEqual(await app.call('counted', {}, { as: await user() }), { rows: 1 })

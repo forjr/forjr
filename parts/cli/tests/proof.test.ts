@@ -36,7 +36,7 @@ function listening(
       } catch {
         // A body that is no JSON asked no number.
       }
-      if (request.url === '/_t/admin') numbers.push(number)
+      if (request.url === '/_f/admin') numbers.push(number)
       answers({ path: String(request.url), number }, answer)
     })
   })
@@ -59,8 +59,8 @@ const said = (answer: ServerResponse, value: unknown): void => {
 
 /** Writes an `engine.json` that names this program, which runs, and the port of a listener. */
 function leftBehind(project: string, port: number): void {
-  mkdirSync(join(project, '.tent'), { recursive: true })
-  const file = join(project, '.tent', 'engine.json')
+  mkdirSync(join(project, '.forjr'), { recursive: true })
+  const file = join(project, '.forjr', 'engine.json')
   writeFileSync(file, JSON.stringify({ port, token, pid: process.pid, mode: 'development' }))
   // An engine writes the file for the current user alone, and a command reads no other.
   closed(file)
@@ -99,12 +99,12 @@ test('[15-6@4] a command asks what listens for the fingerprint of the token with
     const output = await typed(project, 'machines', '--json')
     // It was asked the one question, and nothing after it: no token, and no word of the command.
     assert.equal(listener.sent.length, 1, what)
-    assert.equal(listener.sent[0].startsWith('POST /_t/admin {'), true, what)
+    assert.equal(listener.sent[0].startsWith('POST /_f/admin {'), true, what)
     assert.equal(listener.sent[0].includes(token), false, what)
     assert.equal(listener.sent[0].includes('machines'), false, what)
     assert.match(listener.numbers[0], /^[0-9a-f]{64}$/, what)
     // No engine runs for the command: it says so, and believes nothing that it was answered.
-    assert.deepEqual([output.ended, output.answer.findings?.[0].code], [1, 'T0013'], what)
+    assert.deepEqual([output.ended, output.answer.findings?.[0].code], [1, 'F0013'], what)
     numbers.push(listener.numbers[0])
   }
   assert.equal(new Set(numbers).size, numbers.length, 'each asking draws a number of its own')
@@ -114,7 +114,7 @@ test('[15-6@4] a command takes what answers the fingerprint of the token with it
   const project = copied(t, 'proof-right')
   // What holds the token is the engine: it is sent the command, with the token.
   const engine = await listening(t, (asked, answer) =>
-    asked.path === '/_t/admin'
+    asked.path === '/_f/admin'
       ? said(answer, { proof: tokenProof(token, asked.number) })
       : said(answer, { epoch: '1.x', machines: [] }),
   )
@@ -123,7 +123,7 @@ test('[15-6@4] a command takes what answers the fingerprint of the token with it
   assert.deepEqual([output.ended, Object(output.answer.value).epoch], [0, '1.x'])
   assert.deepEqual(
     engine.sent.map((one) => one.split(' ').slice(0, 2).join(' ')),
-    ['POST /_t/admin', 'POST /_t/admin/machines'],
+    ['POST /_f/admin', 'POST /_f/admin/machines'],
   )
   assert.equal(engine.sent[1].includes(`Bearer ${token}`), true)
   // What takes the question and never answers it is no engine: the command ends by itself.
@@ -131,7 +131,7 @@ test('[15-6@4] a command takes what answers the fingerprint of the token with it
   leftBehind(project, silent.port)
   const began = performance.now()
   const waited = await typed(project, 'machines', '--json')
-  assert.deepEqual([waited.ended, waited.answer.findings?.[0].code], [1, 'T0013'])
+  assert.deepEqual([waited.ended, waited.answer.findings?.[0].code], [1, 'F0013'])
   assert.equal(silent.sent.length, 1)
   assert.ok(performance.now() - began < 20_000, 'the command does not wait for ever')
 })

@@ -1,6 +1,6 @@
 import type { ChatScreen } from '../../connect/index.ts'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { isStored, stateEntries, writeAddress, projectLanguages } from '../../core/internal.ts'
 import { screenCaller } from '../door/scopes.ts'
@@ -57,7 +57,7 @@ export function chatFileOf(o: Opened, origin: string, uri: string): { text: stri
       for (const file of Object.values(languages)) {
         if (uriOf(version.description, file) !== uri) continue
         const text = textAt(version.bundle, file)
-        const head = `<head>\n<base href="${origin}/">\n<meta name="tent-version" content="${version.version}">`
+        const head = `<head>\n<base href="${origin}/">\n<meta name="forjr-version" content="${version.version}">`
         const socket = origin.replace(/^http/, 'ws')
         return { text: text.replace('<head>', head), hosts: [origin, socket] }
       }
@@ -82,9 +82,9 @@ function addressOf(stored: Record<string, unknown>, input: Record<string, unknow
 
 /**
  * Takes an app, the name of a screen that is offered to MCP, the input of its tool, the caller, the language of the
- * client and what the engine knows of the request. Answers what `/_t/screen` answers for that address, as that
+ * client and what the engine knows of the request. Answers what `/_f/screen` answers for that address, as that
  * caller: the record of the page with the answers of its `data`, the pass of the frame and how often it asks again.
- * Throws for any outcome that is not this screen: T0006 for a sign-in, and the error of the screen otherwise.
+ * Throws for any outcome that is not this screen: F0006 for a sign-in, and the error of the screen otherwise.
  */
 export async function chatScreenShown(
   o: Opened,
@@ -101,12 +101,12 @@ export async function chatScreenShown(
   const { pageAnswer } = await import('../pages/answer.ts')
   const answer = await pageAnswer(o, url, about.origin, screenCaller(caller), about.from)
   if (answer.headers.location !== undefined)
-    throw new TentError('T0006', `The screen ${name} needs a signed-in caller.`, {
+    throw new ForjrError('F0006', `The screen ${name} needs a signed-in caller.`, {
       fix: 'Call the tool with the token of a person who signed in.',
     })
   const page = answer.page
   if (!page || answer.status >= 400 || page.screen !== name)
-    throw new TentError(page?.error?.code ?? 'T0001', page?.error?.message ?? `The screen ${name} was not shown.`)
+    throw new ForjrError(page?.error?.code ?? 'F0001', page?.error?.message ?? `The screen ${name} was not shown.`)
   const pass = framePassOf(o, caller, page)
   // The frame is drawn for the user of the program, whom its pass names: its live connection names that user too.
   const user = caller.user ? { id: caller.user.id, roles: [...caller.user.roles] } : page.user

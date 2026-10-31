@@ -1,4 +1,4 @@
-import { action, fail, input, link, query } from 'tentjs'
+import { action, fail, input, link, query } from 'forjr'
 import { spawn } from 'node:child_process'
 import { memories } from '../tables/memories'
 

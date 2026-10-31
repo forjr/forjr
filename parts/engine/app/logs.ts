@@ -6,7 +6,7 @@ import { heldOpen } from '../opened.ts'
 /**
  * `app.logs`: the rows of the log of this app, as the admin command `logs` answers them: the newest calls, errors
  * and slow queries, each in the order they were written, the errors alone with `errors`, only what was written
- * within `since`, a length of time, and at most `newest` of each. Throws T0002 for a `since` that does not read.
+ * within `since`, a length of time, and at most `newest` of each. Throws F0002 for a `since` that does not read.
  */
 export const member =
   (o: Opened): App['logs'] =>

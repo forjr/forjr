@@ -21,10 +21,10 @@ export function hostOf(address: string): string {
  */
 export async function logged(cx: CallContext, asked: unknown[], send: () => Promise<Response>): Promise<Response> {
   const began = cx.app.clock.now()
-  // A stand-in under the name `fetch`, as the cases of `tent test --declared` stand one in, holds every plain fetch.
+  // A stand-in under the name `fetch`, as the cases of `forjr test --declared` stand one in, holds every plain fetch.
   const stand = standInOf(cx.app, 'fetch')
   const sending = stand ? async (): Promise<Response> => Reflect.apply(Reflect.get(stand, 'fetch'), stand, asked) : send
-  // Under `tent test`, a plain fetch that leaves the program: a test that makes one is never replayed.
+  // Under `forjr test`, a plain fetch that leaves the program: a test that makes one is never replayed.
   if (!stand) noteOutside(`fetch ${hostOf(addressAsked(asked))}`)
   let status: number | undefined
   // A fetch of the code's own is counted under `fetch`, with what it sent and what it read.

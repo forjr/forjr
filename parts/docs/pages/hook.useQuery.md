@@ -5,7 +5,7 @@ Asks a query or an action from the middle of the code of a view. `data` is the d
 ## Example
 
 ```tsx
-import { screen, useQuery } from 'tentjs/ui'
+import { screen, useQuery } from 'forjr/ui'
 import { openOrders } from '../functions/orders'
 
 export const ordersScreen = screen('ordersScreen', {

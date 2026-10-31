@@ -14,7 +14,7 @@ export const command: Command = {
     if (typeof args.topic !== 'string') {
       // With nothing asked for: the pages that walk one app from nothing, then the topics, which lead on, and how the
       // other pages are named.
-      const topics = names.filter((name) => name.startsWith('topic.')).map((name) => `tent docs ${name}`)
+      const topics = names.filter((name) => name.startsWith('topic.')).map((name) => `forjr docs ${name}`)
       const counts = ['code', 'command', 'word', 'option'].map(
         (kind) => `${names.filter((name) => name.startsWith(`${kind}.`)).length} pages \`${kind}.<name>\``,
       )

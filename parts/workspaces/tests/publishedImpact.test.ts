@@ -17,7 +17,7 @@ async function userOf(at: Held, email: string, roles: string[]): Promise<string>
 }
 
 // A query that the workspace adds, open to every signed-in person: the impact of its publish holds wider rights.
-const opened = `import { query } from 'tentjs'
+const opened = `import { query } from 'forjr'
 import { users } from '../tables/users'
 
 export const everyone = query('everyone', { about: 'Every user', access: 'signedIn', rows: users.oldest('email').limit(10) })

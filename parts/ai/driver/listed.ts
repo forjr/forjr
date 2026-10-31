@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description, ToolSpec } from '../../core/internal.ts'
 import {
   checkValue,
@@ -97,7 +97,7 @@ export function requestStart(s: StartOf): Start {
 }
 
 /** The error of a call of the list whose input does not fit: a line for each field, and the two lines of the tool. */
-function misfit(s: StartOf, tool: Offered, messages: string[]): TentError {
+function misfit(s: StartOf, tool: Offered, messages: string[]): ForjrError {
   const { own, sources } = toolList(s.description, s.agent.name, {
     called: s.called,
     specs: s.specs,
@@ -106,20 +106,20 @@ function misfit(s: StartOf, tool: Offered, messages: string[]): TentError {
   const lines = [...own.split('\n'), ...sources.split('\n')]
   const at = lines.findIndex((line) => line.startsWith(`${tool.entry.told}(`))
   const two = at >= 0 ? lines.slice(at, at + 2) : []
-  return new TentError('T0002', [...messages, ...two].join('\n'))
+  return new ForjrError('F0002', [...messages, ...two].join('\n'))
 }
 
 /**
  * Takes what is known of a run and a call that the model made with `call`. Answers the tool it names and its input,
- * or the error the model is answered with: T0001 for a name that the list does not hold, and T0002 for an input
+ * or the error the model is answered with: F0001 for a name that the list does not hold, and F0002 for an input
  * that does not fit, with the two lines of that tool from the list.
  */
-export function namedCall(s: StartOf, call: ToolCall): { tool: Offered; call: ToolCall } | { error: TentError } {
+export function namedCall(s: StartOf, call: ToolCall): { tool: Offered; call: ToolCall } | { error: ForjrError } {
   const given: unknown = call.input
   const name = typeof given === 'object' && given !== null ? Reflect.get(given, 'name') : undefined
   const input = typeof given === 'object' && given !== null ? (Reflect.get(given, 'input') ?? {}) : {}
   const tool = s.offered.find((one) => one.entry.told === name)
-  if (!tool) return { error: new TentError('T0001', 'no such tool') }
+  if (!tool) return { error: new ForjrError('F0001', 'no such tool') }
   const misfits = checkValue(tool.input, input)
   if (misfits.length)
     return {

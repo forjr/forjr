@@ -7,7 +7,7 @@ import { asValue } from '../written.ts'
  * Takes a moment, and the name of a time zone. Answers the calendar day of the moment in that zone, and with no
  * zone in the zone of the project, which it asks the engine for. A day answers itself, and nothing answers
  * nothing. Handed a reference, and with no zone where a definition is being made or no call is under way, it
- * answers its record. Throws T0027 for a zone the runtime does not know, for a value that is no moment, and for a moment whose day in
+ * answers its record. Throws F0027 for a zone the runtime does not know, for a value that is no moment, and for a moment whose day in
  * the zone lies outside the calendar.
  */
 export function dayOf(moment: Date | string, zone?: string): string

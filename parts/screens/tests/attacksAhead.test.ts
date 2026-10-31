@@ -16,7 +16,7 @@ const plans = {
   },
 }
 
-const refused = { code: 'T3101', name: 'not-allowed', message: 'Only staff may read this.' }
+const refused = { code: 'F3101', name: 'not-allowed', message: 'Only staff may read this.' }
 
 test('[44-10.11] a change shown ahead into a list the caller may not read, or that the page does not hold, shows nothing and reads nothing', async () => {
   const sent: string[] = []
@@ -25,7 +25,7 @@ test('[44-10.11] a change shown ahead into a list the caller may not read, or th
     post: (path) => {
       sent.push(path)
       // The engine's answer of the change is held back until the test lets it go.
-      return path.startsWith('/_t/call/')
+      return path.startsWith('/_f/call/')
         ? new Promise((done) => {
             answer = done
           })
@@ -54,7 +54,7 @@ test('[44-10.11] a change shown ahead into a list the caller may not read, or th
   assert.equal(JSON.stringify(during).includes('the plan of the vault'), false)
   assert.deepEqual(page.ask('openOrders', { limit: 2 }, { entry: 'orders' })?.value, rows)
   // Nothing was read for the optimistic result: the page sent the call alone, and holds no answer of the list it never asked.
-  assert.deepEqual(sent, ['/_t/call/addSecret'])
+  assert.deepEqual(sent, ['/_f/call/addSecret'])
   assert.equal(
     page.answers.has(JSON.stringify(['otherSecrets', {}])) ||
       [...page.answers.keys()].some((key) => key.includes('otherSecrets')),

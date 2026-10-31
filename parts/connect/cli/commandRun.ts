@@ -3,7 +3,7 @@ import { registerHooks } from 'node:module'
 import { basename, join } from 'node:path'
 import { pathToFileURL } from 'node:url'
 import type { CommandRun, Terminal } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fingerprintOf, isStored } from '../../core/internal.ts'
 import type { Reach } from '../env.ts'
 import type { Wire } from './asked.ts'
@@ -24,12 +24,11 @@ const hookEntry = (): void => {
   if (hooked) return
   hooked = true
   registerHooks({
-    resolve: (name, context, next) =>
-      name === 'tentjs/cli' ? { url: entry, shortCircuit: true } : next(name, context),
+    resolve: (name, context, next) => (name === 'forjr/cli' ? { url: entry, shortCircuit: true } : next(name, context)),
   })
 }
 
-/** Who the caller is, as `/_t/cli/me` answers it. */
+/** Who the caller is, as `/_f/cli/me` answers it. */
 interface Me {
   user?: { id: string; roles: string[] }
   key?: { id: string; name: string; roles: string[] }
@@ -40,7 +39,7 @@ interface Me {
 async function worked(reach: Reach, path: string, o: { body?: unknown; agreed?: string } = {}): Promise<Wire> {
   const answer = await asked(reach, path, {
     ...(o.body === undefined ? {} : { body: o.body }),
-    ...(o.agreed === undefined ? {} : { headers: { 'tent-agreed': o.agreed } }),
+    ...(o.agreed === undefined ? {} : { headers: { 'forjr-agreed': o.agreed } }),
   })
   if (!answer.ok) throw wireError(answer.error)
   return answer
@@ -69,11 +68,11 @@ export const keptIn = (home: string, target: { address?: string; data?: string }
   return join(home, 'cli', host)
 }
 
-// A module is asked for by its bare name alone: one that leads out of `/_t/b/cli/` is no name the runner takes.
+// A module is asked for by its bare name alone: one that leads out of `/_f/b/cli/` is no name the runner takes.
 const moduleForm = /^[A-Za-z0-9][A-Za-z0-9.-]*\.[0-9a-f]{12}\.js$/
 
 /**
- * Takes the module of a command by its name in the bundle: fetched through the reach from `/_t/b/cli/<name>`,
+ * Takes the module of a command by its name in the bundle: fetched through the reach from `/_f/b/cli/<name>`,
  * kept under the runner's folder by its name, and thrown away where its bytes do not fit the fingerprint the
  * name holds. Answers where it lies.
  */
@@ -93,7 +92,7 @@ async function moduleOf(
   } catch {
     // Not kept yet: it is fetched.
   }
-  const answer = await reach.request(new Request(`${base}/_t/b/cli/${name}`))
+  const answer = await reach.request(new Request(`${base}/_f/b/cli/${name}`))
   const bytes = await boundedBytes(answer, answerSize, `The module ${name}`)
   if (!answer.ok || fingerprintOf(bytes).slice(0, 12) !== name.split('.').at(-2))
     throw new Unrunnable(`The module ${name} of the command does not fit its name, and is thrown away.`)
@@ -120,9 +119,9 @@ export async function commandRan(o: {
 }): Promise<number> {
   const { reach, terminal, entry } = o
   refuseNewerEngine(o.list, entry.definition)
-  const me: Me = Object((await worked(reach, '/_t/cli/me')).value)
+  const me: Me = Object((await worked(reach, '/_f/cli/me')).value)
   if (!fits(entry.access, me)) {
-    const code = me.user || me.key ? 'T3101' : 'T0006'
+    const code = me.user || me.key ? 'F3101' : 'F0006'
     terminal.error(safe(`error ${code}: the command ${entry.definition} is not for this caller.\n`))
     return 1
   }
@@ -130,7 +129,7 @@ export async function commandRan(o: {
   // The code of a server runs on this computer only once the person added its address.
   if (o.target.address && !existsSync(join(keptIn(o.home, o.target), 'added.json')))
     throw new Unrunnable(
-      `The command ${entry.definition} is code of ${o.target.address}, which runs here only once you add it: tent cli add ${o.target.address}`,
+      `The command ${entry.definition} is code of ${o.target.address}, which runs here only once you add it: forjr cli add ${o.target.address}`,
     )
   const split = o.words.indexOf('--')
   const flags = split < 0 ? o.words : o.words.slice(0, split)
@@ -168,13 +167,13 @@ export async function commandRan(o: {
     // text stay what they are, where `Object` of the value itself would make each an object.
     call: async (what, input, how) =>
       Object(
-        await worked(reach, `/_t/call/${encodeURIComponent(named(what))}`, {
+        await worked(reach, `/_f/call/${encodeURIComponent(named(what))}`, {
           body: { input },
           ...(how?.agreed ? { agreed: how.agreed } : {}),
         }),
       ).value,
     read: async (what, input) =>
-      Object(await worked(reach, `/_t/read/${encodeURIComponent(named(what))}`, { body: { input } })).value,
+      Object(await worked(reach, `/_f/read/${encodeURIComponent(named(what))}`, { body: { input } })).value,
     watch: (query, input, on) =>
       watched(reach, o.list.version, named(query), input, (value) => on(Object({ value }).value)),
     follow: (run) => followed(reach, run),
@@ -189,8 +188,8 @@ export async function commandRan(o: {
       return id
     },
     download: async (id, path) => {
-      const answer = await reach.request(new Request(`${base}/_t/files/${encodeURIComponent(id)}`))
-      if (!answer.ok) throw new TentError('T0001', `The file ${id} cannot be downloaded.`)
+      const answer = await reach.request(new Request(`${base}/_f/files/${encodeURIComponent(id)}`))
+      if (!answer.ok) throw new ForjrError('F0001', `The file ${id} cannot be downloaded.`)
       await written(answer, path)
     },
   }
@@ -198,7 +197,7 @@ export async function commandRan(o: {
     const ended: unknown = await run(handed)
     return typeof ended === 'number' && Number.isInteger(ended) ? ended : 0
   } catch (error) {
-    const code = error instanceof TentError ? error.code : 'T0009'
+    const code = error instanceof ForjrError ? error.code : 'F0009'
     terminal.error(safe(`error ${code}: ${error instanceof Error ? error.message : String(error)}\n`))
     return 1
   } finally {

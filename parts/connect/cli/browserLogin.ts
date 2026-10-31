@@ -49,7 +49,7 @@ export async function browserLogin(o: Login): Promise<number> {
     ),
   )
   if (!tokens) {
-    o.terminal.error('error T0006 not-signed-in: the app gave no tokens for this sign-in, and nothing was kept.\n')
+    o.terminal.error('error F0006 not-signed-in: the app gave no tokens for this sign-in, and nothing was kept.\n')
     return 1
   }
   keepTokens(o.home, o.address, tokens)
@@ -63,7 +63,7 @@ export async function grantLeft(reach: Reach, home: string, address: string): Pr
   if (!refresh) return
   await reach
     .request(
-      new Request('http://localhost/_t/oauth/end', {
+      new Request('http://localhost/_f/oauth/end', {
         method: 'POST',
         headers: { 'content-type': 'application/x-www-form-urlencoded' },
         body: new URLSearchParams({ token: refresh }).toString(),

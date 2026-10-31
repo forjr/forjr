@@ -1,4 +1,4 @@
-import type { Caller, Db, TentError, User } from '../core/index.ts'
+import type { Caller, Db, ForjrError, User } from '../core/index.ts'
 import type { Clock, Description } from '../core/internal.ts'
 import type { FileName, Files, Store, Tx } from '../data/index.ts'
 
@@ -207,7 +207,7 @@ export interface Carried {
 /** How a try that was out ended. `beside`: another task was out to that worker beside it. */
 export type Ended =
   | { done: unknown }
-  | { failed: TentError; cause?: 'memory' }
+  | { failed: ForjrError; cause?: 'memory' }
   | { lost: 'said' }
   | { lost: 'silent'; beside: boolean }
   | { lost: 'writer' }
@@ -248,10 +248,10 @@ export interface RunnerEnv {
   // A start was answered the run of its key that was under way, and started nothing: for the log.
   joined?(what: { run: string; flow: string; key?: string }): void
   // What a sealed step saves, sealed with the key of the secrets and bound to its run, its step and its repeat, and
-  // opened again. Each throws T0019 with no key at hand.
+  // opened again. Each throws F0019 with no key at hand.
   seal?(at: { run: string; name: string; repeat: number }, value: unknown): string
   open?(at: { run: string; name: string; repeat: number }, sealed: string): unknown
-  // The input of a run that `step.again` starts, held to the `input` of its flow: T0002 where it does not fit.
+  // The input of a run that `step.again` starts, held to the `input` of its flow: F0002 where it does not fit.
   input?(version: string, flow: string, given: unknown): unknown
   // A start was dropped by `pace.drop`: for the log and the count.
   dropped?(what: { flow: string; key?: string }): void
@@ -311,7 +311,7 @@ export interface StepView {
   show?: unknown
   ask?: number
   result?: unknown
-  error?: TentError
+  error?: ForjrError
 }
 
 /** A run, as whoever reads it sees it. */
@@ -330,7 +330,7 @@ export interface RunView {
   input?: unknown
   event?: unknown
   answer?: unknown
-  error?: TentError
+  error?: ForjrError
   used: object[]
   given?: object
   key?: string
@@ -430,13 +430,13 @@ export interface Runner {
   ): Promise<(Carried | undefined)[]>
   // The work of a task began.
   started(task: string): void
-  // The end of each step of a task is saved in one write. T5108 for a task that is not out.
+  // The end of each step of a task is saved in one write. F5108 for a task that is not out.
   ended(task: string, ends: Ended[]): Promise<void>
   // No worker of its kind took the step within `wait`.
   none(run: string, step: StepAt): void
   // A limit of use stopped the step before it was handed out: its try fails with the error, and with `final` its step.
-  limited(run: string, step: StepAt, error: TentError, final: boolean): void
-  // What the work kept of where it is. T5108 for a task that is not out.
+  limited(run: string, step: StepAt, error: ForjrError, final: boolean): void
+  // What the work kept of where it is. F5108 for a task that is not out.
   progress(task: string, kept: { value: unknown; files: string[] }): Promise<void>
   // Every task that is out, for an engine that opens.
   outNow(): OutNow[]

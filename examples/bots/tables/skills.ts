@@ -1,4 +1,4 @@
-import { link, table, text } from 'tentjs'
+import { link, table, text } from 'forjr'
 
 // A skill is Claude Code's own skill file in the bot's folder; the row is its copy that the screens list and edit.
 export const skills = table('skills', {

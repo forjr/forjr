@@ -1,4 +1,4 @@
-import { action, agent, change, input, link, table, text } from 'tentjs'
+import { action, agent, change, input, link, table, text } from 'forjr'
 import { markLate, myOrders, refund, writer } from './functions'
 
 // What the tests of the further sentences of a sequence add: a tool that sends and asks nothing, agents that

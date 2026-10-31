@@ -1,7 +1,7 @@
 import { mkdtempSync, readFileSync, rmSync } from 'node:fs'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { filePathFault, write } from '../../core/internal.ts'
 import type { App } from '../../engine/index.ts'
@@ -16,18 +16,18 @@ const bundleAt = (version: string): string => `bundle:${version}`
 /** Whether a text is a path that a file of a bundle may lie under: one that a disk of every system takes inside a folder. */
 export const isBundlePath = (path: string): boolean => filePathFault(path) === undefined
 
-/** The failure of a publish that names what the server does not hold, or what does not fit: T9107. */
-export const notHeld = (words: string, fields: Record<string, string>): TentError =>
-  new TentError('T9107', words, {
+/** The failure of a publish that names what the server does not hold, or what does not fit: F9107. */
+export const notHeld = (words: string, fields: Record<string, string>): ForjrError =>
+  new ForjrError('F9107', words, {
     fields,
-    fix: 'Publish with `tent publish`, which sends what the server lacks first.',
+    fix: 'Publish with `forjr publish`, which sends what the server lacks first.',
   })
 
 /**
  * Keeps the files of the bundle of a version in the history of the server: a point of its own that holds them by
  * their paths. Answers its id: the pointer `bundle:<version>` is moved to it by `bundleTaken`, once the version
  * was published, so that a refused publish or a `try` changes nothing that the server takes as that version.
- * Throws T9107 for a path that leaves the bundle and for bytes it lacks.
+ * Throws F9107 for a path that leaves the bundle and for bytes it lacks.
  */
 export function keepBundle(history: History, version: string, files: Record<string, string>): string {
   for (const [path, print] of Object.entries(files)) {
@@ -66,7 +66,7 @@ export function bundleOf(history: History, version: string): Record<string, stri
 /**
  * Writes the files of a point of a bundle into a folder of its own, reads its description, which must give that
  * version id, holds every module and asset to the fingerprint its name gives, and has the app add it. Answers the
- * description. The folder is removed afterwards. Throws T9107 for a bundle the server does not keep, and for
+ * description. The folder is removed afterwards. Throws F9107 for a bundle the server does not keep, and for
  * files that give another version than the one named.
  */
 export async function addedFrom(
@@ -76,7 +76,7 @@ export async function addedFrom(
 ): Promise<Description> {
   const { history, at } = held
   if (at === undefined) throw notHeld(`The server keeps no bundle of the version ${version}.`, { version })
-  const folder = mkdtempSync(join(tmpdir(), 'tent-bundle-'))
+  const folder = mkdtempSync(join(tmpdir(), 'forjr-bundle-'))
   try {
     history.write(at, folder)
     const description: Description = JSON.parse(readFileSync(join(folder, 'description.json'), 'utf8'))
@@ -90,7 +90,7 @@ export async function addedFrom(
       // A module that does not load, and a browser file that holds a secret of this server, fail the version.
       throw refusedPush(
         `The version ${version} cannot be added beside the running one: ${error instanceof Error ? error.message : String(error)}`,
-        { reason: 'health', code: error instanceof TentError ? error.code : 'T0009' },
+        { reason: 'health', code: error instanceof ForjrError ? error.code : 'F0009' },
         'Mend what is named, and publish again.',
       )
     }

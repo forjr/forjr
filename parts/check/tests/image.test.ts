@@ -7,12 +7,12 @@ import { copyOf, lineWith } from './copies.ts'
 
 const file = 'screens/orders.tsx'
 
-test('[30-4] an Image whose src, written in place, is no asset, and that states neither width nor height is T6025, a warning; an asset, and an Image that states its width or its height, are not', async () => {
-  const folder = copyOf(join('T6025', 'pass'), 'image-sizes')
+test('[30-4] an Image whose src, written in place, is no asset, and that states neither width nor height is F6025, a warning; an asset, and an Image that states its width or its height, are not', async () => {
+  const folder = copyOf(join('F6025', 'pass'), 'image-sizes')
   writeFileSync(
     join(folder, file),
     [
-      "import { screen, asset, text, Image } from 'tentjs/ui'",
+      "import { screen, asset, text, Image } from 'forjr/ui'",
       '',
       "export const ordersScreen = screen('ordersScreen', {",
       "  path: '/orders',",
@@ -32,7 +32,7 @@ test('[30-4] an Image whose src, written in place, is no asset, and that states 
     ].join('\n'),
   )
   const text = readFileSync(join(folder, file), 'utf8')
-  const found = (await checkRules(folder)).findings.filter((one) => one.code === 'T6025')
+  const found = (await checkRules(folder)).findings.filter((one) => one.code === 'F6025')
   assert.deepEqual(
     found.map((one) => [one.where?.line, one.level]),
     [

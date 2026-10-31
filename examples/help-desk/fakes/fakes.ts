@@ -1,7 +1,7 @@
 import { createHmac } from 'node:crypto'
 import { readFileSync } from 'node:fs'
 import { fileURLToPath } from 'node:url'
-import type { testApp } from 'tentjs/test'
+import type { testApp } from 'forjr/test'
 
 export type App = Awaited<ReturnType<typeof testApp>>
 

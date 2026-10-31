@@ -25,8 +25,8 @@ export interface AsleepHeld {
  */
 export async function asleepAdmin(request: Request, about: About, held: AsleepHeld): Promise<Response | undefined> {
   const { pathname } = new URL(request.url)
-  if (request.method !== 'POST' || !/^\/_t\/admin\/(asleep|program|read)$/.test(pathname)) return undefined
-  const name = pathname.slice('/_t/admin/'.length)
+  if (request.method !== 'POST' || !/^\/_f\/admin\/(asleep|program|read)$/.test(pathname)) return undefined
+  const name = pathname.slice('/_f/admin/'.length)
   try {
     // A read of anything but the counts wakes the app, which is handed the request whole.
     const args = await adminWords(name === 'read' ? request.clone() : request, about, held.token, held.size)

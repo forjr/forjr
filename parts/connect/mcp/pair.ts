@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { json, number, object, TentError, text } from '../../core/index.ts'
+import { json, number, object, ForjrError, text } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { toJsonSchema } from '../../core/internal.ts'
 import { callInput } from '../callInput.ts'
@@ -49,7 +49,7 @@ export function pairListed(readsOnly: boolean): Listed[] {
 /**
  * `findFunction`: the functions this caller would be listed whose name or `about` holds every one of the words,
  * in any capitals, in the order of their names, from the one after `after`, `limit` at a time, each as its name
- * and its two lines of the list, with a mark when there are more. Throws T0002 for an input that does not fit.
+ * and its two lines of the list, with a mark when there are more. Throws F0002 for an input that does not fit.
  */
 export function found(description: Description, caller: Caller, input: unknown): Record<string, unknown> {
   const asked = callInput(pair.find, findFields, input)
@@ -70,14 +70,14 @@ export function found(description: Description, caller: Caller, input: unknown):
   }
 }
 
-/** What `callFunction` was handed: the name of the tool to call and its input. Throws T0002 where it does not fit. */
+/** What `callFunction` was handed: the name of the tool to call and its input. Throws F0002 where it does not fit. */
 export function callOf(input: unknown): { name: string; input: unknown } {
   const asked = callInput(pair.call, callFields, input)
   return { name: String(asked.name), input: asked.input ?? {} }
 }
 
 /**
- * Takes a description, the offered function that `callFunction` names and the input it was handed. Throws T0002
+ * Takes a description, the offered function that `callFunction` names and the input it was handed. Throws F0002
  * where the input does not fit, as the `call` of an agent does: what does not fit, and the two lines of the
  * function in the list.
  */
@@ -87,8 +87,8 @@ export function fitsCalled(description: Description, one: Offered, input: unknow
   try {
     callInput(one.tool, one.record.input, input)
   } catch (error) {
-    if (!(error instanceof TentError)) throw error
-    throw new TentError('T0002', `${error.message}\n${twoLinesOf(description, one)}`, {
+    if (!(error instanceof ForjrError)) throw error
+    throw new ForjrError('F0002', `${error.message}\n${twoLinesOf(description, one)}`, {
       ...(error.fields ? { fields: error.fields } : {}),
       ...(error.fix ? { fix: error.fix } : {}),
     })

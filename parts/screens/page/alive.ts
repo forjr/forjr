@@ -66,8 +66,8 @@ interface ShownResult extends OptimisticResult {
 /**
  * Takes the record of a page, the records of the screen and of the components that it loaded, and what it reaches
  * the engine through. Answers the page as it lives in a browser: it starts with the answers it came with, watches
- * each live query that it shows over one connection to `/_t/live`, asks what is not live at `/_t/read/`, calls at
- * `/_t/call/`, and asks for its screen again where the engine says that its caller or its right has changed.
+ * each live query that it shows over one connection to `/_f/live`, asks what is not live at `/_f/read/`, calls at
+ * `/_f/call/`, and asks for its screen again where the engine says that its caller or its right has changed.
  * `words` are those of the language of the page, as the file of its language holds them.
  */
 export function livingPage(first: Page, records: ViewRecord[], reach: Reach, words: Words = {}): PageStore {
@@ -191,7 +191,7 @@ export function livingPage(first: Page, records: ViewRecord[], reach: Reach, wor
     if (isStored(wire) && wire.caller === 'changed') callerChanged()
     if (isStored(wire) && wire.ok === true) return wire.value
     const error = isStored(wire) && isStored(wire.error) ? wire.error : undefined
-    if (error?.code === 'T0007') {
+    if (error?.code === 'F0007') {
       // The version of the page is gone: the page follows the one that runs, and sends the call once more. Only
       // where that fails for its version too does it load its address anew.
       if (again) reach.go(shows())
@@ -213,7 +213,7 @@ export function livingPage(first: Page, records: ViewRecord[], reach: Reach, wor
   const read = (what: string, input: unknown, key: string, told: Told, looking = false): void => {
     if (asking.has(key)) return
     asking.add(key)
-    answered(`/_t/read/${what}`, input)
+    answered(`/_f/read/${what}`, input)
       .then(
         (value): Answered | undefined => ({ what, input, ...told, value }),
         (error): Answered | undefined => (looking ? undefined : { what, input, ...told, error }),
@@ -378,7 +378,7 @@ export function livingPage(first: Page, records: ViewRecord[], reach: Reach, wor
         fresh && !how.above
           ? early
           : await asked(
-              `/_t/screen?path=${encodeURIComponent(path)}&version=${encodeURIComponent(page.version)}${over}`,
+              `/_f/screen?path=${encodeURIComponent(path)}&version=${encodeURIComponent(page.version)}${over}`,
             )
     } catch {
       wire = undefined
@@ -464,7 +464,7 @@ export function livingPage(first: Page, records: ViewRecord[], reach: Reach, wor
    */
   const screenAgain = async (version = page.version, again = false): Promise<void> => {
     if (!reach.get) return reach.go(shows())
-    const address = `/_t/screen?path=${encodeURIComponent(shows())}&version=${encodeURIComponent(version)}`
+    const address = `/_f/screen?path=${encodeURIComponent(shows())}&version=${encodeURIComponent(version)}`
     let wire: unknown
     try {
       wire = await reach.get(address)
@@ -474,7 +474,7 @@ export function livingPage(first: Page, records: ViewRecord[], reach: Reach, wor
     const value: unknown = isStored(wire) && wire.ok === true ? wire.value : undefined
     // A version that was left while the page asked for it, as after two saves close together: the page follows the
     // one that runs, once.
-    const gone = isStored(wire) && isStored(wire.error) && wire.error.code === 'T0007' ? wire.error.running : undefined
+    const gone = isStored(wire) && isStored(wire.error) && wire.error.code === 'F0007' ? wire.error.running : undefined
     if (!again && typeof gone === 'string' && gone !== version) return screenAgain(gone, true)
     if (!isStored(value)) return reach.go(shows())
     if (typeof value.goTo === 'string') return reach.go(value.goTo)
@@ -598,7 +598,7 @@ export function livingPage(first: Page, records: ViewRecord[], reach: Reach, wor
     } else if (told.t === 'failed') {
       const error = isStored(told.error) ? told.error : {}
       // One watch or one group too many: the page waits, watches again, and asks for nothing else.
-      if (error.code === 'T0005')
+      if (error.code === 'F0005')
         return void wait(
           () => {
             if (byId.get(watch.id) === watch) line?.send(watchOf(watch))
@@ -623,7 +623,7 @@ export function livingPage(first: Page, records: ViewRecord[], reach: Reach, wor
   )
 
   /**
-   * The line of the page to `/_t/live`, which names the user that the page was drawn for, and in development the
+   * The line of the page to `/_f/live`, which names the user that the page was drawn for, and in development the
    * version it was drawn by: a page that opens it after a switch it did not hear of is told the version that runs.
    */
   const lineNow = (): Line => {
@@ -633,7 +633,7 @@ export function livingPage(first: Page, records: ViewRecord[], reach: Reach, wor
           ...(page.user ? [`as=${encodeURIComponent(page.user.id)}`] : []),
           ...(page.mode === 'development' ? [`version=${encodeURIComponent(page.version)}`] : []),
         ]
-        return `/_t/live${named.length ? `?${named.join('&')}` : ''}`
+        return `/_f/live${named.length ? `?${named.join('&')}` : ''}`
       },
       { ...(reach.socket ? { socket: reach.socket } : {}), wait, random },
       {
@@ -796,7 +796,7 @@ export function livingPage(first: Page, records: ViewRecord[], reach: Reach, wor
     drawnPart: async (component, props) => {
       // A part is drawn as the screen of the address that is shown, for the user the page was drawn for.
       const wire = await reach
-        .post(`/_t/part/${encodeURIComponent(component)}`, {
+        .post(`/_f/part/${encodeURIComponent(component)}`, {
           props,
           path: shows(),
           version: page.version,
@@ -838,7 +838,7 @@ export function livingPage(first: Page, records: ViewRecord[], reach: Reach, wor
         // A call begins the trace of the press that made it: what the engine does for it is one trace.
         const headers = { ...moveHeaders('press'), 'idempotency-key': callId() }
         value = await queue.send(
-          () => answered(`/_t/call/${name}`, input, false, headers),
+          () => answered(`/_f/call/${name}`, input, false, headers),
           (on) => {
             if (on) show()
             o?.held?.(on)

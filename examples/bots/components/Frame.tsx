@@ -1,6 +1,6 @@
 import '../screens/app.css'
 import { useEffect, useRef, useState } from 'react'
-import { component, Link, read, useParams } from 'tentjs/ui'
+import { component, Link, read, useParams } from 'forjr/ui'
 import { botList } from '../functions/bots'
 import { me } from '../functions/people'
 import { askList } from '../functions/runs'

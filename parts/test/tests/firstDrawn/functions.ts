@@ -1,4 +1,4 @@
-import { number, query, table, text } from 'tentjs'
+import { number, query, table, text } from 'forjr'
 
 export const orders = table('orders', {
   columns: { name: text(), total: number({ min: 0 }) },

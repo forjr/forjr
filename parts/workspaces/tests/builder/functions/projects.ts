@@ -1,4 +1,4 @@
-import { action, change, input, json, link, text, workspaces } from 'tentjs'
+import { action, change, input, json, link, text, workspaces } from 'forjr'
 import { projects } from '../tables/tables'
 
 const held = 'it uses the workspaces of the product, which the handle holds to the caller'

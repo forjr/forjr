@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import type { TestContext } from 'node:test'
 import type { Caller, Db } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Clock, Description } from '../../core/internal.ts'
 import type { Store, TableLayout } from '../../data/index.ts'
 import { sqliteStore } from '../../data/index.ts'
@@ -59,7 +59,7 @@ function describing(
   project: Record<string, unknown> = {},
 ): Description {
   return {
-    format: 'tent.description/1',
+    format: 'forjr.description/2',
     app: { name: 'bench', needsEngine: '1' },
     project,
     tables: {},
@@ -192,7 +192,7 @@ export function bench(
     store,
     clock,
     description: (asked) => {
-      if (asked !== version) throw new TentError('T0007', `The version ${asked} is gone.`)
+      if (asked !== version) throw new ForjrError('F0007', `The version ${asked} is gone.`)
       return description
     },
     body: (_version, flow, which) => (which === 'onFail' ? made[flow]?.onFail : made[flow]?.run),
@@ -203,7 +203,7 @@ export function bench(
     db: () => none,
     caller: (by) => {
       asked.push(by)
-      if (by.kind === 'user' && by.id === 'gone') throw new TentError('T3101', 'The starter of the run is gone.')
+      if (by.kind === 'user' && by.id === 'gone') throw new ForjrError('F3101', 'The starter of the run is gone.')
       return by.kind === 'user' ? { kind: 'user', user: { id: String(by.id), roles: [] } } : system
     },
     onThread: (at) => {
@@ -285,7 +285,7 @@ export async function codeOf(work: Promise<unknown>): Promise<string | undefined
   try {
     await work
   } catch (error) {
-    return error instanceof TentError ? error.code : undefined
+    return error instanceof ForjrError ? error.code : undefined
   }
   return undefined
 }

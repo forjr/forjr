@@ -99,7 +99,7 @@ function pictureLines(o: Parameters<typeof headLines>[0], image: Record<string, 
   if (!page.origin) return []
   const size = Array.isArray(image.size) && image.size.length === 2 ? image.size.map(Number) : [1200, 630]
   const lead = page.language === page.languages[0] ? '' : `/${page.language}`
-  const picture = `${page.origin}${named(page, `/_t/seo/image/${encodeURIComponent(o.record.name)}?${lead}${page.path}`)}`
+  const picture = `${page.origin}${named(page, `/_f/seo/image/${encodeURIComponent(o.record.name)}?${lead}${page.path}`)}`
   return [
     `<meta property="og:image" content="${asText(picture)}">`,
     `<meta property="og:image:width" content="${size[0]}">`,

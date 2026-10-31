@@ -45,7 +45,7 @@ A function that answers a promise. An action that states `follow` also gives the
 
 ## Errors
 
-`code.T0010`: it was called with no engine: nothing stands in the runtime slot.
+`code.F0010`: it was called with no engine: nothing stands in the runtime slot.
 
 ## See also
 

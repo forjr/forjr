@@ -49,7 +49,7 @@ export const lastUse = (o: Opened): number => held(o).last
  */
 export function inUse(o: Opened): boolean {
   if (held(o).now > 0 || o.inFlight.size > 0 || (o.hub?.open() ?? 0) > 0) return true
-  // A kept stream of MCP, and an ask of `/_t/ask` with what is kept of its yes.
+  // A kept stream of MCP, and an ask of `/_f/ask` with what is kept of its yes.
   if (streamsOpen(o) > 0 || askingKept(o)) return true
   if (
     o.work &&

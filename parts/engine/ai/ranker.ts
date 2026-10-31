@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Ranker } from '../../data/index.ts'
 import { underWay } from '../context.ts'
 
@@ -9,7 +9,7 @@ import { underWay } from '../context.ts'
  */
 export const ranker: Ranker = async (model, words, texts) => {
   const cx = underWay()
-  if (!cx) throw new TentError('T0013', `The model ${model} was asked to rank with no call under way.`)
+  if (!cx) throw new ForjrError('F0013', `The model ${model} was asked to rank with no call under way.`)
   const { callModel } = await import('./call.ts')
   const scores: unknown = await callModel(cx, `${model}.rank`, [words, texts])
   return Array.isArray(scores) ? scores.map(Number) : []

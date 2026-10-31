@@ -28,7 +28,7 @@ export const stripe = service('stripe', {
 
 ## Errors
 
-`code.T1014`: a value that is none of the six forms, or a form with a name it does not take. `code.T0019`: a secret that a call needs has no value. `code.T7113`: a form `by` that nobody made, which stops the app from opening.
+`code.F1014`: a value that is none of the six forms, or a form with a name it does not take. `code.F0019`: a secret that a call needs has no value. `code.F7113`: a form `by` that nobody made, which stops the app from opening.
 
 ## See also
 

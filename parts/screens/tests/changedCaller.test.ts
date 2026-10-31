@@ -41,13 +41,13 @@ test('[22-7] a call that failed and says that the caller changed makes the page 
   const refused = {
     ok: false,
     caller: 'changed',
-    error: { code: 'T3101', name: 'not-allowed', message: 'The caller is no longer the one the page was drawn for.' },
+    error: { code: 'F3101', name: 'not-allowed', message: 'The caller is no longer the one the page was drawn for.' },
   }
   // The door did not run the call: the user of the page is no longer its caller.
-  const stale = pageOver((address) => (address.startsWith('/_t/screen') ? { ok: true, value: asOther } : refused))
-  await assert.rejects(stale.page.call('markPaid', {}), { code: 'T3101' })
+  const stale = pageOver((address) => (address.startsWith('/_f/screen') ? { ok: true, value: asOther } : refused))
+  await assert.rejects(stale.page.call('markPaid', {}), { code: 'F3101' })
   await settled()
-  assert.deepEqual(stale.sent, ['/_t/call/markPaid', '/_t/screen?path=%2Fs&version=v1'])
+  assert.deepEqual(stale.sent, ['/_f/call/markPaid', '/_f/screen?path=%2Fs&version=v1'])
   assert.deepEqual(stale.page.page.user, { id: 'u2', roles: [] })
   assert.deepEqual(stale.page.ask('openOrders', {}, { entry: 'orders' })?.value, [{ id: 'theirs' }])
   assert.deepEqual(stale.gone, [])
@@ -56,18 +56,18 @@ test('[22-7] a call that failed and says that the caller changed makes the page 
   const failed = {
     ok: false,
     caller: 'changed',
-    error: { code: 'T0009', name: 'internal', message: 'Something went wrong.' },
+    error: { code: 'F0009', name: 'internal', message: 'Something went wrong.' },
   }
-  const signed = pageOver((address) => (address.startsWith('/_t/screen') ? { ok: true, value: asOther } : failed))
-  await assert.rejects(signed.page.call('signIn', {}), { code: 'T0009' })
+  const signed = pageOver((address) => (address.startsWith('/_f/screen') ? { ok: true, value: asOther } : failed))
+  await assert.rejects(signed.page.call('signIn', {}), { code: 'F0009' })
   await settled()
   assert.deepEqual(signed.page.page.user, { id: 'u2', roles: [] })
   assert.deepEqual(signed.gone, [])
 
   // A failure that says nothing of the caller leaves the page as it was.
   const plain = pageOver(() => ({ ok: false, error: failed.error }))
-  await assert.rejects(plain.page.call('markPaid', {}), { code: 'T0009' })
+  await assert.rejects(plain.page.call('markPaid', {}), { code: 'F0009' })
   await settled()
-  assert.deepEqual(plain.sent, ['/_t/call/markPaid'])
+  assert.deepEqual(plain.sent, ['/_f/call/markPaid'])
   assert.deepEqual(plain.page.page.user, { id: 'u1', roles: [] })
 })

@@ -14,7 +14,7 @@ const parts = chunks(text, { cut: 'sentence' })
 
 ## Errors
 
-`code.T0002`: a value that is not allowed.
+`code.F0002`: a value that is not allowed.
 
 ## See also
 

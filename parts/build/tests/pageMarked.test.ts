@@ -11,7 +11,7 @@ async function madeFor(runsFor: string | undefined): Promise<Record<string, stri
   const before = process.env.NODE_ENV
   if (runsFor === undefined) delete process.env.NODE_ENV
   else process.env.NODE_ENV = runsFor
-  const folder = mkdtempSync(join(tmpdir(), 'tent-page-marked-'))
+  const folder = mkdtempSync(join(tmpdir(), 'forjr-page-marked-'))
   try {
     await madePageCode(folder)
     return Object.fromEntries(

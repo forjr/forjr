@@ -17,16 +17,16 @@ async function codeOf(work: Promise<unknown>): Promise<string> {
   }
 }
 
-test('[16-2@10e] T2026 and T2028 are each raised by a call built to cause it', async (t) => {
+test('[16-2@10e] F2026 and F2028 are each raised by a call built to cause it', async (t) => {
   const { app } = await appIn(t, copyOf(t, 'ruledColumns'))
   const hr = String((await app.user({ name: 'Hana', roles: ['hr'] })).user?.id)
   await app.as(hr).call('addAccount', { email: 'ada@example.com' })
   // A sort and a range on a findable sealed column, which a fingerprint cannot answer.
-  assert.equal(await codeOf(app.as(hr).call('sortedEmails', {})), 'T2026')
-  assert.equal(await codeOf(app.as(hr).call('emailsAfter', { email: 'b' })), 'T2026')
+  assert.equal(await codeOf(app.as(hr).call('sortedEmails', {})), 'F2026')
+  assert.equal(await codeOf(app.as(hr).call('emailsAfter', { email: 'b' })), 'F2026')
   // An undo in an app whose archive is off.
   const folder = copyOf(t, 'undone')
-  const file = join(folder, 'tent.ts')
+  const file = join(folder, 'forjr.ts')
   writeFileSync(
     file,
     readFileSync(file, 'utf8').replace('backups: { every: false },', 'backups: { every: false, archive: false },'),
@@ -40,5 +40,5 @@ test('[16-2@10e] T2026 and T2028 are each raised by a call built to cause it', a
   assert.ok('run' in started, 'the start was not dropped')
   const { run } = started
   await off.app.runs.wait(run)
-  assert.equal(await codeOf(off.app.call('undoRun', { run }, system)), 'T2028')
+  assert.equal(await codeOf(off.app.call('undoRun', { run }, system)), 'F2028')
 })

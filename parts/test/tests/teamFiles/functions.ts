@@ -1,4 +1,4 @@
-import { action, anyone, change, fail, file, files, input, link, list, query, sessions, table, text } from 'tentjs'
+import { action, anyone, change, fail, file, files, input, link, list, query, sessions, table, text } from 'forjr'
 
 const open = anyone('a test signs in and makes its teams')
 

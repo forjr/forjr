@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 
 type App = Awaited<ReturnType<typeof testApp>>
 
@@ -84,7 +84,7 @@ test('the frame of a project names its workspace and its person to the owner alo
 test('nobody who is not signed in reaches the projects', async () => {
   const app = await testApp()
   try {
-    await assert.rejects(app.as('nobody').call('myProjects', {}), { code: 'T0006' })
+    await assert.rejects(app.as('nobody').call('myProjects', {}), { code: 'F0006' })
     assert.equal((await app.as('nobody').page('/')).status !== 200, true)
   } finally {
     await app.close()

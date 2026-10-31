@@ -1,4 +1,4 @@
-import { choice, json, link, list, number, project, table, text } from 'tentjs'
+import { choice, json, link, list, number, project, table, text } from 'forjr'
 
 export const told = project('told', { limits: { anyonePerMinute: 100000, callerPerMinute: 100000 } })
 

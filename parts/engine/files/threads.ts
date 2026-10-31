@@ -1,6 +1,6 @@
 import type { MessagePort } from 'node:worker_threads'
 import { MessageChannel, receiveMessageOnPort, Worker } from 'node:worker_threads'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Change, Misfit } from '../../data/index.ts'
 import type { ApplyJob, FileJob, FileStart, FileTold, RaiseJob } from './job.ts'
 import { revived } from '../rooms/crossing.ts'
@@ -34,7 +34,7 @@ export interface FileThreads {
 // What a write that holds its own number asks of the main thread: nothing.
 const noWrites: Writes = {
   number() {
-    throw new TentError('T0009', 'A change that is applied holds its own number, and asks for none.')
+    throw new ForjrError('F0009', 'A change that is applied holds its own number, and asks for none.')
   },
   took: () => undefined,
   lost: () => undefined,
@@ -169,7 +169,7 @@ export function fileThreads(most: number): FileThreads {
     port1.on('message', (told: unknown) => taken(thread, told))
     const gone = (why: string): void => {
       drop(thread)
-      lost(thread, new TentError('T0009', `The file thread ended: ${why}`))
+      lost(thread, new ForjrError('F0009', `The file thread ended: ${why}`))
       if (!closed) next()
     }
     worker.on('error', (error) => gone(String(error)))
@@ -180,7 +180,7 @@ export function fileThreads(most: number): FileThreads {
   const handOver = (job: RaiseJob | ApplyJob, writes: Writes): Promise<Misfit[] | undefined> =>
     new Promise((done, failed) => {
       if (closed) {
-        failed(new TentError('T0013', 'The app was closed, and no thread works on a file of it.'))
+        failed(new ForjrError('F0013', 'The app was closed, and no thread works on a file of it.'))
         return
       }
       const raises = !('apply' in job) && !job.check && job.drop === undefined
@@ -194,7 +194,7 @@ export function fileThreads(most: number): FileThreads {
     apply: (job) => handOver(job, noWrites).then(() => undefined),
     async close() {
       closed = true
-      const gone = new TentError('T0013', 'The app was closed while a file waited to be brought up.')
+      const gone = new ForjrError('F0013', 'The app was closed while a file waited to be brought up.')
       for (const pending of waiting.splice(0)) pending.failed(gone)
       await Promise.all(
         threads.splice(0).map((thread) => {

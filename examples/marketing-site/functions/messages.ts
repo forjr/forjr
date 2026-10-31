@@ -1,4 +1,4 @@
-import { anyone, change, input, text } from 'tentjs'
+import { anyone, change, input, text } from 'forjr'
 import { messages } from '../tables/messages'
 
 export const sendMessage = change('sendMessage', {

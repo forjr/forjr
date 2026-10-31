@@ -1,6 +1,6 @@
 import { posix } from 'node:path'
 import type { Description } from './description.ts'
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 import { isStored } from './record.ts'
 import { runDoc } from './source/backend.ts'
 import { definitionDoc } from './source/definition.ts'
@@ -23,22 +23,26 @@ const importLine = (names: Iterable<string>, from: string): string =>
   layOut(['import ', group('{', [...names], '}', { pad: true }), ` from ${quoted(from)}`])
 
 /**
- * The import lines of a file: one from `tentjs` or from `tentjs/ui` with the words its text uses, in the order
+ * The import lines of a file: one from `forjr` or from `forjr/ui` with the words its text uses, in the order
  * they are first used; one for each other file of the project that it names, by its path from this file with no
  * ending; and one for each text file.
  */
 function importLines(w: Writing, description: Description, own: Set<string>, o: { path: string }): string[] {
   const lines: string[] = []
-  if (w.ours.size) lines.push(importLine(w.ours, 'tentjs'))
+  if (w.ours.size) lines.push(importLine(w.ours, 'forjr'))
   const files = new Map<string, string[]>()
   for (const name of w.named) {
     if (own.has(name)) continue
     const place = Object.hasOwn(description.places, name) ? description.places[name] : undefined
     const file = typeof place?.file === 'string' ? place.file : undefined
     if (file === undefined)
-      throw new TentError('T0001', `The description does not say which file holds \`${name}\`, which the text names.`, {
-        fix: 'Hand a description that the build made: it holds the place of each definition.',
-      })
+      throw new ForjrError(
+        'F0001',
+        `The description does not say which file holds \`${name}\`, which the text names.`,
+        {
+          fix: 'Hand a description that the build made: it holds the place of each definition.',
+        },
+      )
     if (file !== o.path) files.set(file, [...(files.get(file) ?? []), name])
   }
   for (const [file, names] of files) lines.push(importLine(names, pathFrom(o.path, file.replace(/\.tsx?$/, ''))))
@@ -56,7 +60,7 @@ function messagesFile(description: Description, language: string): string {
     ],
   )
   const body: Doc = [`export default messages(${quoted(language)}, `, recordDoc(entries, true), ')']
-  return `${importLine(['messages'], 'tentjs/ui')}\n\n${layOut(body)}\n`
+  return `${importLine(['messages'], 'forjr/ui')}\n\n${layOut(body)}\n`
 }
 
 /** The starter data as its file writes it: `export default seed(...)`, with a list of writes or the arrow that was read. */
@@ -80,8 +84,8 @@ function seedFile(description: Description, o: { path: string }): string {
 /** The top-level names that the text of a file reads, each as a `const` with the value that is stored for it. */
 function tops(w: Writing): string[] {
   if (w.clashes.size)
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `Two definitions hold different values under the top-level name \`${[...w.clashes][0]}\`: one build never made both.`,
       { fix: 'Hand the description of one build.' },
     )
@@ -107,9 +111,9 @@ function constDoc(value: unknown): Doc {
  * Takes a description, the names of the definitions of one file in their order, and the path of that file from the
  * folder of the project. Answers the whole file: its import lines, each top-level `const` that the definitions
  * read, and each definition, with one empty line between. `['seed']` names the starter data, and
- * `['texts:<language>@<path>']` a language file. Reading the file gives the same records. Throws T0013 for a
+ * `['texts:<language>@<path>']` a language file. Reading the file gives the same records. Throws F0013 for a
  * definition that is code and where two of the definitions hold different values under one top-level name, and
- * T0001 for a name that the description holds no definition or no place of.
+ * F0001 for a name that the description holds no definition or no place of.
  */
 export function fileSource(description: Description, names: string[], o: { path: string }): string {
   if (names.length === 1 && names[0] === 'seed') return seedFile(description, o)

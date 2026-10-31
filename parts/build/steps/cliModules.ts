@@ -16,7 +16,7 @@ const made = keeping<{ print: string; text: string }>()
 
 /**
  * Makes one module for each command file, under `cli/`: the packages it imports inside, each import of a backend
- * file replaced by the stubs of its definitions, and `tentjs/cli` left as it is, which the runner answers with its
+ * file replaced by the stubs of its definitions, and `forjr/cli` left as it is, which the runner answers with its
  * own entry. Each command of the file names its module and its export; the description names every file.
  */
 export const step: Step = {
@@ -49,7 +49,7 @@ export const step: Step = {
                 small: work.options.for === 'release',
                 pure: () => false,
                 instead(lies) {
-                  if (lies === 'tentjs/cli') return { outside: 'tentjs/cli' }
+                  if (lies === 'forjr/cli') return { outside: 'forjr/cli' }
                   const held = backend.get(lies)
                   // A backend file reaches a command as the names of its definitions alone.
                   if (held)
@@ -65,7 +65,7 @@ export const step: Step = {
       } catch (error) {
         found(
           work,
-          'T1014',
+          'F1014',
           file,
           1,
           `The command file cannot be built: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}`,

@@ -6,11 +6,11 @@ import { checkProject } from '../index.ts'
 import { copyOf } from './copies.ts'
 
 test('[15-1] the type checker reads `engine.ts` and `seed.ts` at the root of a project, as every other file of it', async () => {
-  const folder = copyOf(join('T8000', 'pass'), 'T8000-root')
+  const folder = copyOf(join('F8000', 'pass'), 'F8000-root')
   writeFileSync(
     join(folder, 'engine.ts'),
     [
-      "import type { Makers } from 'tentjs/engine'",
+      "import type { Makers } from 'forjr/engine'",
       '',
       'const steps: number = "three"',
       '',
@@ -20,7 +20,7 @@ test('[15-1] the type checker reads `engine.ts` and `seed.ts` at the root of a p
     ].join('\n'),
   )
   writeFileSync(join(folder, 'seed.ts'), ['const rows: string = 3', 'export default rows', ''].join('\n'))
-  const found = (await checkProject(folder)).findings.filter((one) => one.code === 'T8000')
+  const found = (await checkProject(folder)).findings.filter((one) => one.code === 'F8000')
   assert.deepEqual(
     found.map((one) => `${one.where?.file}:${one.where?.line}`),
     ['engine.ts:3', 'seed.ts:1'],

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Opened } from '../opened.ts'
 import type { FillGroup } from './columns.ts'
 import { fillInputOf, fillRowIn } from './inputs.ts'
@@ -38,7 +38,7 @@ export async function makeEmbeds(o: Opened, group: FillGroup, rows: ToMake[]): P
     const { appModelCall } = await import('../ai/appCall.ts')
     vectors = await appModelCall(o, `${group.work}.embed`, [texts], caller)
     if (!Array.isArray(vectors) || vectors.length !== texts.length)
-      throw new TentError('T0009', `The model ${group.work} answered no vector for each of ${texts.length} texts.`)
+      throw new ForjrError('F0009', `The model ${group.work} answered no vector for each of ${texts.length} texts.`)
   } catch (error) {
     if (isLimit(group, error)) return 'limited'
     for (const one of found) failedFor(o, group, one.place, one.rowId, one.handed, one.tries, error)

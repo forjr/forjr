@@ -1,4 +1,4 @@
-import { choice, json, link, list, project, table, text } from 'tentjs'
+import { choice, json, link, list, project, table, text } from 'forjr'
 
 export const summed = project('summed', {})
 

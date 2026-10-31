@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fingerprintOf } from '../../core/internal.ts'
 import { sameSecret } from '../../core/index.ts'
 
@@ -19,14 +19,14 @@ const keyId = (key: string): string => fingerprintOf(new TextEncoder().encode(ke
 
 /**
  * Takes `workers` of `open`: each entry a key, or `{ key, kinds, atOnce, workers }`. Answers the keys. Throws
- * T0013 for an entry that is no key: a key is a text of 32 characters or more.
+ * F0013 for an entry that is no key: a key is a text of 32 characters or more.
  */
 export function workerKeysOf(workers: unknown): WorkerKey[] {
   const keys: WorkerKey[] = []
   for (const one of Array.isArray(workers) ? workers : []) {
     const key: unknown = typeof one === 'string' ? one : Reflect.get(Object(one), 'key')
     if (typeof key !== 'string' || key.length < 32)
-      throw new TentError('T0013', 'A key of `workers` is a text of 32 characters or more.', {
+      throw new ForjrError('F0013', 'A key of `workers` is a text of 32 characters or more.', {
         fix: "Name each worker's key: `workers: [key, { key, kinds: ['gpu'], atOnce: 4, workers: 2 }]`.",
       })
     const stated = typeof one === 'string' ? {} : Object(one)

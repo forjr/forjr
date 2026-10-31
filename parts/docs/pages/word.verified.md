@@ -16,7 +16,7 @@ A promise of `{ id, body }`: the id of the call where its scheme has one, and it
 
 ## Errors
 
-`code.T7118` for a signature that does not hold. `code.T0013` in a route whose file does not import `verified`: the engine keeps the bytes only for such a route. `code.T0010`: it was called with no engine: nothing stands in the runtime slot.
+`code.F7118` for a signature that does not hold. `code.F0013` in a route whose file does not import `verified`: the engine keeps the bytes only for such a route. `code.F0010`: it was called with no engine: nothing stands in the runtime slot.
 
 ## See also
 

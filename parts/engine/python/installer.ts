@@ -11,7 +11,7 @@ export interface InstallerStarted {
 }
 
 // The name of the empty .netrc of the engine's own, in the cache of the installer.
-const netrcName = 'tent-empty.netrc'
+const netrcName = 'forjr-empty.netrc'
 
 /** The name of a secret that a stored value names, or nothing for a value that names none. */
 const secretOf = (value: unknown): string | undefined =>
@@ -42,11 +42,11 @@ export function startedWith(o: {
   for (const [at, entry] of (Array.isArray(index) ? index : []).entries()) {
     const url: unknown = isStored(entry) ? entry.url : entry
     if (typeof url !== 'string') continue
-    args.push('--index', `tent${at}=${url}`)
+    args.push('--index', `forjr${at}=${url}`)
     if (!isStored(entry)) continue
     const [user, password] = [secretOf(entry.user), secretOf(entry.password)]
-    if (user !== undefined) env[`UV_INDEX_TENT${at}_USERNAME`] = o.secret(user)
-    if (password !== undefined) env[`UV_INDEX_TENT${at}_PASSWORD`] = o.secret(password)
+    if (user !== undefined) env[`UV_INDEX_FORJR${at}_USERNAME`] = o.secret(user)
+    if (password !== undefined) env[`UV_INDEX_FORJR${at}_PASSWORD`] = o.secret(password)
   }
   if (o.packages) {
     const built = Array.isArray(o.project.build) ? o.project.build.filter((one) => typeof one === 'string') : []

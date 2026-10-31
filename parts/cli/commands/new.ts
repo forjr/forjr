@@ -25,7 +25,7 @@ export const command: Command = {
       .map((word, k) => (k ? word[0].toUpperCase() + word.slice(1) : word[0].toLowerCase() + word.slice(1)))
       .join('')
     const title = words.map((word) => word[0].toUpperCase() + word.slice(1)).join(' ')
-    // An ordinary package file, which `tent add` writes a package into: the framework stands in it as what the
+    // An ordinary package file, which `forjr add` writes a package into: the framework stands in it as what the
     // project runs on. A release names its own version, which npm installs into the project, so that the project
     // is built by that version on every computer.
     const shipped = shippedRelease()
@@ -33,8 +33,8 @@ export const command: Command = {
       name: typed.toLowerCase(),
       private: true,
       type: 'module',
-      engines: { tentjs: coreVersion },
-      ...(shipped ? { dependencies: { tentjs: shipped.version } } : {}),
+      engines: { forjr: coreVersion },
+      ...(shipped ? { dependencies: { forjr: shipped.version } } : {}),
     }
     const files = {
       ...sampleFiles(name, title),
@@ -55,8 +55,8 @@ export const command: Command = {
       installed && installed.status !== 0
         ? [
             finding(
-              'T0016',
-              `npm could not install tentjs ${shipped?.version} into ${typed}:
+              'F0016',
+              `npm could not install forjr ${shipped?.version} into ${typed}:
 ${installed.said}`,
               {
                 fix: `Run npm install in ${typed} once this computer reaches the registry.`,

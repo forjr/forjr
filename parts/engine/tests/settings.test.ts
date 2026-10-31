@@ -10,7 +10,7 @@ import { untilTried, watcher } from './watching.ts'
 /** Sends a command to the admin channel of an app, as a command of this computer does, with no network. */
 function command(run: Running, name: string, args: object): Promise<Answered> {
   const token = String(JSON.parse(readFileSync(join(run.dataFolder, 'engine.json'), 'utf8')).token)
-  return send(run.app, `${run.origin}/_t/admin/${name}`, {
+  return send(run.app, `${run.origin}/_f/admin/${name}`, {
     body: JSON.stringify({ args }),
     headers: { authorization: `Bearer ${token}` },
   })
@@ -44,7 +44,7 @@ test('[22-14a] a setting answers its default until one is set, a setting that wa
 
   // The file holds the form of its kind and the values, not encrypted.
   assert.deepEqual(JSON.parse(readFileSync(join(dataFolder, 'settings.test'), 'utf8')), {
-    format: 'tent.settings/1',
+    format: 'forjr.settings/1',
     values: { maxItems: 20, owner: 'Maya', shopName: 'The other shop', tags: ['new', 'sale'] },
   })
   assert.equal(existsSync(join(dataFolder, 'settings.live')), false)
@@ -58,11 +58,11 @@ test('[22-14a] a setting answers its default until one is set, a setting that wa
     ['open', '"yes"'],
   ]) {
     const refused = await command(run, 'settings', { do: 'set', name, value, written: true })
-    assert.deepEqual([refused.body.ok, refused.error.code], [false, 'T0002'], `${name} ${value}`)
+    assert.deepEqual([refused.body.ok, refused.error.code], [false, 'F0002'], `${name} ${value}`)
   }
   // And so is a name that is no setting of the project.
   const unknown = await command(run, 'settings', { do: 'set', name: 'nothing', value: 'x', written: true })
-  assert.deepEqual([unknown.body.ok, unknown.error.code], [false, 'T0002'])
+  assert.deepEqual([unknown.body.ok, unknown.error.code], [false, 'F0002'])
   assert.deepEqual(await app.call('shown', {}, { as: system }), now)
 
   // The list shows each setting with its value, whether it was set, and whether it is public.
@@ -102,7 +102,7 @@ test('[22-14a] with no engine running the settings are written into the file of 
     () =>
       storedValues(dataFolder, bundle.description, { kind: 'settings', name: 'maxItems', value: '-1', written: true }),
     {
-      code: 'T0002',
+      code: 'F0002',
     },
   )
   const app = await engine.open(bundle.folder, { dataFolder, mode: 'test' })

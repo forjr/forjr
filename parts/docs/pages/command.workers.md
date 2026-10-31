@@ -1,11 +1,11 @@
-# `tent workers`
+# `forjr workers`
 
 Lists the workers that are joined to a running writer, and for each kind of worker what waits and what is out. It is for an engine that runs, and starts none.
 
 ## Usage
 
 ```
-tent workers [--release <id>] [--data <folder>]
+forjr workers [--release <id>] [--data <folder>]
 ```
 
 ## Options
@@ -13,13 +13,13 @@ tent workers [--release <id>] [--data <folder>]
 | Option | Means |
 |---|---|
 | `--release <id>` | Hands that worker nothing more, as `app.release` does. The first 8 characters of its id name it |
-| `--data <folder>` | The data folder of the engine to ask. Left out, it is `.tent/` of the project |
+| `--data <folder>` | The data folder of the engine to ask. Left out, it is `.forjr/` of the project |
 
 ## Example
 
 ```
-tent workers --data /srv/shop
-tent workers --release 01m4x5y7
+forjr workers --data /srv/shop
+forjr workers --release 01m4x5y7
 ```
 
 ## Output
@@ -34,7 +34,7 @@ With `--release`, `{ "released": "<id>", "empty": true }`: `empty` says that the
 
 ## Errors
 
-`code.T0013` where no engine runs on the data folder.
+`code.F0013` where no engine runs on the data folder.
 
 ## See also
 

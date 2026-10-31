@@ -18,7 +18,7 @@ function valuesOf(word: string, tick: Tick, list: unknown, field: unknown): unkn
 
 /**
  * Takes a word, its `tick`, a list, and the name of a field. Answers the numbers of the list, or of that field of
- * each entry, without the entries that hold nothing. Throws T0027 for an entry that is no number, and for a value
+ * each entry, without the entries that hold nothing. Throws F0027 for an entry that is no number, and for a value
  * that is no list.
  */
 export function numbersOf(word: string, tick: Tick, list: unknown, field: unknown): number[] {
@@ -40,7 +40,7 @@ function ofKind(word: string, value: unknown): { kind: string; by: number | stri
 /**
  * Takes a word, its `tick`, a list, the name of a field, and whether the largest is asked for. Answers the smallest
  * or the largest of the numbers, the days or the moments of the list, as the entry held it, and nothing for an
- * empty list. Throws T0027 for an entry of another kind, and for two kinds in one list.
+ * empty list. Throws F0027 for an entry of another kind, and for two kinds in one list.
  */
 export function extreme(word: string, tick: Tick, list: unknown, field: unknown, largest: boolean): unknown {
   let best: { value: unknown; kind: string; by: number | string } | undefined

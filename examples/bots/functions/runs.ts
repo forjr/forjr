@@ -1,4 +1,4 @@
-import { action, boolean, change, fail, input, link, query, runs, text } from 'tentjs'
+import { action, boolean, change, fail, input, link, query, runs, text } from 'forjr'
 import { asks } from '../tables/asks'
 import { turns } from '../tables/turns'
 

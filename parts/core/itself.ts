@@ -1,4 +1,4 @@
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 
 /** How many lists and objects may stand inside each other in a value that is stored or checked. */
 const deepest = 200
@@ -117,7 +117,7 @@ export function faultOf(value: unknown, see: Seeing = everyObject, start = 1, mo
 }
 
 /**
- * Throws T1014 for a value that has a fault: no stored form holds it. Every walk that stores a value follows
+ * Throws F1014 for a value that has a fault: no stored form holds it. Every walk that stores a value follows
  * this. `see` says what the walk steps into, as `faultOf` takes it: every list and every object where none is
  * handed.
  */
@@ -130,7 +130,7 @@ export function refuseFault(value: unknown, see: Seeing = everyObject): void {
     large: `A value that would be stored as more than ${largest} values cannot be stored.`,
     kind: 'A value of that kind cannot be stored.',
   }
-  throw new TentError('T1014', words[fault.why], {
+  throw new ForjrError('F1014', words[fault.why], {
     fix: `Write the value so that no list and no object in it holds itself, and none stands more than ${deepest} deep.`,
   })
 }

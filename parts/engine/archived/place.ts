@@ -41,7 +41,7 @@ export function folderPlace(folder: string): ArchivePlace {
 /** Whether a store said that it holds no bytes under a fingerprint: the folder that ships, and a store of the S3 protocol. */
 const gone = (error: unknown): boolean => {
   const code: unknown = Reflect.get(Object(error), 'code')
-  return code === 'ENOENT' || code === 'T0001'
+  return code === 'ENOENT' || code === 'F0001'
 }
 
 /** Reads a whole stream of bytes. */
@@ -57,7 +57,7 @@ async function readAll(stream: ReadableStream<Uint8Array>): Promise<Uint8Array> 
  * removed before it is written again, since a store keeps what one fingerprint names once.
  */
 export function storePlace(store: FileStore, app: string): ArchivePlace {
-  const keyOf = (name: string): string => fingerprintOf(new TextEncoder().encode(`tent.archive/1\n${app}\n${name}`))
+  const keyOf = (name: string): string => fingerprintOf(new TextEncoder().encode(`forjr.archive/1\n${app}\n${name}`))
   return {
     stored: true,
     async put(name, bytes) {

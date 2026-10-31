@@ -26,7 +26,7 @@ function hostShown(o: Opened, client: Client, redirect: string, language: string
   if (client.host) return client.host
   const back = new URL(redirect)
   const here = back.protocol === 'http:' && ['127.0.0.1', 'localhost', '[::1]'].includes(back.hostname)
-  return here ? grantWordOf(o.description, language, 'tent.grant.here') : back.host
+  return here ? grantWordOf(o.description, language, 'forjr.grant.here') : back.host
 }
 
 /**
@@ -61,7 +61,7 @@ export async function askingPage(
   }
   const text = madeText(o, 'decide', { ...deciding })
   const host = hostShown(o, client, asking.redirect, language)
-  const word = client.id === 'tent-cli' ? { word: trusted.word } : {}
+  const word = client.id === 'forjr-cli' ? { word: trusted.word } : {}
   const lines = askingLines(new URL(asking.redirect).origin)
   const own = Object.entries(o.description.screens).find(([, one]) => one.for === 'grant')?.[0]
   if (!own) {
@@ -78,9 +78,9 @@ export async function askingPage(
     return new Response(grantPage(o.description, shown), { status: 200, headers: lines })
   }
   const press = (answer: string) => ({
-    definition: `tent.grant.${answer}`,
+    definition: `forjr.grant.${answer}`,
     kind: 'post' as const,
-    post: '/_t/oauth/decide',
+    post: '/_f/oauth/decide',
     form: { t: text, answer },
   })
   const grant = {

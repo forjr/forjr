@@ -1,4 +1,4 @@
-import { choice, number, screen } from 'tentjs/ui'
+import { choice, number, screen } from 'forjr/ui'
 import { markPaid, openOrders, told } from '../helpers/relay'
 
 export const relayScreen = screen('relayScreen', {

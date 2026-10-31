@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { avg, between, calc, ceil, contains, dayOf, each, earlier, floor, join, later, least, lower, max, min, most, range, read, round, screen, slice, startsWith, sum, trim, upper, where, concat, Link } from 'tentjs/ui'
+import { avg, between, calc, ceil, contains, dayOf, each, earlier, floor, join, later, least, lower, max, min, most, range, read, round, screen, slice, startsWith, sum, trim, upper, where, concat, Link } from 'forjr/ui'
 import { allOrders } from './functions'
 
 // Each value word that a view may hold, once, as the screen below holds them beside a state of React.

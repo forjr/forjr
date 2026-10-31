@@ -1,4 +1,4 @@
-import { project } from 'tentjs'
+import { project } from 'forjr'
 
 // An action may take far less time than the fetch of a part is waited for: the wait is no part of its time.
 export const parted = project('parted', {

@@ -8,8 +8,8 @@ import { lastBuilt, record, stand } from './record.ts'
 /**
  * Takes the folder of a project, a word that names a point, and who goes back. Records the present as a point,
  * writes the files of the named point, and records a point of the kind `back` whose parent is the present: so
- * going back can itself be undone, and nothing of the history is cut off. Answers the `back` point. Throws T9107
- * for a point that is not there or that was dropped, and T0013 where a file of the named point would be written
+ * going back can itself be undone, and nothing of the history is cut off. Answers the `back` point. Throws F9107
+ * for a point that is not there or that was dropped, and F0013 where a file of the named point would be written
  * over one that no point holds or through a link, before anything is recorded or written.
  */
 export function back(file: SqliteFile, project: string, word: string, by: Writer): Point {

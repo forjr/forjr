@@ -1,7 +1,7 @@
 import type { PageStore } from '../store.ts'
 
 // The name of the address that carries a token of the inspect mode.
-const named = 't-inspect'
+const named = 'f-inspect'
 
 // The token of the page, which it took out of its address and keeps alone.
 let held: string | undefined
@@ -22,12 +22,12 @@ export function tokenTaken(): string | undefined {
 
 /**
  * Takes an address of the app that the page loads whole. Answers it with the token as a name of its own, so that
- * the page it loads is in the mode too. An address of another site, and one under `/_t/`, is answered as it is.
+ * the page it loads is in the mode too. An address of another site, and one under `/_f/`, is answered as it is.
  */
 export function tokenOn(address: string): string {
   if (held === undefined) return address
   const at = new URL(address, window.location.href)
-  if (at.origin !== window.location.origin || at.pathname.startsWith('/_t/')) return address
+  if (at.origin !== window.location.origin || at.pathname.startsWith('/_f/')) return address
   at.searchParams.set(named, held)
   return `${at.pathname}${at.search}${at.hash}`
 }

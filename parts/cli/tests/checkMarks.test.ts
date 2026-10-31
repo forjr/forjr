@@ -5,12 +5,12 @@ import { test } from 'node:test'
 import { openHistory } from '../../history/index.ts'
 import { copied, typed } from './typed.ts'
 
-test('[40-3] tent check marks now with what it found, after recording a point where the files are no longer those of now, and records none where they are', async (t) => {
+test('[40-3] forjr check marks now with what it found, after recording a point where the files are no longer those of now, and records none where they are', async (t) => {
   const project = copied(t, 'check-marks')
   const first = await typed(project, 'check', '--json')
   assert.equal(first.ended, 0, first.printed)
   const read = () => {
-    const history = openHistory(join(project, '.tent'))
+    const history = openHistory(join(project, '.forjr'))
     try {
       const now = history.pointer('now')
       const point = now === undefined ? undefined : history.read(now)

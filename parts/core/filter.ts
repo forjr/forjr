@@ -1,4 +1,4 @@
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 import { refuseFault } from './itself.ts'
 import { isMarked } from './mark.ts'
 import { asValue, writtenEntries, isWritten } from './written.ts'
@@ -53,7 +53,7 @@ const asList = (written: unknown): unknown[] => (Array.isArray(written) ? writte
 /**
  * Takes a filter as it is written: a record from a column to a value, which means "equals", or to a record of
  * operators, with `any`, `all` and `not` to join filters. Answers the filter as it is stored. Two operators on one
- * column, and several columns, are joined with `all`, in the order they were written. Throws T1014 for a filter
+ * column, and several columns, are joined with `all`, in the order they were written. Throws F1014 for a filter
  * that holds itself, and for one that is nested more than 200 deep.
  */
 export function filterOf(written: unknown): Filter {
@@ -67,8 +67,8 @@ export function filterOf(written: unknown): Filter {
 function joinedOf(written: unknown, above: Set<object>): Filter {
   if (!isWritten(written)) return { all: [] }
   if (above.has(written) || above.size >= 200)
-    throw new TentError(
-      'T1014',
+    throw new ForjrError(
+      'F1014',
       above.has(written)
         ? 'A value that holds itself cannot be stored.'
         : 'A value that is nested more than 200 deep cannot be stored.',

@@ -1,4 +1,4 @@
-import { Form, read, screen, useCall, useGoTo } from 'tentjs/ui'
+import { Form, read, screen, useCall, useGoTo } from 'forjr/ui'
 import { TalkOf } from '../components/BotTalk'
 import { Frame } from '../components/Frame'
 import { CheckCircleIcon } from '../components/icons'

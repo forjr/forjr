@@ -23,7 +23,7 @@ const isText = (value: unknown): value is string => typeof value === 'string'
 
 /**
  * A point of another history as this one stores it: what the point itself holds, and nothing that the other
- * computer found of it but its description and its note. Throws T9107 where it has not the form of a point, where
+ * computer found of it but its description and its note. Throws F9107 where it has not the form of a point, where
  * its id does not fit what it holds, where a path of it is none, and where the bytes of a file are not here. A
  * point that was dropped holds no files, and is taken as it is.
  */
@@ -75,7 +75,7 @@ function taken(file: SqliteFile, sent: Point): Point {
 /**
  * Takes blobs and points of another history, and stores them in one write: all of them, or none. Every
  * fingerprint and every id is checked, and a point is taken once its parents are here, in whatever order they were
- * sent. A point that is here already is left as it is. Throws T9107 for bytes that do not fit their fingerprint,
+ * sent. A point that is here already is left as it is. Throws F9107 for bytes that do not fit their fingerprint,
  * for a point that `taken` refuses, and for a point whose parent is neither here nor among what was sent.
  */
 export function take(file: SqliteFile, o: { blobs?: Record<string, Uint8Array>; points?: Point[] }): void {

@@ -1,5 +1,5 @@
 import type { Caller, Db } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description, Plan } from '../core/internal.ts'
 import { answered } from './answered.ts'
 import type { DbContext, DbOptions } from './context.ts'
@@ -177,8 +177,8 @@ export function createDb(
   const sqlOf = (text: string, values: unknown[], of: string): unknown[] => {
     const file = files ? fileNamed(files, of) : undefined
     if (!files || !file)
-      throw new TentError(
-        'T2104',
+      throw new ForjrError(
+        'F2104',
         `Raw SQL names the tenant ${JSON.stringify(of).slice(0, 64)}, and no tenant has that id.`,
       )
     const inside = insideOf(files)
@@ -186,7 +186,7 @@ export function createDb(
       inside.raw(
         file,
         (held) => {
-          if (!held.sql) throw new TentError('T0013', 'Raw SQL was used on a store that has none.')
+          if (!held.sql) throw new ForjrError('F0013', 'Raw SQL was used on a store that has none.')
           return held.sql(text, values)
         },
         how,
@@ -207,11 +207,11 @@ export function createDb(
       try {
         return reads('asItIs')
       } catch (error) {
-        if (error instanceof TentError && error.code === 'T0012') throw error
+        if (error instanceof ForjrError && error.code === 'F0012') throw error
         try {
           reads('empty')
         } catch (again) {
-          throw again instanceof TentError && again.code === 'T0012' ? again : error
+          throw again instanceof ForjrError && again.code === 'F0012' ? again : error
         }
         return reads()
       }
@@ -235,13 +235,13 @@ export function createDb(
   /**
    * Runs a raw text of a change for a file whose write is not open. A change reads any file, and only a text that
    * writes opens the write of its file, and makes the file of a tenant with none. So the text is tried where
-   * nothing can be written: the store refuses one that writes before it runs (T0012), and that one opens the write.
+   * nothing can be written: the store refuses one that writes before it runs (F0012), and that one opens the write.
    */
   const readFirst = (read: () => unknown[], writes: () => unknown[]): unknown[] => {
     try {
       return read()
     } catch (error) {
-      if (!(error instanceof TentError && error.code === 'T0012')) throw error
+      if (!(error instanceof ForjrError && error.code === 'F0012')) throw error
     }
     return writes()
   }
@@ -266,7 +266,7 @@ export function createDb(
     }
     // A `db` that only reads, made over a write, runs a text that may only read.
     const raw = store?.sql ?? (write ? (asked: string, given: unknown[]) => write().sqlRead(asked, given) : undefined)
-    if (!raw) throw new TentError('T0013', 'Raw SQL was used on a store that has none.')
+    if (!raw) throw new ForjrError('F0013', 'Raw SQL was used on a store that has none.')
     return raw(text, values)
   }
 

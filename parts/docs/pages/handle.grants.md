@@ -5,7 +5,7 @@ What people allowed programs: each grant a person gave a chat app or the app's o
 ## Example
 
 ```ts
-import { action, date, grants, list, object, query, text } from 'tentjs'
+import { action, date, grants, list, object, query, text } from 'forjr'
 
 export const myGrants = query('myGrants', {
   access: 'signedIn',
@@ -30,11 +30,11 @@ export const endGrant = action('endGrant', {
 
 `list` is a read, so a query may call it, with an `output`. `end` writes, so it works in a change and in an action. A person's removal ends their grants; signing out ends none, and neither does the end of an outside login that `identify` rests on: there the builder's own code ends them with `grants.end`.
 
-**How a grant is made.** A program sends the person to `/_t/oauth/authorize`; the person signs in at the project's `signInPath` and is asked on a page, the engine's own or a screen of the builder's that states `for: 'grant'`; the program changes the code it is sent back with for an access token, good for `limits.tokenTime` (1 hour), and a renewal token, good for `limits.grantTime` (30 days) from its last use. The data keeps the fingerprints of the tokens and nothing that opens them. `topic.mcp.signIn` says each step.
+**How a grant is made.** A program sends the person to `/_f/oauth/authorize`; the person signs in at the project's `signInPath` and is asked on a page, the engine's own or a screen of the builder's that states `for: 'grant'`; the program changes the code it is sent back with for an access token, good for `limits.tokenTime` (1 hour), and a renewal token, good for `limits.grantTime` (30 days) from its last use. The data keeps the fingerprints of the tokens and nothing that opens them. `topic.mcp.signIn` says each step.
 
 ## Errors
 
-`code.T0013` for `grants.list(user)` of another user in code that states no `system`, and for `grants.end` in a query.
+`code.F0013` for `grants.list(user)` of another user in code that states no `system`, and for `grants.end` in a query.
 
 ## See also
 

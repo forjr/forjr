@@ -37,17 +37,17 @@ test('[25-12] python.index with a secret, and python.build, reach the installer:
   assert.deepEqual(args.slice(0, 3), ['pip', 'sync', 'python.lock'])
   const after = (flag: string): string[] => args.flatMap((one, at) => (one === flag ? [args[at + 1] ?? ''] : []))
   assert.deepEqual(after('--index'), [
-    'tent0=https://packages.example.com/simple',
-    'tent1=https://own.example.com/simple',
+    'forjr0=https://packages.example.com/simple',
+    'forjr1=https://own.example.com/simple',
   ])
   assert.deepEqual(after('--default-index'), ['https://pypi.org/simple'])
   assert.deepEqual(after('--only-binary'), ['natone', 'tinyone'])
   assert.deepEqual(after('--python'), ['/fetched/python-3.15@3.15.0/python/bin/python3'])
   assert.deepEqual(after('--cache-dir'), ['/fetched/python-cache'])
   for (const flag of ['--no-config', '--no-python-downloads']) assert.ok(args.includes(flag), flag)
-  assert.equal(env.UV_INDEX_TENT1_USERNAME, 'reader')
-  assert.equal(env.UV_INDEX_TENT1_PASSWORD, 's3cret')
-  assert.equal(env.UV_INDEX_TENT0_USERNAME, undefined)
+  assert.equal(env.UV_INDEX_FORJR1_USERNAME, 'reader')
+  assert.equal(env.UV_INDEX_FORJR1_PASSWORD, 's3cret')
+  assert.equal(env.UV_INDEX_FORJR0_USERNAME, undefined)
   // The password stands in the environment of the installer alone, and in none of its words.
   assert.equal(args.join(' ').includes('s3cret'), false)
   // With nothing that may be built, every package is held to ready-built files.
@@ -73,7 +73,7 @@ test("[25-12] the installer is started with a named list of the environment alon
     Object.assign(process.env, before)
   })
   Object.assign(process.env, {
-    TENT_SECRET_KEY: 'the-key-of-the-secrets',
+    FORJR_SECRET_KEY: 'the-key-of-the-secrets',
     UV_INDEX_URL: 'https://elsewhere.example.com/simple',
     PIP_INDEX_URL: 'https://elsewhere.example.com/simple',
     PYTHONPATH: '/somewhere',
@@ -91,7 +91,7 @@ test("[25-12] the installer is started with a named list of the environment alon
     packages: [],
     secret,
   })
-  for (const name of ['TENT_SECRET_KEY', 'UV_INDEX_URL', 'PIP_INDEX_URL', 'PYTHONPATH', 'SOMETHING_ELSE'])
+  for (const name of ['FORJR_SECRET_KEY', 'UV_INDEX_URL', 'PIP_INDEX_URL', 'PYTHONPATH', 'SOMETHING_ELSE'])
     assert.equal(env[name], undefined, name)
   assert.equal(env.HTTPS_PROXY, 'http://proxy.example.com:3128')
   assert.equal(env.NO_PROXY, 'localhost')
@@ -106,7 +106,7 @@ test("[25-12] the installer is started with a named list of the environment alon
 })
 
 test("[25-12] the installer reads no .netrc of the person's own: it is handed an empty one of the engine's, which stands in its cache", async (t) => {
-  const person = mkdtempSync(join(tmpdir(), 'tent-person-'))
+  const person = mkdtempSync(join(tmpdir(), 'forjr-person-'))
   const before = process.env.NETRC
   t.after(() => {
     if (before === undefined) delete process.env.NETRC

@@ -1,4 +1,4 @@
-import { col, count, fingerprint, input, query, table, text, concat } from 'tentjs'
+import { col, count, fingerprint, input, query, table, text, concat } from 'forjr'
 
 // A sealed column that is only kept and handed out, with the fingerprint of its value beside it to find a row by.
 export const vault = table('vault', {
@@ -21,7 +21,7 @@ export const byPrint = query('byPrint', {
   rows: vault.where({ keyPrint: fingerprint(input('key')) }).limit(20),
 })
 
-// T2011: a sealed column in an index, in `unique`, in `search`, and named by a `from`.
+// F2011: a sealed column in an index, in `unique`, in `search`, and named by a `from`.
 
 export const indexed = table('indexed', {
   columns: { name: text(), key: text({ sealed: true }) },
@@ -51,7 +51,7 @@ export const flagged = table('flagged', {
   access: { read: 'signedIn' },
 })
 
-// T2011: a sealed column in a filter, a sort and a group, written with `rows` and in a body.
+// F2011: a sealed column in a filter, a sort and a group, written with `rows` and in a body.
 
 export const byKey = query('byKey', { access: 'signedIn', rows: vault.where({ key: 'door' }).limit(20) })
 

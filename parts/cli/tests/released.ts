@@ -52,7 +52,7 @@ export function testKey(folder: string, name: string): TestKey {
   const { publicKey, privateKey } = generateKeyPairSync('ed25519')
   const jwk = privateKey.export({ format: 'jwk' })
   const raw = (text: unknown): string => Buffer.from(String(text), 'base64url').toString('base64')
-  const key = { format: 'tent.maker/1', name: `test-${name}`, public: raw(jwk.x), private: raw(jwk.d) }
+  const key = { format: 'forjr.maker/1', name: `test-${name}`, public: raw(jwk.x), private: raw(jwk.d) }
   mkdirSync(folder, { recursive: true })
   const file = join(folder, `test-key-${name}.json`)
   writeFileSync(file, `${JSON.stringify(key, null, 2)}\n`)
@@ -133,7 +133,7 @@ export async function released(version: string, more: string[] = []): Promise<Re
 /** Makes an empty folder for one test in the temporary folder of the system, removed when the test ends. */
 export function outsideFolderOf(t: TestContext, name: string): string {
   // Outside the repository, so that nothing of it finds the packages of the repository above it, as on a clean computer.
-  const folder = join(tmpdir(), 'tent-install-tests', `${name}-${process.pid}-${Date.now()}`)
+  const folder = join(tmpdir(), 'forjr-install-tests', `${name}-${process.pid}-${Date.now()}`)
   mkdirSync(folder, { recursive: true })
   t.after(async () => {
     // What a test started is ended before its folder goes: a program that runs holds its files.
@@ -146,7 +146,7 @@ export function outsideFolderOf(t: TestContext, name: string): string {
 /** The folders of a person on a clean computer: a home of their own, and in it the folder of the install. */
 export interface Person {
   home: string
-  tent: string
+  forjr: string
   env: Record<string, string>
 }
 
@@ -162,13 +162,13 @@ const systemPath = (): string[] =>
 
 /**
  * Takes a folder and whether the person has npm. Answers a person whose own folders lie in it, with the folder of
- * the install as `TENT_HOME`, and the environment their programs run in: nothing of this computer's own folders,
+ * the install as `FORJR_HOME`, and the environment their programs run in: nothing of this computer's own folders,
  * nothing that names the framework, and on the path the system's folders, with the runtime and its npm where they
  * have npm.
  */
 export function personIn(folder: string, o: { npm: boolean }): Person {
   const home = join(folder, 'person')
-  const tent = join(home, 'tent-home')
+  const forjr = join(home, 'forjr-home')
   for (const one of ['AppData/Roaming', 'AppData/Local', 'temp', 'npm-cache'])
     mkdirSync(join(home, one), { recursive: true })
   const kept = ['SystemRoot', 'SYSTEMROOT', 'windir', 'ComSpec', 'PATHEXT', 'SystemDrive', 'LANG', 'TERM']
@@ -184,13 +184,13 @@ export function personIn(folder: string, o: { npm: boolean }): Person {
     TEMP: join(home, 'temp'),
     TMP: join(home, 'temp'),
     TMPDIR: join(home, 'temp'),
-    TENT_HOME: tent,
+    FORJR_HOME: forjr,
     npm_config_cache: join(home, 'npm-cache'),
     npm_config_update_notifier: 'false',
     npm_config_fund: 'false',
     npm_config_audit: 'false',
   })
-  return { home, tent, env }
+  return { home, forjr, env }
 }
 
 /** What a program printed and how it ended. */
@@ -421,7 +421,7 @@ function layIn(folder: string, layer: string): void {
 
 /** The launcher in `bin/` of an install. */
 export const launcherIn = (home: string): string =>
-  process.platform === 'win32' ? join(home, 'bin', 'tent.exe') : join(home, 'bin', 'tent')
+  process.platform === 'win32' ? join(home, 'bin', 'forjr.exe') : join(home, 'bin', 'forjr')
 
 /**
  * Lays a direct install of a release into the folder of the install as its installer does: the layers it names
@@ -433,10 +433,10 @@ export function laidInstall(rel: Released, home: string, layers: string[]): stri
   mkdirSync(join(home, 'bin'), { recursive: true })
   const launcher = launcherIn(home)
   if (process.platform === 'win32') {
-    for (const one of ['tent.exe', 'tentw.exe'])
+    for (const one of ['forjr.exe', 'forjrw.exe'])
       writeFileSync(join(home, 'bin', one), readFileSync(join(rel.folder, 'windows', one)))
   } else {
-    writeFileSync(launcher, readFileSync(join(version, 'player', 'launcher', 'tent')))
+    writeFileSync(launcher, readFileSync(join(version, 'player', 'launcher', 'forjr')))
     spawnSync('chmod', ['755', launcher])
   }
   writeFileSync(join(home, 'current'), `${rel.version}\n`)
@@ -480,7 +480,7 @@ async function stopped(one: Started): Promise<void> {
   await Promise.race([one.ended, new Promise((done) => setTimeout(done, 15_000))])
 }
 
-/** Starts a program that does not end by itself, as `tent dev` does. It is ended with the test. */
+/** Starts a program that does not end by itself, as `forjr dev` does. It is ended with the test. */
 export function startedIn(
   t: TestContext,
   program: string,
@@ -509,14 +509,14 @@ export function startedIn(
 }
 
 /**
- * Waits for the engine that `tent dev` runs for a project, by the `engine.json` it writes into the project's
- * `.tent/`, and answers the page at its root once the engine answers it.
+ * Waits for the engine that `forjr dev` runs for a project, by the `engine.json` it writes into the project's
+ * `.forjr/`, and answers the page at its root once the engine answers it.
  */
 export async function pageOf(dev: Started, project: string): Promise<{ status: number; text: string }> {
-  const file = join(project, '.tent', 'engine.json')
+  const file = join(project, '.forjr', 'engine.json')
   let answer: { status: number; text: string } | undefined
   await until(async () => {
-    if (dev.child.exitCode !== null) throw new Error(`tent dev ended: ${dev.said()}`)
+    if (dev.child.exitCode !== null) throw new Error(`forjr dev ended: ${dev.said()}`)
     if (!existsSync(file)) return false
     try {
       const { port } = JSON.parse(readFileSync(file, 'utf8'))
@@ -526,11 +526,11 @@ export async function pageOf(dev: Started, project: string): Promise<{ status: n
     } catch {
       return false
     }
-  }, 'the page that tent dev serves')
-  assert.ok(answer, `tent dev said: ${dev.said()}`)
+  }, 'the page that forjr dev serves')
+  assert.ok(answer, `forjr dev said: ${dev.said()}`)
   return answer
 }
 
-/** The command that runs `tent` of an npm install of a person, through the launcher npm wrote. */
-export const npmTent = (prefix: string): string =>
-  process.platform === 'win32' ? join(prefix, 'tent.cmd') : join(prefix, 'bin', 'tent')
+/** The command that runs `forjr` of an npm install of a person, through the launcher npm wrote. */
+export const npmForjr = (prefix: string): string =>
+  process.platform === 'win32' ? join(prefix, 'forjr.cmd') : join(prefix, 'bin', 'forjr')

@@ -1,4 +1,4 @@
-import { screen, read, Form, Link } from 'tentjs/ui'
+import { screen, read, Form, Link } from 'forjr/ui'
 import { addNote, allNotes, noteBySlug } from './functions'
 
 export const homeScreen = screen('homeScreen', {

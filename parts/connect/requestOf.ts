@@ -1,5 +1,5 @@
 import type { Caller, Type } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { coreVersion, isStored } from '../core/internal.ts'
 import { isType, shapeOf } from './callInput.ts'
 import type { ConnectEnv } from './env.ts'
@@ -33,10 +33,10 @@ export function valueOf(env: ConnectEnv, written: unknown): string {
 // (the URL standard, "single-dot path segment"; RFC 3986, section 6.2.2.2): no writing keeps it one part.
 const dotsAlone = /^(?:\.|%2e){1,2}$/i
 
-/** A value written as one part of the address: with percent signs, and T0002 for one that would be a step of the path. */
+/** A value written as one part of the address: with percent signs, and F0002 for one that would be a step of the path. */
 function partOf(call: string, field: string, text: string): string {
   if (dotsAlone.test(text))
-    throw new TentError('T0002', `The input of ${call} does not fit: ${field} is a dot or two dots alone.`, {
+    throw new ForjrError('F0002', `The input of ${call} does not fit: ${field} is a dot or two dots alone.`, {
       fields: { [field]: 'is a dot or two dots alone, which an address reads as a step of its path' },
       fix: 'Give a value that holds more than dots, or send it in the body or after the question mark.',
     })
@@ -49,7 +49,7 @@ async function bytesOf(stream: ReadableStream<Uint8Array>): Promise<Uint8Array<A
 }
 
 /**
- * A file of the input as a piece of a body, for the caller: the rule of a download holds first (T2104 otherwise),
+ * A file of the input as a piece of a body, for the caller: the rule of a download holds first (F2104 otherwise),
  * and its bytes are opened only when they are sent.
  */
 function filePiece(env: ConnectEnv, id: unknown, caller: Caller): { name: string; kind: string; bytes: Piece } {
@@ -72,7 +72,7 @@ async function fileOf(
   return { name: info.name, kind: info.kind, bytes }
 }
 
-/** A value inside a body of JSON, with each file written as base64 where the call says so, and T1014 otherwise. */
+/** A value inside a body of JSON, with each file written as base64 where the call says so, and F1014 otherwise. */
 async function inJson(
   env: ConnectEnv,
   name: string,
@@ -82,7 +82,7 @@ async function inJson(
 ): Promise<unknown> {
   if (type.kind === 'file') {
     if (o.files !== 'base64')
-      throw new TentError('T1014', `The file ${name} cannot be written into a body of JSON.`, {
+      throw new ForjrError('F1014', `The file ${name} cannot be written into a body of JSON.`, {
         fix: "State `files: 'base64'` on the call, or send the file in a body in parts, `body: 'files'`.",
       })
     return Buffer.from((await fileOf(env, value, o.caller)).bytes).toString('base64')
@@ -198,7 +198,7 @@ export async function requestOf(
   const lines = new Headers()
   if (type) lines.set('Content-Type', type)
   if (!(isType(call.output) && call.output.kind === 'file')) lines.set('Accept', 'application/json')
-  lines.set('User-Agent', `tentjs/${coreVersion}`)
+  lines.set('User-Agent', `forjr/${coreVersion}`)
   if (isStored(stored.headers))
     for (const [header, value] of Object.entries(stored.headers)) lines.set(header, valueOf(env, value))
   for (const [header, value] of headers) lines.set(header, value)

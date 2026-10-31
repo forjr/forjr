@@ -5,7 +5,7 @@ import { test } from 'node:test'
 import { pathToFileURL } from 'node:url'
 import type { Mailer, OpenOptions, Room, RoomInput } from '../index.ts'
 import { apartRoom } from '../index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Clock } from '../../core/internal.ts'
 import { NotReady } from '../../data/index.ts'
 import { errorIn, errorOut } from '../rooms/callables.ts'
@@ -57,7 +57,7 @@ async function apart(
   return { ...run, counted }
 }
 
-test('[52-6] in the test room a code query that reads three times and calls a query answers at once, a code change that writes twice and calls a change is one write undone whole, a rule of a table that is code holds in a plan and in code, and the clock and the random source are T4101 in a query and answer in an action', async (t) => {
+test('[52-6] in the test room a code query that reads three times and calls a query answers at once, a code change that writes twice and calls a change is one write undone whole, a rule of a table that is code holds in a plan and in code, and the clock and the random source are F4101 in a query and answer in an action', async (t) => {
   const { app, engine, bundle } = await apart(t)
   const marks: unknown = Reflect.get(globalThis, 'apartLoaded')
   const loaded = (Array.isArray(marks) ? marks : []).map(String)
@@ -86,14 +86,14 @@ test('[52-6] in the test room a code query that reads three times and calls a qu
   )
   assert.equal(await app.call('letterCode', {}, { as: ada }), 1)
   for (const how of ['now', 'random'])
-    assert.equal(await codeOf(app.call('clockInQuery', { how }, { as: nobody })), 'T4101', how)
+    assert.equal(await codeOf(app.call('clockInQuery', { how }, { as: nobody })), 'F4101', how)
   assert.equal(typeof (await app.call('clockInAction', {}, { as: nobody })), 'number')
 })
 
-test('[52-7] in the test room a code query that never ends is T0008 at queryTime, and an action at actionTime, with the room made anew for the next call; code that fills memory is T0037, and the app answers the next call', async (t) => {
+test('[52-7] in the test room a code query that never ends is F0008 at queryTime, and an action at actionTime, with the room made anew for the next call; code that fills memory is F0037, and the app answers the next call', async (t) => {
   const { app, counted } = await apart(t)
   const began = performance.now()
-  assert.equal(await codeOf(app.call('loops', {}, { as: nobody })), 'T0008')
+  assert.equal(await codeOf(app.call('loops', {}, { as: nobody })), 'F0008')
   const took = performance.now() - began
   // The room makes its thread anew at once: the next call is answered once that thread has started.
   const started = (): Promise<void> => new Promise((done) => setTimeout(done, 1500))
@@ -101,20 +101,20 @@ test('[52-7] in the test room a code query that never ends is T0008 at queryTime
   assert.ok(took >= 950 && took < 5000, `ended at queryTime, after ${Math.round(took)} ms`)
   assert.equal(await app.call('oneRead', {}, { as: nobody }), 0, 'the next call is answered')
   const later = performance.now()
-  assert.equal(await codeOf(app.call('loopsAction', {}, { as: nobody })), 'T0008')
+  assert.equal(await codeOf(app.call('loopsAction', {}, { as: nobody })), 'F0008')
   const tookAction = performance.now() - later
   await started()
   assert.ok(tookAction >= 4950 && tookAction < 12000, `ended at actionTime, after ${Math.round(tookAction)} ms`)
   assert.equal(await app.call('oneRead', {}, { as: nobody }), 0)
-  assert.equal(await codeOf(app.call('fills', {}, { as: nobody })), 'T0037')
+  assert.equal(await codeOf(app.call('fills', {}, { as: nobody })), 'F0037')
   await started()
   assert.equal(await app.call('oneRead', {}, { as: nobody }), 0, 'the app answers after the room passed its memory')
   assert.equal(counted.made, 1, 'one room, whose thread was made anew')
 })
 
-test('[52-7] in the room of the program an action past its time is T0008, as before', async (t) => {
+test('[52-7] in the room of the program an action past its time is F0008, as before', async (t) => {
   const { app } = await running(t, { project: 'apart' })
-  assert.equal(await codeOf(app.call('asCaller', { wait: 6000 }, { as: nobody })), 'T0008')
+  assert.equal(await codeOf(app.call('asCaller', { wait: 6000 }, { as: nobody })), 'F0008')
 })
 
 test('[52-8] in the test room two actions that wait side by side as two callers each call a query and send mail as their own caller', async (t) => {
@@ -138,7 +138,7 @@ test('[52-8] in the test room two actions that wait side by side as two callers 
   )
 })
 
-test('[52-5] in the test room a stream of a fetch of 10 MB is pulled piece by piece, a failure of ours is caught as a TentError with its code and fields, an error and a thrown text are T0009 with what they rest on, and a callable kept past its call is T0013', async (t) => {
+test('[52-5] in the test room a stream of a fetch of 10 MB is pulled piece by piece, a failure of ours is caught as a ForjrError with its code and fields, an error and a thrown text are F0009 with what they rest on, and a callable kept past its call is F0013', async (t) => {
   const piece = new Uint8Array(64 * 1024).fill(7)
   const server = createServer((_, answer) => {
     answer.writeHead(200, { 'content-type': 'application/octet-stream' })
@@ -162,21 +162,21 @@ test('[52-5] in the test room a stream of a fetch of 10 MB is pulled piece by pi
   assert.ok(Number(Reflect.get(Object(fetched), 'pieces')) > 1, 'the body was pulled piece by piece')
   assert.equal(await app.call('catches', {}, { as: nobody }), 'not-today {"what":"taken"}')
   const thrown = await refusal(app.call('throwsError', {}, { as: nobody }))
-  assert.equal(thrown.code, 'T0009')
+  assert.equal(thrown.code, 'F0009')
   assert.ok(Reflect.get(thrown, 'cause') instanceof RangeError, 'an error of the code crosses as its kind')
   const failed = logRows(dataFolder, 'errors').find((one) => one.name === 'throwsError')
   assert.match(String(failed?.stack), /functions\.ts/, 'its trace points into the source of the app')
-  assert.equal(await codeOf(app.call('throwsText', {}, { as: nobody })), 'T0009')
+  assert.equal(await codeOf(app.call('throwsText', {}, { as: nobody })), 'F0009')
   assert.equal(await app.call('keepSay', {}, { as: nobody }), 'kept')
-  assert.equal(await codeOf(app.call('laterSay', {}, { as: system })), 'T0013')
+  assert.equal(await codeOf(app.call('laterSay', {}, { as: system })), 'F0013')
 })
 
 test('[52-5] in the test room a file that is not ready, a refusal that carries its place and a stopped call each cross as the same mark, both ways, so the engine steers the call by it as in the program', async (t) => {
   const file = { table: 'teams', id: 'team-1' }
   const marks: Record<string, () => Error> = {
     notReady: () => new NotReady(file),
-    refused: () => new TentError('T7111', 'A person did not agree to the call.', { place: { name: 'send', nth: 2 } }),
-    stopped: () => new TentError('T5106', 'The run was stopped before it ended.'),
+    refused: () => new ForjrError('F7111', 'A person did not agree to the call.', { place: { name: 'send', nth: 2 } }),
+    stopped: () => new ForjrError('F5106', 'The run was stopped before it ended.'),
   }
   let next: (() => Error) | undefined
   // The test room, its ways watched: the change the code calls meets the mark the engine raised there.
@@ -200,15 +200,15 @@ test('[52-5] in the test room a file that is not ready, a refusal that carries i
   }
   assert.deepEqual(seen, {
     notReady: { kind: 'NotReady', code: null, place: null, file },
-    refused: { kind: 'TentError', code: 'T7111', place: { name: 'send', nth: 2 }, file: null },
-    stopped: { kind: 'TentError', code: 'T5106', place: null, file: null },
+    refused: { kind: 'ForjrError', code: 'F7111', place: { name: 'send', nth: 2 }, file: null },
+    stopped: { kind: 'ForjrError', code: 'F5106', place: null, file: null },
   })
   // What crosses back to the engine is rebuilt as the same, so the engine's `instanceof` steers it as in the program.
   for (const [name, mark] of Object.entries(marks)) {
     const back = errorIn(structuredClone(errorOut(mark())))
     assert.equal(back instanceof NotReady, name === 'notReady', name)
     if (back instanceof NotReady) assert.deepEqual(back.file, file)
-    if (back instanceof TentError)
+    if (back instanceof ForjrError)
       assert.deepEqual([back.code, back.place], [Reflect.get(mark(), 'code'), Reflect.get(mark(), 'place')])
   }
 })

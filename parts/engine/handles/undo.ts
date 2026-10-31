@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { By } from '../../data/index.ts'
 import { callOf } from '../handleCall.ts'
 import type { Opened } from '../opened.ts'
@@ -7,18 +7,18 @@ import type { Undone } from '../undo/undone.ts'
 import { undoneBy } from '../undo/undone.ts'
 import { isStored } from '../../core/internal.ts'
 
-/** The id that a member is handed. Throws T0002 for anything else. */
+/** The id that a member is handed. Throws F0002 for anything else. */
 function idOf(id: unknown, what: string): string {
   if (typeof id === 'string' && id !== '') return id
-  throw new TentError('T0002', `\`undo\` is handed the id of ${what}.`, { fields: { id: 'type' } })
+  throw new ForjrError('F0002', `\`undo\` is handed the id of ${what}.`, { fields: { id: 'type' } })
 }
 
-/** The moment that `since` names. Throws T0002 for one that is none. */
+/** The moment that `since` names. Throws F0002 for one that is none. */
 function sinceOf(how: unknown): number {
   const since: unknown = Reflect.get(Object(how), 'since')
   const at = since instanceof Date ? since.getTime() : typeof since === 'string' ? Date.parse(since) : Number.NaN
   if (Number.isFinite(at)) return at
-  throw new TentError('T0002', '`since` is the moment from which what was written is taken back.', {
+  throw new ForjrError('F0002', '`since` is the moment from which what was written is taken back.', {
     fields: { since: 'type' },
   })
 }

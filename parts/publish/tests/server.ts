@@ -73,8 +73,8 @@ export async function started(
   cpSync(join(import.meta.dirname, o.project ?? 'shop'), project, { recursive: true })
   if (o.limits)
     writeFileSync(
-      join(project, 'tent.ts'),
-      `import { project } from 'tentjs'\n\nexport const shop = project('shop', { title: 'Shop', limits: ${o.limits} })\n`,
+      join(project, 'forjr.ts'),
+      `import { project } from 'forjr'\n\nexport const shop = project('shop', { title: 'Shop', limits: ${o.limits} })\n`,
     )
   const built = await buildProject(project, { for: 'release', out: join(folder, 'bundle') })
   assert.deepEqual(
@@ -127,7 +127,7 @@ export async function describedNow(project: string): Promise<Description> {
 export function computer(t: TestContext, folder: string, name: string, from?: string): Computer {
   const project = join(folder, name)
   cpSync(from ?? join(import.meta.dirname, 'shop'), project, { recursive: true })
-  const history = openHistory(join(project, '.tent'))
+  const history = openHistory(join(project, '.forjr'))
   closing(t, () => history.close())
   return {
     project,

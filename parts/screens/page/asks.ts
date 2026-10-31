@@ -16,14 +16,14 @@ export interface Asks {
 /**
  * Takes what sends a request, as `fetch` of a browser does. Answers what a page asks its engine through. It keeps
  * the latest write that the page was answered at or sent, on an app of many machines, and each request names it
- * as `Tent-After`: so a machine which holds less waits for it, and the page never goes back in time.
+ * as `Forjr-After`: so a machine which holds less waits for it, and the page never goes back in time.
  */
 export function asksOf(send: (address: string, how: RequestInit) => Promise<Response>): Asks {
   let seen: string | undefined
-  const after = (): Record<string, string> => (seen === undefined ? {} : { 'tent-after': seen })
+  const after = (): Record<string, string> => (seen === undefined ? {} : { 'forjr-after': seen })
   /** Reads what came back as JSON, and keeps the write that the answer stands at. */
   const taken = (answer: Response): Promise<unknown> => {
-    seen = laterWrite(seen, answer.headers.get('tent-at'))
+    seen = laterWrite(seen, answer.headers.get('forjr-at'))
     return answer.json()
   }
   return {

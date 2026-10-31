@@ -20,21 +20,21 @@ export interface Served {
 }
 
 /**
- * Starts a server as `tent start` does: the project `merging` is built for release and run live on a data folder
+ * Starts a server as `forjr start` does: the project `merging` is built for release and run live on a data folder
  * of its own, on a port the system gives, with the addresses of publishing. It is closed when the test ends, and
- * `TENT_HOME`, `TENT_KEY` and `TENT_AT` are put back.
+ * `FORJR_HOME`, `FORJR_KEY` and `FORJR_AT` are put back.
  */
 export async function servedApp(t: TestContext, name: string): Promise<Served> {
-  const before = { home: process.env.TENT_HOME, key: process.env.TENT_KEY, at: process.env.TENT_AT }
+  const before = { home: process.env.FORJR_HOME, key: process.env.FORJR_KEY, at: process.env.FORJR_AT }
   const engine = createEngine({ port: 0 })
   let history: History | undefined
   t.after(async () => {
     await engine.close()
     history?.close()
     for (const [variable, value] of [
-      ['TENT_HOME', before.home],
-      ['TENT_KEY', before.key],
-      ['TENT_AT', before.at],
+      ['FORJR_HOME', before.home],
+      ['FORJR_KEY', before.key],
+      ['FORJR_AT', before.at],
     ] as const)
       if (value === undefined) delete process.env[variable]
       else process.env[variable] = value
@@ -51,6 +51,6 @@ export async function servedApp(t: TestContext, name: string): Promise<Served> {
   history = openHistory(data)
   serveSync(engine, app, history)
   const port = Number(JSON.parse(readFileSync(join(data, 'engine.json'), 'utf8')).port)
-  process.env.TENT_HOME = join(project, '..', 'home')
+  process.env.FORJR_HOME = join(project, '..', 'home')
   return { project, data, address: `http://127.0.0.1:${port}`, app, history }
 }

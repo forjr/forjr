@@ -2,13 +2,13 @@ import { spawn } from 'node:child_process'
 import { existsSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { homedir } from 'node:os'
 import { join, resolve } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { installedItems } from './installedItems.ts'
 import { pathOfUser, setPathOfUser } from './pathOfUser.ts'
 
 // The start files of the shells, in which an installer of macOS or Linux wrote its one marked line.
 const startFiles = ['.bashrc', '.zshrc', '.profile', '.zprofile', '.bash_profile']
-const mark = '# tent.js'
+const mark = '# forjr'
 
 /** Takes the marked line, and the line after it, out of each start file of the shells that holds it. */
 function offTheStartFiles(): void {
@@ -22,7 +22,7 @@ function offTheStartFiles(): void {
     lines.splice(at, 2)
     writeFileSync(path, lines.join('\n'))
   }
-  const fish = join(own, '.config', 'fish', 'conf.d', 'tent.fish')
+  const fish = join(own, '.config', 'fish', 'conf.d', 'forjr.fish')
   if (existsSync(fish) && readFileSync(fish, 'utf8').startsWith(mark)) rmSync(fish)
 }
 
@@ -68,13 +68,13 @@ function removedLater(paths: string[], folder: string): void {
  * Takes the folder of an install. Removes the install: takes `bin/` off the path of the person's terminals, and
  * removes each thing the install keeps in its folder, and the folder itself once it is empty. What a program that
  * runs from it holds - on Windows the runtime of the very command that removes it - goes once that program has
- * ended. Throws T0013 for a folder that holds no install.
+ * ended. Throws F0013 for a folder that holds no install.
  */
 export async function removeInstall(home: string): Promise<void> {
   const folder = resolve(home)
   if (!existsSync(join(folder, 'current')) && !existsSync(join(folder, 'versions')))
-    throw new TentError('T0013', `${folder} holds no install of Tent.js: nothing was removed.`, {
-      fix: 'Name the folder of the install with TENT_HOME.',
+    throw new ForjrError('F0013', `${folder} holds no install of Forjr: nothing was removed.`, {
+      fix: 'Name the folder of the install with FORJR_HOME.',
     })
   if (process.platform === 'win32') offThePathOfWindows(join(folder, 'bin'))
   else offTheStartFiles()
@@ -84,6 +84,6 @@ export async function removeInstall(home: string): Promise<void> {
   const left = removable(items)
   if (left.length && process.platform === 'win32') removedLater(left, folder)
   else if (left.length)
-    throw new TentError('T0013', `${left.join(', ')} could not be removed.`, { fix: 'Remove them by hand.' })
+    throw new ForjrError('F0013', `${left.join(', ')} could not be removed.`, { fix: 'Remove them by hand.' })
   if (!left.length && readdirSync(folder).length === 0) rmSync(folder, { recursive: true, force: true })
 }

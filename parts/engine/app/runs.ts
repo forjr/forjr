@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { FileName } from '../../data/index.ts'
 import { NotReady } from '../../data/index.ts'
 import type { RunsAsked, Runner, RunView } from '../../flows/index.ts'
@@ -12,7 +12,8 @@ import { callerNamed } from '../program.ts'
 const system = callerNamed('system')
 
 /** The error of a run that is named and is not there. */
-const noRun = (run: string): TentError => new TentError('T0001', `No run ${JSON.stringify(run).slice(0, 80)} is there.`)
+const noRun = (run: string): ForjrError =>
+  new ForjrError('F0001', `No run ${JSON.stringify(run).slice(0, 80)} is there.`)
 
 /**
  * Waits on a reader for a run that its writer carries out: it reads how the run ended after each change that it
@@ -37,7 +38,7 @@ async function waitedOnReader(o: Opened, run: string): Promise<unknown> {
 /**
  * `app.runs`: the runner's `read`, `wait`, `find`, `approve`, `refuse` and `stop`, for a program that holds the
  * app. An app that holds no flow has no run: `read` answers nothing and `find` none, and each other member throws
- * T0001 for the run it names. On a reader the three that read are answered from its own data, and the three that
+ * F0001 for the run it names. On a reader the three that read are answered from its own data, and the three that
  * write are the writer's, as every write is.
  */
 export const member = (o: Opened): App['runs'] => {

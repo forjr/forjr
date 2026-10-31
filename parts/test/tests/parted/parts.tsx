@@ -1,4 +1,4 @@
-import { component, read, text } from 'tentjs/ui'
+import { component, read, text } from 'forjr/ui'
 import { allNotes, userById } from './functions'
 
 // A part drawn on the server alone: its words are in the first page, and no browser file holds its module.

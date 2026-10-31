@@ -1,5 +1,5 @@
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { caller as identify } from './callers/identify.ts'
 import { adminCaller } from './door/adminCaller.ts'
 import { counted } from './door/rate.ts'
@@ -18,7 +18,7 @@ import { sessionCaller } from './sessions.ts'
 import { countedAs } from './web/names.ts'
 import type { About } from './web/proxy.ts'
 
-/** An opening of `/_t/live` that passed the door: the request as the steps left it, and who it is from. */
+/** An opening of `/_f/live` that passed the door: the request as the steps left it, and who it is from. */
 export interface LiveOpened {
   request: Request
   about: About
@@ -40,7 +40,7 @@ export interface LiveOpened {
   only?: string[]
 }
 
-/** The caller that the admin token and `Tent-Caller` name, as a key answers one; nothing for any other request. */
+/** The caller that the admin token and `Forjr-Caller` name, as a key answers one; nothing for any other request. */
 function adminOf(o: Opened, request: Request, about: About): { caller: Caller } | undefined {
   try {
     const caller = adminCaller(o, request, about)
@@ -55,7 +55,7 @@ const held = new WeakMap<Opened, Map<string, number>>()
 
 /**
  * Takes one of the connections that an address may hold at once, for a live connection and for a kept stream of
- * MCP alike. Answers what gives it up again, once. Throws T0005 for one more than `liveConnections`.
+ * MCP alike. Answers what gives it up again, once. Throws F0005 for one more than `liveConnections`.
  */
 export function heldPlace(o: Opened, from: string): () => void {
   const limit = storedLimit(o.description, 'liveConnections')
@@ -64,8 +64,8 @@ export function heldPlace(o: Opened, from: string): () => void {
   held.set(o, counts)
   const open = counts.get(address) ?? 0
   if (open >= limit)
-    throw new TentError(
-      'T0005',
+    throw new ForjrError(
+      'F0005',
       `The address ${address} holds ${limit} live connections at once, and asked for one more.`,
       {
         fix: 'Close a page, or raise `liveConnections` in `project.limits`.',
@@ -83,11 +83,11 @@ export function heldPlace(o: Opened, from: string): () => void {
 }
 
 /**
- * Takes an app, the request that asks for `/_t/live`, and what the engine knows of it. Passes it through steps 1
+ * Takes an app, the request that asks for `/_f/live`, and what the engine knows of it. Passes it through steps 1
  * to 4 of the door, with the `Origin` checked whatever the request is: it must name the host it was sent to, or a
  * site that `api.origins` lists, but for a key on a request with no `Origin` and no cookie of the engine. Answers the opening, which holds one of the connections that its address may
- * hold. Throws T0017 for a host that is none of the app's, T0004 for another site and for no `Origin` at all,
- * and T0005 for one request, or one connection, more than the caller and the address may have.
+ * hold. Throws F0017 for a host that is none of the app's, F0004 for another site and for no `Origin` at all,
+ * and F0005 for one request, or one connection, more than the caller and the address may have.
  */
 export function liveOpened(o: Opened, asked: Request, came: About): LiveOpened {
   let taken: ReturnType<Opened['machine']['taken']>
@@ -101,9 +101,13 @@ export function liveOpened(o: Opened, asked: Request, came: About): LiveOpened {
   // A watch cannot be handed to the writer, so a reader that may not answer by itself takes no live connection.
   const { reader } = o.machine
   if (reader && !(reader.whole() && reader.current()))
-    throw new TentError('T0029', 'This machine opens no live connection for now: it is a reader that is not current.', {
-      fix: 'Ask again in a moment, or ask the writer.',
-    })
+    throw new ForjrError(
+      'F0029',
+      'This machine opens no live connection for now: it is a reader that is not current.',
+      {
+        fix: 'Ask again in a moment, or ask the writer.',
+      },
+    )
   const request = withoutOurs(taken.request)
   // A browser does not hold a WebSocket to the rule that keeps one site's pages from reading another's: this does.
   const origin = request.headers.get('origin')
@@ -115,8 +119,8 @@ export function liveOpened(o: Opened, asked: Request, came: About): LiveOpened {
   // A pass of a frame of a chat app is no cookie either: no other site can send it, so its frame may be of any.
   const framed = !carriesEngineCookie(request) ? framePassIn(o, request) : undefined
   if (!program && !framed && (origin === null || !ownOrListed(o, origin, about)))
-    throw new TentError(
-      'T0004',
+    throw new ForjrError(
+      'F0004',
       origin === null
         ? 'The live connection was asked for with no `Origin`, as no page of the app asks for it.'
         : `The live connection was asked for from ${JSON.stringify(origin).slice(0, 80)}, which is another site than ${about.origin}.`,

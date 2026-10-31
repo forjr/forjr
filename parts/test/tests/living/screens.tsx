@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { screen, read, role, useCall, useQuery, Form } from 'tentjs/ui'
+import { screen, read, role, useCall, useQuery, Form } from 'forjr/ui'
 import { addCard, allCards, cardPage, dropCard, keepCard, quietCards, quote, staffCards } from './functions'
 
 // A screen that reads an action: each request for it calls the action once.

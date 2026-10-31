@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { FileName } from '../../data/index.ts'
 import type { RunView } from '../../flows/index.ts'
 import type { Admin } from '../admin.ts'
@@ -11,9 +11,9 @@ import { asCall, callerNamed } from '../program.ts'
 const system = callerNamed('system')
 
 /** The error of a run that is named and is not there. */
-const noRun = (id: string): TentError =>
-  new TentError('T0001', `No run ${JSON.stringify(id).slice(0, 80)} is there.`, {
-    fix: 'Name a run by its id, as `tent runs` lists it.',
+const noRun = (id: string): ForjrError =>
+  new ForjrError('F0001', `No run ${JSON.stringify(id).slice(0, 80)} is there.`, {
+    fix: 'Name a run by its id, as `forjr runs` lists it.',
   })
 
 // How many runs a catch-up of a schedule starts with no `yes`.
@@ -37,14 +37,14 @@ function line(run: RunView): object {
 
 /**
  * Where the list looks: with `all` every file, with `of` the file of that tenant, by its id alone, and else the
- * shared file. A tenant with no file holds no run. T0002 for either word in an app that keeps no file for each tenant.
+ * shared file. A tenant with no file holds no run. F0002 for either word in an app that keeps no file for each tenant.
  */
 async function placeOf(o: Opened, args: object): Promise<FileName | 'all' | undefined> {
   const of: unknown = Reflect.get(args, 'of')
   const all = Reflect.get(args, 'all') === true
   if (!all && of === undefined) return undefined
   if (!o.files)
-    throw new TentError('T0002', 'The app keeps no data file for each tenant: its runs all stand in its one file.', {
+    throw new ForjrError('F0002', 'The app keeps no data file for each tenant: its runs all stand in its one file.', {
       fields: { [all ? 'all' : 'of']: 'type' },
       fix: 'Leave out `--of` and `--all`.',
     })
@@ -70,12 +70,12 @@ async function many(o: Opened, what: 'stop' | 'replay', args: object): Promise<o
 }
 
 /**
- * `tent run <flow> --times <from> <to>`: one run for each time of the schedule of the flow between the two
- * moments, in their order, or with `dry` the times alone; more than 100 only with `yes`. T0002 for a moment that does
+ * `forjr run <flow> --times <from> <to>`: one run for each time of the schedule of the flow between the two
+ * moments, in their order, or with `dry` the times alone; more than 100 only with `yes`. F0002 for a moment that does
  * not read.
  */
 function catchUp(o: Opened, args: object): object {
-  const flow = wordOf(args, 'flow', 'the name of a flow: `tent run <flow> --times <from> <to>`')
+  const flow = wordOf(args, 'flow', 'the name of a flow: `forjr run <flow> --times <from> <to>`')
   const { since: from, before: to } = bulkOf({
     flow,
     since: Reflect.get(args, 'times'),
@@ -85,7 +85,7 @@ function catchUp(o: Opened, args: object): object {
   // On a reader the start is its writer's, as every write is.
   if (o.machine.reader) return o.machine.sent('runs', [args], system, false, () => undefined)
   const runner = o.flows?.runner
-  if (!runner) throw new TentError('T0001', `The app holds no flow named ${JSON.stringify(flow).slice(0, 80)}.`)
+  if (!runner) throw new ForjrError('F0001', `The app holds no flow named ${JSON.stringify(flow).slice(0, 80)}.`)
   // More runs than a catch-up starts by itself are listed first, and started only with `yes`.
   const listed = runner.catchUp(flow, { from, to, dry: true }).times
   const dry = Reflect.get(args, 'dry') === true || (listed.length > catchUpBound && Reflect.get(args, 'yes') !== true)
@@ -94,11 +94,11 @@ function catchUp(o: Opened, args: object): object {
 }
 
 /**
- * `tent runs`: the flows that are paused and the newest runs of the app, and with `what` one run in full, a new run
+ * `forjr runs`: the flows that are paused and the newest runs of the app, and with `what` one run in full, a new run
  * that reuses the saved steps of another before a step, a run moved to the version that runs now, a yes or a no for
  * a step that waits for one, a run stopped, what a run wrote taken back, work on many runs at once, and a flow paused
  * and resumed. Each that
- * names its run by `id` throws T0001 where no such run is there.
+ * names its run by `id` throws F0001 where no such run is there.
  */
 export const admin: Admin = {
   name: 'runs',
@@ -121,8 +121,8 @@ export const admin: Admin = {
     if ((bulk || holding) && o.machine.reader) return o.machine.sent('runs', [args], system, false, () => undefined)
     if (bulk) return many(o, what, args)
     if (holding) {
-      const flow = wordOf(args, 'flow', `the name of a flow: \`tent runs ${what} <flow>\``)
-      if (!found) throw new TentError('T0001', `The app holds no flow named ${JSON.stringify(flow).slice(0, 80)}.`)
+      const flow = wordOf(args, 'flow', `the name of a flow: \`forjr runs ${what} <flow>\``)
+      if (!found) throw new ForjrError('F0001', `The app holds no flow named ${JSON.stringify(flow).slice(0, 80)}.`)
       await found[what](flow)
       return { flow, paused: what === 'pause' }
     }
@@ -130,7 +130,7 @@ export const admin: Admin = {
     const shown = reads?.read(id)
     if (!shown) throw noRun(id)
     if (what === 'show') {
-      // A run names the trace it stands in, which `tent logs --trace` reads.
+      // A run names the trace it stands in, which `forjr logs --trace` reads.
       const trace = traceOfRun(o, id)
       return trace ? { ...shown, trace } : shown
     }

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { FileName, Tx } from '../../data/index.ts'
 import { NotReady } from '../../data/index.ts'
 import { noteNotReady } from './attempt.ts'
@@ -52,7 +52,7 @@ export function gated(tx: Tx, move: Moving): Tx {
       try {
         return tx.sqlRead(text, values)
       } catch (error) {
-        if (!(error instanceof TentError && error.code === 'T0012')) throw error
+        if (!(error instanceof ForjrError && error.code === 'F0012')) throw error
       }
       if (move.settled) wait()
       move.again = true

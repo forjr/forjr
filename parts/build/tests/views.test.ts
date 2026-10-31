@@ -23,7 +23,7 @@ const others: Record<string, Known> = {
 
 /** A screen file around one screen, whose options are written by the case. */
 const fileOf = (options: string): string => `
-import { screen, component, read, asset, message, number, round, each, useQuery, Form, Image } from 'tentjs/ui'
+import { screen, component, read, asset, message, number, round, each, useQuery, Form, Image } from 'forjr/ui'
 import { markPaid, ordersByStatus, getOrder, askAdvice, helper } from '../functions/orders'
 import { orderScreen, Dialog } from './other'
 import intro from './intro.md'
@@ -46,7 +46,7 @@ function reachOf(text: string): FileReach {
   for (const one of seen.imports)
     imports.set(
       one.local,
-      one.from === 'tentjs/ui'
+      one.from === 'forjr/ui'
         ? { ours: one.name }
         : one.from === './intro.md'
           ? { text: 'Welcome.\n', textFile: 'screens/intro.md' }

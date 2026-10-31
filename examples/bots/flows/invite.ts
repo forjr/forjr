@@ -1,4 +1,4 @@
-import { date, flow, list, number, object, text } from 'tentjs'
+import { date, flow, list, number, object, text } from 'forjr'
 import { calendar } from '../services/tools'
 
 export const sendInvite = flow('sendInvite', {

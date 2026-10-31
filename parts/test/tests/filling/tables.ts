@@ -1,4 +1,4 @@
-import { link, table, text } from 'tentjs'
+import { link, table, text } from 'forjr'
 import { cases, summarize, whoOf } from './functions.ts'
 
 export const customers = table('customers', {

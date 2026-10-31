@@ -1,4 +1,4 @@
-import { action, change, file, files, input, number, text } from 'tentjs'
+import { action, change, file, files, input, number, text } from 'forjr'
 import { papers } from '../tables/tables'
 
 export const addPaper = change('addPaper', {

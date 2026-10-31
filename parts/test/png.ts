@@ -1,5 +1,5 @@
 import { crc32, inflateSync } from 'node:zlib'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 
 /** A picture: its size, and for each pixel four numbers of 0 to 255, which are red, green, blue and how solid it is. */
 export type Picture = { width: number; height: number; pixels: Uint8Array }
@@ -7,8 +7,8 @@ export type Picture = { width: number; height: number; pixels: Uint8Array }
 const signature = [137, 80, 78, 71, 13, 10, 26, 10]
 
 /** The error of bytes that are no PNG file this reads, with why. */
-const unread = (why: string): TentError =>
-  new TentError('T0002', `The picture cannot be read: ${why}.`, {
+const unread = (why: string): ForjrError =>
+  new ForjrError('F0002', `The picture cannot be read: ${why}.`, {
     fix: 'Hand the bytes of a PNG file, as a browser takes its pictures.',
   })
 // The numbers that one pixel holds in the file, by the kind of colour that the head of the file states.
@@ -72,7 +72,7 @@ function plain(lines: Uint8Array, height: number, stride: number, step: number):
 
 /**
  * Reads a PNG file. Takes its bytes, and answers the picture with four numbers of 0 to 255 for each pixel. Throws
- * T0002 on bytes that are no PNG file, on a file that is broken, and on a picture that is laid out in passes.
+ * F0002 on bytes that are no PNG file, on a file that is broken, and on a picture that is laid out in passes.
  */
 export function readPng(bytes: Uint8Array): Picture {
   const { head, palette, clear, packed } = chunksOf(bytes)

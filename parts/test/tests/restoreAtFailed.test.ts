@@ -36,14 +36,14 @@ test('[45-1] a part of the archive that its store fails to take is written with 
   let parts = 0
   store.fails = (bytes) => isPart(bytes) && ++parts === 2
   const project = copyOf(t, 'archived')
-  const file = join(project, 'tent.ts')
+  const file = join(project, 'forjr.ts')
   writeFileSync(
     file,
     readFileSync(file, 'utf8')
-      .replace("import { project } from 'tentjs'", "import { project, s3, secret } from 'tentjs'")
+      .replace("import { project } from 'forjr'", "import { project, s3, secret } from 'forjr'")
       .replace(
         'backups: { every: false, keep: 8 },',
-        `backups: { every: false, keep: 8, store: s3({ url: '${store.url}', bucket: 'tent', key: secret('storeKey') }) },`,
+        `backups: { every: false, keep: 8, store: s3({ url: '${store.url}', bucket: 'forjr', key: secret('storeKey') }) },`,
       ),
   )
   const built = await buildProject(project, { for: 'dev', out: join(project, 'bundle') })

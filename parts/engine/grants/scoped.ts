@@ -1,11 +1,11 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored } from '../../core/internal.ts'
 import type { Opened } from '../opened.ts'
 import { callReadsOnly } from '../onlyReads.ts'
 
-const outside = (what: string, scope: string): TentError =>
-  new TentError('T3101', `${what.slice(0, 80)} is outside the scopes that the person granted this program.`, {
+const outside = (what: string, scope: string): ForjrError =>
+  new ForjrError('F3101', `${what.slice(0, 80)} is outside the scopes that the person granted this program.`, {
     fix: `Ask the person for the scope \`${scope}\` at the next sign-in.`,
   })
 
@@ -22,7 +22,7 @@ function finer(o: Opened, scopes: string[], name: string): boolean {
  * Part of step 6 of the door, for a caller that is the token of a program: `write` opens every function and route,
  * a finer scope the functions it names, and `read` what only reads, and every call that only reads, as a read of a
  * page does. They hold at the call that came through the door, and not for what that call calls from code. Throws
- * T3101.
+ * F3101.
  */
 export function inGrant(o: Opened, caller: Caller, name: string, reads: boolean): void {
   if (caller.kind !== 'mcp' || !caller.grant) return
@@ -32,7 +32,7 @@ export function inGrant(o: Opened, caller: Caller, name: string, reads: boolean)
   throw outside(name, 'write')
 }
 
-/** An upload of the token of a program, which needs the scope `write`. Throws T3101 for any other. */
+/** An upload of the token of a program, which needs the scope `write`. Throws F3101 for any other. */
 export function grantUploads(caller: Caller): void {
   if (caller.kind === 'mcp' && caller.grant && !caller.grant.scopes.includes('write'))
     throw outside('An upload', 'write')

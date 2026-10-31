@@ -50,7 +50,7 @@ test('[50-10] a publish that makes a column required checks every file of a tena
     () => undefined,
     (error: { code?: string; fields?: Record<string, string> }) => error,
   )
-  assert.deepEqual([refused?.code, refused?.fields?.reason], ['T9103', 'rows'])
+  assert.deepEqual([refused?.code, refused?.fields?.reason], ['F9103', 'rows'])
   assert.equal(running(server), before)
 
   // With the row mended, the publish goes, and the pass brings every file up.
@@ -67,7 +67,7 @@ test('[50-10] a publish that makes a column required checks every file of a tena
   // A health query that fails after a switch that changes a table it reads: the switch back is taken at once.
   here.edit(tables, '    code: text(),', '    code: text(),\n    rush: number({ optional: true }),')
   here.edit(
-    'tent.ts',
+    'forjr.ts',
     '  backups: { every: false, keep: 2 },',
     "  backups: { every: false, keep: 2 },\n  publish: { health: 'failing' },",
   )
@@ -83,6 +83,6 @@ test('[50-10] a publish that makes a column required checks every file of a tena
     () => undefined,
     (error: { code?: string; fields?: Record<string, string> }) => error,
   )
-  assert.deepEqual([health?.code, health?.fields?.reason], ['T9103', 'health'])
+  assert.deepEqual([health?.code, health?.fields?.reason], ['F9103', 'health'])
   assert.equal(running(server), done.version, 'the switch back was taken')
 })

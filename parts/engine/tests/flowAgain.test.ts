@@ -66,7 +66,7 @@ async function sealedApp(t: TestContext) {
 function storedResult(dataFolder: string, run: string, step: string): string {
   const data = new DatabaseSync(join(dataFolder, 'data.db'), { readOnly: true })
   try {
-    const row = data.prepare('SELECT result FROM "_t_steps" WHERE run = ? AND name = ?').get(run, step)
+    const row = data.prepare('SELECT result FROM "_f_steps" WHERE run = ? AND name = ?').get(run, step)
     return String(row?.result)
   } finally {
     data.close()
@@ -76,7 +76,7 @@ function storedResult(dataFolder: string, run: string, step: string): string {
 /** Sends a command to the admin channel of an app, as a command of this computer does, and answers its value. */
 async function did(app: App, dataFolder: string, name: string, args: object): Promise<Record<string, unknown>> {
   const token = String(JSON.parse(readFileSync(join(dataFolder, 'engine.json'), 'utf8')).token)
-  const answered = await send(app, `http://localhost:${portOf(dataFolder)}/_t/admin/${name}`, {
+  const answered = await send(app, `http://localhost:${portOf(dataFolder)}/_f/admin/${name}`, {
     body: JSON.stringify({ args }),
     headers: { authorization: `Bearer ${token}` },
   })
@@ -84,7 +84,7 @@ async function did(app: App, dataFolder: string, name: string, args: object): Pr
   return Object(answered.body.value)
 }
 
-test("[46-8] a sealed step result is sealed in `_t_steps` and opened when its run reads it; another run and whoever reads the file without the key read only the sealed text; a person's export opens it for them", async (t) => {
+test("[46-8] a sealed step result is sealed in `_f_steps` and opened when its run reads it; another run and whoever reads the file without the key read only the sealed text; a person's export opens it for them", async (t) => {
   const { app, dataFolder, advance } = await sealedApp(t)
   const ada = await addUser(app, 'Ada')
   const run = notDropped(await app.start('charge', { card: '4242-secret' }, { as: ada })).run
@@ -92,7 +92,7 @@ test("[46-8] a sealed step result is sealed in `_t_steps` and opened when its ru
 
   const stored = storedResult(dataFolder, run, 'card')
   assert.doesNotMatch(stored, /4242/, 'the data file holds the sealed text alone')
-  assert.match(stored, /tent\.sealed/)
+  assert.match(stored, /forjr\.sealed/)
   const shown = app.runs.read(run)?.steps.find((step) => step.name === 'card')?.result
   assert.doesNotMatch(JSON.stringify(shown), /4242/, 'whoever reads the run is shown the sealed text')
 
@@ -101,7 +101,7 @@ test("[46-8] a sealed step result is sealed in `_t_steps` and opened when its ru
   await untilState(app, other, 'waiting')
   const data = new DatabaseSync(join(dataFolder, 'data.db'))
   try {
-    data.prepare('UPDATE "_t_steps" SET result = ? WHERE run = ? AND name = ?').run(stored, other, 'card')
+    data.prepare('UPDATE "_f_steps" SET result = ? WHERE run = ? AND name = ?').run(stored, other, 'card')
   } finally {
     data.close()
   }
@@ -110,7 +110,7 @@ test("[46-8] a sealed step result is sealed in `_t_steps` and opened when its ru
   await untilState(app, run, 'done')
   assert.ok((await marksOf(app)).includes('charged 4242-secret'), 'the run reads its sealed result back, opened')
   await untilState(app, other, 'failed')
-  assert.equal(await codeOf(app.runs.wait(other)), 'T0019')
+  assert.equal(await codeOf(app.runs.wait(other)), 'F0019')
 
   const exported = await did(app, dataFolder, 'data', { what: 'user', do: 'export', id: String(ada.user?.id) })
   const theirs = Object(exported.runs).find((one: { id: string }) => one.id === run)

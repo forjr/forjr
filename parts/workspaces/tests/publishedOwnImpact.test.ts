@@ -5,7 +5,7 @@ import { test } from 'node:test'
 import { folderOf, held, product } from './held.ts'
 
 // A query that the workspace adds, open to every signed-in person: the impact of its publish holds wider rights.
-const opened = `import { query } from 'tentjs'
+const opened = `import { query } from 'forjr'
 import { notes } from '../tables/users'
 
 export const everyNote = query('everyNote', { about: 'Every note', access: 'signedIn', rows: notes.oldest('body').limit(10) })
@@ -30,13 +30,13 @@ test("[44-2] a workspace whose change widens rights is published into the produc
     () => undefined,
     (error: { code?: string; fields?: Record<string, string> }) => error,
   )
-  assert.deepEqual([refused?.code, refused?.fields?.reason], ['T9103', 'impact'])
+  assert.deepEqual([refused?.code, refused?.fields?.reason], ['F9103', 'impact'])
   // Left out, the word is no: a script cannot land wider rights unread.
   const unread = await made.workspaces.publish(workspace.id).then(
     () => undefined,
     (error: { code?: string; fields?: Record<string, string> }) => error,
   )
-  assert.deepEqual([unread?.code, unread?.fields?.reason], ['T9103', 'impact'])
+  assert.deepEqual([unread?.code, unread?.fields?.reason], ['F9103', 'impact'])
   // With their word, it is published, and its answer holds its impact.
   const published = await made.workspaces.publish(workspace.id, { acceptImpact: true })
   assert.ok(

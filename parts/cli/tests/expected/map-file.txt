@@ -1,0 +1,4 @@
+functions/orders.ts
+query openOrders  functions/orders.ts:5  anyone signed in  offered api  reads customers.*, orders.*
+change addOrder  functions/orders.ts:11  anyone signed in  writes orders.customer, orders.total
+change markPaid  functions/orders.ts:17  role staff  reads ~orders  writes ~orders.status, ~orders.total  emits ~paid  code

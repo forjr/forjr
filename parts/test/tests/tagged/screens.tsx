@@ -1,4 +1,4 @@
-import { screen, read, Form, Link } from 'tentjs/ui'
+import { screen, read, Form, Link } from 'forjr/ui'
 import { addNote, allNotes, dropNote, noteOf } from './functions'
 
 // A list whose every row holds a form with an id of its own, and below it a form with none.

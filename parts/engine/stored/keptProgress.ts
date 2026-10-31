@@ -15,6 +15,6 @@ export function progressKeptOf(held: unknown): ProgressKept | undefined {
   return { value: held.value ?? null, files: Object.fromEntries(files) }
 }
 
-/** The progress that a row of `_t_once` keeps for a call of a `python`, or nothing where it keeps none. */
+/** The progress that a row of `_f_once` keeps for a call of a `python`, or nothing where it keeps none. */
 export const progressIn = (row: unknown): ProgressKept | undefined =>
   progressKeptOf(Reflect.get(Object(Reflect.get(Object(row), 'result')), 'progress'))

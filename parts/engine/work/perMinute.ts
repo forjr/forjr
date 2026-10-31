@@ -14,7 +14,7 @@ export interface Minute {
 
 /**
  * Takes the app, the minute of a worker, its link and a message it sent. Answers whether the message is past
- * `workPerMinute` of that worker: it is then refused with T0005, a call as a failed answer, and taken no further.
+ * `workPerMinute` of that worker: it is then refused with F0005, a call as a failed answer, and taken no further.
  * A worker sends a refused end again.
  */
 export function pastMinute(o: Opened, minute: Minute, link: Link, message: Record<string, unknown>): boolean {
@@ -28,7 +28,7 @@ export function pastMinute(o: Opened, minute: Minute, link: Link, message: Recor
   if (minute.n <= storedLimit(o.description, 'workPerMinute')) return false
   const words = 'The worker sent more messages in a minute than `workPerMinute` allows.'
   if (message.t === 'call') {
-    tell(link, { t: 'answer', id: String(message.id), ok: false, error: { code: 'T0005', message: words } })
+    tell(link, { t: 'answer', id: String(message.id), ok: false, error: { code: 'F0005', message: words } })
     return true
   }
   const tasks = Array.isArray(message.tasks) ? message.tasks.map(String) : [String(message.task)]
@@ -38,7 +38,7 @@ export function pastMinute(o: Opened, minute: Minute, link: Link, message: Recor
       task,
       what: message.t,
       ...(message.n === undefined ? {} : { n: message.n }),
-      code: 'T0005',
+      code: 'F0005',
     })
   return true
 }

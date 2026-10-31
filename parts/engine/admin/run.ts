@@ -14,7 +14,7 @@ function dataOf(kept: unknown): unknown {
 }
 
 /**
- * `tent run <function> --with <json> --as <who>`: calls a function through steps 5 to 10 of the door, as a user by
+ * `forjr run <function> --with <json> --as <who>`: calls a function through steps 5 to 10 of the door, as a user by
  * its id, as `nobody`, or as the system where nobody is named. Answers what the function answered, and the lines
  * that its code wrote into the log meanwhile.
  */

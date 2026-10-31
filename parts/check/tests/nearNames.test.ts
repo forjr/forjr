@@ -8,11 +8,11 @@ import { copyOf } from './copies.ts'
 const file = 'screens/orders.tsx'
 
 test('[30-2] a field of a link that the type checker does not find names `.with`, which reads the row of the link', async () => {
-  const folder = copyOf(join('T6018', 'pass'), 'T8000-link-with')
+  const folder = copyOf(join('F6018', 'pass'), 'F8000-link-with')
   writeFileSync(
     join(folder, 'functions', 'customers.ts'),
     [
-      "import { input, link, query, table, text } from 'tentjs'",
+      "import { input, link, query, table, text } from 'forjr'",
       '',
       "export const customers = table('customers', { columns: { name: text() }, access: { read: 'signedIn' } })",
       '',
@@ -32,7 +32,7 @@ test('[30-2] a field of a link that the type checker does not find names `.with`
   writeFileSync(
     join(folder, file),
     [
-      "import { read, screen } from 'tentjs/ui'",
+      "import { read, screen } from 'forjr/ui'",
       "import { visitsOf } from '../functions/customers'",
       '',
       "export const ordersScreen = screen('ordersScreen', {",
@@ -44,7 +44,7 @@ test('[30-2] a field of a link that the type checker does not find names `.with`
       '',
     ].join('\n'),
   )
-  const found = (await checkProject(folder)).findings.filter((one) => one.code === 'T8000')
+  const found = (await checkProject(folder)).findings.filter((one) => one.code === 'F8000')
   assert.equal(found.length, 1, JSON.stringify(found))
   assert.match(String(found[0].fix), /\.with\('customer'\)/)
   assert.match(String(found[0].fix), /topic\.plans/)

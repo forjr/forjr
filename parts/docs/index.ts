@@ -20,7 +20,7 @@ export const pageNames = (): string[] => list.map((one) => one.name)
 
 /**
  * Takes what a page is asked for by: its whole name, as `word.text`, or the name of its thing alone, as `text`,
- * `T1003` or `query.rows`. Answers the page with its name and its text, or nothing where no page fits. A bare name
+ * `F1003` or `query.rows`. Answers the page with its name and its text, or nothing where no page fits. A bare name
  * that several kinds hold is the page of the first kind among a code, a command, a word and a topic.
  */
 export function findPage(asked: string): { name: string; text: string } | undefined {
@@ -40,7 +40,7 @@ export const agentsText = (): string => textOf('./AGENTS.md')
 export const referenceText = (): string => textOf('./reference.txt')
 
 // Where the docs site serves the pages, each at its name, and the reference beside them.
-const site = 'https://tentjs.com/docs'
+const site = 'https://forjr.dev/docs'
 
 /**
  * The text of `llms.txt` of the docs site, for an AI that reads the site with no project: the text of `AGENTS.md`,
@@ -53,10 +53,10 @@ export function llmsText(o: { site?: string } = {}): string {
     .split('\n')
     .map((line) =>
       line
-        .replaceAll('`tent docs --reference`', `${at}/reference.txt`)
-        .replaceAll('`tent docs`', at)
-        .replace(/`tent docs <([^>]+)>`/g, `${at}/<$1>`)
-        .replace(/`tent docs ([^`<]+)`/g, (_, name: string) => `${at}/${name}`),
+        .replaceAll('`forjr docs --reference`', `${at}/reference.txt`)
+        .replaceAll('`forjr docs`', at)
+        .replace(/`forjr docs <([^>]+)>`/g, `${at}/<$1>`)
+        .replace(/`forjr docs ([^`<]+)`/g, (_, name: string) => `${at}/${name}`),
     )
     .join('\n')
 }

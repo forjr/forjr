@@ -1,5 +1,5 @@
-import type { Makers, Provider } from 'tentjs/engine'
-import { ProviderFailure } from 'tentjs/engine'
+import type { Makers, Provider } from 'forjr/engine'
+import { ProviderFailure } from 'forjr/engine'
 import { claudeCodeDriver } from './driver/run.ts'
 
 // The models name the Claude models that Claude Code uses; nothing of the engine calls them itself.

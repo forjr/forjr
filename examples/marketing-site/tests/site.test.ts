@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 
 test('the seed holds five features, and the home page asks for three', async () => {
   const app = await testApp()
@@ -22,10 +22,10 @@ test('a visitor sends a message, and nobody but the staff reads it', async () =>
     [['ada@example.com', 'Hello']],
   )
   await assert.rejects(app.as('nobody').call('sendMessage', { email: 'not an address', text: 'Hello' }), {
-    code: 'T0002',
+    code: 'F0002',
   })
   await assert.rejects(app.as('nobody').call('sendMessage', { email: 'ada@example.com', text: '' }), {
-    code: 'T0002',
+    code: 'F0002',
   })
   assert.equal((await app.rows('messages')).length, 1)
   await app.close()
@@ -93,15 +93,15 @@ test('the contact form with no script leads to "Thank you" in the language it wa
   ]) {
     const browser = app.browser()
     const page = await browser.page(at)
-    const version = /name="t-version" value="([^"]+)"/.exec(page.html)?.[1] ?? ''
-    const form = /name="t-form" value="([^"]+)"/.exec(page.html)?.[1] ?? ''
-    const drawnAt = /name="t-at" value="([^"]+)"/.exec(page.html)?.[1] ?? ''
-    const sent = await browser.request('POST', '/_t/form/sendMessage', {
+    const version = /name="f-version" value="([^"]+)"/.exec(page.html)?.[1] ?? ''
+    const form = /name="f-form" value="([^"]+)"/.exec(page.html)?.[1] ?? ''
+    const drawnAt = /name="f-at" value="([^"]+)"/.exec(page.html)?.[1] ?? ''
+    const sent = await browser.request('POST', '/_f/form/sendMessage', {
       headers: { 'content-type': 'application/x-www-form-urlencoded', origin: 'http://localhost' },
       body: new URLSearchParams({
-        't-at': drawnAt,
-        't-form': form,
-        't-version': version,
+        'f-at': drawnAt,
+        'f-form': form,
+        'f-version': version,
         email: 'grace@example.com',
         text: 'A question',
       }).toString(),

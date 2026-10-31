@@ -14,7 +14,7 @@ import {
   query,
   role,
   text,
-} from 'tentjs'
+} from 'forjr'
 import { orders } from '../tables/orders'
 
 const PAGE = 20

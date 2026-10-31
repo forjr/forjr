@@ -1,5 +1,5 @@
-import { messages } from 'tentjs/ui'
+import { messages } from 'forjr/ui'
 
 export default messages('tr', {
-  tent: { notFound: { title: 'Bu adreste bir şey yok.' } },
+  forjr: { notFound: { title: 'Bu adreste bir şey yok.' } },
 })

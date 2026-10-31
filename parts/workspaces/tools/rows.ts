@@ -1,4 +1,4 @@
-import { number, TentError, text } from '../../core/index.ts'
+import { number, ForjrError, text } from '../../core/index.ts'
 import { runWorkspace } from '../opening.ts'
 import type { ProjectTool } from './face.ts'
 
@@ -16,7 +16,7 @@ export const rowsTool: ProjectTool = {
     const name = String(input.table)
     const tables: Record<string, unknown> = Object(app.description.tables)
     if (!Object.hasOwn(tables, name))
-      throw new TentError('T0001', `No table ${JSON.stringify(name).slice(0, 80)} is in the app.`)
+      throw new ForjrError('F0001', `No table ${JSON.stringify(name).slice(0, 80)} is in the app.`)
     const columns: Record<string, unknown> = Object(Reflect.get(Object(tables[name]), 'columns'))
     const hidden = Object.entries(columns)
       .filter(([, type]) => Reflect.get(Object(type), 'private') === true)

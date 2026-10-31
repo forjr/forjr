@@ -3,7 +3,7 @@ import { eachApart } from './eachApart.ts'
 import { existsSync, mkdirSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import { isDeepStrictEqual } from 'node:util'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { emptyFile } from './emptyFile.ts'
 import type { FileName } from './fileName.ts'
 import { fileKey, NotReady, notOneFile } from './fileName.ts'
@@ -39,12 +39,12 @@ interface Entry {
   counted: boolean
 }
 
-// The values of `_t_meta` that `data` writes for itself: no caller touched them.
+// The values of `_f_meta` that `data` writes for itself: no caller touched them.
 const bookkeeping = ['n', 'epoch', 'writer', 'table', 'tenant', 'fingerprint', 'swept']
 
-const noTenant = (file: FileName): TentError =>
-  new TentError(
-    'T2104',
+const noTenant = (file: FileName): ForjrError =>
+  new ForjrError(
+    'F2104',
     `\`${file.table}\` holds no row under the id ${JSON.stringify(file.id).slice(0, 64)}: it names no tenant.`,
   )
 
@@ -52,7 +52,7 @@ const noTenant = (file: FileName): TentError =>
  * Takes the data folder of an app, the layout of its tables, and what makes a store. Opens the shared file, and
  * answers the files of the app. The file of a tenant lies at `tenants/<table>/<the last two characters of the
  * id>/<id>.db`: it is made with its first write, and a table inside it with its first row. A write is held to one
- * file, the one it first writes to: a second file is T2109, and undoes the write.
+ * file, the one it first writes to: a second file is F2109, and undoes the write.
  */
 export function openFiles(folder: string, layout: TableLayout[], o: FilesOptions): Files {
   const shared = o.store()
@@ -62,7 +62,7 @@ export function openFiles(folder: string, layout: TableLayout[], o: FilesOptions
   const deferred: (() => void)[] = []
   // The tables of this machine alone, and the tables of the engine that a file may come to hold.
   const own = new Set([hereTable.name, changesTable.name, ...layout.filter((one) => one.own).map((one) => one.name)])
-  const engine = [historyTable, hereTable, ...layout.filter((one) => one.name.startsWith('_t_') && !one.own)]
+  const engine = [historyTable, hereTable, ...layout.filter((one) => one.name.startsWith('_f_') && !one.own)]
   let running: TableLayout[] = []
   let tenants = new Set<string>()
   // The tables that a file of each tenant table may hold, as a file keeps them, by their names.
@@ -71,7 +71,7 @@ export function openFiles(folder: string, layout: TableLayout[], o: FilesOptions
   let folders: Record<string, string> = {}
 
   const told = (to: TableLayout[]) => {
-    running = to.filter((one) => !one.name.startsWith('_t_'))
+    running = to.filter((one) => !one.name.startsWith('_f_'))
     tenants = new Set(running.flatMap((one) => tenantTable(one) ?? []))
     tablesBy.clear()
     for (const table of tenants)
@@ -116,7 +116,7 @@ export function openFiles(folder: string, layout: TableLayout[], o: FilesOptions
     const around: Store = {
       ...plain,
       open(where, how) {
-        if (file) throw new TentError('T0013', 'The file of a tenant is opened by the files of its app.')
+        if (file) throw new ForjrError('F0013', 'The file of a tenant is opened by the files of its app.')
         plain.open(where, how)
         inside.counting?.reopened()
       },
@@ -133,7 +133,7 @@ export function openFiles(folder: string, layout: TableLayout[], o: FilesOptions
       },
       applyTableChanges(steps) {
         const frame = frameOf(file)
-        if (!frame) throw new TentError('T0013', 'A table step stands outside a write.')
+        if (!frame) throw new ForjrError('F0013', 'A table step stands outside a write.')
         stepsIn(frame, steps)
       },
       // A write of the files is one write of `files.write`, which begins it at its first row.
@@ -247,7 +247,7 @@ export function openFiles(folder: string, layout: TableLayout[], o: FilesOptions
 
   /** The tables of the app that a file of one table of tenants may hold, as a file keeps them. */
   const appTables = (table: string): TableLayout[] =>
-    [...(tablesBy.get(table)?.values() ?? [])].filter((one) => !one.name.startsWith('_t_'))
+    [...(tablesBy.get(table)?.values() ?? [])].filter((one) => !one.name.startsWith('_f_'))
 
   /**
    * Makes every table of its layout that a file lacks: in the write of that file where one is under way, and
@@ -277,12 +277,12 @@ export function openFiles(folder: string, layout: TableLayout[], o: FilesOptions
     },
     change(table, id, values, caller) {
       if (!has(entry, table))
-        throw new TentError('T2103', `No row of \`${table}\` is found under ${JSON.stringify(id)}.`)
+        throw new ForjrError('F2103', `No row of \`${table}\` is found under ${JSON.stringify(id)}.`)
       return tx.change(table, id, values, caller)
     },
     remove(table, id, caller) {
       if (!has(entry, table))
-        throw new TentError('T2103', `No row of \`${table}\` is found under ${JSON.stringify(id)}.`)
+        throw new ForjrError('F2103', `No row of \`${table}\` is found under ${JSON.stringify(id)}.`)
       tx.remove(table, id, caller)
     },
     sql: (text, values, touches) => tx.sql(text, values, touches),
@@ -300,7 +300,7 @@ export function openFiles(folder: string, layout: TableLayout[], o: FilesOptions
       throw frame.failed
     }
     if (frames.some((one) => one !== frame && one.key === key))
-      throw new TentError('T0013', 'A write was begun inside a write of the same file.')
+      throw new ForjrError('F0013', 'A write was begun inside a write of the same file.')
     const entry = file ? entryOf(file, { make: true }) : undefined
     if (file && !entry) throw noTenant(file)
     // A write that `before` makes while the file opens, as its sweep, takes a number above the file's own.
@@ -311,7 +311,7 @@ export function openFiles(folder: string, layout: TableLayout[], o: FilesOptions
     }
     const store = entry ? entry.store : shared
     if (!store.begin)
-      throw new TentError('T0013', 'The store of the files of tenants cannot begin a write that is ended later.', {
+      throw new ForjrError('F0013', 'The store of the files of tenants cannot begin a write that is ended later.', {
         fix: 'Keep the files of tenants in a store that offers `begin`, as the store of the runtime does.',
       })
     const opened = store.begin({ steps: frame.steps, ...(frame.toDisk ? { toDisk: true } : {}) })
@@ -372,9 +372,9 @@ export function openFiles(folder: string, layout: TableLayout[], o: FilesOptions
       const file = frame.file
       const mine = keptOut(touched)
         .map((one) =>
-          one.table === '_t_meta' ? { ...one, ids: one.ids.filter((id) => !bookkeeping.includes(id)) } : one,
+          one.table === '_f_meta' ? { ...one, ids: one.ids.filter((id) => !bookkeeping.includes(id)) } : one,
         )
-        .filter((one) => one.table !== '_t_meta' || one.ids.length)
+        .filter((one) => one.table !== '_f_meta' || one.ids.length)
       return { value, touched: mine.map((one) => (file ? { ...one, file } : one)), ...(file ? { file } : {}) }
     },
 
@@ -390,7 +390,7 @@ export function openFiles(folder: string, layout: TableLayout[], o: FilesOptions
       const entry = open.get(key)
       if (!entry) return
       if (frames.some((one) => one.key === key))
-        throw new TentError('T0013', 'A file is closed while a write of it is under way.')
+        throw new ForjrError('F0013', 'A file is closed while a write of it is under way.')
       entry.store.close()
       open.delete(key)
     },

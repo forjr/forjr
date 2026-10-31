@@ -1,7 +1,7 @@
-def run(entries, tent):
+def run(entries, forjr):
     try:
-        tent.db()
+        forjr.db()
         alone = "none"
-    except tent.Error as error:
+    except forjr.Error as error:
         alone = error.code
     return [{"n": entry.input["n"], "of": len(entries), "alone": alone} for entry in entries]

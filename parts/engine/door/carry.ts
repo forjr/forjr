@@ -1,5 +1,5 @@
 import type { Caller, Db, User } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Plan } from '../../core/internal.ts'
 import { isPlan, isWritten, runBody, valueOf } from '../../core/internal.ts'
 import type { FileName, Noted, Touched, Tx, Writing } from '../../data/index.ts'
@@ -29,8 +29,8 @@ import { factRead, factWrote } from '../called.ts'
 const userOf = (caller: Caller): User | undefined => (caller.kind === 'system' ? undefined : caller.user)
 
 /** The error of work that passed the time of its call. */
-const tookTooLong = (name: string, limit: string): TentError =>
-  new TentError('T0008', `${name} worked past the time of its call, \`limits.${limit}\` of the project.`, {
+const tookTooLong = (name: string, limit: string): ForjrError =>
+  new ForjrError('F0008', `${name} worked past the time of its call, \`limits.${limit}\` of the project.`, {
     fix: 'Do less in one call, or raise the limit in `project.limits`.',
   })
 
@@ -49,12 +49,12 @@ const tickOf = (cx: CallContext) => (): void => {
   if (performance.now() > cx.work.ends) throw tookTooLong(cx.work.name, timeLimit[cx.work.kind])
 }
 
-/** Answers a value that must be there at once. Throws T0013 for a promise: a query, a change and a rule wait for nothing. */
+/** Answers a value that must be there at once. Throws F0013 for a promise: a query, a change and a rule wait for nothing. */
 function atOnce(name: string, value: unknown): unknown {
   if (typeof Reflect.get(Object(value), 'then') !== 'function') return value
   // The promise is left alone from here on, so its own failure must not end the program.
   Promise.resolve(value).catch(() => undefined)
-  throw new TentError('T0013', `${name} answered a promise where it must answer at once.`, {
+  throw new ForjrError('F0013', `${name} answered a promise where it must answer at once.`, {
     fix: 'A query, a change and a rule wait for nothing: take `async` away, or make it an action.',
   })
 }
@@ -75,11 +75,11 @@ function noted(o: Opened, cx: CallContext, told: Noted): void {
 // The members of `db` that are full access: each is there only where the code has it.
 const fullAccess = ['system', 'sql', 'n']
 
-/** A `db` that is limited to its caller, on which each member that is full access fails with T0013 where it is read. */
+/** A `db` that is limited to its caller, on which each member that is full access fails with F0013 where it is read. */
 function fenced(db: Db, name: string): object {
   const refuse = (member: string) => ({
     get(): never {
-      throw new TentError('T0013', `${name} used \`db.${member}\`, which is full access, and states no \`system\`.`, {
+      throw new ForjrError('F0013', `${name} used \`db.${member}\`, which is full access, and states no \`system\`.`, {
         fix: "State `system: 'why'` on the definition, with the reason it needs full access.",
       })
     },
@@ -195,7 +195,7 @@ export interface CarriedAsking {
 /**
  * Takes an app, the context of a call, and a rule made with `allow`. Asks the rule, on the checked input, with a
  * `db` that reads as the caller and answers at once, and answers whether it lets the caller in. The arrow is held
- * to what a query may use, read or run. Throws T0011 where the rule is code and its arrow was not loaded.
+ * to what a query may use, read or run. Throws F0011 where the rule is code and its arrow was not loaded.
  */
 export function allows(o: Opened, cx: CallContext, asking: CarriedAsking): boolean {
   const asked: CallContext = { ...cx, work: { ...cx.work, kind: 'rule' } }
@@ -209,7 +209,7 @@ export function allows(o: Opened, cx: CallContext, asking: CarriedAsking): boole
       return Boolean(atOnce(cx.work.name, valueOf(access.test, { names, tick: tickOf(asked) })))
     }
     if (!arrow)
-      throw new TentError('T0011', `The rule of ${cx.work.name} is code, and the bundle holds no arrow for it.`)
+      throw new ForjrError('F0011', `The rule of ${cx.work.name} is code, and the bundle holds no arrow for it.`)
     return Boolean(atOnce(cx.work.name, callIn(asked, o.room, arrow, [user, input, db], true, true)))
   })
 }
@@ -237,8 +237,8 @@ function handedTo({ cx, record, input, call }: Carried): Record<string, unknown>
 }
 
 /** The error of a function that the description holds as code, and whose arrow the bundle does not hold. */
-const noArrow = (name: string): TentError =>
-  new TentError('T0011', `${name} is code, and the bundle holds no \`run\` for it.`, {
+const noArrow = (name: string): ForjrError =>
+  new ForjrError('F0011', `${name} is code, and the bundle holds no \`run\` for it.`, {
     fix: 'Build the project again, and run the bundle as the build wrote it.',
   })
 
@@ -284,7 +284,7 @@ function touchedBy(rows: { table: string; id: string }[]): { table: string; ids:
  * Carries a change out, at once and as one write: in the write of the change that called it, or in a write of its
  * own, which is undone whole where anything in it fails, its output among it. Once its write is committed, the
  * store is told to forget each table that a raw SQL write stated, and each row and each change is told to whoever
- * listens. Answers what leaves the engine. Throws T0008 for a change that worked past its time, which undoes it.
+ * listens. Answers what leaves the engine. Throws F0008 for a change that worked past its time, which undoes it.
  */
 export function carryChange(c: Carried): unknown {
   const { o, cx, record, input, run } = c
@@ -358,7 +358,7 @@ export function waitingDb(o: Opened, cx: CallContext): object {
 
 /**
  * Carries an action out: its body through `runBody`, or its `run`, with a `db` that reads and answers promises.
- * Answers a promise of what the work answered. The promise is refused with T0008 once the time of the call is up,
+ * Answers a promise of what the work answered. The promise is refused with F0008 once the time of the call is up,
  * and the signal of the call ends then.
  */
 export async function carryAction(c: Carried, ends: AbortController): Promise<unknown> {
@@ -378,7 +378,7 @@ export async function carryAction(c: Carried, ends: AbortController): Promise<un
       if (record.batch !== undefined) {
         const answered: unknown = await callIn(cx, o.room, run, [{ entries: [handed] }], false, false)
         if (!Array.isArray(answered) || answered.length !== 1)
-          throw new TentError('T0009', 'A batch answered no list of the length it was handed.')
+          throw new ForjrError('F0009', 'A batch answered no list of the length it was handed.')
         if (answered[0] instanceof Error) throw answered[0]
         return answered[0]
       }

@@ -50,7 +50,7 @@ test('[44-1] a run woken after a restart carries the trace it began in on', asyn
 
 test('[44-1] at a share of 0 a run woken after a restart carries the trace it began in on: its failure is kept in the trace of the call', async (t) => {
   const folder = copyOf(t, 'tracedWoken')
-  const project = join(folder, 'tent.ts')
+  const project = join(folder, 'forjr.ts')
   writeFileSync(project, readFileSync(project, 'utf8').replace('share: 1', 'share: 0'))
   // The step after the wake fails once and for all: the trace that holds it is kept.
   const file = join(folder, 'functions.ts')

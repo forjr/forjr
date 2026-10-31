@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 
 /** The rule that an address was refused by. */
 export type Rule = 'secure' | 'private' | 'password' | 'redirects' | 'body'
@@ -28,20 +28,20 @@ const said: Record<Rule, [why: string, fix: string]> = {
 
 /**
  * Takes an address as it is shown, with no name, no password and nothing after a question mark, and the rule that
- * refused it. Answers the error T0022, which names both, in its message and in its `fields`.
+ * refused it. Answers the error F0022, which names both, in its message and in its `fields`.
  */
-export function refusedAddress(address: string, rule: Rule): TentError {
+export function refusedAddress(address: string, rule: Rule): ForjrError {
   const [why, fix] = said[rule]
-  return new TentError('T0022', `The address ${address} was refused: ${why}.`, { fix, fields: { address, rule } })
+  return new ForjrError('F0022', `The address ${address} was refused: ${why}.`, { fix, fields: { address, rule } })
 }
 
 /**
  * Takes an address as it is shown, which of its two caps an answer passed, and the cap, in bytes or in
- * milliseconds. Answers the error T0023.
+ * milliseconds. Answers the error F0023.
  */
-export function cutOff(address: string, cap: 'size' | 'time', bound: number): TentError {
+export function cutOff(address: string, cap: 'size' | 'time', bound: number): ForjrError {
   const passed = cap === 'size' ? `its size of ${bound} bytes` : `its time of ${bound} milliseconds`
-  return new TentError('T0023', `The answer of ${address} passed ${passed}, and was cut off.`, {
+  return new ForjrError('F0023', `The answer of ${address} passed ${passed}, and was cut off.`, {
     fix: 'Ask for less, or state a larger size or a longer time where the answer is known to need it.',
     fields: { address, cap },
   })

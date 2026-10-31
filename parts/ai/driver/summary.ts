@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { AiEnv } from '../face.ts'
 import { written } from '../layer/writing.ts'
 import type { AgentOf } from './agentOf.ts'
@@ -19,7 +19,7 @@ const linesOf = (rows: Recalled[]): string =>
   rows.map((row) => `${row.who}: ${row.text ?? JSON.stringify(row.data ?? '')}`).join('\n')
 
 /** Whether an error is a request over what the model takes. */
-const tooLarge = (error: unknown): boolean => error instanceof TentError && error.code === 'T7109'
+const tooLarge = (error: unknown): boolean => error instanceof ForjrError && error.code === 'F7109'
 
 /** The rows cut into turns, each from a person's message up to the next one: a summary stands as a turn of its own. */
 function turnsOf(rows: Recalled[]): Recalled[][] {
@@ -59,7 +59,7 @@ async function asked(s: Summing, model: string, rows: Recalled[]): Promise<strin
  * the text of the summary: what the builder's own action or flow in `shrink` answers when it is handed `{ rows }`,
  * or what the memory's model writes in the engine's words. A request that would not fit the model is made in
  * parts: as many of the oldest turns as fit are shortened first, and the result stands in for them in the next
- * request. Throws T7109 where no part is left that the model takes.
+ * request. Throws F7109 where no part is left that the model takes.
  */
 export async function summarized(s: Summing, rows: Recalled[]): Promise<string> {
   const memory = s.agent.memory
@@ -81,7 +81,7 @@ export async function summarized(s: Summing, rows: Recalled[]): Promise<string> 
     // A summary that stands alone and is shortened again leaves the next request as large as it was.
     const alone = n === 1 && part.length === 1 && part[0].who === 'summary'
     if (text === undefined || alone)
-      throw new TentError('T7109', `The model ${model} takes no part of the conversation that its summary shortens.`, {
+      throw new ForjrError('F7109', `The model ${model} takes no part of the conversation that its summary shortens.`, {
         fix: 'Give the memory a model that takes more, or keep the turns of the conversation shorter.',
       })
     turns = [[{ id: part[part.length - 1].id, who: 'summary', text }], ...turns.slice(n)]

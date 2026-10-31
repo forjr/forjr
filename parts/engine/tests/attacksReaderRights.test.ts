@@ -7,13 +7,13 @@ import { addNote, machineAddress, placeTold, rawLink, tags, until, worldOf, writ
 
 // Each address of the link, as a reader asks it.
 const asks: [string, string, string?][] = [
-  ['GET', '/_t/copy/versions'],
-  ['GET', '/_t/copy/data'],
-  ['GET', '/_t/copy/blob/0123456789abcdef'],
-  ['GET', '/_t/copy/file/0123456789abcdef'],
-  ['POST', '/_t/copy/took', JSON.stringify({ epoch: '999:zzzz', own: machineAddress.far })],
-  ['POST', '/_t/copy/do', JSON.stringify({ name: 'addNote', input: { title: 'x' } })],
-  ['GET', '/_t/copy/'],
+  ['GET', '/_f/copy/versions'],
+  ['GET', '/_f/copy/data'],
+  ['GET', '/_f/copy/blob/0123456789abcdef'],
+  ['GET', '/_f/copy/file/0123456789abcdef'],
+  ['POST', '/_f/copy/took', JSON.stringify({ epoch: '999:zzzz', own: machineAddress.far })],
+  ['POST', '/_f/copy/do', JSON.stringify({ name: 'addNote', input: { title: 'x' } })],
+  ['GET', '/_f/copy/'],
 ]
 
 test('[29-11.1@8c] each address of the link asked with a key that holds another right than copy or far is not found, as with no key, and nothing of the data is sent', async (t) => {
@@ -60,7 +60,7 @@ test('[29-11.9@8c] the key of a far reader of the right far, taken: it joins as 
   assert.equal(me?.far, true, 'far whatever it said')
   assert.equal(me?.take, false, 'no machine dials it')
   const newer = `${Number(writer.at().epoch.split('.')[0]) + 1}.the-far-machine`
-  const took = await send(writer, 'https://writer.test/_t/copy/took', {
+  const took = await send(writer, 'https://writer.test/_f/copy/took', {
     body: JSON.stringify({ epoch: newer, own: 'https://far-attacker.test' }),
     headers: { authorization: `Bearer ${far}` },
   })
@@ -70,15 +70,15 @@ test('[29-11.9@8c] the key of a far reader of the right far, taken: it joins as 
   await addNote(writer, 'the writer goes on')
   assert.ok((await tags(writer)).includes('the writer goes on'), 'the writer does not stand back')
   const handed = (i: number) =>
-    send(writer, 'https://writer.test/_t/call/whoAmI', {
+    send(writer, 'https://writer.test/_f/call/whoAmI', {
       from: '10.0.0.9',
       headers: {
-        'tent-reader': far,
-        'tent-for': '203.0.113.7; https; writer.test',
-        'tent-epoch': writer.at().epoch,
-        'tent-ref': `ref${String(i).padStart(5, '0')}`,
+        'forjr-reader': far,
+        'forjr-for': '203.0.113.7; https; writer.test',
+        'forjr-epoch': writer.at().epoch,
+        'forjr-ref': `ref${String(i).padStart(5, '0')}`,
       },
     })
   for (let i = 0; i < 20; i++) assert.equal((await handed(i)).status, 200, `handed ${i}`)
-  assert.deepEqual([(await handed(99)).status, (await handed(98)).error.code], [429, 'T0005'])
+  assert.deepEqual([(await handed(99)).status, (await handed(98)).error.code], [429, 'F0005'])
 })

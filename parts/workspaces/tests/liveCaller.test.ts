@@ -6,7 +6,7 @@ import { asked, folderOf, held, identify, nameOf, ownerOf, product } from './hel
 
 // A screen of the workspace for signed-in people alone, which shows the email of its caller.
 const mine = [
-  "import { read, screen } from 'tentjs/ui'",
+  "import { read, screen } from 'forjr/ui'",
   "import { whoAmI } from '../functions/users'",
   '',
   "export const meScreen = screen('meScreen', {",
@@ -49,7 +49,7 @@ test('[40-18a] the live connection of a page of a workspace knows its caller by 
   const named = await app.caller(new Request(`${origin}/`, { headers: ada }))
   const id = String(named.user?.id)
   const heard: Record<string, unknown>[] = []
-  const live = app.live(new Request(`${origin}/_t/live?as=${id}`, { headers: ada }))
+  const live = app.live(new Request(`${origin}/_f/live?as=${id}`, { headers: ada }))
   live.each(
     (message) => void heard.push(message),
     () => undefined,

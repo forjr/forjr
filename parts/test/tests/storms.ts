@@ -31,7 +31,7 @@ export interface Calling {
   // The site that the request says it comes from, in `Origin`: the app's own where none is given.
   site?: string
   from?: string
-  // Sent to `/_t/read/`, as a page asks a query again.
+  // Sent to `/_f/read/`, as a page asks a query again.
   read?: true
   headers?: Record<string, string>
 }
@@ -40,7 +40,7 @@ export interface Calling {
 export async function calledByBrowser(app: TestApp, name: string, input: object, o: Calling = {}): Promise<Told> {
   const origin = o.origin ?? 'http://localhost'
   const answer = await app.request(
-    new Request(`${origin}/_t/${o.read ? 'read' : 'call'}/${name}`, {
+    new Request(`${origin}/_f/${o.read ? 'read' : 'call'}/${name}`, {
       method: 'POST',
       headers: {
         'content-type': 'application/json',
@@ -105,7 +105,7 @@ export async function stormed(
   const app = await testApp({ folder, ...(o.secrets ? { secrets: o.secrets } : {}) })
   closing(t, () => app.close())
   assert.equal(tmpdir(), temp)
-  const [home] = readdirSync(temp).filter((name) => name.startsWith('tent-test-'))
+  const [home] = readdirSync(temp).filter((name) => name.startsWith('forjr-test-'))
   return { app, dataFolder: join(temp, home, 'data') }
 }
 
@@ -145,7 +145,7 @@ export function watching(
   const heard: Record<string, unknown>[] = []
   let closed = false
   const live = app.live(
-    new Request(`${origin}/_t/live${o.as === undefined ? '' : `?as=${o.as}`}`, {
+    new Request(`${origin}/_f/live${o.as === undefined ? '' : `?as=${o.as}`}`, {
       headers: { origin, ...(o.cookie ? { cookie: o.cookie } : {}), ...o.headers },
     }),
   )

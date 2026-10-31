@@ -89,10 +89,10 @@ async function totals(app: TestApp): Promise<Record<string, number>> {
 /** The budget of a call of `evals`: its own, or what the command that runs the tests has left of its own. */
 function budgetOf(o: EvalsOptions): Record<string, number> | undefined {
   if (o.budget) return o.budget
-  const stated = process.env.TENT_AI_BUDGET
+  const stated = process.env.FORJR_AI_BUDGET
   if (!stated || stated === 'none') return undefined
   const whole: Record<string, number> = JSON.parse(stated)
-  const ledger = process.env.TENT_AI_LEDGER
+  const ledger = process.env.FORJR_AI_LEDGER
   // What earlier evals of the command used is taken off: the budget is one bound for the whole command.
   if (ledger && existsSync(ledger))
     for (const line of readFileSync(ledger, 'utf8').split('\n').filter(Boolean))
@@ -355,7 +355,7 @@ export async function evals(app: TestApp, target: unknown, list: Case[], o: Eval
     each,
   }
   // The command that runs the tests of AI behaviour keeps what each call used, and what it gave.
-  if (process.env.TENT_AI_LEDGER) appendFileSync(process.env.TENT_AI_LEDGER, `${JSON.stringify(used)}\n`)
-  if (process.env.TENT_AI_RESULTS) appendFileSync(process.env.TENT_AI_RESULTS, `${JSON.stringify(result)}\n`)
+  if (process.env.FORJR_AI_LEDGER) appendFileSync(process.env.FORJR_AI_LEDGER, `${JSON.stringify(used)}\n`)
+  if (process.env.FORJR_AI_RESULTS) appendFileSync(process.env.FORJR_AI_RESULTS, `${JSON.stringify(result)}\n`)
   return result
 }

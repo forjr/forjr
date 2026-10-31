@@ -10,7 +10,7 @@ function methodOf(asked: unknown[]): string {
 
 /**
  * Holds a `fetch` of backend code to what a call that only reads may do: a plain `fetch` that is a `GET`. Throws
- * T0013 for any other inside an action that a screen reads, and takes every `fetch` of every other call.
+ * F0013 for any other inside an action that a screen reads, and takes every `fetch` of every other call.
  */
 export function heldForRead(asked: unknown[]): void {
   if (underWay()?.reads !== true) return

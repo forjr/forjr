@@ -17,7 +17,7 @@ if (steps.length) store.write(() => store.applyTableChanges(steps))
 
 const ran = join(folder, 'ran.log')
 const description = {
-  format: 'tent.description/1',
+  format: 'forjr.description/2',
   app: { name: 'paced', needsEngine: '1' },
   project: {},
   tables: {},

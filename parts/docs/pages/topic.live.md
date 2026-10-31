@@ -23,7 +23,7 @@ When the new answer is the one the page holds, nothing is sent. Otherwise the pa
 
 So a query that answers rows as `db` handed them out costs a page little, however long its list is. A query that builds a record of its own in `run` is sent whole each time it changes.
 
-One read of a live query may answer `liveRows` rows, 10,000 where the project states none. One more fails the query with `code.T2108`: state a `limit`, or `live: false`.
+One read of a live query may answer `liveRows` rows, 10,000 where the project states none. One more fails the query with `code.F2108`: state a `limit`, or `live: false`.
 
 ## Who shares a run
 

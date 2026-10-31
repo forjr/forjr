@@ -90,7 +90,7 @@ test('[50-5] a new optional column reaches a file when it is brought up, a table
   // A second bringing up changes nothing of the tables.
   const held = heldIn(files.of(north))
   bringUp(Object(files.of(north)), layoutOf(v2))
-  assert.deepEqual({ ...heldIn(files.of(north)), _t_meta: 0 }, { ...held, _t_meta: 0 })
+  assert.deepEqual({ ...heldIn(files.of(north)), _f_meta: 0 }, { ...held, _f_meta: 0 })
 
   // The file of South is three layouts behind: a new column, a column under a new name, and a removed column.
   files.layout(layoutOf(v4))
@@ -188,15 +188,15 @@ test('[50-5] [16-2@3] checkAndHold names the misfits of a file, and with none le
   // While the hold counts, every write of that file is held to the step, by the old version too.
   assert.equal(
     codeOf(() => old((db) => at(db, 'orders').of(s.south).add({ total: 21 }))),
-    'T2107',
+    'F2107',
   )
   assert.equal(
     codeOf(() => old((db) => at(db, 'orders').of(s.south).change(String(fits.id), { note: null }))),
-    'T2107',
+    'F2107',
   )
   assert.equal(
     codeOf(() => old((db) => at(db, 'orders').of(s.south).add({ total: 21, note: 'x', code: 'A' }))),
-    'T2101',
+    'F2101',
   )
   assert.equal(old((db) => at(db, 'orders').of(s.south).add({ total: 21, note: 'x', code: 'B' })).code, 'B')
   assert.equal(old((db) => at(db, 'orders').of(s.south).change(String(fits.id), { note: 'still' })).note, 'still')
@@ -207,24 +207,24 @@ test('[50-5] [16-2@3] checkAndHold names the misfits of a file, and with none le
   assert.equal(files.has(east), false)
   assert.equal(
     codeOf(() => old((db) => at(db, 'orders').of(s.east).add({ total: 30 }))),
-    'T2107',
+    'F2107',
   )
   old((db) => at(db, 'orders').of(s.east).add({ total: 30, note: 'first', code: 'A' }))
   assert.deepEqual(holdsOf(files.of(east)), ['v2 require orders note', 'v2 addUnique orders code'])
   assert.equal(
     codeOf(() => old((db) => at(db, 'orders').of(s.east).add({ total: 31, note: 'second', code: 'A' }))),
-    'T2101',
+    'F2101',
   )
   // And so does a table that is made in a file that stood.
   old((db) => at(db, 'orders').of(s.west).add({ total: 40, note: 'first', code: 'A' }))
   assert.deepEqual(holdsOf(files.of(west)), ['v2 require orders note', 'v2 addUnique orders code'])
   assert.equal(
     codeOf(() => old((db) => at(db, 'orders').of(s.west).add({ total: 41, note: 'second', code: 'A' }))),
-    'T2101',
+    'F2101',
   )
   assert.equal(
     codeOf(() => old((db) => at(db, 'orders').of(s.west).add({ total: 41, code: 'B' }))),
-    'T2107',
+    'F2107',
   )
 
   // The check is refused and taken away: `dropHolds` takes the holds of a file away, its index with them.
@@ -265,7 +265,7 @@ test('[50-5] [16-2@3] checkAndHold names the misfits of a file, and with none le
   assert.deepEqual(holdsOf(files.of(west)), ['v2 require orders note', 'v2 addUnique orders code'])
   assert.equal(
     codeOf(() => old((db) => at(db, 'orders').of(s.west).add({ total: 42, code: 'C' }))),
-    'T2107',
+    'F2107',
   )
   // Bringing the file up takes its holds away: its layout holds it to the same from then on.
   files.layout(layoutOf(checked))
@@ -274,11 +274,11 @@ test('[50-5] [16-2@3] checkAndHold names the misfits of a file, and with none le
   const now = writingFiles(files, checked)
   assert.equal(
     codeOf(() => now((db) => at(db, 'orders').of(s.west).add({ total: 42, code: 'C' }))),
-    'T2107',
+    'F2107',
   )
   assert.equal(
     codeOf(() => now((db) => at(db, 'orders').of(s.west).add({ total: 42, note: 'x', code: 'A' }))),
-    'T2101',
+    'F2101',
   )
 
   // A file with a misfit that was made round its hold cannot be brought up: the error names the tenant and the count.
@@ -288,7 +288,7 @@ test('[50-5] [16-2@3] checkAndHold names the misfits of a file, and with none le
   } catch (error) {
     failed = error
   }
-  assert.equal(Object(failed).code, 'T2001')
+  assert.equal(Object(failed).code, 'F2001')
   assert.match(String(Object(failed).message), new RegExp(s.north))
   assert.match(String(Object(failed).message), /3 rows/)
   assert.equal(columnsOf(files.of(north), 'orders').includes('note'), true)
@@ -325,7 +325,7 @@ test('[50-5] findMisfits and factsOf visit every file that holds a table they as
   const facts = await factsOf(files, appOf({ noteRequired: true }))
   assert.deepEqual(
     facts.tableFindings.map((one) => one.code),
-    ['T2001', 'T2001'],
+    ['F2001', 'F2001'],
   )
   // A finding names the tenant and the count.
   const words = facts.tableFindings.map((one) => one.message).join('\n')
@@ -467,7 +467,7 @@ test('[50-5] with thread and keep, each of the three writes the number it is han
     ['a note of Ada', 'a note of Bob'],
   )
   // Each kept change stands in the shared file with its file, at the number it was handed.
-  const kept = storedIn(first.shared, '_t_changes').filter((row) => numbers.includes(Number(row.n)))
+  const kept = storedIn(first.shared, '_f_changes').filter((row) => numbers.includes(Number(row.n)))
   assert.deepEqual(
     kept.map((row) => [row.n, Object(row.change).file]),
     numbers.map((n) => [n, north]),
@@ -520,7 +520,7 @@ test('[50-5] with keep false each of the three tells the store nothing, asks for
   )
   // Where the changes are not kept, the main thread keeps none: the shared file holds no kept change.
   applyChange(files, up, { only: 'kept' })
-  assert.deepEqual(storedIn(files.shared, '_t_changes'), [])
+  assert.deepEqual(storedIn(files.shared, '_f_changes'), [])
   // A write of the main thread goes on above the numbers that were handed out.
   writingFiles(files, v2)((db) => at(db, 'orders').of(s.north).add({ total: 11, ref: 'R' }))
   assert.equal(metaOf(Object(files.of(north)), 'n'), 54)
@@ -538,7 +538,7 @@ test('[50-5] a stated rename of the table of the tenants moves no file and chang
   // in the file of a tenant, which names the table in each link that runs out of it.
   assert.deepEqual((await factsOf(files, groups)).tableFindings, [])
   const { steps, findings } = planTableChanges(
-    files.shared.layout().filter((one) => !one.name.startsWith('_t_')),
+    files.shared.layout().filter((one) => !one.name.startsWith('_f_')),
     layoutOf(groups).filter((one) => one.tenant === undefined),
   )
   assert.deepEqual(findings, [])

@@ -1,4 +1,4 @@
-import { action, file, object, text } from 'tentjs'
+import { action, file, object, text } from 'forjr'
 import { listener } from '../models/models'
 
 // A view is told nothing of what the assistant heard, so the screen has the recording written down first.

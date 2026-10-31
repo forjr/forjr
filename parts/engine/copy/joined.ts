@@ -11,7 +11,7 @@ import { logCopy } from '../door/keyed.ts'
 
 /**
  * Takes an app, a request for an address of the link, and what the engine knows of it. Answers the key that the
- * request carries. Throws T0001 for a request with no key of a reader, and for one that came over a connection
+ * request carries. Throws F0001 for a request with no key of a reader, and for one that came over a connection
  * which is not secure to a machine that was not told `insecure`.
  */
 export function keyedBy(o: Opened, request: Request, about: About): ReaderKey {
@@ -23,7 +23,7 @@ export function keyedBy(o: Opened, request: Request, about: About): ReaderKey {
 /**
  * Takes an app, the request that opens a link, and what the engine knows of it. Opens the link of a reader, and
  * answers the end that the reader holds. A writer takes the link. A machine that is not the writer says so, with
- * the address of the writer it follows, and closes it. Throws T0001 where the request carries no key of a reader.
+ * the address of the writer it follows, and closes it. Throws F0001 where the request carries no key of a reader.
  */
 export function openLink(o: Opened, request: Request, about: About): Link {
   const began = performance.now()
@@ -34,7 +34,7 @@ export function openLink(o: Opened, request: Request, about: About): Link {
   const { writer, reader } = o.machine
   if (writer) writer.join(ours, key, about.from)
   else {
-    tell(ours, { t: 'no', code: 'T0030', ...(reader ? { writer: reader.writer() } : {}) })
+    tell(ours, { t: 'no', code: 'F0030', ...(reader ? { writer: reader.writer() } : {}) })
     ours.close()
   }
   return theirs

@@ -1,9 +1,9 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { CallContext } from '../context.ts'
 import { dbFor } from '../program.ts'
 import { isStored } from '../../core/internal.ts'
 
-/** The table of facts that `knows` of an agent names, with the column that names whose a row is. Throws T7007 for one with no owner. */
+/** The table of facts that `knows` of an agent names, with the column that names whose a row is. Throws F7007 for one with no owner. */
 function factsOf(cx: CallContext, agent: string): { table: string; owner: string } {
   const flow = Object.hasOwn(cx.app.description.flows, agent) ? cx.app.description.flows[agent] : undefined
   const knows: unknown = Reflect.get(Object(flow?.agent), 'knows')
@@ -14,7 +14,7 @@ function factsOf(cx: CallContext, agent: string): { table: string; owner: string
       ? cx.app.description.tables[table]
       : undefined
   if (typeof table !== 'string' || !stored || typeof stored.owner !== 'string')
-    throw new TentError('T7007', `The table of facts that \`knows\` of ${agent} names states no \`owner\`.`, {
+    throw new ForjrError('F7007', `The table of facts that \`knows\` of ${agent} names states no \`owner\`.`, {
       fix: 'Give the table of the facts an `owner`: the facts of each person are their own rows.',
     })
   return { table, owner: stored.owner }
@@ -34,7 +34,7 @@ function factText(row: Record<string, unknown>, owner: string): string {
 }
 
 /**
- * `_t_facts({ agent })`: the starter's rows of the table of facts that `knows` names, read as the starter under
+ * `_f_facts({ agent })`: the starter's rows of the table of facts that `knows` names, read as the starter under
  * the table's rule and held to the rows the starter owns, in the order they were kept. Answers `{ facts: [{ id, fact }] }`,
  * and none for a starter who is no user.
  */

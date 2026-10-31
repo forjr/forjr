@@ -21,7 +21,7 @@ function textOf(node: Node | undefined): string | undefined {
   return n?.type === 'Literal' && typeof n.value === 'string' ? n.value : undefined
 }
 
-/** Every language file of a project: a file that exports `messages(...)` of `tentjs/ui` as its default. */
+/** Every language file of a project: a file that exports `messages(...)` of `forjr/ui` as its default. */
 export function languageFilesIn(source: Source): LanguageFile[] {
   const found: LanguageFile[] = []
   for (const [path, file] of Object.entries(source).sort(([a], [b]) => (a < b ? -1 : 1))) {
@@ -30,7 +30,7 @@ export function languageFilesIn(source: Source): LanguageFile[] {
     const call = seen.byDefault ? unwrap(seen.byDefault) : undefined
     const callee = call?.type === 'CallExpression' ? nameOf(kid(call, 'callee')) : undefined
     const isMessages = seen.imports.some(
-      (one) => one.from === 'tentjs/ui' && one.name === 'messages' && one.local === callee,
+      (one) => one.from === 'forjr/ui' && one.name === 'messages' && one.local === callee,
     )
     const language = isMessages && call ? textOf(kids(call, 'arguments')[0]) : undefined
     if (language !== undefined && call) found.push({ path, language, line: lineOf(file.text, call.start) })
@@ -39,7 +39,7 @@ export function languageFilesIn(source: Source): LanguageFile[] {
 }
 
 /**
- * Every `message(...)` of `tentjs` or `tentjs/ui` that the files of a project write with a key that is written in
+ * Every `message(...)` of `forjr` or `forjr/ui` that the files of a project write with a key that is written in
  * place: a text, or a list whose parts are all texts. A key that is built from a value is held by the messages of
  * the choice it is built from.
  */
@@ -49,7 +49,7 @@ export function messagesWrittenIn(source: Source): MessageWritten[] {
     if (!file.tree) continue
     const named = new Set(
       scan(file.tree)
-        .imports.filter((one) => (one.from === 'tentjs' || one.from === 'tentjs/ui') && one.name === 'message')
+        .imports.filter((one) => (one.from === 'forjr' || one.from === 'forjr/ui') && one.name === 'message')
         .map((one) => one.local),
     )
     if (!named.size) continue

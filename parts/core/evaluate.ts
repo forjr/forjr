@@ -1,5 +1,5 @@
 import { calls } from './definition.ts'
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 import { member } from './handle.ts'
 import { emit } from './helpers/emit.ts'
 import { fail } from './helpers/fail.ts'
@@ -41,9 +41,9 @@ export interface Carrying {
 
 type Stepped = Generator<unknown, unknown, unknown>
 
-/** Throws T0011: a stored form that the description does not have, or that cannot be carried out where it stands. */
+/** Throws F0011: a stored form that the description does not have, or that cannot be carried out where it stands. */
 function refused(what: string): never {
-  throw new TentError('T0011', `A stored value cannot be carried out: ${what}.`)
+  throw new ForjrError('F0011', `A stored value cannot be carried out: ${what}.`)
 }
 
 const waiting = new WeakMap<object, boolean>()
@@ -106,7 +106,7 @@ function* followed(from: unknown, path: unknown[], names: Names, cx: Carrying): 
   return current
 }
 
-/** Goes through steps that hand nothing out, and answers what they end with. An `await` among them is T0011. */
+/** Goes through steps that hand nothing out, and answers what they end with. An `await` among them is F0011. */
 function atOnce<Answer>(steps: Generator<unknown, Answer, unknown>): Answer {
   const step = steps.next()
   return step.done ? step.value : refused('an await, which only a body carries out')
@@ -192,7 +192,7 @@ function chainStart(plan: unknown, names: Names, cx: Carrying): { chain: unknown
   const chain = follow(named(names, first), path, names, cx)
   const from = isObject(chain) ? cx.chains.get(chain) : undefined
   if (!from) {
-    throw new TentError('T0009', `A chain goes on from ${String(first)}, which holds no chain that db handed out.`)
+    throw new ForjrError('F0009', `A chain goes on from ${String(first)}, which holds no chain that db handed out.`)
   }
   return { chain, from }
 }

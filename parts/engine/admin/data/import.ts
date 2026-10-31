@@ -1,5 +1,5 @@
 import { readFileSync } from 'node:fs'
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import type { Admin } from '../../admin.ts'
 import { badWord, wordOf } from '../../admin.ts'
 import { importPrint, importRecords } from '../../import/run.ts'
@@ -25,7 +25,7 @@ function mapOf(given: unknown): Record<string, string> {
 }
 
 /**
- * `tent data import <file> --with <change>`: turns each record of the file into the input of the change, called as
+ * `forjr data import <file> --with <change>`: turns each record of the file into the input of the change, called as
  * the caller that `--as` names, or the system. `--map` names a field of the input for a field of the file, and
  * `--language` the language its values are written in. `--dry` checks every record and writes nothing. The
  * refused records are listed in `<file>.refused.csv`. With `progress`, answers how far the import of that file
@@ -48,7 +48,7 @@ export const admin: Admin = {
     try {
       bytes = new Uint8Array(readFileSync(file))
     } catch {
-      throw new TentError('T0001', `No file can be read at ${file}.`, { fix: 'Name a file that is there.' })
+      throw new ForjrError('F0001', `No file can be read at ${file}.`, { fix: 'Name a file that is there.' })
     }
     const reading = readingOf(o, mapOf(Reflect.get(args, 'map')), typeof language === 'string' ? language : undefined)
     const records = await recordsOf(bytes, fileFormOf(file))

@@ -1,4 +1,4 @@
-import { action, anyone, change, input, list, log, number, object, query, secrets, settings, text } from 'tentjs'
+import { action, anyone, change, input, list, log, number, object, query, secrets, settings, text } from 'forjr'
 import { vault } from './tables.ts'
 
 const open = anyone('a test tries the secrets and the settings')

@@ -1,4 +1,4 @@
-import { screen, read } from 'tentjs/ui'
+import { screen, read } from 'forjr/ui'
 import { getOrder } from '../functions/orders'
 
 // An entry that is needed is never nothing in its view: where it answers nothing, the screen is not found.

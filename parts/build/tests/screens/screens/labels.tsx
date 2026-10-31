@@ -1,4 +1,4 @@
-import { screen, choice, Link } from 'tentjs/ui'
+import { screen, choice, Link } from 'forjr/ui'
 import { ordersScreen } from './orders'
 
 // A top-level `const` whose value is a plain value written in place: the title that reads it is stored as a value.

@@ -3,7 +3,7 @@ import { fork } from 'node:child_process'
 import { readdirSync, realpathSync } from 'node:fs'
 import { join, sep } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import { listAt } from '../../files.ts'
 import { placedFolder } from '../../placedFolders.ts'
 import type { Channel } from './channel.ts'
@@ -86,7 +86,7 @@ export function startHeld(o: {
   // version.
   const listed = listAt(o.place) !== undefined
   if (!listed && linkEscapes(o.place))
-    throw new TentError('T0035', 'The built code holds a link that leads outside it: the held app was not started.', {
+    throw new ForjrError('F0035', 'The built code holds a link that leads outside it: the held app was not started.', {
       fix: 'Build the project again, so its code holds no link that leaves the bundle.',
     })
   const code = listed ? placedFolder(o.place, '') : o.place
@@ -111,7 +111,7 @@ export function startHeld(o: {
   let gone = false
   const ended = (why: string): void => {
     gone = true
-    channel.fail(new TentError('T0037', `The held program of the app ended: ${why}.`))
+    channel.fail(new ForjrError('F0037', `The held program of the app ended: ${why}.`))
   }
   child.on('exit', (code) => ended(`it exited with ${code}`))
   child.on('error', (error) => ended(String(error)))

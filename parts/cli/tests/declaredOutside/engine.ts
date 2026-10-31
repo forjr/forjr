@@ -1,4 +1,4 @@
-import type { Makers } from 'tentjs/engine'
+import type { Makers } from 'forjr/engine'
 
 // A provider of this computer, which a case of the declarations never reaches: every model is stood in for there.
 export default {

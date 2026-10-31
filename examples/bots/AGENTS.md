@@ -1,10 +1,12 @@
-# This project is built with Tent.js
+# This project is built with Forjr
 
-Read this file first. Run `tent check` after every change: it reports every mistake at once, each with its fix. Then run `tent test`: only the tests that your change touched run again, and a failure tells everything you need to mend it.
+Run `forjr map` to see the app, and `forjr map <name>` before you change a definition.
+
+Read this file first. Run `forjr check` after every change: it reports every mistake at once, each with its fix. Then run `forjr test`: only the tests that your change touched run again, and a failure tells everything you need to mend it.
 
 ## The three file rules
 
-1. A file imports from one of `tentjs` (a backend file), `tentjs/ui` (a screen file) and `tentjs/cli` (a command file), never two of them.
+1. A file imports from one of `forjr` (a backend file), `forjr/ui` (a screen file) and `forjr/cli` (a command file), never two of them.
 2. A backend file exports only definitions.
 3. A helper that both sides use lives in a file of its own, which imports neither.
 
@@ -110,30 +112,30 @@ export const writer = model('writer', { provider: 'anthropic', name: 'claude-son
 - Every table has `id`, `createdAt` and `updatedAt` by itself. A rule that is left out means `'nobody'`.
 - A rule is `'nobody'`, `'signedIn'`, `'owner'`, `role('staff')`, `anyone('why')`, `where(filter)` or `allow((user, input, db) => ...)`. `access` is required on every function.
 - Data is written by a `change` and by nothing else. A query reads through `db` only: no clock but `now`, no random value, no network.
-- A `run` that holds only our words is read and stored, and its definition is plain. Anything else makes it code, and `tent check` says what made it so.
+- A `run` that holds only our words is read and stored, and its definition is plain. Anything else makes it code, and `forjr check` says what made it so.
 - Work a value out with the value words: `calc`, `round`, `later`, `between`, `each`, `sum`, `concat` and the others. Compare two moments with `between(a, b, 'ms')`, never with `==`.
 - A secret is written `secret('NAME')`, never as its value.
-- A view is React: elements of HTML, components of any package, and the tags `Link`, `Form` and `Image` of `tentjs/ui`. Its look is the project's CSS and any library: `tent docs topic.look`.
+- A view is React: elements of HTML, components of any package, and the tags `Link`, `Form` and `Image` of `forjr/ui`. Its look is the project's CSS and any library: `forjr docs topic.look`.
 
 ## The commands
 
 | Command | Does |
 |---|---|
-| `tent check` | Builds the description, carries out every rule and the type checker, and prints every finding at once |
-| `tent test` | Runs the tests of `tests/`. A test whose code and data did not change is replayed, not run; `--all` runs every test. A failure names its line, what was expected and what came, the last call with the rows it read and wrote, and the fix; `--json` holds them in `failures` |
-| `tent test --declared` | Tests made from your definitions, with none written: what each kind of caller gets of each function, flow, route, command and table, and each input at its edges. `--update` keeps a changed table of access |
-| `tent impact` | Before a publish: what a change reaches, what it breaks for callers, its changes of the data, and the tests that touch it |
-| `tent build` | Writes a bundle into `.tent/build/`, or into `--out <folder>` |
-| `tent map` | Prints the whole app as a short outline |
-| `tent docs` | With no name, opens on the first page, which walks one app from nothing, and lists the topics |
-| `tent docs <name or code>` | Prints a page of the docs: `tent docs T1003`, `tent docs query`, `tent docs topic.words`. For rows: `topic.plans` and `topic.db`. For users: `topic.users`. For a sign-in: `topic.signIn` |
-| `tent new <name>` | Makes a bare project: one screen and the query it reads |
-| `tent add <package>` | Installs an npm package into the project, with its install scripts switched off |
+| `forjr check` | Builds the description, carries out every rule and the type checker, and prints every finding at once |
+| `forjr test` | Runs the tests of `tests/`. A test whose code and data did not change is replayed, not run; `--all` runs every test. A failure names its line, what was expected and what came, the last call with the rows it read and wrote, and the fix; `--json` holds them in `failures` |
+| `forjr test --declared` | Tests made from your definitions, with none written: what each kind of caller gets of each function, flow, route, command and table, and each input at its edges. `--update` keeps a changed table of access |
+| `forjr impact` | Before a publish: what a change reaches, what it breaks for callers, its changes of the data, and the tests that touch it |
+| `forjr build` | Writes a bundle into `.forjr/build/`, or into `--out <folder>` |
+| `forjr map` | The app in a few hundred tokens: each definition with its file and line, who may call it, what it reads and writes, who uses it and its tests. `forjr map <name>`, `<table>.<column>` or `<file>` for one |
+| `forjr docs` | With no name, opens on the first page, which walks one app from nothing, and lists the topics |
+| `forjr docs <name or code>` | Prints a page of the docs: `forjr docs F1003`, `forjr docs query`, `forjr docs topic.words`. For rows: `topic.plans` and `topic.db`. For users: `topic.users`. For a sign-in: `topic.signIn` |
+| `forjr new <name>` | Makes a bare project: one screen and the query it reads |
+| `forjr add <package>` | Installs an npm package into the project, with its install scripts switched off |
 
-In a test, `testApp({ clock: 'held' })` holds the app's clock until the test moves it, and its numbers come from a seed, so a test answers the same on every run: `tent docs topic.tests`.
+In a test, `testApp({ clock: 'held' })` holds the app's clock until the test moves it, and its numbers come from a seed, so a test answers the same on every run: `forjr docs topic.tests`.
 
 Every command takes `--json`, and then prints `{ "ok", "value", "findings" }`.
 
-A finding names its code, its file and line, its definition, what is wrong, and the fix. `tent docs <code>` explains the code.
+A finding names its code, its file and line, its definition, what is wrong, and the fix. `forjr docs <code>` explains the code.
 
-Every page is listed by `tent docs`, and each word, option, tag, hook, command and code that this does not show stands in the reference: `tent docs --reference`, or the file `reference.txt` of the installed package.
+Every page is listed by `forjr docs`, and each word, option, tag, hook, command and code that this does not show stands in the reference: `forjr docs --reference`, or the file `reference.txt` of the installed package.

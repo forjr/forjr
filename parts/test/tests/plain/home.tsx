@@ -1,5 +1,5 @@
-import { screen, read } from 'tentjs/ui'
-import { openOrders } from './tent'
+import { screen, read } from 'forjr/ui'
+import { openOrders } from './forjr'
 
 export const homeScreen = screen('homeScreen', {
   path: '/',

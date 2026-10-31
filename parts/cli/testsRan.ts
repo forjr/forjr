@@ -117,13 +117,13 @@ function wholeFailure(error: unknown, folder: string, wrote: string): string {
 
 /**
  * The words of a failure that says a test was not run, since the engine of its browser is not driven on this computer:
- * T0016, marked as not run. Nothing for any other failure.
+ * F0016, marked as not run. Nothing for any other failure.
  */
 function notRunWhy(error: unknown): string | undefined {
   const cause: unknown = Reflect.get(Object(error), 'cause')
   const thrown = Object(cause ?? error)
   const marked = Reflect.get(Object(Reflect.get(thrown, 'fields')), 'engine') === 'notRun'
-  return Reflect.get(thrown, 'code') === 'T0016' && marked ? String(Reflect.get(thrown, 'message')) : undefined
+  return Reflect.get(thrown, 'code') === 'F0016' && marked ? String(Reflect.get(thrown, 'message')) : undefined
 }
 
 /** A pattern that fits the name of one test and no other. */
@@ -191,8 +191,8 @@ export async function testsRan(
   if (!files.length) return made
   // Each test program, and each of its threads, notes what its tests touched in a file of its own here, which is
   // gathered when they end.
-  const noted = o.ai || o.as !== undefined ? undefined : mkdtempSync(join(tmpdir(), 'tent-touched-'))
-  if (noted) process.env.TENT_TOUCHED = noted
+  const noted = o.ai || o.as !== undefined ? undefined : mkdtempSync(join(tmpdir(), 'forjr-touched-'))
+  if (noted) process.env.FORJR_TOUCHED = noted
   try {
     // The clock and the source of a test app are stood in first, before any module of the engine loads.
     const chance = new URL('./testChance.ts', import.meta.url).href
@@ -261,18 +261,18 @@ export async function testsRan(
       const failure = failureOf(error, event.data.name, file, event.data.line ?? 1, places)
       made.failures.push(failure)
       made.findings.push(
-        finding('T0009', `The test "${event.data.name}" failed: ${[whole, failureWords(failure)].join('\n')}`, {
+        finding('F0009', `The test "${event.data.name}" failed: ${[whole, failureWords(failure)].join('\n')}`, {
           // The fix of the code that refused the test's last call, where it was refused, and else what mends a test.
           fix:
             failure.fix ??
-            'Mend the test or what it tests, and run `tent test` again: what a test writes with `console.log` is shown with its failure.',
+            'Mend the test or what it tests, and run `forjr test` again: what a test writes with `console.log` is shown with its failure.',
           ...(event.data.file ? { where: { file, line: failure.line } } : {}),
         }),
       )
     }
   } finally {
     if (noted) {
-      delete process.env.TENT_TOUCHED
+      delete process.env.FORJR_TOUCHED
       const { noted: touched, whole } = gathered(noted)
       made.noted = touched
       made.whole = whole

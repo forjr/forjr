@@ -1,4 +1,4 @@
-import { boolean, change, choice, date, fail, json, number, object, query, text } from 'tentjs'
+import { boolean, change, choice, date, fail, json, number, object, query, text } from 'forjr'
 
 export const usedToday = query('usedToday', {
   about: "The person's use of the day, by bot and in all, beside the day's limit",

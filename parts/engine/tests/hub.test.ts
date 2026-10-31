@@ -164,7 +164,7 @@ function upgraded(port: number, headers: Record<string, string>): Promise<number
     const asking = request({
       host: '127.0.0.1',
       port,
-      path: '/_t/live',
+      path: '/_f/live',
       headers: {
         connection: 'Upgrade',
         upgrade: 'websocket',
@@ -186,8 +186,8 @@ function upgraded(port: number, headers: Record<string, string>): Promise<number
   })
 }
 
-test('[21-7] the opening of /_t/live from a page of another site, and with no Origin, is refused with T0004, with the cookie of a valid session in the request', async (t) => {
-  const listed = 'https://partner.tent.test'
+test('[21-7] the opening of /_f/live from a page of another site, and with no Origin, is refused with F0004, with the cookie of a valid session in the request', async (t) => {
+  const listed = 'https://partner.forjr.test'
   const { app, origin, port } = await board(t, {
     change: limited({ liveConnections: 3 }, (d) => void Object.assign(d.project, { api: { origins: [listed] } })),
   })
@@ -195,9 +195,9 @@ test('[21-7] the opening of /_t/live from a page of another site, and with no Or
   const cookie = cookieOf(app, ada)
 
   // The cookie is that of a user, and the opening is refused all the same: before a connection is made.
-  for (const site of ['https://evil.tent.test', `http://localhost:${port + 1}`, 'null', null]) {
-    assert.throws(() => app.live(opening(origin, { cookie, as: ada, site })), { code: 'T0004' }, `from ${site}`)
-    assert.throws(() => app.live(opening(origin, { site })), { code: 'T0004' }, `from ${site}, with no cookie`)
+  for (const site of ['https://evil.forjr.test', `http://localhost:${port + 1}`, 'null', null]) {
+    assert.throws(() => app.live(opening(origin, { cookie, as: ada, site })), { code: 'F0004' }, `from ${site}`)
+    assert.throws(() => app.live(opening(origin, { site })), { code: 'F0004' }, `from ${site}, with no cookie`)
   }
   // The app's own pages open it, and so does a site that the project lists.
   const own = watcher(app, origin, { cookie, as: ada })
@@ -205,11 +205,11 @@ test('[21-7] the opening of /_t/live from a page of another site, and with no Or
   const partner = watcher(app, origin, { site: listed })
   assert.equal((await partner.watch('cards', 'allCards')).t, 'result')
   // A request for a name that is none of the app's is refused before anything else is looked at.
-  assert.throws(() => app.live(opening('http://other.tent.test')), { code: 'T0017' })
+  assert.throws(() => app.live(opening('http://other.forjr.test')), { code: 'F0017' })
 
-  // One address holds `liveConnections` connections at once: one more is T0005, and a closed one gives its place up.
+  // One address holds `liveConnections` connections at once: one more is F0005, and a closed one gives its place up.
   const third = watcher(app, origin)
-  assert.throws(() => app.live(opening(origin)), { code: 'T0005' })
+  assert.throws(() => app.live(opening(origin)), { code: 'F0005' })
   third.close()
   await untilTried('the closed connection was told closed', () => third.closed())
   await liveMoment(30)
@@ -220,11 +220,11 @@ test('[21-7] the opening of /_t/live from a page of another site, and with no Or
 
   // Over a real connection the same holds: the opening is answered with the status of its refusal, and no socket.
   const at = `http://localhost:${port}`
-  assert.equal(await upgraded(port, { host: `localhost:${port}`, origin: 'https://evil.tent.test', cookie }), 403)
+  assert.equal(await upgraded(port, { host: `localhost:${port}`, origin: 'https://evil.forjr.test', cookie }), 403)
   assert.equal(await upgraded(port, { host: `localhost:${port}`, cookie }), 403)
   assert.equal(await upgraded(port, { host: `localhost:${port}`, origin: at, cookie }), 101)
   // A plain request for the address, which asks for no WebSocket, is not found.
-  const plain = await app.request(new Request(`${origin}/_t/live`, { headers: { origin } }))
+  const plain = await app.request(new Request(`${origin}/_f/live`, { headers: { origin } }))
   assert.equal(plain.status, 404)
 })
 
@@ -244,7 +244,7 @@ test('[21-8] a user who loses a role while a page watches a query that needs it 
   assert.deepEqual(hers.of('failed'), [])
   await addCard(app, 'second', 2)
   await untilTried('the watch that needs the role failed', () => hers.of('failed').length === 1)
-  assert.deepEqual([hers.of('failed')[0].id, failedWith(hers.of('failed')[0])], ['staff', 'T3101'])
+  assert.deepEqual([hers.of('failed')[0].id, failedWith(hers.of('failed')[0])], ['staff', 'F3101'])
   // The caller was built anew for that run: the log names the refusal. Her other watch, and his, go on.
   await untilTried(
     'the others were sent the card',
@@ -259,7 +259,7 @@ test('[21-8] a user who loses a role while a page watches a query that needs it 
   assert.equal(hers.of('failed').length, 1)
   assert.equal(runsOf(dataFolder, 'staffCards'), ran + 1)
   // A watch that she sends anew is refused at once, and nothing is run for it.
-  assert.equal(failedWith(await hers.watch('again', 'staffCards')), 'T3101')
+  assert.equal(failedWith(await hers.watch('again', 'staffCards')), 'F3101')
 
   // A page that names another user than its caller is sent `changed` and closed, and so is one that names none.
   for (const as of [bo, undefined]) {
@@ -329,14 +329,14 @@ test('[21-8] every connection is sent alive each 30 seconds, a busy one too, and
   assert.equal(silent.of('alive').length, 1)
 })
 
-test('[21-8] one watch more than a connection may hold and one group more than an app may hold are answered failed with T0005, and a flood of messages closes its connection', async (t) => {
+test('[21-8] one watch more than a connection may hold and one group more than an app may hold are answered failed with F0005, and a flood of messages closes its connection', async (t) => {
   const { app, origin, dataFolder } = await board(t, { change: limited({ watches: 3, groups: 5, liveMessages: 20 }) })
   await addCard(app, 'first', 1)
   const page = watcher(app, origin)
   for (const id of ['a', 'b', 'c']) assert.equal((await page.watch(id, 'allCards')).t, 'result')
   // The fourth watch is one more than the connection may hold: it is refused, and nothing is run for it.
   let ran = runsOf(dataFolder, 'countCards')
-  assert.equal(failedWith(await page.watch('d', 'countCards')), 'T0005')
+  assert.equal(failedWith(await page.watch('d', 'countCards')), 'F0005')
   assert.equal(runsOf(dataFolder, 'countCards'), ran)
   // A second watch under an id that is still watched takes its place, and is none more.
   const taken = await page.watch('c', 'countCards')
@@ -355,7 +355,7 @@ test('[21-8] one watch more than a connection may hold and one group more than a
   const others = watcher(app, origin)
   for (const rank of [1, 2]) assert.equal((await others.watch(`at ${rank}`, 'cardsAt', { rank })).t, 'result')
   ran = runsOf(dataFolder, 'cardsAt')
-  assert.equal(failedWith(await others.watch('at 3', 'cardsAt', { rank: 3 })), 'T0005')
+  assert.equal(failedWith(await others.watch('at 3', 'cardsAt', { rank: 3 })), 'F0005')
   assert.equal(runsOf(dataFolder, 'cardsAt'), ran)
   // A watch that joins a group which stands is one more of none, and a group that its last page left is one less.
   const joins = watcher(app, origin)

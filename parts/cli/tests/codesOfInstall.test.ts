@@ -8,12 +8,12 @@ import { updateInstall } from '../install/updateInstall.ts'
 import { guardedFetch } from '../../connect/index.ts'
 import { endedWith, folderOf } from './bundledShop.ts'
 
-test('[16-2@10b] T0026 for an update that is refused', async (t) => {
+test('[16-2@10b] F0026 for an update that is refused', async (t) => {
   const folder = folderOf(t, 'codes')
   const home = join(folder, 'home')
   // A place that serves a list that no key signed: the update is refused, and nothing changes.
   const server = createServer((_request, response) =>
-    response.end(JSON.stringify({ format: 'tent.releases/1', made: 1, versions: [{ version: '9.9.9' }] })),
+    response.end(JSON.stringify({ format: 'forjr.releases/1', made: 1, versions: [{ version: '9.9.9' }] })),
   )
   await new Promise<void>((done) => server.listen(0, '127.0.0.1', done))
   endedWith(t, () => new Promise<void>((done) => server.close(() => done())))
@@ -28,5 +28,5 @@ test('[16-2@10b] T0026 for an update that is refused', async (t) => {
     () => 'answered',
     (error: unknown) => String(Reflect.get(Object(error), 'code')),
   )
-  assert.equal(await update, 'T0026')
+  assert.equal(await update, 'F0026')
 })

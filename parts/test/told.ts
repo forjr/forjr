@@ -25,7 +25,7 @@ function thrownOf(error: unknown): Thrown {
   const where: unknown = Reflect.get(fields, 'where')
   const fix: unknown = Reflect.get(fields, 'fix')
   return {
-    code: String(Reflect.get(fields, 'code') ?? 'T0009'),
+    code: String(Reflect.get(fields, 'code') ?? 'F0009'),
     message: String(Reflect.get(fields, 'message') ?? error),
     ...(typeof fix === 'string' ? { fix } : {}),
     ...(typeof where === 'object' && where !== null ? { where: Object(where) } : {}),

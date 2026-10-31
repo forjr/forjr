@@ -34,7 +34,7 @@ test('[46-2] `runs.stopAll` and `runs.replayAll` in code act on exactly the runs
 
   // The two are full access: code that states no `system` is refused.
   const ada = await addUser(app, 'Ada')
-  assert.equal(await codeOf(app.call('stopJobsUnheld', {}, { as: ada })), 'T0013')
+  assert.equal(await codeOf(app.call('stopJobsUnheld', {}, { as: ada })), 'F0013')
   assert.equal(app.runs.read(waitsBefore)?.state, 'waiting')
 })
 

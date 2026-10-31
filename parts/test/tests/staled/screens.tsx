@@ -1,4 +1,4 @@
-import { screen, read } from 'tentjs/ui'
+import { screen, read } from 'forjr/ui'
 import { allNews } from './functions'
 
 // Kept by a cache outside the engine as well as by the engine's own.

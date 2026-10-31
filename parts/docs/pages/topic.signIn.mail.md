@@ -4,7 +4,7 @@ A code is kept `sealed`, so a copy of the data shows nothing of it, and is compa
 
 ```ts
 // tables/signInCodes.ts
-import { date, table, text } from 'tentjs'
+import { date, table, text } from 'forjr'
 
 export const signInCodes = table('signInCodes', {
   columns: { email: text({ personal: true }), code: text({ sealed: true, private: true }), until: date() },
@@ -14,7 +14,7 @@ export const signInCodes = table('signInCodes', {
 
 ```ts
 // functions/codes.ts
-import { action, anyone, attempts, change, date, fail, later, link, mail, now, sameSecret, sessions, text, token } from 'tentjs'
+import { action, anyone, attempts, change, date, fail, later, link, mail, now, sameSecret, sessions, text, token } from 'forjr'
 
 export const keepCode = change('keepCode', {
   access: 'nobody',

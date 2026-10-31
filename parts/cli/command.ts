@@ -8,7 +8,7 @@ interface Stated {
   // in the order of this record. A true-or-false one is given as `--name` alone. One whose type is a list may be
   // given several times, as a flag alone, and holds every value in the order they were typed.
   args: Record<string, Type>
-  // A command that needs the engine finds it through `--data <folder>`, or through the `.tent/` of its project.
+  // A command that needs the engine finds it through `--data <folder>`, or through the `.forjr/` of its project.
   needs: 'nothing' | 'project' | 'engine'
 }
 

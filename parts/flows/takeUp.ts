@@ -1,5 +1,5 @@
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Tx } from '../data/index.ts'
 import { inBranch } from './branches.ts'
 import { ended } from './ending.ts'
@@ -99,8 +99,8 @@ function carry(held: Held, pass: Pass, flow: FlowOf, tools: StepTools, last: Las
   }
   const body = env.body(run.version, run.flow, ...(last === undefined ? [] : [last]))
   if (!body)
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `The version ${run.version} holds no code for ${last === undefined ? '' : `the \`${last}\` of `}${run.flow}.`,
     )
   const at = atOf(pass)
@@ -330,11 +330,11 @@ async function onePass(held: Held, id: string, work: AtWork): Promise<boolean> {
 function flowAnswerOf(
   flow: FlowOf,
   answer: { value: unknown; size: number },
-): { value: unknown } | { error: TentError } {
+): { value: unknown } | { error: ForjrError } {
   if (answer.size > flow.limits.result)
     return {
-      error: new TentError(
-        'T5102',
+      error: new ForjrError(
+        'F5102',
         `The answer of the flow is ${answer.size} bytes, past \`limits.result\` of ${flow.limits.result}.`,
         { fix: 'Put large data into a file and answer its id, or raise `limits.result` of the flow.' },
       ),
@@ -342,7 +342,7 @@ function flowAnswerOf(
   const fitted = flowAnswer(flow.record, answer.value)
   if ('misfit' in fitted)
     return {
-      error: new TentError('T0009', `The answer of the flow does not fit its output: ${fitted.misfit}`, {
+      error: new ForjrError('F0009', `The answer of the flow does not fit its output: ${fitted.misfit}`, {
         fix: 'State an `output` that the answer fits, or answer what the stated one names.',
       }),
     }

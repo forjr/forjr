@@ -216,7 +216,7 @@ function fromHanded(name: string, links: Link[], reach: Reach): unknown {
   return { name: [name, ...pathOf(links, reach)] }
 }
 
-/** A word of `tentjs/ui` in an arrow of a screen: a value word of a screen, `message` and `asset`. */
+/** A word of `forjr/ui` in an arrow of a screen: a value word of a screen, `message` and `asset`. */
 function fromUi(name: string, links: Link[], reach: Reach, node: Node): unknown {
   const [first] = links
   if (name === 'asset' && isCall(first)) {
@@ -254,7 +254,7 @@ function fromOurs(name: string, links: Link[], reach: Reach, node: Node): unknow
   if (reach.screen) return fromUi(name, links, reach, node)
   const [first, second] = links
   if (referenceWords.has(name))
-    throw new Refused('T1014', `\`${name}\` has no meaning in a body, which reads that value by its name.`, node)
+    throw new Refused('F1014', `\`${name}\` has no meaning in a body, which reads that value by its name.`, node)
   if (isTypeWord(name) && isCall(first) && links.length === 1) return { type: typeStored(first.node, reach) }
   if ((valueWords.has(name) || otherWords.has(name)) && isCall(first))
     return readInto({ fn: name, args: args(first.args, reach, takesArrow.has(name)) }, links.slice(1), reach)

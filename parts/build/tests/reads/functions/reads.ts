@@ -1,4 +1,4 @@
-import { query } from 'tentjs'
+import { query } from 'forjr'
 import { LIMIT } from '../shared/values'
 import { plainTable } from '../tables/reads'
 

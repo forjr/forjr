@@ -56,10 +56,10 @@ test('[30-4] an Image of an asset is drawn in the widths of the image door, with
   assert.match(one, /height="400"/)
   assert.match(one, /class="wide"/)
   assert.match(one, /loading="lazy"/)
-  assert.match(one, /src="\/_t\/b\/assets\/scene\.0123456789ab\.png"/)
+  assert.match(one, /src="\/_f\/b\/assets\/scene\.0123456789ab\.png"/)
   // Every width of the door that ships is named, by the fingerprint of the asset.
   for (const width of [320, 640, 960, 1280, 1920, 2560])
-    assert.ok(one.includes(`/_t/img/a/scene.png?w=${width}&amp;v=0123456789ab ${width}w`), one)
+    assert.ok(one.includes(`/_f/img/a/scene.png?w=${width}&amp;v=0123456789ab ${width}w`), one)
   assert.match(one, /sizes="100vw"/)
   assert.deepEqual(
     made.pictures.map((picture) => picture.src),
@@ -81,7 +81,7 @@ test('[30-4] an Image of a file shows its tiny copy until it has loaded, is name
   const one = img(drawing, 'A photo')
   assert.ok(one.includes(`background-image:url(&quot;${tiny}&quot;)`), one)
   // The door scales down and never up: of the widths at and above 700, only 960 is named, at 700.
-  assert.ok(one.includes(`/_t/img/${photo}?w=640 640w, /_t/img/${photo}?w=960 700w"`), one)
+  assert.ok(one.includes(`/_f/img/${photo}?w=640 640w, /_f/img/${photo}?w=960 700w"`), one)
   assert.ok(!one.includes('?w=1280'), one)
   assert.match(one, /sizes="300px"/)
   assert.match(one, /loading="eager"/)
@@ -89,7 +89,7 @@ test('[30-4] an Image of a file shows its tiny copy until it has loaded, is name
   assert.match(
     made.html ?? '',
     new RegExp(
-      `<link rel="preload" as="image" href="/_t/files/${photo}" imagesrcset="[^"]+" imagesizes="300px" fetchpriority="high">`,
+      `<link rel="preload" as="image" href="/_f/files/${photo}" imagesrcset="[^"]+" imagesizes="300px" fetchpriority="high">`,
     ),
   )
   assert.deepEqual(recordOf(made.html).pictures, { [photo]: { tiny, width: 700 } })
@@ -99,17 +99,17 @@ test('[30-4] in an exported page an Image is a picture with the smaller formats 
   const made = await pictured(
     () => createElement(Image, { src: photo, alt: 'Exported', width: 300, height: 150 }),
     () => ({
-      files: { 320: '/_t/img/abc.320.png', 640: '/_t/img/abc.640.png' },
-      formats: { 'image/avif': { 320: '/_t/img/abc.320.avif', 640: '/_t/img/abc.640.avif' } },
+      files: { 320: '/_f/img/abc.320.png', 640: '/_f/img/abc.640.png' },
+      formats: { 'image/avif': { 320: '/_f/img/abc.320.avif', 640: '/_f/img/abc.640.avif' } },
     }),
     { exported: true, imageWidths: [320, 640] },
   )
   const drawing = drawingOf(made.html)
   assert.match(
     drawing,
-    /<picture[^>]*><source type="image\/avif" srcset="\/_t\/img\/abc\.320\.avif 320w, \/_t\/img\/abc\.640\.avif 640w"/i,
+    /<picture[^>]*><source type="image\/avif" srcset="\/_f\/img\/abc\.320\.avif 320w, \/_f\/img\/abc\.640\.avif 640w"/i,
   )
-  assert.match(img(drawing, 'Exported'), /src="\/_t\/img\/abc\.640\.png"/)
+  assert.match(img(drawing, 'Exported'), /src="\/_f\/img\/abc\.640\.png"/)
 })
 
 test('[30-4] an Image of a listed host is loaded from that host, one of a host that is not listed loads nothing, and an asset that no file has draws nothing', async () => {

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Caller } from '../../core/index.ts'
 import { project } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
@@ -67,7 +67,7 @@ export function calling(definitions: object[], o: CallingOptions = {}): Calling 
     const one = files.get(id)
     const user = caller.user?.id ?? caller.kind
     if (!one || (one.of !== undefined && one.of !== user && caller.kind !== 'system'))
-      throw new TentError('T2104', `No file ${id} can be read by this caller.`)
+      throw new ForjrError('F2104', `No file ${id} can be read by this caller.`)
     return one
   }
   const env: ConnectEnv = {
@@ -75,7 +75,7 @@ export function calling(definitions: object[], o: CallingOptions = {}): Calling 
     fetch: guardedFetch({ mode: 'development', bodyTravels: true }),
     secret(name) {
       const value = o.secrets?.[name]
-      if (value === undefined) throw new TentError('T0019', `The secret ${name} has no value.`)
+      if (value === undefined) throw new ForjrError('F0019', `The secret ${name} has no value.`)
       return value
     },
     tokens: { read: () => undefined, write: () => undefined },

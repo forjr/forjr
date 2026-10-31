@@ -1,4 +1,4 @@
-import { action, boolean, change, fail, flow, mail, number, object, query, text, TentError } from 'tentjs'
+import { action, boolean, change, fail, flow, mail, number, object, query, text, ForjrError } from 'forjr'
 import { letters, notes } from './tables.ts'
 
 // Each module of the project leaves a mark on the `globalThis` of the heap that loads it.
@@ -146,7 +146,7 @@ export const refuses = change('refuses', {
   run: () => fail('not-today', 'No note is taken today.', { fields: { what: 'taken' } }),
 })
 
-// A failure of ours that crossed is caught as a `TentError` by the app's own code.
+// A failure of ours that crossed is caught as a `ForjrError` by the app's own code.
 export const catches = action('catches', {
   access: 'anyone',
   output: text(),
@@ -155,7 +155,7 @@ export const catches = action('catches', {
       refuses()
       return 'no error'
     } catch (error) {
-      if (!(error instanceof TentError)) return 'no TentError'
+      if (!(error instanceof ForjrError)) return 'no ForjrError'
       return `${error.code} ${JSON.stringify(error.fields)}`
     }
   },
@@ -172,8 +172,8 @@ export const seesMark = action('seesMark', {
     } catch (error) {
       if (!(error instanceof Error)) return 'no error of the heap'
       return JSON.stringify({
-        kind: error instanceof TentError ? 'TentError' : error.name,
-        code: error instanceof TentError ? error.code : null,
+        kind: error instanceof ForjrError ? 'ForjrError' : error.name,
+        code: error instanceof ForjrError ? error.code : null,
         place: Reflect.get(error, 'place') ?? null,
         file: Reflect.get(error, 'file') ?? null,
       })

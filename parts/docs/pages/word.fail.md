@@ -16,13 +16,13 @@ fail('not-charged', 'This order was never charged.')
 
 ## Returns
 
-It never returns: it throws a `TentError` with the code, the words and the fields it was given.
+It never returns: it throws a `ForjrError` with the code, the words and the fields it was given.
 
 ## Errors
 
-`code.T0013`: a code of the form of a code of the framework, a `T` and four digits, which a caller would read as the framework's own. A code of your own is a lowercase word with letters, digits and hyphens.
+`code.F0013`: a code of the form of a code of the framework, an `F` and four digits, which a caller would read as the framework's own. A code of your own is a lowercase word with letters, digits and hyphens.
 
-`code.T0027`: a code or words that are no text.
+`code.F0027`: a code or words that are no text.
 
 ## See also
 

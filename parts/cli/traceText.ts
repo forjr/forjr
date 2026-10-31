@@ -1,4 +1,4 @@
-/** A span of a trace as `tent logs --trace` is answered it, as far as its text needs it. */
+/** A span of a trace as `forjr logs --trace` is answered it, as far as its text needs it. */
 interface Shown {
   name: string
   kind: string
@@ -11,7 +11,7 @@ interface Shown {
 }
 
 /**
- * Takes the id of a trace and its spans as a tree. Answers the text that `tent logs --trace` prints: each span on a
+ * Takes the id of a trace and its spans as a tree. Answers the text that `forjr logs --trace` prints: each span on a
  * line, under its parent, with its length and its outcome, the rows of the log written in it beneath, and the
  * slowest path marked.
  */

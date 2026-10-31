@@ -44,10 +44,10 @@ const fileOf = (team) => join(dataFolder, 'tenants', 'teams', team.slice(-2), `$
 const besideOf = (team) => ['-wal', '-shm'].filter((ending) => existsSync(`${fileOf(team)}${ending}`))
 const idOf = (row) => String(row.id)
 
-/** `tent data files`, asked of the app with no network. */
+/** `forjr data files`, asked of the app with no network. */
 async function listed(app) {
   const { port, token } = JSON.parse(readFileSync(join(dataFolder, 'engine.json'), 'utf8'))
-  const request = new Request(`http://127.0.0.1:${port}/_t/admin/data`, {
+  const request = new Request(`http://127.0.0.1:${port}/_f/admin/data`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
     body: JSON.stringify({ args: { what: 'files' } }),

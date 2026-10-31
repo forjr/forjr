@@ -258,7 +258,7 @@ test('[05-4.8@5] a page with no framedBy says that no site may show it in a fram
   assert.equal(last.headers['x-content-type-options'], 'nosniff')
 })
 
-test("[05-4.13] a request for a page with a Host of the attacker's own is T0017, behind a proxy and without one, and no full address in any page holds that name", async (t) => {
+test("[05-4.13] a request for a page with a Host of the attacker's own is F0017, behind a proxy and without one, and no full address in any page holds that name", async (t) => {
   const gate = await gated(t)
   const evil = [
     'evil.example',
@@ -274,11 +274,11 @@ test("[05-4.13] a request for a page with a Host of the attacker's own is T0017,
   ]
   const refusals = new Set<number>()
   for (const host of evil)
-    for (const path of ['/', '/account', '/nothing', '/_t/b/browser/x.js']) {
+    for (const path of ['/', '/account', '/nothing', '/_f/b/browser/x.js']) {
       const answer = await got(gate, path, {}, { host })
       // A text that is no name of a host at all is refused before the door, with its status and nothing else.
       if (answer.status === 400) assert.equal(answer.text, '', `${host} ${path}`)
-      else assert.deepEqual([answer.status, answer.error.code], [421, 'T0017'], `${host} ${path}`)
+      else assert.deepEqual([answer.status, answer.error.code], [421, 'F0017'], `${host} ${path}`)
       assert.ok(!answer.text.includes('<'), 'the refusal is no page')
       refusals.add(answer.status)
     }
@@ -314,7 +314,7 @@ test("[05-4.13] a request for a page with a Host of the attacker's own is T0017,
     got(behind, '/', { 'x-forwarded-for': '203.0.113.9', 'x-forwarded-host': host, ...more }, { host: 'inner:8080' })
   for (const host of ['evil.example', 'shop.example.evil.example', 'evil.example, evil.example', 'shop.example:8443']) {
     const answer = await through(host)
-    assert.deepEqual([answer.status, answer.error.code], [421, 'T0017'], host)
+    assert.deepEqual([answer.status, answer.error.code], [421, 'F0017'], host)
   }
   const own = await through('shop.example', { forwarded: 'host=evil.example' })
   assert.equal(own.status, 200)
@@ -331,5 +331,5 @@ test("[05-4.13] a request for a page with a Host of the attacker's own is T0017,
   assert.equal(kept.status, 200)
   assert.ok(!JSON.stringify([kept.headers, kept.text]).includes('evil.example'))
   const refused = await got(plain, '/', { 'x-forwarded-host': 'shop.example' }, { host: 'evil.example' })
-  assert.deepEqual([refused.status, refused.error.code], [421, 'T0017'])
+  assert.deepEqual([refused.status, refused.error.code], [421, 'F0017'])
 })

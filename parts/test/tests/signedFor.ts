@@ -50,7 +50,7 @@ export async function chatApp(
   return { id, remote }
 }
 
-/** What a client sends the person with to `/_t/oauth/authorize`. */
+/** What a client sends the person with to `/_f/oauth/authorize`. */
 export interface Authorizing {
   client: string
   redirect: string
@@ -61,7 +61,7 @@ export interface Authorizing {
   method?: string
 }
 
-/** The address of `/_t/oauth/authorize` for what a client asks. */
+/** The address of `/_f/oauth/authorize` for what a client asks. */
 export function authorizeAt(asking: Authorizing): string {
   const query = new URLSearchParams({
     response_type: 'code',
@@ -72,7 +72,7 @@ export function authorizeAt(asking: Authorizing): string {
     ...(asking.scope === undefined ? {} : { scope: asking.scope }),
     ...(asking.resource === undefined ? {} : { resource: asking.resource }),
   })
-  return `/_t/oauth/authorize?${query}`
+  return `/_f/oauth/authorize?${query}`
 }
 
 /** The hidden text of the form of the page that asks a person, and the address its form posts to. */
@@ -88,7 +88,7 @@ export function decided(
   text: string,
   answer: 'allow' | 'refuse' = 'allow',
 ): Promise<Response> {
-  return browser.request('POST', '/_t/oauth/decide', {
+  return browser.request('POST', '/_f/oauth/decide', {
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ t: text, answer }).toString(),
   })
@@ -134,7 +134,7 @@ export async function tokenAsked(
   headers: Record<string, string> = {},
 ): Promise<{ status: number; body: Record<string, unknown> }> {
   const answer = await app.request(
-    new Request('http://localhost/_t/oauth/token', {
+    new Request('http://localhost/_f/oauth/token', {
       method: 'POST',
       headers: { 'content-type': 'application/x-www-form-urlencoded', ...headers },
       body: new URLSearchParams(form).toString(),

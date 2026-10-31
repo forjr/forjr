@@ -1,4 +1,4 @@
-import { screen, Form } from 'tentjs/ui'
+import { screen, Form } from 'forjr/ui'
 import { addOrder, pick } from './functions'
 
 // A screen whose forms call a change and an action.

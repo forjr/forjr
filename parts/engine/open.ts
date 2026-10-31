@@ -1,5 +1,5 @@
 import { resolve } from 'node:path'
-import type { ActionDb, TentError } from '../core/index.ts'
+import type { ActionDb, ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import { versionIdOf } from '../core/internal.ts'
 import type { Mode } from '../data/index.ts'
@@ -37,7 +37,7 @@ export interface OpenOptions {
   insecure?: boolean
   // The makers of this app, which win over those of the engine.
   makers?: Makers
-  // In the mode `development`, mail is sent in place of written to the log: what `tent dev --mail` asks for.
+  // In the mode `development`, mail is sent in place of written to the log: what `forjr dev --mail` asks for.
   sendMail?: boolean
   // A length of time, as '10 minutes': an app that nothing used for that long falls asleep. Left out, it never sleeps.
   sleepAfter?: string
@@ -55,9 +55,9 @@ export interface OpenOptions {
   framedBy?: string[] | 'anyone'
   // What the app keeps in memory is made at its first use: a program that holds many apps says so.
   lazy?: boolean
-  // In the mode `development`, the rows past the time their table keeps them are removed: what `tent dev --keep` asks for.
+  // In the mode `development`, the rows past the time their table keeps them are removed: what `forjr dev --keep` asks for.
   keep?: boolean
-  // The key of the secrets of this app, in place of `TENT_SECRET_KEY` and of `secret.key` of its data folder: so a
+  // The key of the secrets of this app, in place of `FORJR_SECRET_KEY` and of `secret.key` of its data folder: so a
   // preview reads no key of the server's program.
   secretKey?: string
 }
@@ -84,15 +84,15 @@ export const heldHere = (dataFolder: string): boolean => openFolders.has(resolve
 
 /**
  * Reads the description of a version, the folder of a bundle or the list that a build of development wrote, and
- * the version id that its content gives. Throws T0011 for one that holds none.
+ * the version id that its content gives. Throws F0011 for one that holds none.
  */
 export function readBundle(given: string): { description: Description; version: string } {
   const place = filePlaceOf(given)
   if (!holdsFile(place, 'description.json'))
     throw refused(
-      'T0011',
+      'F0011',
       `The folder ${given} holds no description.json, so it is no bundle.`,
-      'Hand the engine the folder that `tent build` wrote.',
+      'Hand the engine the folder that `forjr build` wrote.',
     )
   const text = textAt(place, 'description.json')
   const description = descriptionOf(text)
@@ -101,19 +101,19 @@ export function readBundle(given: string): { description: Description; version: 
 
 /**
  * Takes a data folder. Holds it for this program, which opens a data folder once. Answers its whole path, and
- * what gives it up again. Throws T0013 for no folder, and for one that an engine holds open already.
+ * what gives it up again. Throws F0013 for no folder, and for one that an engine holds open already.
  */
 export async function claimed(folder: unknown, option: string): Promise<{ dataFolder: string; release(): void }> {
   if (typeof folder !== 'string' || folder === '')
     throw refused(
-      'T0013',
+      'F0013',
       'An app is opened on a data folder, and none was named.',
       `Name \`dataFolder\` in the options of \`${option}\`.`,
     )
   const dataFolder = resolve(folder)
-  const holds = (other?: number): TentError =>
+  const holds = (other?: number): ForjrError =>
     refused(
-      'T0013',
+      'F0013',
       `An engine holds the data folder ${dataFolder} open already${other === undefined ? '' : `, in the program ${other}`}: one program opens a data folder for writing.`,
       'Close the app that holds it, or talk to the engine that runs it.',
     )
@@ -133,9 +133,9 @@ export async function claimed(folder: unknown, option: string): Promise<{ dataFo
  * Takes what the engine hands an opening, the folder of a bundle, and the options of `engine.open`. Reads the
  * description of the bundle, has the makers make the store and the clock of the app, opens its data, applies the
  * table changes, loads its code, and writes `engine.json`. Answers the app, which is the writer of its data. Where
- * anything fails, the app does not open and what was opened for it is closed: T0011 for a description that does
- * not pass, T0018 for data that cannot be opened, T2001 to T2004 for a table change that is refused, T0013 for a
- * data folder that an engine holds open already and for a key of `readers` that is none, and T0030 for the data
+ * anything fails, the app does not open and what was opened for it is closed: F0011 for a description that does
+ * not pass, F0018 for data that cannot be opened, F2001 to F2004 for a table change that is refused, F0013 for a
+ * data folder that an engine holds open already and for a key of `readers` that is none, and F0030 for the data
  * folder of a reader or of a writer that was stopped.
  */
 export async function openApp(program: Program, bundleFolder: string, options: OpenOptions): Promise<App> {
@@ -156,7 +156,7 @@ export async function openApp(program: Program, bundleFolder: string, options: O
   const mode = options?.mode ?? 'live'
   if (!modes.includes(mode))
     throw refused(
-      'T0013',
+      'F0013',
       `An app is opened in the mode development, test or live, and never in ${JSON.stringify(mode)}.`,
       'Name one of the three modes, or none for live.',
     )

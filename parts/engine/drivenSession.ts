@@ -1,5 +1,5 @@
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { App } from './app.ts'
 import { openedOf } from './app.ts'
 import { heldOpen } from './opened.ts'
@@ -18,7 +18,7 @@ export interface DrivenSession {
  */
 export function drivenSession(app: App, user: string | Caller): DrivenSession {
   const o = openedOf(app)
-  if (!o) throw new TentError('T0013', 'A session for a browser is made on an app that this program holds.')
+  if (!o) throw new ForjrError('F0013', 'A session for a browser is made on an app that this program holds.')
   heldOpen(o)
   const cookie = madeSession(o, user, true)
   return { cookie, end: () => drivenEnded(o, cookie) }

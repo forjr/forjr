@@ -1,6 +1,6 @@
 import { existsSync, mkdirSync, readFileSync, renameSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Mode } from '../../data/index.ts'
 
 /** The two kinds of value that a data folder keeps in files of their own. */
@@ -16,11 +16,11 @@ export const valuesHeldFor = (mode: Mode): ValuesMode => (mode === 'live' ? 'liv
 export const valuesFile = (dataFolder: string, kind: ValueKind, held: ValuesMode): string =>
   join(dataFolder, `${kind}.${held}`)
 
-const formatOf = (kind: ValueKind): string => `tent.${kind}/1`
+const formatOf = (kind: ValueKind): string => `forjr.${kind}/1`
 
 /**
- * Reads the values of one file: `{ "format": "tent.<kind>/1", "values": { ... } }`. A file that is not there
- * holds none. Throws T0018 for a file that is of another form.
+ * Reads the values of one file: `{ "format": "forjr.<kind>/1", "values": { ... } }`. A file that is not there
+ * holds none. Throws F0018 for a file that is of another form.
  */
 export function readValues(file: string, kind: ValueKind): Record<string, unknown> {
   if (!existsSync(file)) return {}
@@ -32,7 +32,7 @@ export function readValues(file: string, kind: ValueKind): Record<string, unknow
   }
   const values: unknown = Reflect.get(Object(read), 'values')
   if (Reflect.get(Object(read), 'format') !== formatOf(kind) || typeof values !== 'object' || values === null)
-    throw new TentError('T0018', `The file ${file} is no file of ${kind}: it is not of the form ${formatOf(kind)}.`, {
+    throw new ForjrError('F0018', `The file ${file} is no file of ${kind}: it is not of the form ${formatOf(kind)}.`, {
       fix: `Put the file back as the engine wrote it, or remove it and set the ${kind} again.`,
     })
   return { ...values }

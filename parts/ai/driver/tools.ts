@@ -1,5 +1,5 @@
 import type { Type } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description, ToolSpec } from '../../core/internal.ts'
 import { codes, fromJsonSchema, isStored, sendsOut, toJsonSchema, toolLine } from '../../core/internal.ts'
 import type { ToolEntry } from '../../core/internal.ts'
@@ -129,30 +129,30 @@ export const requestTools = (offered: Offered[]): { name: string; about: string;
   offered.map((one) => ({ name: one.entry.told, about: one.about, input: one.schema ?? toJsonSchema(one.input) }))
 
 /** The words of a code as they reach a model, with the engine's own words where it has some. */
-const toldWords: Record<string, string> = { T3101: 'not allowed', T0001: 'no such tool' }
+const toldWords: Record<string, string> = { F3101: 'not allowed', F0001: 'no such tool' }
 
 /**
  * Takes what a tool failed with. Answers what the model is told of it, in the words a caller would be sent: an
- * error of a code with a status, and an app's own `fail`, as `Error <code>: <message>`, and any other as T0009.
+ * error of a code with a status, and an app's own `fail`, as `Error <code>: <message>`, and any other as F0009.
  */
 export function errorText(error: unknown, words: Record<string, string>): string {
   const code: unknown = Reflect.get(Object(error), 'code')
-  if (code === 'T5102') return wordsOf(words, 'tooLarge')
-  if (code === 'T7111') return wordsOf(words, 'refused')
+  if (code === 'F5102') return wordsOf(words, 'tooLarge')
+  if (code === 'F7111') return wordsOf(words, 'refused')
   // What went wrong inside may hold a secret: the model is told its reference alone.
-  if (code === 'T0009') return refOf(error)
+  if (code === 'F0009') return refOf(error)
   if (typeof code === 'string' && Object.hasOwn(toldWords, code)) return `Error ${code}: ${toldWords[code]}`
   const row = typeof code === 'string' && Object.hasOwn(codes, code) ? Reflect.get(codes, code) : undefined
   const own = typeof code === 'string' && /^[a-z][a-z0-9-]*$/.test(code)
-  if (error instanceof TentError && (own || (row && Reflect.get(row, 'status') !== undefined)))
+  if (error instanceof ForjrError && (own || (row && Reflect.get(row, 'status') !== undefined)))
     return `Error ${code}: ${error.message}`
   return refOf(error)
 }
 
-/** T0009 as a model is told it: the general sentence, with the reference of the error where it has one. */
+/** F0009 as a model is told it: the general sentence, with the reference of the error where it has one. */
 function refOf(error: unknown): string {
   const ref: unknown = Reflect.get(Object(error), 'ref')
-  return `Error T0009: Something went wrong.${typeof ref === 'string' ? ` Reference ${ref}.` : ''}`
+  return `Error F0009: Something went wrong.${typeof ref === 'string' ? ` Reference ${ref}.` : ''}`
 }
 
 /**

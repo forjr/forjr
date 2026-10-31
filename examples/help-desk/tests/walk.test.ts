@@ -6,7 +6,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import { fileURLToPath } from 'node:url'
 import { type Browser, chromium, firefox, webkit } from 'playwright-core'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 import { bridge } from '../fakes/bridge'
 import {
   type App,
@@ -28,8 +28,8 @@ type Page = Awaited<ReturnType<App['open']>>
 const ENGINES: Engine[] = ['chromium', 'firefox', 'webkit']
 const CHOSEN = process.env.WALK_ENGINES?.split(',') ?? ENGINES
 
-// In this repository the command `tent` is this file, run by the pinned runtime.
-const TENT = fileURLToPath(new URL('../../../parts/cli/shell.ts', import.meta.url))
+// In this repository the command `forjr` is this file, run by the pinned runtime.
+const FORJR = fileURLToPath(new URL('../../../parts/cli/shell.ts', import.meta.url))
 
 /** Types a command of the app's own command line against a server, with a key, as a person does with `desk`. */
 function typedWith(address: string, home: string) {
@@ -37,8 +37,8 @@ function typedWith(address: string, home: string) {
     new Promise<{ code: number; out: string; err: string }>((done) => {
       execFile(
         process.execPath,
-        [TENT, 'cli', address, ...words],
-        { env: { ...process.env, TENT_KEY: key, TENT_AT: address, TENT_HOME: home } },
+        [FORJR, 'cli', address, ...words],
+        { env: { ...process.env, FORJR_KEY: key, FORJR_AT: address, FORJR_HOME: home } },
         (error, out, err) => done({ code: typeof error?.code === 'number' ? error.code : error ? 1 : 0, out, err }),
       )
     })
@@ -92,14 +92,14 @@ for (const engine of ENGINES.filter((one) => CHOSEN.includes(one))) {
     const app = await testApp({ secrets: { MAIL_HOOK: HOOK_SECRET } })
     const fakes = fakeAll(app)
     const door = await bridge(app)
-    const home = await mkdtemp(join(tmpdir(), 'tent-desk-'))
+    const home = await mkdtemp(join(tmpdir(), 'forjr-desk-'))
     const desk = typedWith(door.address, home)
     walk.after(async () => {
       await door.close()
       await app.close()
       await rm(home, { recursive: true, force: true })
     })
-    // An engine that `app.open` cannot drive on this computer fails here with T0016, which `tent test` names not run.
+    // An engine that `app.open` cannot drive on this computer fails here with F0016, which `forjr test` names not run.
     const staff = await signIn(app, engine, 'sam@desk.example', '/tickets')
     assert.equal((await staff.text('Every mail to the support address, newest first.')).role, 'paragraph')
 
@@ -173,7 +173,7 @@ for (const engine of ENGINES.filter((one) => CHOSEN.includes(one))) {
         assert.equal(refused.status, 403)
         const refusedTyped = await desk(narrow.key, ['ticket-list', '--json'])
         assert.equal(refusedTyped.code, 1)
-        assert.match(refusedTyped.out + refusedTyped.err, /T3101/)
+        assert.match(refusedTyped.out + refusedTyped.err, /F3101/)
         await keep(staff, 3)
       },
     )
@@ -315,14 +315,14 @@ for (const engine of ENGINES.filter((one) => CHOSEN.includes(one))) {
       const page = await context.newPage()
       page.setDefaultTimeout(15_000)
       await page.goto(`${door.address}/sign-in?back=/ask`)
-      await page.locator('#tent[data-t-alive]').waitFor()
+      await page.locator('#forjr[data-f-alive]').waitFor()
       await page.getByLabel('Email', { exact: true }).fill('ada@desk.example')
       await page.getByRole('button', { name: 'Mail me a code' }).click()
       await page.getByRole('heading', { name: 'Check your mail' }).waitFor()
       await page.getByLabel('Code', { exact: true }).fill(codeOf(app, 'ada@desk.example'))
       await page.getByRole('button', { name: 'Sign in' }).click()
       await page.waitForURL((url) => url.pathname === '/ask')
-      await page.locator('#tent[data-t-alive]').waitFor()
+      await page.locator('#forjr[data-f-alive]').waitFor()
       const spoken = fakes.spoken()
       await page.getByRole('button', { name: 'Talk' }).click()
       await page.getByText('Listening, 1 s').waitFor()

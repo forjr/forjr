@@ -1,4 +1,4 @@
-import { useTranslations } from 'tentjs/ui'
+import { useTranslations } from 'forjr/ui'
 import { STATUSES, type Status, statusName } from './status'
 
 type Counted = { status: Status; createdAt: string }

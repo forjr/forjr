@@ -7,7 +7,7 @@ const shown = (measure: string, value: number): string =>
 /**
  * The speed visitors saw, as text: for each screen and version, the screens furthest past their line first, a line
  * of each measure with its 75th share, the line of good, and the same of the version before. Takes each screen in
- * one version as `tent logs --vitals` is answered it: `{ screen, version, before?, measures }`.
+ * one version as `forjr logs --vitals` is answered it: `{ screen, version, before?, measures }`.
  */
 export function vitalsText(ranked: unknown[]): string {
   const lines: string[] = []

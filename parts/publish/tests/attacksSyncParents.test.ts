@@ -10,7 +10,7 @@ function pointOf(held: Omit<Point, 'id'>): Point {
   return { id: idOf(held), ...held }
 }
 
-test('[05-15.17] a point whose parents the server lacks is T9107: nothing that was sent with it is kept, and no pointer moves to it', async (t) => {
+test('[05-15.17] a point whose parents the server lacks is F9107: nothing that was sent with it is kept, and no pointer moves to it', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder)
   const here = computer(t, folder, 'here')
@@ -25,17 +25,17 @@ test('[05-15.17] a point whose parents the server lacks is T9107: nothing that w
   const child = pointOf({ parents: [lacking.id], at: 5, by: ada, kind: 'command', files })
   const good = pointOf({ parents: [head], at: 6, by: ada, kind: 'command', files })
   for (const points of [[lacking], [above], [good, child, lacking], [child, good]]) {
-    const answered = await sent(server, '/_t/sync/points', { points }, key)
-    assert.equal(Object(answered.answer.error).code, 'T9107', JSON.stringify(answered.answer))
+    const answered = await sent(server, '/_f/sync/points', { points }, key)
+    assert.equal(Object(answered.answer.error).code, 'F9107', JSON.stringify(answered.answer))
     for (const one of [lacking, above, child, good]) assert.equal(server.history.read(one.id), undefined)
   }
   const moved = await sent(
     server,
-    '/_t/sync/points',
+    '/_f/sync/points',
     { points: [lacking], move: { pointer: 'main', to: lacking.id, was: head } },
     key,
   )
-  assert.equal(Object(moved.answer.error).code, 'T9107', JSON.stringify(moved.answer))
+  assert.equal(Object(moved.answer.error).code, 'F9107', JSON.stringify(moved.answer))
   assert.equal(JSON.stringify(server.history.pointers()), pointers, 'no pointer moved')
   assert.equal(server.history.read(lacking.id), undefined)
 })

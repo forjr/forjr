@@ -13,7 +13,7 @@ import { startWords } from './startWords.ts'
 import { shell } from './typed.ts'
 
 // What the tests of an app that runs as its own server share: the shop of `secureShop/`, built for each test, free
-// ports of this computer, `tent start` as a program of its own, and requests by a name over the secure port and
+// ports of this computer, `forjr start` as a program of its own, and requests by a name over the secure port and
 // over the plain one, which reach this computer whatever name they carry.
 
 const shop = fileURLToPath(new URL('./secureShop/', import.meta.url))
@@ -72,8 +72,8 @@ export function rootsIn(folder: string, root: string): string {
   return file
 }
 
-/** `tent start` as a program of its own: what it printed, its end, and what ends it. */
-export interface TentStart {
+/** `forjr start` as a program of its own: what it printed, its end, and what ends it. */
+export interface ForjrStart {
   child: ChildProcess
   out: string[]
   err: string[]
@@ -81,15 +81,15 @@ export interface TentStart {
   stop(): Promise<number | null>
 }
 
-/** Starts `tent start` with the words that follow it, ended with the test by its own number and no other. */
-export function startTent(
+/** Starts `forjr start` with the words that follow it, ended with the test by its own number and no other. */
+export function startForjr(
   t: TestContext,
   words: string[],
   o: { cwd: string; env?: Record<string, string> },
-): TentStart {
+): ForjrStart {
   const child = spawn(process.execPath, [shell, ...startWords(['start', ...words])], {
     cwd: o.cwd,
-    env: { ...process.env, TENT_NOTICES: 'off', ...o.env },
+    env: { ...process.env, FORJR_NOTICES: 'off', ...o.env },
     stdio: ['ignore', 'pipe', 'pipe'],
   })
   const out: string[] = []
@@ -172,7 +172,7 @@ export async function served(port: number, name: string, roots: string, within =
   let last: unknown
   for (;;) {
     try {
-      return await securely(port, name, '/_t/health', roots)
+      return await securely(port, name, '/_f/health', roots)
     } catch (error) {
       last = error
     }

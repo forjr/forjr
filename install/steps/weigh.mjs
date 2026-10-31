@@ -22,10 +22,10 @@ export function weigh(c) {
   for (const system of c.systems) {
     const one = layers[system]
     const xz = (name) => sized(c, `${name}-${c.version}-${system}.tar.xz`) ?? sized(c, `${name}-${c.version}-${system}.tar.gz`)
-    const player = system.startsWith('linux') && xz('tent') ? xz('tent') : one.runtime.size + one.player.size
+    const player = system.startsWith('linux') && xz('forjr') ? xz('forjr') : one.runtime.size + one.player.size
     const installer =
-      sized(c, `tent-${c.version}-${system}.msi`) ?? sized(c, `tent-${c.version}-${system}.pkg`) ?? undefined
-    const tools = system.startsWith('linux') && xz('tent-tools') ? player + xz('tent-tools') : (installer ?? player + one.tools.size)
+      sized(c, `forjr-${c.version}-${system}.msi`) ?? sized(c, `forjr-${c.version}-${system}.pkg`) ?? undefined
+    const tools = system.startsWith('linux') && xz('forjr-tools') ? player + xz('forjr-tools') : (installer ?? player + one.tools.size)
     weights[system] = { player, tools, npm: one.system.size }
     if (player > bars['download.player'].bar) missed.push(`the player of ${system} is ${mb(player)}`)
     if (tools > bars['download.tools'].bar) missed.push(`the player with the build tools of ${system} is ${mb(tools)}`)

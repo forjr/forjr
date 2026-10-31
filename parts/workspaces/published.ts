@@ -1,6 +1,6 @@
 import { cpSync, existsSync, readdirSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { App, OpenOptions } from '../engine/index.ts'
 import type { Published } from '../publish/index.ts'
 import { impactOf, publish } from '../publish/index.ts'
@@ -15,12 +15,12 @@ import { historyOf, hostOf, oneOf } from './state.ts'
 /** Whether where a workspace is made live is a far server, as a target of publishing is. */
 const isTarget = (live: Live): live is { address: string; key: string } => 'key' in live
 
-/** Where a workspace is made live, as the workspaces were told: T0013 where they were told nowhere. */
+/** Where a workspace is made live, as the workspaces were told: F0013 where they were told nowhere. */
 function liveOf(held: Held, one: One): Live {
   const live = held.o.live?.(one.workspace.id)
   if (!live)
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `The workspaces were given no \`live\`, so the workspace ${one.workspace.id} is made live nowhere.`,
       {
         fix: 'Give `createWorkspaces` a `live`, which answers where each workspace is made live.',
@@ -42,13 +42,13 @@ function newestLive(one: One): string | undefined {
 /**
  * What the product's own engine is handed to open the live app of a workspace with, with the `identify` of the
  * product, which names its callers as on the test side: code whose owner is not trusted
- * runs in the room of the workspaces, and nowhere where they hold none (T9105).
+ * runs in the room of the workspaces, and nowhere where they hold none (F9105).
  */
 async function liveOpen(held: Held, one: One, live: { dataFolder: string; address: string; sleepAfter?: string }) {
   const boxed = !(await trustedOwner(held, one))
   if (boxed && !held.o.room)
-    throw new TentError(
-      'T9105',
+    throw new ForjrError(
+      'F9105',
       `The workspace ${one.workspace.id} is code, and the workspaces hold no room to run it in.`,
       {
         fields: { rule: 'code' },
@@ -101,7 +101,7 @@ async function liveBuilt(held: Held, one: One, boxed: boolean): Promise<Built> {
  * Takes what the workspaces hold, the id of a workspace and what the publish asks. Builds and checks its point and
  * makes it live where `live` says: on a far server by publishing, or in the product's own engine, by opening it
  * there the first time and by adding and switching to it afterwards. A workspace whose code its owner's roles do
- * not make trusted is published to a far server alone, with the bundle its box built: T9105 for the product's own
+ * not make trusted is published to a far server alone, with the bundle its box built: F9105 for the product's own
  * engine. The record of the workspace holds where it is live from then on. Answers what was published.
  */
 export async function publishWorkspace(
@@ -120,8 +120,8 @@ export async function publishWorkspace(
     const inBox = boxed ? await checkedInBox(held, one, 'release') : undefined
     const errors = inBox?.findings.filter((found) => found.level === 'error') ?? []
     if (inBox && (errors.length || !inBox.versionId))
-      throw new TentError(
-        'T9101',
+      throw new ForjrError(
+        'F9101',
         `The workspace ${id} does not pass the check, and is not published: ${errors[0]?.message ?? 'its box built no bundle'}`,
         {
           fields: { reason: 'check', count: String(errors.length) },
@@ -153,8 +153,8 @@ export async function publishWorkspace(
   const built = await liveBuilt(held, one, boxed)
   const errors = built.findings.filter((found) => found.level === 'error')
   if (errors.length || !built.versionId)
-    throw new TentError(
-      'T9101',
+    throw new ForjrError(
+      'F9101',
       `The workspace ${id} does not pass the check, and is not published: ${errors[0]?.message ?? ''}`,
       {
         fields: { point: point.id, reason: 'check', count: String(errors.length) },
@@ -164,8 +164,8 @@ export async function publishWorkspace(
   // The impact of the change against what is live in the product's own engine, the one report of the publish.
   const impact = opened ? impactOf({ against: 'live', live: opened.description, next: built.description }) : undefined
   if (impact && !asked.try && !asked.back && !accepted && (impact.rights.length || impact.breaks.length))
-    throw new TentError(
-      'T9103',
+    throw new ForjrError(
+      'F9103',
       `The publish of the workspace ${id} widens ${impact.rights.length} rights and breaks ${impact.breaks.length} for callers outside, and its impact was not accepted.`,
       { fields: { reason: 'impact', count: String(impact.rights.length + impact.breaks.length) } },
     )
@@ -174,7 +174,7 @@ export async function publishWorkspace(
     // Going back is to the version that ran before the one that runs, which the live app still keeps.
     const [before] = (opened?.versions() ?? []).filter((v) => !v.running).sort((a, b) => b.addedAt - a.addedAt)
     if (!opened || !before)
-      throw new TentError('T9103', `The workspace ${id} has nothing live to go back to.`, {
+      throw new ForjrError('F9103', `The workspace ${id} has nothing live to go back to.`, {
         fields: { reason: 'nothing' },
       })
     const switched = await opened.switch(before.id, { back: true, ...hard, ...(asked.try ? { dry: true } : {}) })

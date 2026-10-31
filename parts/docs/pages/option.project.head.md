@@ -16,7 +16,7 @@ export const shop = project('shop', {
 
 ## Errors
 
-`code.T1014`: a line that is none of the three, that states a name its kind does not take, or whose `src` lies on a host that `unlock.scripts` does not list.
+`code.F1014`: a line that is none of the three, that states a name its kind does not take, or whose `src` lies on a host that `unlock.scripts` does not list.
 
 ## See also
 

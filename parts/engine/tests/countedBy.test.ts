@@ -12,7 +12,7 @@ const bo = userOf('bo')
 test('[21-22] a request that the door refused at its first steps, one for a name that is no function, and one for the health of the app are counted under door', async (t) => {
   const { app, origin, counted, sum } = await counting(t)
   const refused = await app.request(
-    new Request(`${origin}/_t/call/listNotes`, {
+    new Request(`${origin}/_f/call/listNotes`, {
       method: 'POST',
       headers: { 'content-type': 'application/json', origin: 'https://elsewhere.example' },
       body: '{"input":{}}',
@@ -21,7 +21,7 @@ test('[21-22] a request that the door refused at its first steps, one for a name
   assert.equal(refused.status, 403)
   await refused.text()
   const unknown = await app.request(
-    new Request(`${origin}/_t/call/noSuchThing`, {
+    new Request(`${origin}/_f/call/noSuchThing`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: '{"input":{}}',
@@ -29,7 +29,7 @@ test('[21-22] a request that the door refused at its first steps, one for a name
   )
   assert.equal(unknown.status, 404)
   await unknown.text()
-  const health = await app.request(new Request(`${origin}/_t/health`))
+  const health = await app.request(new Request(`${origin}/_f/health`))
   await health.text()
   const rows = await counted()
   assert.equal(sum(rows, 'door', 'calls'), 3)
@@ -104,7 +104,7 @@ test("[21-22] 'caller' on one function or on one flow counts that one by caller 
   assert.ok(kept.every((row) => row.caller === 'user:ada'))
 })
 
-test("[21-22] a model that states countBy: 'app' is counted with the caller empty, and another countBy on a function is T1014", async (t) => {
+test("[21-22] a model that states countBy: 'app' is counted with the caller empty, and another countBy on a function is F1014", async (t) => {
   const { app, counted } = await counting(t, {
     change: (description) => Object.assign(Object(description.models.writer), { countBy: 'app' }),
   })
@@ -117,7 +117,7 @@ test("[21-22] a model that states countBy: 'app' is counted with the caller empt
   Reflect.set(oddly.options, 'countBy', 'app')
   const { findings } = describe({ definitions: [{ value: oddly, file: 'functions.ts', exportName: 'oddly' }] })
   assert.ok(
-    findings.some((one) => one.code === 'T1014' && /countBy/.test(one.message)),
+    findings.some((one) => one.code === 'F1014' && /countBy/.test(one.message)),
     JSON.stringify(findings),
   )
 })

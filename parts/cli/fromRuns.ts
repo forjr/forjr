@@ -1,6 +1,6 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { asked } from './reach.ts'
 
 /** One run that people rated, as the engine tells it. */
@@ -24,7 +24,7 @@ function casesText(agent: string, runs: Rated[]): string {
   return [
     "import assert from 'node:assert/strict'",
     "import { test } from 'node:test'",
-    "import { evals, testApp } from 'tentjs/test'",
+    "import { evals, testApp } from 'forjr/test'",
     '',
     `// The runs of ${agent} that people rated low, kept as cases. Write in \`expect\` what each should give.`,
     `test(${JSON.stringify(`${agent}, from its rated runs`)}, async () => {`,
@@ -39,7 +39,7 @@ function casesText(agent: string, runs: Rated[]): string {
 }
 
 /**
- * `tent test --ai --from-runs <agent>`: asks the engine that runs the app for the kept runs of the agent
+ * `forjr test --ai --from-runs <agent>`: asks the engine that runs the app for the kept runs of the agent
  * that people rated, below `below` where it is given, and writes them as a file of evals that the builder edits,
  * `tests/<agent>.runs.ai.ts`. Answers the file and how many cases it holds. Throws what the engine refused.
  */
@@ -52,7 +52,7 @@ export async function evalsFromRuns(
     ...(o.below === undefined ? {} : { below: o.below }),
   })
   const refused = answer.findings?.[0]
-  if (refused) throw new TentError(refused.code, refused.message)
+  if (refused) throw new ForjrError(refused.code, refused.message)
   const runs: unknown = Reflect.get(Object(answer.value), 'runs')
   const rated = (Array.isArray(runs) ? runs : []).map((one): Rated => Object(one))
   const file = `tests/${o.agent}.runs.ai.ts`

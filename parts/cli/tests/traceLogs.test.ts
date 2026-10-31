@@ -27,7 +27,7 @@ const span: Type = object({
   rows: list(json()),
 })
 
-// What `tent logs --trace` and `tent logs --slow` print with `--json`, as their value.
+// What `forjr logs --trace` and `forjr logs --slow` print with `--json`, as their value.
 const shapes: Record<string, Type> = {
   trace: object({ trace: text({ pattern: '^[0-9a-f]{32}$' }), spans: list(span) }),
   slow: object({
@@ -46,7 +46,7 @@ const shapes: Record<string, Type> = {
   }),
 }
 
-test('[44-1] tent runs show names the trace of a run, tent logs --trace prints its tree with the slowest path marked, and tent logs --slow lists the slowest traces beside the slow queries', async (t) => {
+test('[44-1] forjr runs show names the trace of a run, forjr logs --trace prints its tree with the slowest path marked, and forjr logs --slow lists the slowest traces beside the slow queries', async (t) => {
   // The engine is closed before the folder of its data is removed: the hooks of a test run in their order.
   const engine = createEngine({ port: 0 })
   t.after(() => engine.close())
@@ -86,11 +86,11 @@ test('[44-1] tent runs show names the trace of a run, tent logs --trace prints i
   assert.match(printed, new RegExp(`^trace ${trace}`))
   assert.match(printed, /\nrun bigOrder {2}\d+ ms {2}ok \*/)
   assert.match(printed, /\n {2}step tell sales {2}\d+ ms {2}ok/)
-  // A trace that is not kept is T0001.
+  // A trace that is not kept is F0001.
   const missing = await typed(project, 'logs', '--trace', 'f'.repeat(32), '--data', data, '--json')
-  assert.deepEqual([missing.ended, missing.answer.findings?.[0].code], [1, 'T0001'])
+  assert.deepEqual([missing.ended, missing.answer.findings?.[0].code], [1, 'F0001'])
   const wrong = await typed(project, 'logs', '--trace', 'not-a-trace', '--data', data, '--json')
-  assert.deepEqual([wrong.ended, wrong.answer.findings?.[0].code], [1, 'T0002'])
+  assert.deepEqual([wrong.ended, wrong.answer.findings?.[0].code], [1, 'F0002'])
 
   // The slowest traces of a time, the slowest first, the run's among them.
   const slow = await value('logs', '--slow', '--since', '1 hour')

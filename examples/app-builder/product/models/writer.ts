@@ -1,4 +1,4 @@
-import { model, secret } from 'tentjs'
+import { model, secret } from 'forjr'
 
 export const writer = model('writer', {
   provider: 'anthropic',

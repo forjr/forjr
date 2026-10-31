@@ -4,7 +4,7 @@ export type { Definition } from './definition.ts'
 // The registry hands every failure the short word of its code when it loads.
 import './codes.ts'
 export type { Finding, WireError } from './errors.ts'
-export { TentError } from './errors.ts'
+export { ForjrError } from './errors.ts'
 export { attempts } from './handles/attempts.ts'
 export { connections } from './handles/connections.ts'
 export { files } from './handles/files.ts'

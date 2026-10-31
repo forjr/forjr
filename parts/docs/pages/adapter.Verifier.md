@@ -9,13 +9,13 @@ type Verifier = (o: { headers: Headers; body: Uint8Array; secret: string; now: n
   { id?: string; time?: number } | Promise<{ id?: string; time?: number }>
 ```
 
-It is made in `verifiers` of the makers in `engine.ts`, by the name the scheme gives, and declared in `tentjs/connect`, which `tentjs/engine` gives again. It throws where the signature does not hold, and the call is refused with T7118. The engine remembers the id it answers, so a repeat of the call starts no second run, and holds the time to `limits.incomingAge`, as for a scheme of its own. A name that nobody made stops the app from opening (T7113).
+It is made in `verifiers` of the makers in `engine.ts`, by the name the scheme gives, and declared in `forjr/connect`, which `forjr/engine` gives again. It throws where the signature does not hold, and the call is refused with F7118. The engine remembers the id it answers, so a repeat of the call starts no second run, and holds the time to `limits.incomingAge`, as for a scheme of its own. A name that nobody made stops the app from opening (F7113).
 
 ## Example
 
 ```ts
 // engine.ts
-import type { Makers, Verifier } from 'tentjs/engine'
+import type { Makers, Verifier } from 'forjr/engine'
 export default {
   verifiers: () => ({
     partner: (({ headers, secret }) => {
@@ -28,4 +28,4 @@ export default {
 
 ## See also
 
-`adapter.Signer`, `word.incoming`, `code.T7113`
+`adapter.Signer`, `word.incoming`, `code.F7113`

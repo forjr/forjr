@@ -15,7 +15,7 @@ import {
   sum,
   text,
   concat,
-} from 'tentjs'
+} from 'forjr'
 import { items } from '../tables/items'
 
 // Each `run` here holds only our words, so the build reads it and stores it as a body.

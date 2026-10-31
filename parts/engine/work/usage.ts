@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { StorePlan } from '../../data/index.ts'
 import { summed } from '../counts/book.ts'
 import { dayOf } from '../counts/day.ts'
@@ -139,9 +139,9 @@ const whoseOf = (one: LimitStanding): string =>
 const limitName = (one: LimitStanding): string => (one.which === 'caller' ? 'perCallerPerDay' : 'perDay')
 
 /** The error of work that a limit of use holds back: what was used and reserved, and the limit. */
-export const limitRefusal = (one: LimitStanding): TentError =>
-  new TentError(
-    'T7102',
+export const limitRefusal = (one: LimitStanding): ForjrError =>
+  new ForjrError(
+    'F7102',
     `The work would pass the limit \`${limitName(one)}\` of ${one.limit} ${one.unit} of ${whoseOf(one)}: ${round(one.used)} were used today and ${round(one.reserved)} are reserved.`,
     {
       fields: { limit: limitName(one), unit: one.unit },
@@ -150,9 +150,9 @@ export const limitRefusal = (one: LimitStanding): TentError =>
   )
 
 /** The error of work whose own reserve is more than a limit of use: it can never go. */
-export const neverFits = (one: LimitStanding, seconds: number): TentError =>
-  new TentError(
-    'T7102',
+export const neverFits = (one: LimitStanding, seconds: number): ForjrError =>
+  new ForjrError(
+    'F7102',
     `The work reserves ${round(seconds)} ${one.unit}, more than the limit \`${limitName(one)}\` of ${one.limit} of ${whoseOf(one)}.`,
     {
       fields: { limit: limitName(one), unit: one.unit },

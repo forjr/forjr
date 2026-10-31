@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { FileName } from '../../data/index.ts'
 import type { CallContext } from '../context.ts'
 import type { Opened } from '../opened.ts'
@@ -125,14 +125,14 @@ function personal(o: Opened, caller: Caller, text: string, run?: string): string
 }
 
 /**
- * `_t_guard({ guard, text })`: a guard of the engine's own, carried out for the caller of the call under way, who is
- * the starter of the run. Answers `{ pass }`, with `why` where it does not pass. Throws T0001 for no such guard.
+ * `_f_guard({ guard, text })`: a guard of the engine's own, carried out for the caller of the call under way, who is
+ * the starter of the run. Answers `{ pass }`, with `why` where it does not pass. Throws F0001 for no such guard.
  */
 export function ownGuard(cx: CallContext, given: unknown): { pass: boolean; why?: string } {
   const asked: Record<string, unknown> = isStored(given) ? given : {}
   const text = typeof asked.text === 'string' ? asked.text : ''
   const check = asked.guard === 'noOtherPeople' ? otherPeople : asked.guard === 'noPersonal' ? personal : undefined
-  if (!check) throw new TentError('T0001', `No guard ${JSON.stringify(asked.guard)} is the engine's own.`)
+  if (!check) throw new ForjrError('F0001', `No guard ${JSON.stringify(asked.guard)} is the engine's own.`)
   const why = check(cx.app, cx.caller, text, cx.run?.id)
   return why === undefined ? { pass: true } : { pass: false, why }
 }

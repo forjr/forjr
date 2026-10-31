@@ -21,7 +21,7 @@ function dataRows(dataFolder: string, table: string): Record<string, unknown>[] 
 /** Sends a command to the admin channel of an app, as a command of this computer does, and answers its value. */
 async function did(app: App, dataFolder: string, name: string, args: object): Promise<Record<string, unknown>> {
   const { token, port } = JSON.parse(readFileSync(join(dataFolder, 'engine.json'), 'utf8'))
-  const answered = await send(app, `http://localhost:${port}/_t/admin/${name}`, {
+  const answered = await send(app, `http://localhost:${port}/_f/admin/${name}`, {
     body: JSON.stringify({ args }),
     headers: { authorization: `Bearer ${String(token)}` },
   })
@@ -45,7 +45,7 @@ async function withPaper(t: test.TestContext) {
 }
 
 const holdsOf = (dataFolder: string, file: string): Record<string, unknown>[] =>
-  dataRows(dataFolder, '_t_holds').filter((one) => one.file === file)
+  dataRows(dataFolder, '_f_holds').filter((one) => one.file === file)
 
 /** Opens the app again on its folder, as an engine that was stopped opens it: no file of a tenant is open then. */
 async function again(run: Running): Promise<App> {
@@ -65,7 +65,7 @@ test('[50-8@7a] a kept earlier version of a row of a tenant holds its file with 
   const bob: Caller = userOf(
     String(Object(await run.app.call('addUser', { email: 'bob@example.com' }, { as: system })).id),
   )
-  assert.equal(await codeOf(run.app.call('readPaper', { id: first }, { as: bob })), 'T0001')
+  assert.equal(await codeOf(run.app.call('readPaper', { id: first }, { as: bob })), 'F0001')
 })
 
 test("[50-4@7a] a person's removal reaches a data file of a tenant that nobody opens, and answers once the pass has ended: their rows there are gone, with every file that a row or a kept version of theirs held", async (t) => {
@@ -83,7 +83,7 @@ test("[50-4@7a] a person's removal reaches a data file of a tenant that nobody o
   for (const file of [first, second]) {
     assert.deepEqual(holdsOf(run.dataFolder, file), [], file)
     assert.equal(
-      dataRows(run.dataFolder, '_t_files').some((one) => one.id === file),
+      dataRows(run.dataFolder, '_f_files').some((one) => one.id === file),
       false,
       file,
     )
@@ -100,7 +100,7 @@ test('[50-8@7a] one tenant put back from a backup holds again the files its rows
   assert.equal(holdsOf(run.dataFolder, second).filter((one) => one.keptAt === '').length, 0)
   // The team is put back alone: its row holds the second file again, and no row holds the third.
   await did(run.app, run.dataFolder, 'data', { what: 'restore', file: backup.file, of: north })
-  const rows = dataRows(run.dataFolder, '_t_files')
+  const rows = dataRows(run.dataFolder, '_f_files')
   const fileRow = (id: string) => rows.find((one) => one.id === id)
   assert.deepEqual(
     holdsOf(run.dataFolder, second).map((one) => [one.keptAt, one.of]),
@@ -133,7 +133,7 @@ test('[50-8@7a] removing a tenant with a stop between the write and the removal 
   // The start removes the file of a tenant that is gone, and no hold names the tenant.
   assert.equal(existsSync(place), false)
   assert.equal(
-    dataRows(run.dataFolder, '_t_holds').some((one) => one.of === north),
+    dataRows(run.dataFolder, '_f_holds').some((one) => one.of === north),
     false,
   )
   await next.close()

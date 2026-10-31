@@ -1,5 +1,5 @@
 import { createInterface } from 'node:readline'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fileURLToPath } from 'node:url'
 import type { AppProgram, ProgramStart } from '../rooms/room.ts'
 import { channelFrameOf, frameReader } from './frames.ts'
@@ -45,7 +45,7 @@ export interface PythonProgram {
   // What it reported last: its processor time outside every call, in milliseconds, the memory it holds, and the
   // processor time of each call in it so far.
   reading: { cpuMs: number; memory: number; calls: Record<string, number> }
-  // Sends one frame. Throws T7119 for one past `limits.pythonFrameSize`, and sends nothing then.
+  // Sends one frame. Throws F7119 for one past `limits.pythonFrameSize`, and sends nothing then.
   send(value: object): void
   // Is told each frame that names a call or a load, by that name.
   on(id: string, told: (value: PythonTold) => void): void
@@ -104,8 +104,8 @@ export function startProgram(o: Starting): Promise<PythonProgram> {
       const frame = channelFrameOf(value)
       // Our side leaves its loop at a frame past its size, which would end the program with nothing said.
       if (frame.length - 4 > o.frameSize)
-        throw new TentError(
-          'T7119',
+        throw new ForjrError(
+          'F7119',
           `A frame of ${frame.length - 4} bytes for the Python program is past \`limits.pythonFrameSize\` of ${o.frameSize}.`,
           { fix: 'Hand large data to Python as a file: a `file` in the input, or `rows`.' },
         )

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Runner } from '../../flows/index.ts'
 import type { CallContext } from '../context.ts'
 import { storedLimit } from '../limits.ts'
@@ -39,7 +39,7 @@ export function driveActions(runner: Runner): void {
 /**
  * Takes the app, its runner, the call context of an action that states `worker` or `background` once its rule
  * and its input passed, and what it was given. Adds its run, of one step, and waits for its answer within the
- * time of the action: a run that outlasts it goes on, and the caller is answered T0008 with the run in
+ * time of the action: a run that outlasts it goes on, and the caller is answered F0008 with the run in
  * `fields.run`. The same call with `{ run }` alone waits for that run again, and with `{ run, stop: true }` stops
  * it, for the caller who started it. Called from a step, the run is a called run of that step.
  */
@@ -66,7 +66,7 @@ export async function heavyAction(
     const most = typeof queue === 'number' ? queue : undefined
     const waiting = Reflect.get(Object(o.work?.work().find((one) => Reflect.get(one, 'kind') === kind)), 'waiting')
     if (most !== undefined && typeof waiting === 'number' && waiting >= most)
-      throw new TentError('T7102', `${waiting} calls of the kind ${kind} wait already: no more than ${most} may.`, {
+      throw new ForjrError('F7102', `${waiting} calls of the kind ${kind} wait already: no more than ${most} may.`, {
         fix: 'Call again later, or let more wait with `queue` of the kind.',
       })
     const at = parent?.run?.step ? atOf(parent) : undefined
@@ -102,7 +102,7 @@ export async function heavyAction(
     return await waitedRun(o, runner, run, { name, called: 'action', most: time, limit: 'the time of the action' })
   } catch (error) {
     // A caller whose time ended before the task was handed out is gone: its run is stopped.
-    if (error instanceof TentError && error.code === 'T0008' && !o.work?.handedOut(run)) runner.stop(run)
+    if (error instanceof ForjrError && error.code === 'F0008' && !o.work?.handedOut(run)) runner.stop(run)
     throw error
   }
 }

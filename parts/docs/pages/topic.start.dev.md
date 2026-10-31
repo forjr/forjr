@@ -1,6 +1,6 @@
-# The seed and tent dev
+# The seed and forjr dev
 
-This page fills the data of the app with its seed, runs it with `tent dev`, and says what each person sees.
+This page fills the data of the app with its seed, runs it with `forjr dev`, and says what each person sees.
 
 ## The seed
 
@@ -8,7 +8,7 @@ This page fills the data of the app with its seed, runs it with `tent dev`, and 
 
 ```ts
 // seed.ts
-import { passwords, seed } from 'tentjs'
+import { passwords, seed } from 'forjr'
 
 export default seed(async ({ db }) => {
   db.users.add({ email: 'sam@example.com', name: 'Sam', password: await passwords.hash('a long secret'), roles: ['staff'] })
@@ -17,13 +17,13 @@ export default seed(async ({ db }) => {
 })
 ```
 
-## tent dev
+## forjr dev
 
 ```sh
-tent dev
+forjr dev
 ```
 
-It builds the project, opens it on `http://localhost:3000` with the seed in its data, and draws each save again in the open page; a mistake shows over the page with its fix. `tent dev --fresh` empties the data and applies the seed again.
+It builds the project, opens it on `http://localhost:3000` with the seed in its data, and draws each save again in the open page; a mistake shows over the page with its fix. `forjr dev --fresh` empties the data and applies the seed again.
 
 ## What each person sees
 

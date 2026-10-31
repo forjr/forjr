@@ -18,7 +18,7 @@ export interface KeptConnections {
 
 /** What the tokens of a connection are bound to, so a row copied to another user, service or mode opens nothing. */
 const boundOf = (o: Opened, service: string, user: string): string =>
-  `tent.connections/1\n${o.mode}\n${service}\n${user}`
+  `forjr.connections/1\n${o.mode}\n${service}\n${user}`
 
 const isRow = (value: unknown): value is Row => typeof value === 'object' && value !== null && !Array.isArray(value)
 
@@ -65,7 +65,7 @@ export function tokensOf(o: Opened, service: string, user: string, account: stri
 /**
  * Takes an app, a service, a user, an account and its tokens. Writes the connection, its tokens encrypted under
  * the key of the secrets, in a write of its own or in the write that is open; nothing for tokens removes it. Throws
- * T0019 with no key at hand.
+ * F0019 with no key at hand.
  */
 export function writeTokens(
   o: Opened,

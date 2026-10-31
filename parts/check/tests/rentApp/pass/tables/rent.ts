@@ -1,4 +1,4 @@
-import { choice, day, link, list, number, table, text } from 'tentjs'
+import { choice, day, link, list, number, table, text } from 'forjr'
 
 // The tables of the rent app: the homes a landlord lets, and the rent of one home for one month.
 export const users = table('users', {

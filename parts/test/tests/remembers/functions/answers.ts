@@ -1,4 +1,4 @@
-import { action, file, files, list, number, table, text } from 'tentjs'
+import { action, file, files, list, number, table, text } from 'forjr'
 import { wordOf } from '../helpers/words.ts'
 import { BroadcastChannel } from 'node:worker_threads'
 
@@ -9,7 +9,7 @@ export const users = table('users', { columns: { name: text(), roles: list(text(
  * shares, so that the test hears it in whatever room the code runs. Answers how often it was, as the test counts.
  */
 function counted(name: string): Promise<number> {
-  const channel = new BroadcastChannel('tentjs.test.remembers')
+  const channel = new BroadcastChannel('forjr.test.remembers')
   // A count that nobody answers any more, of an app that was closed, holds the program up no longer.
   channel.unref()
   const id = `${name} ${Math.random()}`

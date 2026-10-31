@@ -13,7 +13,7 @@ import { agentInput, agentRecordOf, threadOf } from './started.ts'
  * An agent that is called through the door, or by a program: it passes the agent's `access` and the
  * checks of a start, starts a run, and answers `{ run }` at once. Where the call waits, as at `/api/`, it waits for
  * the run and answers `{ text }`, held to `actionTime`: a run that outlasts it goes on, and the caller is answered
- * T0008 with the id of the run in `fields.run`. The same call with `{ run }` alone waits for that run again, and
+ * F0008 with the id of the run in `fields.run`. The same call with `{ run }` alone waits for that run again, and
  * with `{ run, stop: true }` stops it, for the caller who started it. Answers nothing for a name that is no
  * agent, and for one that states no `access` where the caller is not the system: such an agent is not found.
  */

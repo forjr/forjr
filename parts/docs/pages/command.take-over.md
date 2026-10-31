@@ -1,11 +1,11 @@
-# `tent take-over`
+# `forjr take-over`
 
 Makes a reader the writer of what it holds, for a writer that is known to be stopped. It is for an engine that runs, and starts none.
 
 ## Usage
 
 ```
-tent take-over [--yes] [--data <folder>]
+forjr take-over [--yes] [--data <folder>]
 ```
 
 ## Options
@@ -13,12 +13,12 @@ tent take-over [--yes] [--data <folder>]
 | Option | Means |
 |---|---|
 | `--yes` | Take over. Left out, the command says what this machine knows and may lack, and changes nothing |
-| `--data <folder>` | The data folder of the engine to ask. Left out, it is `.tent/` of the project |
+| `--data <folder>` | The data folder of the engine to ask. Left out, it is `.forjr/` of the project |
 
 ## Example
 
 ```
-tent take-over --data /srv/shop-reader --yes
+forjr take-over --data /srv/shop-reader --yes
 ```
 
 ## Output
@@ -33,7 +33,7 @@ With `--json`, what the machine knew before, and with `--yes` the epoch it began
 
 ## Errors
 
-`code.T0032` on a reader that is current: its writer runs, and is stopped first. `code.T0030` on the machine that is the writer. `code.T0029` on a reader that does not hold the whole data yet. `code.T0013` where no engine runs on the data folder.
+`code.F0032` on a reader that is current: its writer runs, and is stopped first. `code.F0030` on the machine that is the writer. `code.F0029` on a reader that does not hold the whole data yet. `code.F0013` where no engine runs on the data folder.
 
 ## See also
 

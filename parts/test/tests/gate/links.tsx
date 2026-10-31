@@ -1,4 +1,4 @@
-import { screen, read, Link } from 'tentjs/ui'
+import { screen, read, Link } from 'forjr/ui'
 import { allNotes } from './functions'
 import { echoScreen, restScreen } from './screens'
 

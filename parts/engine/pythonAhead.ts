@@ -7,7 +7,7 @@ import type { installEnvironments as install } from './python/install.ts'
 
 /**
  * Takes where the parts are taken from, the data folder whose secrets an index names, and what `python` of
- * `project` states. Answers the installer of packages as the build tools are handed it, for `tent python lock`: the
+ * `project` states. Answers the installer of packages as the build tools are handed it, for `forjr python lock`: the
  * lines of Python the engine pins with the systems a lock is made for, and the run that resolves entries.
  */
 export function pythonInstaller(o: Parameters<typeof installer>[0] = {}): ReturnType<typeof installer> {

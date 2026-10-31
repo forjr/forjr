@@ -40,7 +40,7 @@ function countedFor(o: Opened, used: Used): Caller {
 
 /**
  * Takes an app and one try of a model call. Leaves out a unit that the provider reported under a name of the
- * engine's own, counts the try as `calls` and a failed one as `failed` too, writes each unit into `_t_counts` at
+ * engine's own, counts the try as `calls` and a failed one as `failed` too, writes each unit into `_f_counts` at
  * once, in a write of its own, since the limits of use rest on it, books it under its run, and writes one row of
  * `modelCalls` into the log, which names what the layer counted by its rule and what was left out.
  */
@@ -99,7 +99,7 @@ export function modelUsed(o: Opened, used: Used): void {
       },
     },
     used.ms,
-    used.ok ? undefined : (used.code ?? 'T0009'),
+    used.ok ? undefined : (used.code ?? 'F0009'),
   )
   const raw = used.raw === undefined ? undefined : JSON.stringify(used.raw)
   const counted = [

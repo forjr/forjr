@@ -137,7 +137,7 @@ export const typesDoc = (w: Writing, types: unknown, broken = false): Doc =>
 
 /**
  * Takes a stored rule. Answers it as its word: a text, `role`, `anyone`, a `where` over a filter, or the arrow that
- * was read. Throws T0013 for a rule that is code.
+ * was read. Throws F0013 for a rule that is code.
  */
 export function ruleDoc(w: Writing, rule: unknown): Doc {
   if (!isStored(rule)) return quoted('nobody')

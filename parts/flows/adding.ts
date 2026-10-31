@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { FileName, Tx } from '../data/index.ts'
 import { rowIds } from '../data/index.ts'
 import { calledId } from './calledId.ts'
@@ -39,8 +39,8 @@ function idOfCall(source: Source, o: Adding, file: FileName | undefined): { id: 
 /**
  * Adds a run, as part of the write it is handed or in a write of its own, and answers its id. A run that the same
  * call of the same step added before is answered and nothing is added. `stopped` is told each run that the start
- * of this one stops. A start that `pace.drop` drops answers the empty id. Throws T0001 for a flow that the version
- * does not hold, and T7103 for a start over the count of a flow that states `then: 'refuse'`.
+ * of this one stops. A start that `pace.drop` drops answers the empty id. Throws F0001 for a flow that the version
+ * does not hold, and F7103 for a start over the count of a flow that states `then: 'refuse'`.
  */
 export function addRunOf(
   held: Held,
@@ -66,7 +66,7 @@ export function addRunWith(
   const file = o.file ?? (from ? fileOf(from.run) : undefined)
   const source = tx ?? (file ? held.env.files?.of(file, { make: true }) : held.env.store)
   if (!source)
-    throw new TentError('T0001', `No file of ${file?.table ?? 'a tenant'} ${file?.id ?? ''} is there for a run.`, {
+    throw new ForjrError('F0001', `No file of ${file?.table ?? 'a tenant'} ${file?.id ?? ''} is there for a run.`, {
       fix: 'Start the run for a tenant that is there.',
     })
   const flow = flowOf(held, o.version, o.flow)
@@ -103,8 +103,8 @@ export function addRunWith(
   const over =
     together !== undefined && together.then !== 'wait' && together.then !== 'join' && isFull(held, counted, flow)
   if (over && together.then === 'refuse')
-    throw new TentError(
-      'T7103',
+    throw new ForjrError(
+      'F7103',
       `As many runs of ${o.flow} work now as \`together.max\` of ${together.max} allows, and the flow refuses one more.`,
       { fix: 'Start it later, raise `together.max`, or leave `then` out so that a run waits its turn.' },
     )

@@ -2,7 +2,7 @@ import type { Admin } from '../admin.ts'
 import { badWord } from '../admin.ts'
 
 /**
- * `tent workers`: each worker that is joined to the writer and each kind with what waits, as `app.workers` and
+ * `forjr workers`: each worker that is joined to the writer and each kind with what waits, as `app.workers` and
  * `app.work` answer them. With `release` the worker of that id, or of the id it begins with, is handed nothing more,
  * and the answer says whether it holds no task.
  */

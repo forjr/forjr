@@ -2,7 +2,7 @@ import { readdirSync } from 'node:fs'
 import { join } from 'node:path'
 
 // What every walk of a project leaves out: the engine's own folder, and the packages that are installed again.
-const left = new Set(['.tent', 'node_modules'])
+const left = new Set(['.forjr', 'node_modules'])
 
 /**
  * Takes a folder of a project. Answers every file under it by its place, in the order of their names, folder by

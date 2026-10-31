@@ -68,7 +68,7 @@ function signWith(c, files) {
 
 /** The Windows files of a release that are signed: the two programs and each installer. */
 const signedFiles = (c) =>
-  [join(c.out, 'windows', 'tent.exe'), join(c.out, 'windows', 'tentw.exe'), ...c.systems.filter((one) => one.startsWith('win32')).map((one) => join(c.out, `tent-${c.version}-${one}.msi`))].filter((one) =>
+  [join(c.out, 'windows', 'forjr.exe'), join(c.out, 'windows', 'forjrw.exe'), ...c.systems.filter((one) => one.startsWith('win32')).map((one) => join(c.out, `forjr-${c.version}-${one}.msi`))].filter((one) =>
     existsSync(one),
   )
 
@@ -77,7 +77,7 @@ export const signWindows = (c) => signWith(c, signedFiles(c))
 
 /** Writes the source of the installer of one system, with every file of its folders, as the WiX tools take it. */
 function wixSource(c, system, laid) {
-  const template = readFileSync(join(c.root, 'install', 'windows', 'tent.wxs'), 'utf8')
+  const template = readFileSync(join(c.root, 'install', 'windows', 'forjr.wxs'), 'utf8')
   const current = join(c.work, 'current')
   writeFileSync(current, `${c.version}\n`)
   return template
@@ -107,10 +107,10 @@ export function windows(c) {
   if (!csc) throw new Error('This Windows has no compiler of C# beside its runtime of .NET, which the two programs are built with')
   const bin = join(c.out, 'windows')
   mkdirSync(bin, { recursive: true })
-  const source = join(c.root, 'install', 'windows', 'tent.cs')
-  done(csc, ['/nologo', '/optimize', '/target:exe', '/define:CONSOLE', `/out:${join(bin, 'tent.exe')}`, source], 'Building tent.exe')
-  done(csc, ['/nologo', '/optimize', '/target:winexe', `/out:${join(bin, 'tentw.exe')}`, source], 'Building tentw.exe')
-  signWith(c, [join(bin, 'tent.exe'), join(bin, 'tentw.exe')])
+  const source = join(c.root, 'install', 'windows', 'forjr.cs')
+  done(csc, ['/nologo', '/optimize', '/target:exe', '/define:CONSOLE', `/out:${join(bin, 'forjr.exe')}`, source], 'Building forjr.exe')
+  done(csc, ['/nologo', '/optimize', '/target:winexe', `/out:${join(bin, 'forjrw.exe')}`, source], 'Building forjrw.exe')
+  signWith(c, [join(bin, 'forjr.exe'), join(bin, 'forjrw.exe')])
   const wix = spawnSync('wix', ['--version'], { encoding: 'utf8', shell: true })
   if (wix.status !== 0) {
     c.say('windows: the WiX tools are not on the path: the Windows installer is not made')
@@ -118,9 +118,9 @@ export function windows(c) {
   }
   for (const system of systems) {
     const laid = join(c.work, system)
-    const wxs = join(c.work, `tent-${system}.wxs`)
+    const wxs = join(c.work, `forjr-${system}.wxs`)
     writeFileSync(wxs, wixSource(c, system, laid))
-    const msi = join(c.out, `tent-${c.version}-${system}.msi`)
+    const msi = join(c.out, `forjr-${c.version}-${system}.msi`)
     rmSync(msi, { force: true })
     done('wix', ['build', wxs, '-arch', system.endsWith('arm64') ? 'arm64' : 'x64', '-o', msi], `Making the installer of ${system}`)
     c.say(`windows: ${msi}`)

@@ -1,5 +1,5 @@
 import { isDescribing } from './describing.ts'
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 import { faultOf } from './itself.ts'
 import { isMarked, mark } from './mark.ts'
 import { planOf } from './planOf.ts'
@@ -15,7 +15,7 @@ const valueSize = 1_000_000
 /**
  * Whether the values a word was handed hold a reference: a record that a word of ours made, or a plan, wherever it
  * stands among them and in what is written inside them. A value that holds itself holds no reference where it
- * stands in itself. Throws T0027 for a value that is nested more than 200 deep, wherever a reference stands.
+ * stands in itself. Throws F0027 for a value that is nested more than 200 deep, wherever a reference stands.
  */
 export function holdsReference(values: readonly unknown[]): boolean {
   let found = false
@@ -37,9 +37,10 @@ export function holdsReference(values: readonly unknown[]): boolean {
   )
   // A word would work such a value out by calls inside calls, further than the runtime can go.
   if (fault?.why === 'deep')
-    throw new TentError('T0027', 'A value word cannot work with a value that is nested more than 200 deep.')
+    throw new ForjrError('F0027', 'A value word cannot work with a value that is nested more than 200 deep.')
   // And one that stands in very many places it would write out place by place.
-  if (fault?.why === 'large') throw new TentError('T0027', `A value word cannot work with a value that ${fault.words}.`)
+  if (fault?.why === 'large')
+    throw new ForjrError('F0027', `A value word cannot work with a value that ${fault.words}.`)
   return found
 }
 
@@ -69,20 +70,20 @@ const shown = (value: unknown): string => {
   return typeof value === 'object' && value !== null ? 'a record' : String(value)
 }
 
-/** Throws T0027: a word was handed a value of another kind than it works with. It names the word and the value. */
+/** Throws F0027: a word was handed a value of another kind than it works with. It names the word and the value. */
 export function cannot(word: string, value: unknown, needs: string): never {
-  throw new TentError('T0027', `${word} cannot work with ${shown(value)}: it needs ${needs}.`)
+  throw new ForjrError('F0027', `${word} cannot work with ${shown(value)}: it needs ${needs}.`)
 }
 
 /**
- * Throws T0027 where a word would make a list or a text that is larger than a value may be: the limit of the app
+ * Throws F0027 where a word would make a list or a text that is larger than a value may be: the limit of the app
  * whose call is under way, which the engine answers, and 1,000,000 where no call is under way.
  */
 export function sized(word: string, size: number): void {
   const asked = drawn('valueSize', [])?.value
   const limit = typeof asked === 'number' ? asked : valueSize
   if (size > limit)
-    throw new TentError('T0027', `${word} would make a value of ${size}, past the limit valueSize of ${limit}.`)
+    throw new ForjrError('F0027', `${word} would make a value of ${size}, past the limit valueSize of ${limit}.`)
 }
 
 /**
@@ -110,7 +111,7 @@ function writtenLength(value: unknown, most: number): number {
 }
 
 /**
- * Throws T0027 where the values that a word is about to write into one text come to more than a value may hold,
+ * Throws F0027 where the values that a word is about to write into one text come to more than a value may hold,
  * before any of them is written: a list that holds a list twice, many times over, is small in memory and very
  * long as a text. `more` is what the text holds beside them.
  */
@@ -121,26 +122,26 @@ export function sizedWritten(word: string, values: readonly unknown[], more = 0)
   for (const value of values) {
     size += writtenLength(value, limit - size)
     if (size > limit)
-      throw new TentError(
-        'T0027',
+      throw new ForjrError(
+        'F0027',
         `${word} would make a value of more than ${limit}, past the limit valueSize of ${limit}.`,
       )
   }
 }
 
-/** Answers a value that must be a list. Throws T0027 for anything else, nothing among it. */
+/** Answers a value that must be a list. Throws F0027 for anything else, nothing among it. */
 export function listOf(word: string, value: unknown): unknown[] {
   return Array.isArray(value) ? value : cannot(word, value, 'a list')
 }
 
-/** Answers a value that must be text. It fails as JavaScript fails for nothing, and throws T0027 for another kind. */
+/** Answers a value that must be text. It fails as JavaScript fails for nothing, and throws F0027 for another kind. */
 export function textOf(word: string, value: unknown): string {
   if (typeof value === 'string') return value
   if (value === undefined || value === null) throw new TypeError(`${word} was handed ${value} where a text is needed`)
   return cannot(word, value, 'a text')
 }
 
-/** Answers a value that must be a number. Nothing is taken as JavaScript takes it, and another kind is T0027. */
+/** Answers a value that must be a number. Nothing is taken as JavaScript takes it, and another kind is F0027. */
 export function numberOf(word: string, value: unknown): number {
   if (typeof value === 'number') return value
   if (value === undefined) return Number.NaN

@@ -28,12 +28,12 @@ function heldOf(o: Opened): Held {
  * holds the moment it was made: what it holds is encrypted, so the person who carries it reads nothing of it.
  */
 export function madeText(o: Opened, kind: string, value: Record<string, unknown>): string {
-  return sealText(heldOf(o).key, JSON.stringify({ ...value, at: o.clock.now() }), `tent.${kind}/1`)
+  return sealText(heldOf(o).key, JSON.stringify({ ...value, at: o.clock.now() }), `forjr.${kind}/1`)
 }
 
 /** What a text of the engine holds, where it opens for what it is for and is no older than `life`; nothing otherwise. */
 export function readText(o: Opened, kind: string, text: string, life: number): Record<string, unknown> | undefined {
-  const opened = openText(heldOf(o).key, text, `tent.${kind}/1`)
+  const opened = openText(heldOf(o).key, text, `forjr.${kind}/1`)
   if (opened === undefined) return undefined
   let read: unknown
   try {

@@ -1,0 +1,3 @@
+event paid  wakes tell  emitted by ~markPaid
+wakes flow tell  flows/tell.ts:3  nobody  on event paid
+emitted by ~change markPaid  functions/orders.ts:17  role staff  reads ~orders  writes ~orders.status, ~orders.total  emits ~paid  code

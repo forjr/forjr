@@ -1,4 +1,4 @@
-import { action, anyone, number, object, query, secrets, settings, text } from 'tentjs'
+import { action, anyone, number, object, query, secrets, settings, text } from 'forjr'
 
 const open = anyone('a project of the tests, which nobody else reaches')
 

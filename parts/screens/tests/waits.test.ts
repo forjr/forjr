@@ -36,7 +36,7 @@ test('[27-16] a run that a page follows, where the part that follows runs cannot
   runs.follow('r1', () => heard++)
   await new Promise((done) => setTimeout(done, 5))
   assert.equal(heard, 1)
-  assert.deepEqual([runs.held('r1')?.state, runs.held('r1')?.error?.code], ['failed', 'T0009'])
+  assert.deepEqual([runs.held('r1')?.state, runs.held('r1')?.error?.code], ['failed', 'F0009'])
 })
 
 test('[22-12] an upload whose connection stalls answers once its time is up, and one that is ended answers too', async () => {
@@ -56,11 +56,11 @@ test('[22-12] an upload whose connection stalls answers once its time is up, and
     send(): void {}
   }
   await withGlobals({ XMLHttpRequest: Asking }, async () => {
-    const stalled = uploaded('/_t/files', new Blob(['x']), () => undefined)
+    const stalled = uploaded('/_f/files', new Blob(['x']), () => undefined)
     made[0]?.ontimeout?.()
     assert.deepEqual(await stalled, { error: { message: 'The file could not be sent in time.' } })
     assert.ok((made[0]?.timeout ?? 0) > 0, 'the upload has a time of its own')
-    const ended = uploaded('/_t/files', new Blob(['x']), () => undefined)
+    const ended = uploaded('/_f/files', new Blob(['x']), () => undefined)
     made[1]?.onabort?.()
     assert.deepEqual(await ended, { error: { message: 'The file could not be sent.' } })
   })

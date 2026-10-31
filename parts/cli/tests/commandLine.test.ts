@@ -127,10 +127,10 @@ test('[24-13] [11-2@8a] a command runs as the caller that `--as` names, and as t
   assert.equal((await ranLine(app, data, ['staff-note'])).out.trim(), 'for the staff')
   const asAda = await ranLine(app, data, ['staff-note'], { as: ada })
   assert.equal(asAda.ended, 1)
-  assert.match(asAda.err, /T3101/)
+  assert.match(asAda.err, /F3101/)
   const asNobody = await ranLine(app, data, ['staff-note'], { as: 'nobody' })
   assert.equal(asNobody.ended, 1)
-  assert.match(asNobody.err, /T0006/)
+  assert.match(asNobody.err, /F0006/)
   await ranLine(app, data, ['add-note', '--title', 'by ada'], { as: ada })
   const notes = await app.read({ from: 'notes' }, { as: system })
   assert.deepEqual(
@@ -139,9 +139,9 @@ test('[24-13] [11-2@8a] a command runs as the caller that `--as` names, and as t
   )
   // A request that names a caller and carries no admin token is nobody.
   const named = await app.request(
-    new Request(`${here(data)}/_t/call/whoAmI`, {
+    new Request(`${here(data)}/_f/call/whoAmI`, {
       method: 'POST',
-      headers: { 'content-type': 'application/json', 'tent-caller': ada },
+      headers: { 'content-type': 'application/json', 'forjr-caller': ada },
       body: JSON.stringify({ input: {} }),
     }),
     { from: '127.0.0.1' },
@@ -192,15 +192,15 @@ test('[23-30@8a] a flow that states `access` and no `offer` is not found at `/ap
   )
 })
 
-test('[24-13] `/_t/cli` answers the list of commands, and `{ same: true }` for the running version; `/_t/cli/me` names the caller', async (t) => {
+test('[24-13] `/_f/cli` answers the list of commands, and `{ same: true }` for the running version; `/_f/cli/me` names the caller', async (t) => {
   const { app, data } = await openedCommands(t)
-  const listed = await app.request(new Request(`${here(data)}/_t/cli`))
+  const listed = await app.request(new Request(`${here(data)}/_f/cli`))
   const body = Object(await listed.json())
   assert.equal(body.ok, true)
   assert.equal(body.value.version, runningVersion(app))
-  const same = await app.request(new Request(`${here(data)}/_t/cli?have=${body.value.version}`))
+  const same = await app.request(new Request(`${here(data)}/_f/cli?have=${body.value.version}`))
   assert.deepEqual(Object(await same.json()).value, { same: true })
-  const me = await app.request(new Request(`${here(data)}/_t/cli/me`))
+  const me = await app.request(new Request(`${here(data)}/_f/cli/me`))
   assert.deepEqual(Object(await me.json()).value, {})
 })
 
@@ -209,20 +209,20 @@ test('[24-13] with no engine running, a command starts one on the development da
   const answered = program(project, 'cli', project, 'open-notes', '--json')
   assert.equal(answered.status, 0, answered.err)
   assert.deepEqual(JSON.parse(answered.out), { ok: true, value: [] })
-  assert.equal(existsSync(join(project, '.tent', 'engine.json')), false)
+  assert.equal(existsSync(join(project, '.forjr', 'engine.json')), false)
   // `--as` stands before the command word, and an id of no user ends with 2.
   assert.equal(program(project, 'cli', project, '--as', 'nobody', 'who-am-i').out.trim(), 'no user')
   assert.equal(program(project, 'cli', project, '--as', 'no-such-user', 'who-am-i').status, 2)
 })
 
-test('[24-13] a function named `login` that is offered to `cli` is T1009, and a project whose command is named `tent` is T1014', async (t) => {
+test('[24-13] a function named `login` that is offered to `cli` is F1009, and a project whose command is named `forjr` is F1014', async (t) => {
   const project = copied(t, 'line-reserved', 'commanded')
   const file = join(project, 'file.ts')
   writeFileSync(file, readFileSync(file, 'utf8').replaceAll("'file'", "'login'").replace('const file', 'const login'))
-  const named = join(project, 'tent.ts')
+  const named = join(project, 'forjr.ts')
   writeFileSync(
     named,
-    readFileSync(named, 'utf8').replace("cli: { names: { file: 'fetch-file' } }", "cli: { name: 'tent' }"),
+    readFileSync(named, 'utf8').replace("cli: { names: { file: 'fetch-file' } }", "cli: { name: 'forjr' }"),
   )
   const built = await buildProject(project, { for: 'dev' })
   assert.deepEqual(
@@ -230,6 +230,6 @@ test('[24-13] a function named `login` that is offered to `cli` is T1009, and a 
       .filter((one) => one.level === 'error')
       .map((one) => one.code)
       .sort(),
-    ['T1009', 'T1014'],
+    ['F1009', 'F1014'],
   )
 })

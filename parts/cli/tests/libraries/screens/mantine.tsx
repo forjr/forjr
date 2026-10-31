@@ -1,6 +1,6 @@
 import '@mantine/core/styles.css'
 import { Badge, Button, Card, Group, MantineProvider, Table, Title } from '@mantine/core'
-import { read, screen, useNonce } from 'tentjs/ui'
+import { read, screen, useNonce } from 'forjr/ui'
 import { allSales } from '../functions'
 
 // A library of components whose styles stand in a stylesheet that the screen file imports, and which writes two

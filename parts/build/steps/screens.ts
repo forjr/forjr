@@ -29,11 +29,11 @@ const ofReact = ['react', 'react/jsx-runtime', 'react/jsx-dev-runtime', 'react-d
 registerHooks({
   resolve: (name, context, next) => {
     if (!context.parentURL?.includes('/run-screens/')) return next(name, context)
-    if (name === 'tentjs/ui') return { url: entry, shortCircuit: true }
+    if (name === 'forjr/ui') return { url: entry, shortCircuit: true }
     // A package built apart lies beside the modules that are run, and is run once for every build that holds the
     // same file, which is named by what was built.
-    if (name.startsWith('tent-package:')) {
-      const file = name.slice('tent-package:'.length)
+    if (name.startsWith('forjr-package:')) {
+      const file = name.slice('forjr-package:'.length)
       const url = packagesRun.get(file) ?? new URL(file, context.parentURL).href
       packagesRun.set(file, url)
       return { url, shortCircuit: true }

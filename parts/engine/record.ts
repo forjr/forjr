@@ -1,6 +1,6 @@
 import { existsSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { ChangeSink, Row, Store, TableLayout, TableStep } from '../data/index.ts'
 import { applySteps } from '../data/index.ts'
 import { heldBy, manyLimit } from './held.ts'
@@ -90,12 +90,12 @@ export function recordTook(
   return new Promise((done) => record.waiting.push({ n, done }))
 }
 
-/** Throws T0031 where the oldest write that waits for the place of record has waited for `limits.behind`. */
+/** Throws F0031 where the oldest write that waits for the place of record has waited for `limits.behind`. */
 export function recordHolds(o: Opened): void {
   const record = places.get(o.handles)
   const handed = record?.handed
   if (!handed || o.clock.now() - handed.at < manyLimit(o.description, 'behind')) return
-  throw new TentError('T0031', 'The place of record of this app has been behind for longer than `limits.behind`.', {
+  throw new ForjrError('F0031', 'The place of record of this app has been behind for longer than `limits.behind`.', {
     fix: 'Ask again once the place of record has taken what waits for it.',
   })
 }

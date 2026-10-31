@@ -106,7 +106,7 @@ function readRule(word: string, arrow: Node, file: FileReach): object {
   const wrong = notForARule(one, kindsOf(file))
   if (wrong)
     throw new Refused(
-      'T1014',
+      'F1014',
       `a rule may read through \`db\` and call queries and value words, and this one holds ${wrong}.`,
       arrow,
     )

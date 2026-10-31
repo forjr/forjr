@@ -18,7 +18,7 @@ In code a value of it is: An object of the inner types. A field that is optional
 
 ## Errors
 
-`code.T0002`: a value of an input that does not fit the type.
+`code.F0002`: a value of an input that does not fit the type.
 
 ## See also
 

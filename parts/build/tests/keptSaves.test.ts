@@ -9,20 +9,20 @@ import { listedFolder } from './listed.ts'
 // What a session of development keeps between saves: each file and what it imports, never the project as a whole.
 
 const files: Record<string, string> = {
-  'tent.ts': `import { project } from 'tentjs'\nexport const shop = project('shop', { title: 'Shop' })\n`,
+  'forjr.ts': `import { project } from 'forjr'\nexport const shop = project('shop', { title: 'Shop' })\n`,
   'engine.ts': 'export default {}\n',
   'package.json': `${JSON.stringify({ name: 'shop', private: true, type: 'module' })}\n`,
-  'functions/notes.ts': `import { anyone, query, table, text } from 'tentjs'
+  'functions/notes.ts': `import { anyone, query, table, text } from 'forjr'
 
 export const notes = table('notes', { columns: { body: text() }, access: { read: anyone('every visitor') } })
 
 export const allNotes = query('allNotes', { access: anyone('every visitor'), rows: notes.oldest('body').limit(20) })
 `,
-  'components/Badge.tsx': `import { component } from 'tentjs/ui'
+  'components/Badge.tsx': `import { component } from 'forjr/ui'
 
 export const Badge = component('Badge', { view: () => <span style={{ padding: 4 }}>New</span> })
 `,
-  'screens/home.tsx': `import { screen, read } from 'tentjs/ui'
+  'screens/home.tsx': `import { screen, read } from 'forjr/ui'
 import { allNotes } from '../functions/notes'
 import { Badge } from '../components/Badge'
 
@@ -38,11 +38,11 @@ export const homeScreen = screen('homeScreen', {
   ),
 })
 `,
-  'screens/about.tsx': `import { screen } from 'tentjs/ui'
+  'screens/about.tsx': `import { screen } from 'forjr/ui'
 
 export const aboutScreen = screen('aboutScreen', { path: '/about', access: 'anyone', view: () => <span>About the shop</span> })
 `,
-  'screens/help.tsx': `import { screen } from 'tentjs/ui'
+  'screens/help.tsx': `import { screen } from 'forjr/ui'
 
 export const helpScreen = screen('helpScreen', { path: '/help', access: 'anyone', view: () => <span>Help</span> })
 `,
@@ -124,11 +124,11 @@ test('[31-21] a build of a session that keeps writes the description and the bun
   assert.deepEqual(keptFiles, bundleOf(whole.bundleFolder))
 })
 
-test('[31-21] a change of tent.ts, of engine.ts, of the lock of the packages, and a package installed or removed, makes the next build keep nothing', async (t) => {
+test('[31-21] a change of forjr.ts, of engine.ts, of the lock of the packages, and a package installed or removed, makes the next build keep nothing', async (t) => {
   const folder = projectIn(t, 'keptNone')
   let last = await buildSaved(folder)
   const changes: [string, () => void][] = [
-    ['tent.ts', () => save(folder, 'tent.ts', "title: 'Shop'", "title: 'The shop'")],
+    ['forjr.ts', () => save(folder, 'forjr.ts', "title: 'Shop'", "title: 'The shop'")],
     ['engine.ts', () => writeFileSync(join(folder, 'engine.ts'), 'export default {}\n\n')],
     ['the lock of the packages', () => writeFileSync(join(folder, 'package-lock.json'), '{"lockfileVersion":3}\n')],
     [
@@ -176,7 +176,7 @@ test('[31-21] a save of one screen has the builder make nothing anew of another 
   writeFileSync(
     join(folder, 'screens/count.tsx'),
     `import { useState } from 'react'
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 export const countScreen = screen('countScreen', {
   path: '/count',
@@ -190,7 +190,7 @@ export const countScreen = screen('countScreen', {
   )
   const first = await buildSaved(folder)
   assert.ok(first.description.screens.countScreen)
-  const cache = join(folder, '.tent', 'cache')
+  const cache = join(folder, '.forjr', 'cache')
   const before = writtenAt(cache)
   save(folder, 'screens/about.tsx', 'About the shop', 'About this shop')
   const after = await buildSaved(folder)
@@ -223,7 +223,7 @@ test('[31-21] a copy of a project with what its build kept, changed, builds its 
   const first = projectIn(t, 'keptCopy')
   writeFileSync(
     join(first, 'functions/clock.ts'),
-    "import { anyone, query, text } from 'tentjs'\n\nexport const clock = query('clock', { access: anyone('every visitor'), output: text(), run: () => [new Intl.NumberFormat('en').format(1), 'tick one'].join(' ') })\n",
+    "import { anyone, query, text } from 'forjr'\n\nexport const clock = query('clock', { access: anyone('every visitor'), output: text(), run: () => [new Intl.NumberFormat('en').format(1), 'tick one'].join(' ') })\n",
   )
   const made = await buildProject(first, { for: 'release' })
   assert.match(serverOf(made.bundleFolder), /tick one/)
@@ -235,4 +235,49 @@ test('[31-21] a copy of a project with what its build kept, changed, builds its 
   const again = await buildProject(copy, { for: 'release' })
   assert.match(serverOf(again.bundleFolder), /tick two/)
   assert.doesNotMatch(serverOf(again.bundleFolder), /tick one/)
+})
+
+// Each backend file of the project counts in the program how often it was run: a file holds a statement and a
+// constant that is worked out, so the plain reader takes neither and the build runs both.
+const ranFile = (name: string, limit: number): string => `import { action, anyone } from 'forjr'
+
+const LIMIT = Math.max(1, ${limit})
+Reflect.set(globalThis, 'buildRuns.${name}', Number(Reflect.get(globalThis, 'buildRuns.${name}') ?? 0) + 1)
+
+export const ${name} = action('${name}', { access: anyone('every visitor'), run: async () => LIMIT })
+`
+
+const runsOf = (name: string): number => Number(Reflect.get(globalThis, `buildRuns.${name}`) ?? 0)
+
+test('[31-21] a save of one backend file that is run has the build run that file again and no other: the definitions of a file the save did not reach are kept', async (t) => {
+  const folder = join(process.cwd(), 'results', 'build', `ranOnce-${Math.random().toString(36).slice(2)}`)
+  t.after(() => rmSync(folder, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }))
+  const files: Record<string, string> = {
+    'forjr.ts': `import { project } from 'forjr'\nexport const shop = project('shop', { title: 'Shop' })\n`,
+    'package.json': `${JSON.stringify({ name: 'shop', private: true, type: 'module' })}\n`,
+    'functions/first.ts': ranFile('ranFirst', 2),
+    'functions/second.ts': ranFile('ranSecond', 2),
+  }
+  for (const [path, text] of Object.entries(files)) {
+    mkdirSync(dirname(join(folder, path)), { recursive: true })
+    writeFileSync(join(folder, path), text)
+  }
+  const first = await buildSaved(folder)
+  assert.deepEqual(
+    first.findings.filter((one) => one.level === 'error'),
+    [],
+  )
+  assert.deepEqual([runsOf('ranFirst'), runsOf('ranSecond')], [1, 1], 'the first build runs each file once')
+  const saved = join(folder, 'functions', 'first.ts')
+  writeFileSync(saved, readFileSync(saved, 'utf8').replace('Math.max(1, 2)', 'Math.max(1, 3)'))
+  const second = await buildSaved(folder)
+  assert.deepEqual(
+    second.findings.filter((one) => one.level === 'error'),
+    [],
+  )
+  assert.deepEqual(
+    [runsOf('ranFirst'), runsOf('ranSecond')],
+    [2, 1],
+    'the save runs the file it changed, and the file it did not reach is not run again',
+  )
 })

@@ -11,15 +11,15 @@ import { listOf } from './listed.ts'
 // list of its files. A release bundle is a folder of files, as before.
 
 const files: Record<string, string> = {
-  'tent.ts': `import { project } from 'tentjs'\nexport const shop = project('shop', { title: 'Shop' })\n`,
-  'functions/notes.ts': `import { anyone, query, table, text } from 'tentjs'
+  'forjr.ts': `import { project } from 'forjr'\nexport const shop = project('shop', { title: 'Shop' })\n`,
+  'functions/notes.ts': `import { anyone, query, table, text } from 'forjr'
 
 export const notes = table('notes', { columns: { body: text() }, access: { read: anyone('every visitor') } })
 
 export const allNotes = query('allNotes', { access: anyone('every visitor'), rows: notes.oldest('body').limit(20) })
 `,
   'screens/home.tsx': `import { useState } from 'react'
-import { screen, read } from 'tentjs/ui'
+import { screen, read } from 'forjr/ui'
 import { allNotes } from '../functions/notes'
 
 export const homeScreen = screen('homeScreen', {
@@ -37,7 +37,7 @@ export const homeScreen = screen('homeScreen', {
   },
 })
 `,
-  'screens/about.tsx': `import { screen } from 'tentjs/ui'
+  'screens/about.tsx': `import { screen } from 'forjr/ui'
 
 export const aboutScreen = screen('aboutScreen', { path: '/about', access: 'anyone', view: () => <span>About the shop</span> })
 `,
@@ -63,7 +63,7 @@ const filesUnder = (folder: string): string[] =>
 
 test('[14-2] a build of a session keeps each file of its version once, by the fingerprint of its bytes, and the version is the list of its files: no folder of them is written', async (t) => {
   const folder = projectIn(t, 'listed')
-  const build = join(folder, '.tent', 'build')
+  const build = join(folder, '.forjr', 'build')
   const store = join(build, 'files')
   const first = await buildSaved(folder)
   assert.deepEqual(
@@ -90,7 +90,7 @@ test('[14-2] a build of a session keeps each file of its version once, by the fi
 
 test('[14-2] a save of a screen keeps the files whose bytes changed and writes the list of the new version: no other file of the build is written, and the list of the version before stands', async (t) => {
   const folder = projectIn(t, 'listedSave')
-  const build = join(folder, '.tent', 'build')
+  const build = join(folder, '.forjr', 'build')
   const store = join(build, 'files')
   const first = await buildSaved(folder)
   const before = new Map(filesUnder(build).map((one) => [one, statSync(join(build, one)).mtimeMs]))
@@ -126,7 +126,7 @@ test('[14-2] a save of a screen keeps the files whose bytes changed and writes t
 
 test('[14-2] a release build writes the folder of its bundle as it wrote it before: every file whole in its place, and no list and no store of fingerprints', async (t) => {
   const folder = projectIn(t, 'listedRelease')
-  const build = join(folder, '.tent', 'build')
+  const build = join(folder, '.forjr', 'build')
   const made = await buildProject(folder, { for: 'release' })
   assert.deepEqual(
     made.findings.filter((one) => one.level === 'error'),

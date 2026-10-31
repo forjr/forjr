@@ -1,4 +1,4 @@
-import { action, allow, change, each, list, log, number, object, query, sum, text, concat } from 'tentjs'
+import { action, allow, change, each, list, log, number, object, query, sum, text, concat } from 'forjr'
 import { items } from '../tables/items'
 
 // The definitions of `plain.ts` once more, each with one harmless call of a function of the file's own, which

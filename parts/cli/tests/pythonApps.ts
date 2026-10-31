@@ -47,7 +47,7 @@ export function sharedPython(name: string, of = 'pythonCalls'): Shared {
       numberish,
     ])
     laid.home = mkdtempSync(join(folder, 'home-'))
-    for (const [key, value] of Object.entries({ TENT_HOME: laid.home, TENT_PARTS: laid.stand.parts })) {
+    for (const [key, value] of Object.entries({ FORJR_HOME: laid.home, FORJR_PARTS: laid.stand.parts })) {
       stood[key] = process.env[key]
       process.env[key] = value
     }

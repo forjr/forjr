@@ -1,7 +1,7 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import { readFileSync } from 'node:fs'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 import { fetchHere, paint } from '../functions/outside'
 
 test('a test that fails', () => {

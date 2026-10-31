@@ -45,7 +45,7 @@ async function loadOnce(o: Opened, name: string, record: Record<string, unknown>
  * Takes the code of a version on a worker and the name of a `python`. Makes its environment where it is not there,
  * and loads its file into a Python program of the version, so that the work of a task of it begins with its
  * definition loaded and its loading counts on no try. A definition that is no `python`, or that a program holds
- * loaded already, is nothing to load. Throws T0016, T7020, T7119 and T0008.
+ * loaded already, is nothing to load. Throws F0016, F7020, F7119 and F0008.
  */
 export async function loadAhead(o: Opened, name: string): Promise<void> {
   const record = Object.hasOwn(o.description.functions, name) ? o.description.functions[name] : undefined

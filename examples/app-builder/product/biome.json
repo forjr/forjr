@@ -4,8 +4,8 @@
   "files": {
     "includes": [
       "**",
-      "!tent.d.ts",
-      "!!.tent",
+      "!forjr.d.ts",
+      "!!.forjr",
       "!!results",
       "!!node_modules"
     ]

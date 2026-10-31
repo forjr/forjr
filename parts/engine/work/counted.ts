@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Opened } from '../opened.ts'
 import { servicesOf } from '../services/env.ts'
 import { table } from '../tables/workPlaces.ts'
@@ -40,13 +40,13 @@ function forget(o: Opened, keys: { task: string; may: string }[]): void {
 /**
  * The `may` of a worker: an outside call that it is about to make itself. It is counted against the limits of
  * the service here, by the writer, so that many workers do not pass them many times, and answered once the call
- * may start; the place it took is kept in the store until its `did`, or the end of its try. Throws T0002 for a
- * service that the version does not hold, and T5108 where the try is lost while the `may` waits.
+ * may start; the place it took is kept in the store until its `did`, or the end of its try. Throws F0002 for a
+ * service that the version does not hold, and F5108 where the try is lost while the `may` waits.
  */
 export async function mayCall(o: Opened, task: string, message: Record<string, unknown>): Promise<null> {
   const service = String(message.service)
   if (!Object.hasOwn(o.description.services, service))
-    throw new TentError('T0002', `A worker asks to call ${service.slice(0, 60)}, which is no service of the app.`)
+    throw new ForjrError('F0002', `A worker asks to call ${service.slice(0, 60)}, which is no service of the app.`)
   const services = await servicesOf(o)
   const may = String(message.may)
   const key = `${task} ${may}`
@@ -87,7 +87,7 @@ export function didCall(o: Opened, task: string, run: string, message: Record<st
 export function freePlaces(o: Opened, task: string): void {
   for (const [key, ends] of waitsOf(o))
     if (key.startsWith(`${task} `))
-      ends.abort(new TentError('T5108', `The task ${task.slice(0, 40)} is not out any more.`))
+      ends.abort(new ForjrError('F5108', `The task ${task.slice(0, 40)} is not out any more.`))
   const held = placesOf(o)
   const freed: { task: string; may: string }[] = []
   for (const [key, free] of held)

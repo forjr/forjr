@@ -15,7 +15,7 @@ import { underNewNames } from './underNewNames.ts'
 import { visitFiles } from './visitFiles.ts'
 
 /** The tables of an app that a store holds: the engine's own are no part of what an app describes. */
-const appTables = (store: Store): TableLayout[] => store.layout().filter((table) => !table.name.startsWith('_t_'))
+const appTables = (store: Store): TableLayout[] => store.layout().filter((table) => !table.name.startsWith('_f_'))
 
 /** The finding of the rows that do not fit a step, with the count, and for a tenant's file with the tenant. */
 function misfitFinding(held: TableLayout[], steps: TableStep[], { table, column, rows, file }: Misfit): Finding {
@@ -25,7 +25,7 @@ function misfitFinding(held: TableLayout[], steps: TableStep[], { table, column,
   if (step?.to?.kind === 'vector') {
     const made = String(heldIn(before, 'made') ?? 'that it stated before')
     return finding(
-      'T2001',
+      'F2001',
       `${rowsText(rows)} of \`${table}\` hold a vector in \`${table}.${column}\` that the model ${made} made, and the column now states the model ${String(Reflect.get(step.to, 'made'))}${where}.`,
       {
         fix: "State `old: 'drop'` on the column to empty it, or `old: 'keep'` where both models make the same vectors.",
@@ -33,7 +33,7 @@ function misfitFinding(held: TableLayout[], steps: TableStep[], { table, column,
     )
   }
   return finding(
-    'T2001',
+    'F2001',
     `${rowsText(rows)} of \`${table}\` ${rows === 1 ? 'does' : 'do'} not fit what \`${table}.${column}\` becomes${where}.`,
     {
       fix: 'Change those rows so that they fit, or add a new column, fill it with a change, then remove the old one.',
@@ -68,8 +68,8 @@ function heldOf(held: TableLayout[], asked: TableLayout[]): TableLayout[] {
 
 /**
  * Takes a store and a description. Answers what the table change from the one to the other would be refused for:
- * what `planTableChanges` finds in the two layouts (T2001 to T2004), and each column that `findMisfits` counts rows
- * for (T2001, with the count). The check passes these on, and compares nothing itself. A description keeps no file
+ * what `planTableChanges` finds in the two layouts (F2001 to F2004), and each column that `findMisfits` counts rows
+ * for (F2001, with the count). The check passes these on, and compares nothing itself. A description keeps no file
  * and no line, so a finding names its table and whoever passes it on adds the place. Handed the files of an app, it
  * answers a promise: the shared file is held against the tables that are no tenant tables, and every tenant's file
  * is visited, to read alone, and held against the tables it holds of those that are. A table that stands in the

@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Row } from './store.ts'
 import { isWhole, wholeOf } from './whole.ts'
 
@@ -21,7 +21,7 @@ export function cursorOf(row: Row, sorted: string[]): string {
 
 /**
  * Takes a cursor and how many columns the page is sorted by. Answers the values it holds, then the id, and where
- * the cursor holds them the digits of its whole numbers last, by the place of their column. Throws T0002 for a
+ * the cursor holds them the digits of its whole numbers last, by the place of their column. Throws F0002 for a
  * text that is no cursor of such a page: digits that are no whole number that SQLite holds among it.
  */
 export function cursorValues(cursor: unknown, columns: number): unknown[] {
@@ -41,5 +41,5 @@ export function cursorValues(cursor: unknown, columns: number): unknown[] {
   } catch {
     // A text that does not read is refused below, as one of another length is.
   }
-  throw new TentError('T0002', 'The value of `after` is no cursor of this page.', { fields: { after: 'type' } })
+  throw new ForjrError('F0002', 'The value of `after` is no cursor of this page.', { fields: { after: 'type' } })
 }

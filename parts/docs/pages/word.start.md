@@ -5,7 +5,7 @@ Starts a run of a flow or of an agent and does not wait for it. In a change the 
 ## Example
 
 ```ts
-import { change, input, start, text } from 'tentjs'
+import { change, input, start, text } from 'forjr'
 import { bigOrder } from './flows.ts'
 
 export const placeOrder = change('placeOrder', {
@@ -26,15 +26,15 @@ A flow that is called by its own name, `await bigOrder(input)`, starts a run too
 
 ## Errors
 
-`code.T0010`: it was called with no engine: nothing stands in the runtime slot.
+`code.F0010`: it was called with no engine: nothing stands in the runtime slot.
 
-`code.T0013`: it was used in a query, which starts nothing.
+`code.F0013`: it was used in a query, which starts nothing.
 
-`code.T0002`: what the flow was given does not fit its `input`.
+`code.F0002`: what the flow was given does not fit its `input`.
 
-`code.T5001`: it was used in a flow outside a step.
+`code.F5001`: it was used in a flow outside a step.
 
-`code.T7103`: the flow states `together: { then: 'refuse' }`, and as many of its runs work as may work at once.
+`code.F7103`: the flow states `together: { then: 'refuse' }`, and as many of its runs work as may work at once.
 
 ## See also
 

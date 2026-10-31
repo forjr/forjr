@@ -4,7 +4,7 @@ Makes the screen not found, with status 404, when the entry answers nothing, and
 
 ## Value
 
-`true`. A query fails as not found with `code.T0001`, `code.T2103`, or a `fail('not-found', ...)` of its own. So the entry is never nothing in its view, and the type checker holds the view to that. Left out, the view is handed what the query may answer, nothing among it, and must look before it reads.
+`true`. A query fails as not found with `code.F0001`, `code.F2103`, or a `fail('not-found', ...)` of its own. So the entry is never nothing in its view, and the type checker holds the view to that. Left out, the view is handed what the query may answer, nothing among it, and must look before it reads.
 
 ## Example
 

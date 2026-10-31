@@ -1,4 +1,4 @@
-import { action, agent, change, input, link, model, number, object, query, role, secret, text } from 'tentjs'
+import { action, agent, change, input, link, model, number, object, query, role, secret, text } from 'forjr'
 import { lates, orders, receipts, refunds, users } from './tables'
 
 export const writer = model('writer', { provider: 'anthropic', name: 'claude-sonnet-5-5', key: secret('ANTHROPIC_KEY') })

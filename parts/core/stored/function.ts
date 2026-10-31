@@ -37,7 +37,7 @@ function writesOf(told: Told, written: unknown): Stored[] {
     if (!fits)
       report(
         told,
-        'T1014',
+        'F1014',
         '`set` holds what is no write.',
         'Write orders.add(...), orders.change(...) or orders.remove(...).',
       )
@@ -97,7 +97,7 @@ function heavyOf(told: Told, o: Stored, stored: Stored): void {
 /**
  * Takes the kind of a function and its options as they were written. Answers the record of the function as it is
  * stored: plain with its plan, its writes or the body that the build read, and code with its export. Reports a
- * function written in two forms (T1007), a required option that is left out (T1008) and a reserved name (T1009).
+ * function written in two forms (F1007), a required option that is left out (F1008) and a reserved name (F1009).
  */
 export function functionOf(told: Told, kind: 'query' | 'change' | 'action', o: Stored): Stored {
   const python = helperWordOf(told.loaded.value) === 'python'
@@ -110,14 +110,14 @@ export function functionOf(told: Told, kind: 'query' | 'change' | 'action', o: S
   if (!python && kind !== 'action' && o[values] !== undefined && o.run !== undefined)
     report(
       told,
-      'T1007',
+      'F1007',
       `it is written in two forms at once, with \`${values}\` and with \`run\`.`,
       'Keep one of the two.',
     )
   else if (!python && o.run === undefined && (kind === 'action' || o[values] === undefined))
     report(
       told,
-      'T1008',
+      'F1008',
       kind === 'action' ? 'it states no `run`, which is required.' : `it states neither \`${values}\` nor \`run\`.`,
       kind === 'action' ? 'State `run`.' : `State \`${values}\` or \`run\`.`,
     )
@@ -127,7 +127,7 @@ export function functionOf(told: Told, kind: 'query' | 'change' | 'action', o: S
   if (input && 'run' in input && (o.worker !== undefined || (o.background !== undefined && o.background !== false)))
     report(
       told,
-      'T1009',
+      'F1009',
       'the input field `run` is reserved for an action that states `worker` or `background`.',
       'Give the field another name.',
     )

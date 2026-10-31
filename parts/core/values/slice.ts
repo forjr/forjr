@@ -15,7 +15,7 @@ export function sliceWith(tick: Tick, ...values: unknown[]): unknown {
 
 /**
  * Takes a text or a list, where the part starts, and where it ends. Answers the part, as `slice` of JavaScript
- * gives it: a number below zero counts from the end. Handed a reference it answers its record. Throws T0027 for a
+ * gives it: a number below zero counts from the end. Handed a reference it answers its record. Throws F0027 for a
  * value that is neither a text nor a list.
  */
 export function slice(text: string, from: number, to?: number): string

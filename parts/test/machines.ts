@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import { cpSync, existsSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Clock } from '../core/internal.ts'
 import type { App, Engine, Makers, Reach, Unsent } from '../engine/index.ts'
 import { readBody } from '../build/index.ts'
@@ -77,7 +77,7 @@ export const worldOf = (home: string, bundle: string, clock: Clock): World => ({
 /** Answers a new machine of the world, which is not opened yet: its address is a name that no network knows. */
 export function machineIn(world: World, name: string, o: { far?: boolean; own?: string; key?: string } = {}): Machine {
   const machine: Machine = {
-    address: o.own ?? `https://${name}-${++world.count}.tent.test`,
+    address: o.own ?? `https://${name}-${++world.count}.forjr.test`,
     folder: join(world.home, `${name}-${world.count}`),
     far: o.far === true,
     held: false,
@@ -93,12 +93,12 @@ export function machineIn(world: World, name: string, o: { far?: boolean; own?: 
   return machine
 }
 
-/** Takes the next key of a kind that no reader of the world holds yet. Throws T0013 once they are all handed out. */
+/** Takes the next key of a kind that no reader of the world holds yet. Throws F0013 once they are all handed out. */
 function keyFor(world: World, far: boolean): string {
   const kind = far ? 'far' : 'near'
   const key = world[kind][world.taken[kind]++]
   if (key === undefined)
-    throw new TentError('T0013', `A test app has ${world[kind].length} ${kind} readers at the most.`, {
+    throw new ForjrError('F0013', `A test app has ${world[kind].length} ${kind} readers at the most.`, {
       fix: 'Use fewer readers in one test.',
     })
   return key
@@ -109,8 +109,8 @@ const readersOf = (world: World): (string | { key: string; far: true })[] => [
   ...world.far.map((key) => ({ key, far: true as const })),
 ]
 
-const gone = (address: string): TentError =>
-  new TentError('T0029', `The machine at ${address} does not run in this test.`, {
+const gone = (address: string): ForjrError =>
+  new ForjrError('F0029', `The machine at ${address} does not run in this test.`, {
     fix: 'Open it again with `restart`.',
   })
 
@@ -121,7 +121,7 @@ const gone = (address: string): TentError =>
  */
 export function reachFor(world: World, from: Machine): Reach {
   return (address) => {
-    if (!address.endsWith('.tent.test') && !world.machines.has(address)) return undefined
+    if (!address.endsWith('.forjr.test') && !world.machines.has(address)) return undefined
     const target = world.machines.get(address)
     return {
       async request(request, o) {
@@ -151,7 +151,7 @@ export async function openWriter(world: World, machine: Machine): Promise<App> {
   machine.engine = createEngine({
     port: 0,
     makers: makersOf(world),
-    // A test app is built where the build tools are, so its engine reads sequences as `tent start` does.
+    // A test app is built where the build tools are, so its engine reads sequences as `forjr start` does.
     readBody,
   })
   machine.app = await machine.engine.open(world.bundle, {
@@ -252,7 +252,7 @@ export async function killMachine(machine: Machine): Promise<void> {
   for (const gate of [...machine.gates, ...machine.toward]) gate.close()
   machine.gates.clear()
   machine.toward.clear()
-  const killed = new TentError('T0029', `The machine at ${machine.address} was killed while the call was under way.`, {
+  const killed = new ForjrError('F0029', `The machine at ${machine.address} was killed while the call was under way.`, {
     fix: 'The call was not answered: ask again once the machine runs, or ask the machine that took over.',
   })
   for (const refuse of [...machine.under]) refuse(killed)

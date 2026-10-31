@@ -1,4 +1,4 @@
-import { anyone, list, number, project, table, text } from 'tentjs'
+import { anyone, list, number, project, table, text } from 'forjr'
 
 export const board = project('board', {})
 

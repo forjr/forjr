@@ -1,4 +1,4 @@
-import { action, change, fail, input, list, number, query, role, table, text } from 'tentjs'
+import { action, change, fail, input, list, number, query, role, table, text } from 'forjr'
 
 // An action that counts how often it was called, and a query that tells the count: a screen that is fetched ahead
 // of a move calls no action.

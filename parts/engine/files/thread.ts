@@ -1,5 +1,5 @@
 import { workerData } from 'node:worker_threads'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Change, Misfit, OnThread, Store } from '../../data/index.ts'
 import { applyChange, bringUp, checkAndHold, dropHolds, sqliteStore } from '../../data/index.ts'
 import type { FileJob, FileStart, FileTold, RaiseJob } from './job.ts'
@@ -15,7 +15,7 @@ const isStart = (given: unknown): given is FileStart =>
   typeof given === 'object' && given !== null && Reflect.get(given, 'shared') instanceof SharedArrayBuffer
 
 const start: unknown = workerData
-if (!isStart(start)) throw new TentError('T0009', 'A file thread was started with nothing to work on.')
+if (!isStart(start)) throw new ForjrError('F0009', 'A file thread was started with nothing to work on.')
 
 const { port } = start
 const { state, number } = viewsOf(start.shared)
@@ -30,7 +30,7 @@ const threadOf = (job: RaiseJob & { id: number }): OnThread => ({
     Atomics.store(state, 0, waits)
     tell({ id: job.id, number: true })
     Atomics.wait(state, 0, waits)
-    if (job.fails) throw new TentError('T0009', 'The write of a file thread failed after it took its number.')
+    if (job.fails) throw new ForjrError('F0009', 'The write of a file thread failed after it took its number.')
     return number[0]
   },
 })

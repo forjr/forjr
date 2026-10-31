@@ -1,4 +1,4 @@
-import { anyone, boolean, Form, Link, screen, useTranslations, message } from 'tentjs/ui'
+import { anyone, boolean, Form, Link, screen, useTranslations, message } from 'forjr/ui'
 import { SiteFrame } from '../components/SiteFrame'
 import { sendMessage } from '../functions/messages'
 import './contact.css'

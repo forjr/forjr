@@ -1,7 +1,7 @@
 import { spawnSync } from 'node:child_process'
 import { appendFileSync, existsSync, mkdirSync, readdirSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { SqliteFile } from '../data/index.ts'
 import { list } from './find.ts'
 import { writeInto } from './lay.ts'
@@ -15,10 +15,10 @@ const written: Kind[] = ['named', 'published', 'merge']
 // https://git-scm.com/docs/git-config
 const settings = [
   ...['-c', 'core.autocrlf=false', '-c', 'core.safecrlf=false', '-c', 'commit.gpgsign=false'],
-  ...['-c', 'core.hooksPath=.git/tent-no-hooks'],
+  ...['-c', 'core.hooksPath=.git/forjr-no-hooks'],
 ]
 
-/** Carries one call of the `git` program of the computer out in a folder. Throws T0013 where there is none, and T0009 where the call fails. */
+/** Carries one call of the `git` program of the computer out in a folder. Throws F0013 where there is none, and F0009 where the call fails. */
 function git(folder: string, words: string[], env: Record<string, string> = {}): string {
   const ended = spawnSync('git', [...settings, ...words], {
     cwd: folder,
@@ -27,10 +27,10 @@ function git(folder: string, words: string[], env: Record<string, string> = {}):
     env: { ...process.env, ...env },
   })
   if (ended.error)
-    throw new TentError('T0013', 'This computer has no `git` program, which an export of the history writes with.', {
-      fix: 'Install git, or copy the files of a point with `tent history back`.',
+    throw new ForjrError('F0013', 'This computer has no `git` program, which an export of the history writes with.', {
+      fix: 'Install git, or copy the files of a point with `forjr history back`.',
     })
-  if (ended.status !== 0) throw new TentError('T0009', `git ${words[0]} failed: ${ended.stderr.trim()}`)
+  if (ended.status !== 0) throw new ForjrError('F0009', `git ${words[0]} failed: ${ended.stderr.trim()}`)
   return ended.stdout
 }
 
@@ -44,16 +44,16 @@ const authorOf = (point: Point): string =>
  * the computer: the files of the point, its name or its kind as the message, its writer as the author and its
  * moment as the date. The folder is empty, or holds what an earlier export wrote, to which the points that came
  * after its newest one are added. Git is written to and never read from: what was written is kept in a list of
- * the export's own inside the folder. Answers the number of commits. Throws T0013 where the computer has no `git`,
+ * the export's own inside the folder. Answers the number of commits. Throws F0013 where the computer has no `git`,
  * and where the folder holds what no export wrote.
  */
 export function exportGit(file: SqliteFile, folder: string, o: { kinds?: Kind[] } = {}): { commits: number } {
   const kinds = o.kinds ?? written
   mkdirSync(folder, { recursive: true })
-  const kept = join(folder, '.git', 'tent-points')
+  const kept = join(folder, '.git', 'forjr-points')
   if (!existsSync(kept)) {
     if (readdirSync(folder).length)
-      throw new TentError('T0013', `The folder ${folder} holds files that no export of the history wrote.`, {
+      throw new ForjrError('F0013', `The folder ${folder} holds files that no export of the history wrote.`, {
         fix: 'Name an empty folder, or the folder of an earlier export.',
       })
     git(folder, ['init', '--quiet'])

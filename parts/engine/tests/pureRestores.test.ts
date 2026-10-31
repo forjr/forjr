@@ -10,8 +10,8 @@ test('[53-20] a query swapped by pure puts back the Date and the Math.random tha
   globalThis.Date = ownDate
   Math.random = ownRandom
   try {
-    assert.throws(() => pure(() => Date.now()), { code: 'T4101' })
-    assert.throws(() => pure(() => Math.random()), { code: 'T4101' })
+    assert.throws(() => pure(() => Date.now()), { code: 'F4101' })
+    assert.throws(() => pure(() => Math.random()), { code: 'F4101' })
     // Swaps one inside another put back the test's own once the last ends.
     pure(() => pure(() => undefined))
     assert.equal(globalThis.Date, ownDate)

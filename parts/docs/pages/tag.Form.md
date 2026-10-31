@@ -5,7 +5,7 @@ A form over a function of the app: any named control inside it is a field, it ch
 ## Example
 
 ```tsx
-import { screen, read, useField, Form } from 'tentjs/ui'
+import { screen, read, useField, Form } from 'forjr/ui'
 import { addOrder, allCustomers } from '../functions/orders'
 import { orderScreen } from './order'
 
@@ -48,7 +48,7 @@ export const newOrderScreen = screen('newOrderScreen', {
 | Property | Does |
 |---|---|
 | `call` | A change, an action, a flow that is offered, an agent or a member of one, as the screen file imported it. Its input is what the fields hold, joined with `with` |
-| `with` | Values the person does not type. A name that a field gives too is `code.T6009` |
+| `with` | Values the person does not type. A name that a field gives too is `code.F6009` |
 | `values` | What its fields start with. One given here wins over the default of the type, and a field with a dotted name is given inside its record: `values={{ address: { city: 'Izmir' } }}`. A field the person has not touched follows a later change of it; one they touched keeps what they typed |
 | `then` | What follows a send that worked: `{ goTo, with, set, above, href }`, or an arrow that is handed the answer of the call: `then={(order) => ({ goTo: orderScreen, with: { id: order.id } })}`. A `goTo` or a `set` that is nothing does nothing. A `goTo` takes what `to` of a `Link` takes: a path is typed `` `/${string}` ``. A path worked out in place, `` { goTo: `/orders/${order.id}` } ``, is typed so by the type checker; one that is held as a plain `string` is refused, and is declared `` `/${string}` `` where it is made |
 | `reset` | What is emptied after a send that worked: `true` (the default) puts every field back at its start, `false` none, and a list of names only those: `reset={['password']}` |
@@ -67,20 +67,20 @@ The messages of a failed check, under the keys a language file may give anew:
 
 | Key | English |
 |---|---|
-| `tent.required` | This is needed. |
-| `tent.type` | This is not a valid value. |
-| `tent.min`, `tent.max` | At least {min}. At most {max}. |
-| `tent.pattern` | This does not have the right form. |
-| `tent.values` | Pick one of the choices. |
-| `tent.failed` | Something went wrong. Try again. |
+| `forjr.required` | This is needed. |
+| `forjr.type` | This is not a valid value. |
+| `forjr.min`, `forjr.max` | At least {min}. At most {max}. |
+| `forjr.pattern` | This does not have the right form. |
+| `forjr.values` | Pick one of the choices. |
+| `forjr.failed` | Something went wrong. Try again. |
 
 A function that says no fails with `fail('taken', 'That name is taken.', { fields: { name: 'That name is taken.' } })`, and the form shows those words at that field. A failure that names no field of the form is in `calls.<id>.error`, and the form tells it after its last field.
 
-**With no script.** The first HTML is a real form that posts to `/_t/form/<the function>`, with the address of its screen, the form and the version in hidden fields, and what `with` gives under its own names, so a visitor with no script can send it. The engine finds the form and its `then` in the screen as it is drawn before the call, and when the call worked the visitor is sent where that `then` goes, an arrow among them, in the language of the page; a `then` that only sets a state sends the visitor back to the screen, with each state that its address keeps as the `set` leaves it, and one with neither back to the screen: also where the call took the form away, as a delete on its own row does. A form with no `id` is named by its number among all the forms of the screen, so a form inside a list states an `id` of its own. When it failed, the screen is drawn again with the words of each field and what was typed, a password left out. A request there that carries a cookie of the app must come from the app's own `Origin` (`code.T0004`).
+**With no script.** The first HTML is a real form that posts to `/_f/form/<the function>`, with the address of its screen, the form and the version in hidden fields, and what `with` gives under its own names, so a visitor with no script can send it. The engine finds the form and its `then` in the screen as it is drawn before the call, and when the call worked the visitor is sent where that `then` goes, an arrow among them, in the language of the page; a `then` that only sets a state sends the visitor back to the screen, with each state that its address keeps as the `set` leaves it, and one with neither back to the screen: also where the call took the form away, as a delete on its own row does. A form with no `id` is named by its number among all the forms of the screen, so a form inside a list states an `id` of its own. When it failed, the screen is drawn again with the words of each field and what was typed, a password left out. A request there that carries a cookie of the app must come from the app's own `Origin` (`code.F0004`).
 
 ## Errors
 
-`code.T0002`: the door found a value that does not fit its type; the form shows it at its field. `code.T0004`: a form posted from another site with the visitor's cookie. `code.T6009`: a `name` written in place that the function does not take, a name that `with` gives too, or a name in `values` or `reset` that is no field. `code.T6013`: a literal address of `then` that is not allowed.
+`code.F0002`: the door found a value that does not fit its type; the form shows it at its field. `code.F0004`: a form posted from another site with the visitor's cookie. `code.F6009`: a `name` written in place that the function does not take, a name that `with` gives too, or a name in `values` or `reset` that is no field. `code.F6013`: a literal address of `then` that is not allowed.
 
 ## See also
 

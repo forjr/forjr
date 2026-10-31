@@ -2,7 +2,7 @@
 // secrets in its environment. A host puts a container or a machine of its own around it; this is the smallest one.
 import { spawn } from 'node:child_process'
 import { mkdir } from 'node:fs/promises'
-import type { Sandbox } from 'tentjs/engine'
+import type { Sandbox } from 'forjr/engine'
 
 // The words of a command as a shell would split them, with quotes kept together.
 function wordsOf(command: string): string[] {
@@ -11,7 +11,7 @@ function wordsOf(command: string): string[] {
   return words
 }
 
-export function processBox(o: { tent: readonly string[] }): Sandbox {
+export function processBox(o: { forjr: readonly string[] }): Sandbox {
   return {
     async start({ id, folder, work }) {
       await mkdir(work, { recursive: true })
@@ -19,7 +19,7 @@ export function processBox(o: { tent: readonly string[] }): Sandbox {
     },
     run(box, command, options) {
       const [first, ...rest] = wordsOf(command)
-      const words = first === 'tent' ? [...o.tent, ...rest] : [first ?? '', ...rest]
+      const words = first === 'forjr' ? [...o.forjr, ...rest] : [first ?? '', ...rest]
       const [program, ...args] = words
       return new Promise((done, failed) => {
         const child = spawn(program ?? '', args, {

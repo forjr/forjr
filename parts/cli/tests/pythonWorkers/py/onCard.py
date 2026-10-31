@@ -6,13 +6,13 @@ time.sleep(6)
 LOADED_IN = os.getpid()
 
 
-def run(input, tent):
+def run(input, forjr):
     with open(input["f"], "rb") as f:
         text = f.read().decode()
-    made = os.path.join(tent.folder, "answer.txt")
+    made = os.path.join(forjr.folder, "answer.txt")
     with open(made, "w") as f:
         f.write("an answer of the worker")
-    marker = os.path.join(tent.disk, "kept.txt")
+    marker = os.path.join(forjr.disk, "kept.txt")
     disk = "there" if os.path.exists(marker) else "new"
     with open(marker, "w") as f:
         f.write("kept")

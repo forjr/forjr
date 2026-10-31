@@ -2,7 +2,7 @@ import type { Rule } from './rule.ts'
 import { writtenIn } from './rule.ts'
 
 /**
- * Takes one of the codes of a table change, T2001 to T2004. Answers the rule that passes on what the data of a
+ * Takes one of the codes of a table change, F2001 to F2004. Answers the rule that passes on what the data of a
  * running app found under that code, and compares nothing itself. A description keeps no file and no line, so the
  * rule adds the place of each finding: the table that the finding names, found by its name in the source, and
  * the project, where `removed` is stated, for a table that the source no longer holds.

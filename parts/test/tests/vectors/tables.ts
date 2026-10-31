@@ -1,4 +1,4 @@
-import { model, table, text, vector } from 'tentjs'
+import { model, table, text, vector } from 'forjr'
 
 export const embedderA = model('embedderA', { provider: 'mine', name: 'a-1', abilities: ['embed'] })
 export const embedderB = model('embedderB', { provider: 'mine', name: 'b-1', abilities: ['embed'] })

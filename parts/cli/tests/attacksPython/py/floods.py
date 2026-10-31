@@ -3,8 +3,8 @@ import struct
 import time
 
 
-def run(input, tent):
-    with open(os.path.join(tent.disk, "floods.pid"), "w") as f:
+def run(input, forjr):
+    with open(os.path.join(forjr.disk, "floods.pid"), "w") as f:
         f.write(str(os.getpid()))
     if input["how"] == "header":
         # The head of a frame of a gigabyte, written to the channel itself, and the start of its body.

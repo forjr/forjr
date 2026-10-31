@@ -65,9 +65,9 @@ export async function screenAnswered(env: McpEnv, name: string, input: unknown, 
         },
       ],
       _meta: {
-        'tent.page': shown.page,
-        ...(shown.pass === undefined ? {} : { 'tent.pass': shown.pass }),
-        'tent.frame': shown.frame,
+        'forjr.page': shown.page,
+        ...(shown.pass === undefined ? {} : { 'forjr.pass': shown.pass }),
+        'forjr.frame': shown.frame,
       },
     }
   } catch (error) {

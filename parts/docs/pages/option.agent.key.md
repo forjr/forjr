@@ -21,7 +21,7 @@ export const helper = agent('helper', {
 
 ## Errors
 
-`code.T1014`: `key` is no arrow.
+`code.F1014`: `key` is no arrow.
 
 ## See also
 

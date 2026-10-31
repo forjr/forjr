@@ -1,4 +1,4 @@
-import { component, object, read, screen, text } from 'tentjs/ui'
+import { component, object, read, screen, text } from 'forjr/ui'
 import { productById } from './functions'
 
 // The picture of a product for a shared link: its color fills it, so a picture shows the row of its address.

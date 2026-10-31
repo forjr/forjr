@@ -4,7 +4,7 @@ const system = { kind: 'system' } as const
 
 /**
  * What a seed asks of the data before it is applied: whether it holds no row of the app. Tables that were made
- * and hold nothing are empty data. No command types it: `tent start --seed` asks it of the app it opened.
+ * and hold nothing are empty data. No command types it: `forjr start --seed` asks it of the app it opened.
  */
 export const admin: Admin = {
   name: 'data empty',

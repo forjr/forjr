@@ -6,7 +6,7 @@ Follows a run from the code of a view: its steps, what each step says, its asks,
 
 ```tsx
 import { useState } from 'react'
-import { screen, useCall, useRun } from 'tentjs/ui'
+import { screen, useCall, useRun } from 'forjr/ui'
 import { startImport } from '../functions/imports'
 
 export const importScreen = screen('importScreen', {
@@ -31,7 +31,7 @@ export const importScreen = screen('importScreen', {
 
 ## Takes
 
-`useRun(run)`: the id of a run, or nothing while there is none. A page comes by the id from what started the run: `useAgent`, `runs` of a step, an action of the builder's own that calls `start(flow, input)` and answers `{ run }`, and `fields.run` of the T0008 that ends the wait of a caller of an action that is a run.
+`useRun(run)`: the id of a run, or nothing while there is none. A page comes by the id from what started the run: `useAgent`, `runs` of a step, an action of the builder's own that calls `start(flow, input)` and answers `{ run }`, and `fields.run` of the F0008 that ends the wait of a caller of an action that is a run.
 
 ## Returns
 
@@ -39,7 +39,7 @@ export const importScreen = screen('importScreen', {
 
 `state` is `'idle'` before the page has heard of the run, and then `'queued'`, `'running'`, `'waiting'`, `'done'`, `'failed'` or `'stopped'`. `answer` is the text so far of a run of an agent, and at the end of a run of a flow or of an action its answer, through `output` of its definition. `said` holds the last value that each step said, as `[{ step, repeat, value }]`: the work of a step says it with `say(value)`, ten times a second at most, and it is never saved. `reasoning` is the reasoning of a `model` step of an agent that states `show` in `reasoning`.
 
-A caller follows a run where they started the run at the top of its calls and the run lets them: an agent's run by its `access`, a run of a flow or of an action by its `follow`, and a run that runs as its starter under one they may follow. Any other run fails with `code.T0001`, and the hook holds that error.
+A caller follows a run where they started the run at the top of its calls and the run lets them: an agent's run by its `access`, a run of a flow or of an action by its `follow`, and a run that runs as its starter under one they may follow. Any other run fails with `code.F0001`, and the hook holds that error.
 
 ## See also
 

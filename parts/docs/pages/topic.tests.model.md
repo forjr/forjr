@@ -4,7 +4,7 @@
 
 | `answers` | Is |
 |---|---|
-| A list of answers | Each answer is given to one step of one run, or to one call made outside a run, in the order they first ask. A step that runs again gets the answer it got before, and a call past the last answer fails with `code.T0013` |
+| A list of answers | Each answer is given to one step of one run, or to one call made outside a run, in the order they first ask. A step that runs again gets the answer it got before, and a call past the last answer fails with `code.F0013` |
 | A function of the request | Handed the `ReplyRequest` (`adapter.Provider`): the instructions, the messages and the tools. It answers an answer, or a promise of one |
 | A record of calls | `reply`, a list or a function as above; `embed(text)`, which answers a vector; `hear({ kind, language, hint })`, which answers `{ text }`; `speak(text)`, which answers the bytes of a sound; `rank(words, texts)`, which answers a score for each text; and `call(input)`, which answers the output of a model with `call` |
 

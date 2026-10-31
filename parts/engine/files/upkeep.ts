@@ -73,7 +73,7 @@ function holdsRows(tenantFiles: TenantFiles, path: string): boolean {
   try {
     return store
       .layout()
-      .filter((one) => !one.name.startsWith('_t_'))
+      .filter((one) => !one.name.startsWith('_f_'))
       .some((one) => {
         // No plan reads a retired table, so its rows are asked for by raw SQL: a store that takes none keeps the file.
         const rows = !one.retired

@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import type { History, Kind, Point, Writer } from '../history/index.ts'
 import { branchWork } from './historyBranches.ts'
@@ -33,20 +33,20 @@ export const shown = (point: Point): ShownPoint => ({
   ...(point.files ? { files: Object.keys(point.files).length } : {}),
 })
 
-/** A word of a command that must be a text which holds something. Throws T0002 where it is not. */
+/** A word of a command that must be a text which holds something. Throws F0002 where it is not. */
 function wordOf(args: object, name: string): string {
   const word: unknown = Reflect.get(args, name)
   if (typeof word !== 'string' || word === '')
-    throw new TentError('T0002', `The command takes a text as \`${name}\`.`, { fields: { [name]: 'type' } })
+    throw new ForjrError('F0002', `The command takes a text as \`${name}\`.`, { fields: { [name]: 'type' } })
   return word
 }
 
 /**
- * Takes an open history, the folder of its project, and the words of a command of `tent history` by their names:
+ * Takes an open history, the folder of its project, and the words of a command of `forjr history` by their names:
  * `what` is `list`, `save`, `command`, `compare` or `export`. Carries the command out, and answers its value:
  * the newest points, the named point or the point of a command that was recorded, the changes between two points, or the count of commits. `found` is
  * what a session of development found of the files as they stand, which a named point is recorded with: with no
- * session, a command records the files alone. Throws T0002 for a word that is missing, and what the history throws.
+ * session, a command records the files alone. Throws F0002 for a word that is missing, and what the history throws.
  */
 export function historyWork(
   history: History,

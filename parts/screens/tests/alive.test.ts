@@ -51,12 +51,12 @@ test('[31-2] a page that comes alive holds the answers it came with: what it hol
   // The page comes alive with no second request for what the first HTML held, whatever order its input was written in.
   assert.deepEqual(page.ask('openOrders', { limit: 2 }, { entry: 'orders' }), came[0])
   assert.deepEqual(far.sent, [])
-  // What it does not hold is asked at `/_t/read/`, with the version of the page and the user it was drawn for.
+  // What it does not hold is asked at `/_f/read/`, with the version of the page and the user it was drawn for.
   assert.equal(page.ask('openOrders', { limit: 5, status: 'open' }, {}), undefined)
   assert.equal(page.ask('openOrders', { status: 'open', limit: 5 }, {}), undefined)
   await settled()
   assert.deepEqual(far.sent, [
-    { address: '/_t/read/openOrders', body: { input: { limit: 5, status: 'open' }, version: 'v1', as: 'u1' } },
+    { address: '/_f/read/openOrders', body: { input: { limit: 5, status: 'open' }, version: 'v1', as: 'u1' } },
   ])
   assert.equal(drawn, 1)
   assert.deepEqual(page.ask('openOrders', { status: 'open', limit: 5 }, {}), {
@@ -72,7 +72,7 @@ test('[31-2] a page that comes alive holds the answers it came with: what it hol
 })
 
 test('[31-2] what the server left for the page is asked when the page has come alive, and a failure of a read is its error', async () => {
-  const error = { code: 'T0005', name: 'too-many', message: 'Too many requests.' }
+  const error = { code: 'F0005', name: 'too-many', message: 'Too many requests.' }
   const far = engine((address) => (address.endsWith('getOrder') ? { ok: false, error } : { ok: true, value: 7 }))
   const left = [
     { what: 'askAdvice', input: {}, entry: 'advice', left: 'wait' as const },
@@ -107,9 +107,9 @@ test('[31-2] what the server left for the page is asked when the page has come a
 
 test('[31-2] a call from a page goes through the door, and after one that worked the page asks again every query it shows', async () => {
   const came = [{ what: 'openOrders', input: {}, entry: 'orders', value: rows }]
-  const error = { code: 'T0002', name: 'bad-input', message: 'The input does not fit.', fields: { total: 'min' } }
+  const error = { code: 'F0002', name: 'bad-input', message: 'The input does not fit.', fields: { total: 'min' } }
   const far = engine((address, body) =>
-    address === '/_t/call/addOrder'
+    address === '/_f/call/addOrder'
       ? Object(Object(body).input).total < 0
         ? { ok: false, error }
         : { ok: true, value: { id: 'n' } }
@@ -119,8 +119,8 @@ test('[31-2] a call from a page goes through the door, and after one that worked
   assert.deepEqual(await page.call('addOrder', { total: 5 }), { id: 'n' })
   await settled()
   assert.deepEqual(far.sent, [
-    { address: '/_t/call/addOrder', body: { input: { total: 5 }, version: 'v1' } },
-    { address: '/_t/read/openOrders', body: { input: {}, version: 'v1' } },
+    { address: '/_f/call/addOrder', body: { input: { total: 5 }, version: 'v1' } },
+    { address: '/_f/read/openOrders', body: { input: {}, version: 'v1' } },
   ])
   assert.deepEqual(page.ask('openOrders', {}, {})?.value, [])
   // A call that fails leaves the page as it was, and refuses its promise with the error as a caller sees it.
@@ -159,7 +159,7 @@ test('[31-2] an action that states refresh is asked again on its timer while its
   assert.deepEqual(far.sent, [])
   timers[0].work()
   await settled()
-  assert.deepEqual(far.sent, [{ address: '/_t/read/rates', body: { input: { base: 'USD' }, version: 'v1' } }])
+  assert.deepEqual(far.sent, [{ address: '/_f/read/rates', body: { input: { base: 'USD' }, version: 'v1' } }])
   assert.equal(page.ask('rates', { base: 'USD' }, { entry: 'rates', every: 600000 })?.value, 2)
 })
 
@@ -275,8 +275,8 @@ test('[12-5] a stored value means what the same text means as code: each sign, a
   assert.throws(() => worked({ screen: 'ordersScreen' }), /cannot carry out: screen/)
   assert.throws(() => worked({ op: 'in', left: 1, right: 2 }), /a sign that it cannot carry out: in/)
   // An asset is the address of its file, or nothing for a name that no asset has.
-  const asset = (found: string) => (found === 'logo.png' ? '/_t/b/assets/logo.abc.png' : undefined)
-  assert.equal(valueOf({ asset: 'logo.png' }, { names, asset }), '/_t/b/assets/logo.abc.png')
+  const asset = (found: string) => (found === 'logo.png' ? '/_f/b/assets/logo.abc.png' : undefined)
+  assert.equal(valueOf({ asset: 'logo.png' }, { names, asset }), '/_f/b/assets/logo.abc.png')
   assert.equal(valueOf({ asset: name('o', 'name') }, { names, asset }), undefined)
 })
 
@@ -358,12 +358,12 @@ test('[31-15@5] after a call that worked a living page asks its queries again, a
   await settled()
   assert.deepEqual(
     far.sent.map((one) => one.address),
-    ['/_t/call/addOrder', '/_t/read/openOrders', '/_t/read/getOrder'],
+    ['/_f/call/addOrder', '/_f/read/openOrders', '/_f/read/getOrder'],
   )
   // Asked for once more by its view, the action is called again.
   page.ask('rates', { base: 'USD' }, { entry: 'rates', kind: 'action' }, true)
   await settled()
-  assert.equal(far.sent.at(-1)?.address, '/_t/read/rates')
+  assert.equal(far.sent.at(-1)?.address, '/_f/read/rates')
 })
 
 test('[31-6] a move of a living page loads its address, and with replace puts it in the place of the page', () => {

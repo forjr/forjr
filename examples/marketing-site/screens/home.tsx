@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { anyone, asset, Image, Link, message, read, screen, useTranslations } from 'tentjs/ui'
+import { anyone, asset, Image, Link, message, read, screen, useTranslations } from 'forjr/ui'
 import { CountUp } from '../components/CountUp'
 import { SiteFrame } from '../components/SiteFrame'
 import { featureList } from '../functions/features'

@@ -1,4 +1,4 @@
-import { action, boolean, change, date, flow, input, json, mail, text, undo } from 'tentjs'
+import { action, boolean, change, date, flow, input, json, mail, text, undo } from 'forjr'
 import { notes, tags } from '../tables/tables'
 
 export const addNote = change('addNote', {

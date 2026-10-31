@@ -1,4 +1,4 @@
-import { allow, flow, text } from 'tentjs'
+import { allow, flow, text } from 'forjr'
 import { orders } from '../tables/orders'
 
 const told = (code: string) => `${orders.definition} failed with ${code}`

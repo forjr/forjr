@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isPath, isStored, readFields, typedOf, projectZone } from '../../core/internal.ts'
 import type { Address } from '../door/address.ts'
 import type { Opened } from '../opened.ts'
@@ -17,7 +17,7 @@ import { nameAfter } from '../web/decoded.ts'
 import { carriesEngineCookie } from '../cookies.ts'
 import { sameOrigin } from '../door/web.ts'
 
-const prefix = '/_t/form/'
+const prefix = '/_f/form/'
 
 /**
  * The `then` of a form that was sent with no script: the screen it was sent from is drawn as the caller, as it
@@ -59,21 +59,21 @@ async function thenOf(
 }
 
 /** A refusal of a hidden address that is no address of a screen of the app. */
-const noScreen = (at: string): TentError =>
-  new TentError(
-    'T0002',
+const noScreen = (at: string): ForjrError =>
+  new ForjrError(
+    'F0002',
     `The form names ${JSON.stringify(at).slice(0, 120)}, which is no address of a screen of the app.`,
     {
-      fields: { 't-at': 'type' },
+      fields: { 'f-at': 'type' },
       fix: 'A form names the address of the screen it stands on, a path of the app.',
     },
   )
 
 /**
- * `POST /_t/form/<name>`: a form that was sent with no script, in the plain form type. It passes all ten steps of
+ * `POST /_f/form/<name>`: a form that was sent with no script, in the plain form type. It passes all ten steps of
  * the door. A request that carries a cookie of the engine carries an `Origin`, which is the app's own. The hidden
- * `t-at` names the screen it was sent from. When the call worked, the answer is 303 to where the `then` of the
- * form goes, read from that screen as it is drawn before the call, or to `t-at`; when it failed, the screen at `t-at`
+ * `f-at` names the screen it was sent from. When the call worked, the answer is 303 to where the `then` of the
+ * form goes, read from that screen as it is drawn before the call, or to `f-at`; when it failed, the screen at `f-at`
  * with the status 422 and the failed form.
  */
 export const address: Address = {
@@ -100,16 +100,16 @@ export const address: Address = {
       // from no other.
       const origin = request.headers.get('origin')
       if ((carriesEngineCookie(request) || origin !== null) && !(origin !== null && sameOrigin(origin, about.origin)))
-        throw new TentError(
-          'T0004',
+        throw new ForjrError(
+          'F0004',
           "A form comes from another Origin than the app's own: a listed site may call the API, and post no form.",
           {
             fix: 'Send the form from a page of the app.',
           },
         )
       body = new URLSearchParams(new TextDecoder().decode(await bodyOf(request, limitOf(app.description, 'callSize'))))
-      at = body.get('t-at') ?? ''
-      // The path of `t-at` is held to the rule of a path; after its question mark stand the states of its address.
+      at = body.get('f-at') ?? ''
+      // The path of `f-at` is held to the rule of a path; after its question mark stand the states of its address.
       const atPath = at.split('?')[0]
       const control = [...at].some((one) => one.charCodeAt(0) < 32 || one.charCodeAt(0) === 127)
       const held = isPath(atPath) && !atPath.startsWith('//') && !control
@@ -119,16 +119,16 @@ export const address: Address = {
       refusedCall(app, name, caller, began, error)
       return errorAnswer(app, name, error)
     }
-    // A form of a version that is gone is read and run by the running one, and goes back to `t-at`: the `then` of
+    // A form of a version that is gone is read and run by the running one, and goes back to `f-at`: the `then` of
     // the running version may be another than the one of the page it was sent from.
-    const named = body.get('t-version') || undefined
+    const named = body.get('f-version') || undefined
     const kept = namedFor(app, caller, named)
     const served = kept ?? app
     const made: unknown = served.description.functions[name]
     const input = isStored(made) && isStored(made.input) ? made.input : {}
     const zone = zoneOf(cookies) ?? projectZone(served.description.project)
     // A form that names none is the first over its function that has no id.
-    const id = body.get('t-form') || name
+    const id = body.get('f-form') || name
     try {
       const follow =
         kept === undefined

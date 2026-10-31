@@ -1,5 +1,5 @@
 import { MailCheck } from 'lucide-react'
-import { anyone, Form, screen, text } from 'tentjs/ui'
+import { anyone, Form, screen, text } from 'forjr/ui'
 import { LoneFrame } from '../components/frames'
 import { sendCode, signInWithCode } from '../functions/signIn'
 

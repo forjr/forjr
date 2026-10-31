@@ -1,7 +1,7 @@
 import { callerText } from '../../data/index.ts'
 import type { AiEnv, Provider } from '../../ai/index.ts'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { slot } from '../slot.ts'
 import { servedFor } from '../flows/inside.ts'
 import type { Opened } from '../opened.ts'
@@ -32,8 +32,8 @@ import { sourceReaderOf } from './reader.ts'
 import { ruled } from '../door/rule.ts'
 
 /** The error of a file that is not there, or that is not this caller's to download: the two are told alike. */
-const noFile = (id: string): TentError =>
-  new TentError('T2104', `No file ${JSON.stringify(id).slice(0, 60)} can be read by the caller of this call.`, {
+const noFile = (id: string): ForjrError =>
+  new ForjrError('F2104', `No file ${JSON.stringify(id).slice(0, 60)} can be read by the caller of this call.`, {
     fix: 'Hand the model a file that the caller may download.',
   })
 
@@ -52,7 +52,7 @@ const privateOf = (description: Opened['description']): string[] => {
 }
 
 // The calls that the engine carries out itself for `ai`, in the call context of the step they are made in.
-const engineOwn = ['_t_memoryRead', '_t_memoryAdd', '_t_agreed', '_t_guard', '_t_recall', '_t_facts']
+const engineOwn = ['_f_memoryRead', '_f_memoryAdd', '_f_agreed', '_f_guard', '_f_recall', '_f_facts']
 
 // What the engine hands `ai` for each app, under its handles, which every version of it shares.
 const envs = new WeakMap<object, AiEnv>()
@@ -100,12 +100,12 @@ export function aiEnvOf(o: Opened, providers: Record<string, Provider> = {}): Ai
       // The memory, the yes of a source and a guard of the engine's own are the engine's own, which no address reaches.
       if (!engineOwn.includes(name)) return slot.call(name, args)
       const cx = underWay()
-      if (!cx) throw new TentError('T0013', `${name} was called with no call under way.`)
-      if (name === '_t_agreed') return askedOf(cx, String(Reflect.get(Object(args[0]), 'name')))
-      if (name === '_t_guard') return ownGuard(cx, args[0])
-      if (name === '_t_recall') return recalled(cx, args[0])
-      if (name === '_t_facts') return factsRead(cx, args[0])
-      return name === '_t_memoryRead' ? memoryRead(cx, args[0]) : memoryAdd(cx, args[0])
+      if (!cx) throw new ForjrError('F0013', `${name} was called with no call under way.`)
+      if (name === '_f_agreed') return askedOf(cx, String(Reflect.get(Object(args[0]), 'name')))
+      if (name === '_f_guard') return ownGuard(cx, args[0])
+      if (name === '_f_recall') return recalled(cx, args[0])
+      if (name === '_f_facts') return factsRead(cx, args[0])
+      return name === '_f_memoryRead' ? memoryRead(cx, args[0]) : memoryAdd(cx, args[0])
     },
     tell: (run, part) => toldPart(o, run, Object(part)),
     files: {
@@ -124,7 +124,7 @@ export function aiEnvOf(o: Opened, providers: Record<string, Provider> = {}): Ai
     standIn(model) {
       const stand = standInOf(o, model)
       const own = stand && Object.hasOwn(o.description.models, model) ? stand : undefined
-      // Under `tent test`, each model a test called, and one that no test faked, whose answer is no test's own.
+      // Under `forjr test`, each model a test called, and one that no test faked, whose answer is no test's own.
       noteTouched('models', model)
       if (!own) noteOutside(`model ${model}`)
       return own

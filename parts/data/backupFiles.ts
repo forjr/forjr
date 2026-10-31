@@ -1,6 +1,6 @@
 import { mkdirSync } from 'node:fs'
 import { dirname, join, relative } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { BackedUp } from './backupFolder.ts'
 import { listOf, newBackup, writeList } from './backupFolder.ts'
 import type { Files } from './files.ts'
@@ -16,7 +16,7 @@ import { placeOf } from './place.ts'
  * of the backup before holds is not copied: the list names the backup that holds it. With `whole`, and for a file
  * that holds no number of its last write, every file is copied. The list, `files.json`, is written last, so a
  * folder that holds none is no whole backup. Answers a promise of the highest number that a file of the backup
- * holds. Throws T0009 where `before` names no backup, and T0013 for files whose shared store keeps no file.
+ * holds. Throws F0009 where `before` names no backup, and F0013 for files whose shared store keeps no file.
  */
 export async function backupFiles(
   files: Files,
@@ -26,7 +26,7 @@ export async function backupFiles(
   const inside = insideOf(files)
   const place = placeOf(inside.shared)
   if (!place)
-    throw new TentError('T0013', 'A backup is made of files that stand on the disk, and this store keeps none.', {
+    throw new ForjrError('F0013', 'A backup is made of files that stand on the disk, and this store keeps none.', {
       fix: 'Back the data of a store of your own up with the tools of that store.',
     })
   const earlier = new Map<string, BackedUp>()

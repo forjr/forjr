@@ -1,6 +1,6 @@
 import type { Caller, Finding } from '../core/index.ts'
 import type { CallDone } from './called.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description, Facts } from '../core/internal.ts'
 import { list } from './app/list.ts'
 import type { Link } from './copy/link.ts'
@@ -25,15 +25,15 @@ export interface App {
   readonly description: Description
   /**
    * Calls a function through steps 5 to 10 of the door, with no web request, as the caller that `as` names, and as
-   * nobody where it names none. The promise is refused with the `TentError` of a failure, and with T0009 for an
+   * nobody where it names none. The promise is refused with the `ForjrError` of a failure, and with F0009 for an
    * error of the code of the app, which is its `cause`. `version` names a loadable version that is not the running
-   * one, which answers in its place: T0007 for one that cannot be loaded.
+   * one, which answers in its place: F0007 for one that cannot be loaded.
    */
   call(name: string | Named, input: unknown, o: { as: Caller; version?: string }): Promise<unknown>
   /**
    * Sets, removes or lists the names of the secrets and the settings of this app's mode, as the admin command does:
    * a list answers the names that are set, and of the secrets those that a definition names and that have no value.
-   * Never a value. Throws T0002 for a word that does not fit.
+   * Never a value. Throws F0002 for a word that does not fit.
    */
   values(o: {
     kind: 'secret' | 'setting'
@@ -51,8 +51,8 @@ export interface App {
    * written. `errors` answers the errors alone, `since`, a length of time, only what was written within it, and
    * `newest` at most that many of each. `trace` answers the tree of that trace as `{ trace, spans }`, `slow` the
    * slowest traces of the time beside its slow queries as `{ traces, slow }`, `callers` how many callers called each
-   * function within `since`, as `{ callers }`, and `vitals` the speed visitors saw as `{ vitals }`. Throws T0002 for a `since` that does not read as a length of time, and for a `trace` that is no
-   * id of one, and T0001 for a trace that was not kept.
+   * function within `since`, as `{ callers }`, and `vitals` the speed visitors saw as `{ vitals }`. Throws F0002 for a `since` that does not read as a length of time, and for a `trace` that is no
+   * id of one, and F0001 for a trace that was not kept.
    */
   logs(o?: {
     errors?: boolean
@@ -70,9 +70,9 @@ export interface App {
    */
   request(request: Request, o?: { from?: string }): Promise<Response>
   /**
-   * Opens the live connection, `/_t/live`, with no network. Answers the end that a page holds: `send` hands the
+   * Opens the live connection, `/_f/live`, with no network. Answers the end that a page holds: `send` hands the
    * engine a message, and `each` names what is handed every message and what is told once the connection is
-   * closed. Throws what the opening was refused with: T0004, T0005 and T0017.
+   * closed. Throws what the opening was refused with: F0004, F0005 and F0017.
    */
   live(request: Request): LiveEnd
   /**
@@ -92,10 +92,10 @@ export interface App {
   page(path: string, o?: { as?: As }): Promise<{ status: number; headers: Record<string, string>; html: string }>
   /**
    * In the modes `development` and `test`: makes a session for a user as `sessions.start` does, with no request and
-   * no address of the app, and answers its cookie, `tent_session.<the app's name>=<the token>`, with which a browser
+   * no address of the app, and answers its cookie, `forjr_session.<the app's name>=<the token>`, with which a browser
    * of this computer is that user. The user is named by the id of its row, or as a caller. On a reader its writer
-   * writes the session, and a request that carries the cookie there waits until the reader holds it. Throws T0013 in
-   * the mode `live`, and T2103 where it names no user of the app.
+   * writes the session, and a request that carries the cookie there waits until the reader holds it. Throws F0013 in
+   * the mode `live`, and F2103 where it names no user of the app.
    */
   session(user: string | Caller): string
   /**
@@ -107,7 +107,7 @@ export interface App {
   /**
    * In the mode `test` alone: carries a piece of work out, as a call of a test, and answers what it answered or
    * threw with each table it read with its rows, each row it wrote as it was before and after, and its trace, at
-   * most 50 rows of a table. Throws T0013 in any other mode.
+   * most 50 rows of a table. Throws F0013 in any other mode.
    */
   called<Answer>(work: () => Promise<Answer>): Promise<CallDone<Answer>>
   /** Applies the seed of the running version, as the system. */
@@ -143,7 +143,7 @@ export interface App {
   restore(file: string): Promise<void>
   /**
    * Answers what the check needs of the running app: what the table change from its data to a description would
-   * be refused for, T2001 to T2004. The description is the one of the running version where none is handed in. Of an
+   * be refused for, F2001 to F2004. The description is the one of the running version where none is handed in. Of an
    * app that keeps a data file for each tenant it answers a promise. With `back` the description is that of older
    * files, and it answers what a switch with `back` to them would be refused for.
    */
@@ -151,7 +151,7 @@ export interface App {
   /** What this app is among the machines that hold its data: the one that writes, or one that follows it. */
   readonly role: 'writer' | 'reader'
   /**
-   * Opens the link of a reader, `/_t/copy`, with no network. Answers the end that the reader holds: a frame is a
+   * Opens the link of a reader, `/_f/copy`, with no network. Answers the end that the reader holds: a frame is a
    * text or bytes, and `each` names what is handed every frame and what is told once the link is closed. Throws
    * what the opening was refused with.
    */
@@ -179,27 +179,27 @@ export interface App {
     limits: object | 'none'
   }[]
   /**
-   * On a reader: it becomes the writer. Answers the epoch and the number of its last write. Refused with T0030 on
-   * the writer, T0029 on a reader that does not hold the whole data, and T0032 on a reader that is current.
+   * On a reader: it becomes the writer. Answers the epoch and the number of its last write. Refused with F0030 on
+   * the writer, F0029 on a reader that does not hold the whole data, and F0032 on a reader that is current.
    */
   takeOver(): Promise<{ epoch: string; n: number }>
   /**
    * Makes one more version loadable, from the folder of its bundle, and answers its id. The promise is refused
-   * with T0011 for a bundle whose description does not pass, or whose code cannot be loaded.
+   * with F0011 for a bundle whose description does not pass, or whose code cannot be loaded.
    */
   add(bundleFolder: string): Promise<string>
   /**
    * Makes a loadable version the running one: its table changes are applied inside one write, and a call that
    * names no version is served by it from then on. Answers whether the switch was hard, whether it opened the app
-   * again, and the table steps it applied. The promise is refused with T0007 for a version that cannot be loaded,
-   * and with the finding of a table change that is refused, T2001 to T2004, with nothing changed. With `dry`
+   * again, and the table steps it applied. The promise is refused with F0007 for a version that cannot be loaded,
+   * and with the finding of a table change that is refused, F2001 to F2004, with nothing changed. With `dry`
    * everything is checked and nothing is changed. On an app that keeps a data file for each tenant it answers
    * `behind`, the count of files that are not brought up yet, and `refused: 'behind'` where it was not taken for
    * that. With `move` the rows of a table that gains or loses `tenant` are moved from one way to the other. With
    * `back`, a table and a column that the data holds and the version does not know is retired without a statement.
    * With `gradual` the version is given to a share of the callers first, widened step by step or taken back by its
    * watch, and `release` says how it stands; `'widen'` and `'back'` move a release that goes, by hand. With `backup`
-   * a backup of the data is taken before the switch also where it changes no table, as before every publish. T9108
+   * a backup of the data is taken before the switch also where it changes no table, as before every publish. F9108
    * for a version whose table change is hard. In the mode `development`: `swap` names the files of the bundle that a
    * save of the look alone changed, each by its path, which every open page is told to take in place by Fast Refresh,
    * each with its mark, and the watches of the pages are moved to the new version; with `reload` every open page
@@ -227,13 +227,13 @@ export interface App {
   drop(version: string): Promise<boolean>
   /**
    * In the mode `development`: what open pages show as an overlay, the findings of the build and of the check.
-   * An empty list takes the overlay away. Throws T0013 in any other mode.
+   * An empty list takes the overlay away. Throws F0013 in any other mode.
    */
   show(findings: Finding[]): void
   /**
    * A token that puts a page into the inspect mode for a tool whose pages come from the origin `framedBy`, or for
    * one of that origin that opens the page in a window of its own, `{ opener: <origin> }`. It lives in the memory of
-   * the engine for `for`, one hour where it is left out. Throws T0002 for a `framedBy` that is no origin and a `for`
+   * the engine for `for`, one hour where it is left out. Throws F0002 for a `framedBy` that is no origin and a `for`
    * that is no length.
    */
   inspect(o: { framedBy: string | { opener: string }; for?: string }): string
@@ -243,7 +243,7 @@ export interface App {
   ready(): Promise<void>
   /**
    * Starts a run of a flow as the caller that `as` names, and does not wait. Answers the id of the run, or
-   * `{ dropped: true }` for a start that the pace of the flow dropped. The promise is refused with T0001 for a name that is no flow, and with T0002 for an input that does not fit.
+   * `{ dropped: true }` for a start that the pace of the flow dropped. The promise is refused with F0001 for a name that is no flow, and with F0002 for an input that does not fit.
    * Of an agent, `limits` make its limits smaller for that run, and `sources` name sources of tools that were
    * offered to the engine, each with what it is handed.
    */
@@ -258,7 +258,7 @@ export interface App {
   ): Promise<{ run: string } | { dropped: true }>
   /**
    * The runs of the app: `read` and `find` answer runs with their steps, `wait` a promise of the answer of a run,
-   * which is refused with the error of a run that failed and with T5106 for one that was stopped, and `approve`,
+   * which is refused with the error of a run that failed and with F5106 for one that was stopped, and `approve`,
    * `refuse` and `stop` answer a step that waits for a person and stop a run. `stopAll` and `replayAll` act on
    * every run that a filter fits, `pause` and `resume` hold a flow and let it go, and `paused` names the flows held.
    */
@@ -331,7 +331,7 @@ export async function appOf(o: Opened, again?: App): Promise<App> {
         value: (...args: unknown[]): unknown => {
           const call = (): unknown => {
             const member = now.members.get(name)
-            if (typeof member !== 'function') throw new TentError('T0009', `The app has no member ${name}.`)
+            if (typeof member !== 'function') throw new ForjrError('F0009', `The app has no member ${name}.`)
             return Reflect.apply(member, app, args)
           }
           // A call that arrives while the app is opened again waits for the new opening, within `web.openTime`.
@@ -341,6 +341,6 @@ export async function appOf(o: Opened, again?: App): Promise<App> {
         enumerable: true,
       })
   behind.set(app, now)
-  if (!isApp(app)) throw new TentError('T0009', 'The engine could not make every member of an app.')
+  if (!isApp(app)) throw new ForjrError('F0009', 'The engine could not make every member of an app.')
   return app
 }

@@ -1,4 +1,4 @@
-import { component, text } from 'tentjs/ui'
+import { component, text } from 'forjr/ui'
 
 export const Card = component('Card', {
   props: { title: text({ default: 'Untitled' }) },

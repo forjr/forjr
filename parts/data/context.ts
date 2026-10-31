@@ -1,5 +1,5 @@
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import type { RuleCode } from './rules.ts'
 import type { FileName } from './fileName.ts'
@@ -105,11 +105,11 @@ export interface DbContext {
   leaving?: (model: TableModel) => string[]
 }
 
-/** Answers the time, and throws T0008 where the `db` is used past its time. */
+/** Answers the time, and throws F0008 where the `db` is used past its time. */
 export function begin(cx: DbContext): number {
   const at = cx.now()
   if (cx.deadline !== undefined && at > cx.deadline)
-    throw new TentError('T0008', 'A time limit of the engine was passed: this db is used past its time.', {
+    throw new ForjrError('F0008', 'A time limit of the engine was passed: this db is used past its time.', {
       fix: 'Read less in one call, mark a slow query `heavy`, or raise the limit in `project.limits`.',
     })
   return at
@@ -119,7 +119,7 @@ export function begin(cx: DbContext): number {
 export const boundOf = (table: string, column: string, id: unknown): string => `${table}.${column}.${String(id)}`
 
 /** The error of a sealed column that is read or written with no key at hand. */
-export const noKey = (table: string, column: string): TentError =>
-  new TentError('T0019', `\`${column}\` of \`${table}\` is sealed, and no key is at hand to open or to seal it.`, {
-    fix: 'Give the engine the key of the secrets: `tent secrets key` makes one.',
+export const noKey = (table: string, column: string): ForjrError =>
+  new ForjrError('F0019', `\`${column}\` of \`${table}\` is sealed, and no key is at hand to open or to seal it.`, {
+    fix: 'Give the engine the key of the secrets: `forjr secrets key` makes one.',
   })

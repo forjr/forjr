@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { bounded } from '../bounded.ts'
 import type { Address } from '../door/address.ts'
 import { logCall } from '../door/failure.ts'
@@ -41,11 +41,11 @@ function headersOf(request: Request, signature: string | undefined): Record<stri
   return headers
 }
 
-/** Counts one call coming in for its address: `limits.incomingPerMinute`. Throws T0005 for one more. */
+/** Counts one call coming in for its address: `limits.incomingPerMinute`. Throws F0005 for one more. */
 function countedIn(o: Opened, from: string): void {
   const limit = storedLimit(o.description, 'incomingPerMinute')
   if (!countedFor(o, `incoming:${countedAs(from)}`, limit))
-    throw new TentError('T0005', `More than ${limit} calls coming in reached the app in a minute from ${from}.`, {
+    throw new ForjrError('F0005', `More than ${limit} calls coming in reached the app in a minute from ${from}.`, {
       fix: 'Send fewer calls, or raise `limits.incomingPerMinute` in the project.',
     })
 }
@@ -65,7 +65,7 @@ export const address: Address = {
   steps: [1, 2, 10],
   own: (o, matched) => (isFound(matched) ? { size: incomingSize(o, matched.record), sites: [] } : undefined),
   async handle({ app: o, request, matched, about, began }) {
-    if (!isFound(matched)) return errorAnswer(o, 'incoming', new TentError('T0001', 'No call coming in is here.'))
+    if (!isFound(matched)) return errorAnswer(o, 'incoming', new ForjrError('F0001', 'No call coming in is here.'))
     const { name, record, params } = matched
     noteTouched('incoming', name)
     countAnswering(name, nobody)

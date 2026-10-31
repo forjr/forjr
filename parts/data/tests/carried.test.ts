@@ -187,7 +187,7 @@ test('[20-6] connected tells through noted where a sink was found to differ at s
     store.write((tx) => tx.add('notes', { body }, system))
     await settled()
   }
-  const stands = store.read({ from: '_t_meta', one: 'get', id: 'n' }, system).value
+  const stands = store.read({ from: '_f_meta', one: 'get', id: 'n' }, system).value
   assert.deepEqual(noted[1], { sink: 'closed', n: Object(stands).value })
   assert.ok(Object(stands).value > 2, 'more than one write waited before the sink was closed')
 })
@@ -243,7 +243,7 @@ test('[50-12] the count of the app has its one home: connected over the files ta
   assert.equal(typeof files.number, 'function')
   const s = seedDesk(files, desk)
   const numberOf = (store: Store | undefined): unknown =>
-    Object(store?.read({ from: '_t_meta', one: 'get', id: 'n' }, system).value).value
+    Object(store?.read({ from: '_f_meta', one: 'get', id: 'n' }, system).value).value
   // The first write of the app took the number above it.
   assert.equal(numberOf(files.shared), 41)
   writingFiles(files, desk)((db) => at(db, 'orders').of(s.north).add({ total: 1 }))

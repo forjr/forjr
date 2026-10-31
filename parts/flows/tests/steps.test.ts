@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { fail, TentError } from '../../core/index.ts'
+import { fail, ForjrError } from '../../core/index.ts'
 import type { Made } from './bench.ts'
 import { bench, codeOf, handClock, openStore, version, workFolder } from './bench.ts'
 
@@ -89,7 +89,7 @@ test('[23-7] a machine that was off for a week wakes each run once, and a schedu
   assert.deepEqual(second.clock.timers(), [Date.UTC(2026, 0, 8, 9)])
 })
 
-test('[23-21] [16-2@7b] a caller that waits for a run that is stopped gets T5106', async (t) => {
+test('[23-21] [16-2@7b] a caller that waits for a run that is stopped gets F5106', async (t) => {
   const b = bench(t, {
     long: async ({ step }) => {
       await step.wait('1 day')
@@ -100,27 +100,27 @@ test('[23-21] [16-2@7b] a caller that waits for a run that is stopped gets T5106
   await b.until(run, 'waiting')
   const waiting = b.runner.wait(run)
   b.runner.stop(run)
-  assert.equal(await codeOf(waiting), 'T5106')
+  assert.equal(await codeOf(waiting), 'F5106')
   assert.equal(b.runner.read(run)?.state, 'stopped')
-  assert.equal(await codeOf(b.runner.wait(run)), 'T5106', 'and so does a caller that asks after the stop')
+  assert.equal(await codeOf(b.runner.wait(run)), 'F5106', 'and so does a caller that asks after the stop')
   // A stopped run is taken up no more.
   b.clock.advance(2 * day)
   await b.settle()
   assert.equal(b.runner.read(run)?.state, 'stopped')
 })
 
-test('[23-25] a step that fails with T0002, with T3101 or with the own `fail` of the app is not tried again', async (t) => {
+test('[23-25] a step that fails with F0002, with F3101 or with the own `fail` of the app is not tried again', async (t) => {
   const calls = { input: 0, access: 0, own: 0 }
   const b = bench(t, {
     input: async ({ step }) =>
       step('check', () => {
         calls.input += 1
-        throw new TentError('T0002', 'What was sent does not fit.')
+        throw new ForjrError('F0002', 'What was sent does not fit.')
       }),
     access: async ({ step }) =>
       step('check', () => {
         calls.access += 1
-        throw new TentError('T3101', 'You may not do this.')
+        throw new ForjrError('F3101', 'You may not do this.')
       }),
     own: async ({ step }) =>
       step('check', () => {
@@ -129,8 +129,8 @@ test('[23-25] a step that fails with T0002, with T3101 or with the own `fail` of
       }),
   })
   for (const [flow, code] of [
-    ['input', 'T0002'],
-    ['access', 'T3101'],
+    ['input', 'F0002'],
+    ['access', 'F3101'],
     ['own', 'not-draft'],
   ] as const) {
     const run = b.start(flow)
@@ -179,7 +179,7 @@ test('[23-25] a step is tried four times, each wait six times the one before, an
     await b.until(four, tries === 4 ? 'failed' : 'waiting')
     assert.equal(tried.four, tries)
   }
-  assert.equal(await codeOf(b.runner.wait(four)), 'T0009', 'an error in app code is what no caller is shown')
+  assert.equal(await codeOf(b.runner.wait(four)), 'F0009', 'an error in app code is what no caller is shown')
   assert.equal(tried.passes, 4)
 
   const five = b.start('five')

@@ -14,7 +14,7 @@ function fromAt(folder: string, from: string): void {
   writeFileSync(file, readFileSync(file, 'utf8').replace("'./stripe.openapi.json'", JSON.stringify(from)))
 }
 
-test('[05-11.22] a `from` file that is a link to a file outside the project is T1014', async (t) => {
+test('[05-11.22] a `from` file that is a link to a file outside the project is F1014', async (t) => {
   const folder = copyOf('apied', 'attacks-from-link')
   const outside = join(folder, '..', 'outside')
   mkdirSync(outside, { recursive: true })
@@ -25,12 +25,12 @@ test('[05-11.22] a `from` file that is a link to a file outside the project is T
   fromAt(folder, './linked/stripe.openapi.json')
   const linked = await buildProject(folder, { for: 'dev' })
   assert.ok(
-    linked.findings.some((one) => one.code === 'T1014' && one.level === 'error'),
+    linked.findings.some((one) => one.code === 'F1014' && one.level === 'error'),
     JSON.stringify(linked.findings),
   )
   fromAt(folder, '../../outside/stripe.openapi.json')
   const climbed = await buildProject(folder, { for: 'dev' })
-  assert.ok(climbed.findings.some((one) => one.code === 'T1014' && one.level === 'error'))
+  assert.ok(climbed.findings.some((one) => one.code === 'F1014' && one.level === 'error'))
 })
 
 test('[05-11.31] a `from` file with a reference to another file or to an address, and one whose shapes hold each other a thousand deep, is not followed, and taken as `json`', () => {
@@ -58,8 +58,8 @@ test('[05-11.31] a `from` file with a reference to another file or to an address
   // A shape that holds itself becomes `json` where it comes round again, at whatever depth.
   assert.ok(JSON.stringify(outputOf('getDeep')).length < 200_000)
   assert.match(JSON.stringify(outputOf('getDeep')), /"kind":"json"/)
-  assert.ok(findings.some((one) => one.code === 'T7013' && one.level === 'warning' && /other\.json/.test(one.message)))
+  assert.ok(findings.some((one) => one.code === 'F7013' && one.level === 'warning' && /other\.json/.test(one.message)))
   assert.ok(
-    findings.some((one) => one.code === 'T7013' && one.level === 'warning' && /evil\.example/.test(one.message)),
+    findings.some((one) => one.code === 'F7013' && one.level === 'warning' && /evil\.example/.test(one.message)),
   )
 })

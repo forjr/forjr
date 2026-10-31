@@ -3,7 +3,7 @@ import { basename, dirname } from 'node:path'
 import type { StatementSync } from 'node:sqlite'
 import { resolve, toNamespacedPath } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { keptIn } from './kept.ts'
 
 /** One SQLite file of a part that keeps tables of its own: statements with their values apart, and a write that is all or nothing. */
@@ -64,7 +64,7 @@ export function openSqlite(path: string): DatabaseSync {
  * on it: `run` carries a statement out, `all` answers its rows, each as a record by the names of its columns with
  * bytes as bytes, `write` carries a function out as one write that is kept whole or not at all, and answers what
  * the function answers, and `close` closes the file. A write inside a write is part of the outer one. Throws
- * T0009 with the words of SQLite where a statement fails.
+ * F0009 with the words of SQLite where a statement fails.
  */
 export function sqliteFile(path: string): SqliteFile {
   mkdirSync(dirname(path), { recursive: true })
@@ -75,9 +75,9 @@ export function sqliteFile(path: string): SqliteFile {
     try {
       return work()
     } catch (error) {
-      if (error instanceof TentError) throw error
+      if (error instanceof ForjrError) throw error
       const words = error instanceof Error ? error.message : String(error)
-      const thrown = new TentError('T0009', `The file ${basename(path)} failed: ${words}`)
+      const thrown = new ForjrError('F0009', `The file ${basename(path)} failed: ${words}`)
       thrown.cause = error
       throw thrown
     }

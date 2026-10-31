@@ -1,4 +1,4 @@
-import { action, anyone, attempts, fail, link, object, passwords, query, sessions, text } from 'tentjs'
+import { action, anyone, attempts, fail, link, object, passwords, query, sessions, text } from 'forjr'
 
 export const signIn = action('signIn', {
   about: 'Signs the person in by their email and password',

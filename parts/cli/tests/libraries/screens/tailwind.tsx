@@ -1,5 +1,5 @@
 import './tailwind.css'
-import { read, screen } from 'tentjs/ui'
+import { read, screen } from 'forjr/ui'
 import { allSales } from '../functions'
 
 // Tailwind CSS by its own plugin for Vite, with daisyUI, a library of components written in its classes.

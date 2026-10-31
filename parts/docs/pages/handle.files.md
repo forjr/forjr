@@ -1,11 +1,11 @@
 # `files`
 
-The stored files of an app, in backend code: `files.put` makes a file, and `files.get`, `files.stream` and `files.info` read one. A browser uploads at `POST /_t/files?name=<name>` and downloads at `GET /_t/files/<id>`, and a row holds a file by storing its id in a `file` column. `files.signedUrl` makes a signed address that downloads a file with no sign-in, for a time.
+The stored files of an app, in backend code: `files.put` makes a file, and `files.get`, `files.stream` and `files.info` read one. A browser uploads at `POST /_f/files?name=<name>` and downloads at `GET /_f/files/<id>`, and a row holds a file by storing its id in a `file` column. `files.signedUrl` makes a signed address that downloads a file with no sign-in, for a time.
 
 ## Example
 
 ```ts
-import { action, file, files, text } from 'tentjs'
+import { action, file, files, text } from 'forjr'
 
 export const report = action('report', {
   access: 'signedIn',
@@ -33,7 +33,7 @@ export const firstLine = action('firstLine', {
 | `files.text(id)` | The words of the file. Plain text, Markdown, CSV, JSON and any other `text/*` are taken as they are; of HTML the words only; of a Word document a line for each paragraph; of a PDF its pages in order, each ended by a page mark. A reader that `engine.ts` connects is asked before these, for the kinds it lists. What was read is kept, so a second reading costs nothing |
 | `files.remove(id)` | Removes a loose file of the caller, with its bytes where no other file has the same ones |
 | `files.setKind(id, kind)` | States the kind of a file, for a form that the reading of the engine misses. It is full access: the function states `system` |
-| `files.signedUrl(id, { for })` | Answers a signed address for a time, `/_t/files/<id>?l=<text>`, that downloads the file with no sign-in until `for` has passed, as `'1 hour'`. The text is sealed under the key of the app, so only the engine reads it: it names the file, the end and the caller who made it. It is made only by a caller who may download the file at that moment, and it dies when the file is removed. It answers at once |
+| `files.signedUrl(id, { for })` | Answers a signed address for a time, `/_f/files/<id>?l=<text>`, that downloads the file with no sign-in until `for` has passed, as `'1 hour'`. The text is sealed under the key of the app, so only the engine reads it: it names the file, the end and the caller who made it. It is made only by a caller who may download the file at that moment, and it dies when the file is removed. It answers at once |
 
 **Whose file it is.** A file that no row holds is loose, and belongs to who made it: a user, or a visitor by the visitor id of their browser. A loose file is removed an hour after it became loose (`limits.looseKept`). A change that stores its id in a `file` column, or in a `file` inside a `list` or an `object` column, makes that row hold it, and from then on the file is there for as long as a row holds it.
 
@@ -43,7 +43,7 @@ export const firstLine = action('firstLine', {
 
 **The kind** is taken from the bytes for the kinds the engine knows: PNG, JPEG, GIF, WebP, AVIF, SVG, HTML, PDF, the packed formats of Word and its like, MP3, MP4, WebM, Ogg and WAV. What a sender says of such a file is not believed.
 
-**An upload that resumes.** A large file is sent in parts. `POST /_t/files?name=<name>`, with `Upload-Length` stating the whole length and no body, begins an upload and answers `{ upload, offset }`; it is held to the `uploads` rule, the counts and the sizes as a whole upload is. Each part is sent to `POST /_t/files?upload=<id>` with `Upload-Offset`, the count of the bytes that arrived, and answers where the upload stands, or the file once its last byte is in. A request with no `Upload-Offset` asks where it stands, so a page whose connection was cut goes on from there. What arrived is kept for `limits.uploadResume` (1 hour) after the last part, under an id that only the caller who began it can name: another caller is told it is not there. The page code sends large files so.
+**An upload that resumes.** A large file is sent in parts. `POST /_f/files?name=<name>`, with `Upload-Length` stating the whole length and no body, begins an upload and answers `{ upload, offset }`; it is held to the `uploads` rule, the counts and the sizes as a whole upload is. Each part is sent to `POST /_f/files?upload=<id>` with `Upload-Offset`, the count of the bytes that arrived, and answers where the upload stands, or the file once its last byte is in. A request with no `Upload-Offset` asks where it stands, so a page whose connection was cut goes on from there. What arrived is kept for `limits.uploadResume` (1 hour) after the last part, under an id that only the caller who began it can name: another caller is told it is not there. The page code sends large files so.
 
 **An upload straight to a store.** With `direct` in the address of the beginning, and a store that takes such uploads (`option.project.files`), the answer is `{ upload, address, until }`, and the bytes are sent with `PUT` to `address`, with the size and the kind that were stated. The same request with no `Upload-Offset` then takes the file in: its bytes are read for their kind, as those of any upload are, and a file whose bytes are not the size or the kind that was stated is not taken.
 
@@ -51,19 +51,19 @@ export const firstLine = action('firstLine', {
 
 ## Errors
 
-`code.T0001` when `get`, `stream`, `text`, `remove` or `signedUrl` names a file that is not there, or that is not the caller's to have: the two are told alike. `remove` says so too of a file that a row holds. An upload id that names no upload of the caller is T0001 too.
+`code.F0001` when `get`, `stream`, `text`, `remove` or `signedUrl` names a file that is not there, or that is not the caller's to have: the two are told alike. `remove` says so too of a file that a row holds. An upload id that names no upload of the caller is F0001 too.
 
-`code.T0002` when `for` of `signedUrl` is no length of time, when a part of an upload does not go on from where it stands or was cut off, and when an upload straight to a store is asked to be taken in before the store holds its bytes, or holds others than were stated.
+`code.F0002` when `for` of `signedUrl` is no length of time, when a part of an upload does not go on from where it stands or was cut off, and when an upload straight to a store is asked to be taken in before the store holds its bytes, or holds others than were stated.
 
-`code.T0019` when `signedUrl` is used where the app holds no key.
+`code.F0019` when `signedUrl` is used where the app holds no key.
 
-`code.T2104` when a `file` value of an input, or a file id that a change stores, names a file that is not there or that the caller may not download, and `code.T2107` when a change stores a file that the type of its column does not take.
+`code.F2104` when a `file` value of an input, or a file id that a change stores, names a file that is not there or that the caller may not download, and `code.F2107` when a change stores a file that the type of its column does not take.
 
-`code.T0002` when a `file` value of an input does not fit the `kinds` or the `maxSize` of its field, and when `setKind` is handed what is no kind.
+`code.F0002` when a `file` value of an input does not fit the `kinds` or the `maxSize` of its field, and when `setKind` is handed what is no kind.
 
-`code.T0015` when `text` is asked for a kind of file that no reader knows. `code.T0008` when a reading passes `limits.readTime`, `code.T0003` when a packed file opens to more than `limits.readSize`, and `code.T0016` when the part that reads a PDF cannot be fetched.
+`code.F0015` when `text` is asked for a kind of file that no reader knows. `code.F0008` when a reading passes `limits.readTime`, `code.F0003` when a packed file opens to more than `limits.readSize`, and `code.F0016` when the part that reads a PDF cannot be fetched.
 
-`code.T0013` when a member that answers a promise is used in a query or a change, when a member is used with no call under way, and when `setKind` is used in a function that states no `system`.
+`code.F0013` when a member that answers a promise is used in a query or a change, when a member is used with no call under way, and when `setKind` is used in a function that states no `system`.
 
 ## See also
 

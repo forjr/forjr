@@ -1,4 +1,4 @@
-import { fail, number, query, table, text } from 'tentjs'
+import { fail, number, query, table, text } from 'forjr'
 
 export const notes = table('notes', {
   columns: { name: text({ unique: true }) },

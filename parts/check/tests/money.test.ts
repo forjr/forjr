@@ -7,10 +7,10 @@ import { copyOf, lineWith } from './copies.ts'
 
 const file = join('screens', 'orders.tsx')
 
-test('[32-16] format of useTranslations with the format currency written in place, in a project that states no currency, is T6021, and one that names its currency is none', async () => {
-  const folder = copyOf(join('moneyFormat', 'fail'), 'T6021-format-fail')
+test('[32-16] format of useTranslations with the format currency written in place, in a project that states no currency, is F6021, and one that names its currency is none', async () => {
+  const folder = copyOf(join('moneyFormat', 'fail'), 'F6021-format-fail')
   const text = readFileSync(join(folder, file), 'utf8')
-  const found = (await checkProject(folder)).findings.filter((one) => one.code === 'T6021')
+  const found = (await checkProject(folder)).findings.filter((one) => one.code === 'F6021')
   assert.deepEqual(
     found.map((one) => one.where?.line),
     [lineWith(text, "format(total, 'currency')"), lineWith(text, "t.format(total, { as: 'currency', digits: 0 })")],
@@ -20,7 +20,7 @@ test('[32-16] format of useTranslations with the format currency written in plac
 })
 
 test('[32-16] in a project that states its currency the format currency of useTranslations is no finding', async () => {
-  const { findings } = await checkProject(copyOf(join('moneyFormat', 'pass'), 'T6021-format-pass'))
+  const { findings } = await checkProject(copyOf(join('moneyFormat', 'pass'), 'F6021-format-pass'))
   assert.deepEqual(
     findings.map((one) => `${one.code} ${one.where?.file}:${one.where?.line} ${one.message}`),
     [],
@@ -28,10 +28,10 @@ test('[32-16] in a project that states its currency the format currency of useTr
 })
 
 test('[32-16] money has no field of its own: useField takes no format, which the type checker refuses', async () => {
-  const folder = copyOf(join('moneyFormat', 'fail'), 'T6021-format-field')
+  const folder = copyOf(join('moneyFormat', 'fail'), 'F6021-format-field')
   const text = readFileSync(join(folder, file), 'utf8')
   const { findings } = await checkProject(folder)
-  const refused = findings.filter((one) => one.code === 'T8000')
+  const refused = findings.filter((one) => one.code === 'F8000')
   assert.deepEqual(
     refused.map((one) => one.where?.line),
     [lineWith(text, "useField('total', { format: 'currency' })")],

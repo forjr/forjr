@@ -1,4 +1,4 @@
-import type { Makers } from 'tentjs/engine'
+import type { Makers } from 'forjr/engine'
 
 // Two providers of the builder's own: one that writes, and one for a model that is a function, which hands back
 // the bytes of the photo it was given as the picture it made, and says how many it was given.

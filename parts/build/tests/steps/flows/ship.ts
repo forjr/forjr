@@ -1,4 +1,4 @@
-import { event, flow, json, link, mail } from 'tentjs'
+import { event, flow, json, link, mail } from 'forjr'
 
 const pause = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms))
 

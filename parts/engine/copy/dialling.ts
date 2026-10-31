@@ -74,7 +74,7 @@ export function diallingOf(r: ReaderState, taken: (mine: Open, frame: Frame) => 
     let link: Link
     try {
       const headers = { authorization: `Bearer ${reads.key}` }
-      link = r.reached(address).link(new Request(`${address}/_t/copy`, { headers }))
+      link = r.reached(address).link(new Request(`${address}/_f/copy`, { headers }))
     } catch {
       next()
       return

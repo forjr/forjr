@@ -34,7 +34,7 @@ test('[13-1@10g] `words` of an agent gives anew the sentences of a typed answer,
   assert.deepEqual(Reflect.get(Object(description.flows.helper?.agent), 'words'), words)
 })
 
-test('[13-1@10g] the words of tools that went with the fold are no words of an agent: `ask`, `remember` and `forget` are T1003, options the word does not have', () => {
+test('[13-1@10g] the words of tools that went with the fold are no words of an agent: `ask`, `remember` and `forget` are F1003, options the word does not have', () => {
   const writer = model('writer', { provider: 'anthropic', name: 'claude-sonnet-5-5' })
   const helper = agent('helper', {
     model: writer,
@@ -46,7 +46,7 @@ test('[13-1@10g] the words of tools that went with the fold are no words of an a
   const { findings } = describe({
     definitions: [{ value: project('words', {}) }, { value: writer }, { value: helper }],
   })
-  const unknown = findings.filter((one) => one.code === 'T1003').map((one) => one.message)
+  const unknown = findings.filter((one) => one.code === 'F1003').map((one) => one.message)
   assert.equal(unknown.length, 3)
   for (const word of ['ask', 'remember', 'forget'])
     assert.ok(

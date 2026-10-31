@@ -1,7 +1,7 @@
 import createCache from '@emotion/cache'
 import { CacheProvider } from '@emotion/react'
 import { Button, Card, CardContent, Chip, Stack, Table, TableBody, TableCell, TableRow, Typography } from '@mui/material'
-import { read, screen, useNonce } from 'tentjs/ui'
+import { read, screen, useNonce } from 'forjr/ui'
 import { allSales } from '../functions'
 
 // A library that writes its styles while it draws, by Emotion, whose cache carries the nonce of the page.

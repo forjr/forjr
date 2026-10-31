@@ -12,7 +12,7 @@ interface KeptCase {
   runs: { pass: boolean }[]
 }
 
-/** The evaluation that a run of `tent test --ai` kept, read from the file its answer names. */
+/** The evaluation that a run of `forjr test --ai` kept, read from the file its answer names. */
 function evaluated(project: string, ...words: string[]) {
   const ran = typedApart(project, 'test', '--ai', '--json', ...words)
   const file = String(Reflect.get(Object(ran.answer.value), 'evaluation'))

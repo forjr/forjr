@@ -1,4 +1,4 @@
-import { action, anyone, change, input, number, query, role, sessions, text } from 'tentjs'
+import { action, anyone, change, input, number, query, role, sessions, text } from 'forjr'
 import { customers, notes, orders, teams } from '../tables/tables'
 
 const open = anyone('a test calls it from every machine')

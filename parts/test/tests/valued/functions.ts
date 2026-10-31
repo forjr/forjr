@@ -1,4 +1,4 @@
-import { boolean, number, query, table, text } from 'tentjs'
+import { boolean, number, query, table, text } from 'forjr'
 
 export const orders = table('orders', {
   columns: { name: text(), total: number({ min: 0 }), paid: boolean() },

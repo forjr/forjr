@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Form } from 'tentjs/ui'
+import { Form } from 'forjr/ui'
 import { addBot } from '../functions/bots'
 import { CloseButton, Dialog } from './Dialog'
 import { Face } from './Face'

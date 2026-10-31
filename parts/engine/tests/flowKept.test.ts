@@ -10,7 +10,7 @@ import { flowing, marksOf, settle, started, untilWithin, untilState } from './fl
 /** Sends a command to the admin channel of an app, as a command of this computer does, and answers its value. */
 async function did(run: Running, name: string, args: object): Promise<Record<string, unknown>> {
   const token = String(JSON.parse(readFileSync(join(run.dataFolder, 'engine.json'), 'utf8')).token)
-  const answered = await send(run.app, `${run.origin}/_t/admin/${name}`, {
+  const answered = await send(run.app, `${run.origin}/_f/admin/${name}`, {
     body: JSON.stringify({ args }),
     headers: { authorization: `Bearer ${token}` },
   })
@@ -57,9 +57,9 @@ test("[20-7@7b] a person's export holds the runs they started, with the steps of
   // What the engine kept by run goes with the runs: the once-only keys of the changes that their steps called.
   const data = new DatabaseSync(join(run.dataFolder, 'data.db'), { readOnly: true })
   try {
-    const kept = data.prepare('SELECT run FROM "_t_once"').all()
+    const kept = data.prepare('SELECT run FROM "_f_once"').all()
     assert.ok(kept.every((row) => row.run !== full && row.run !== asAda))
-    assert.equal(data.prepare('SELECT count(*) AS n FROM "_t_steps" WHERE run IN (?, ?)').get(asAda, full)?.n, 0)
+    assert.equal(data.prepare('SELECT count(*) AS n FROM "_f_steps" WHERE run IN (?, ?)').get(asAda, full)?.n, 0)
   } finally {
     data.close()
   }
@@ -159,7 +159,7 @@ test('[21-20@7b] `step.done` is raised for each step that was done, with its app
   ])
 })
 
-test('[16-4@7b] `_t_once` exists in the data of an app with exactly its columns and its key, and holds one row for each change that a step called', async (t) => {
+test('[16-4@7b] `_f_once` exists in the data of an app with exactly its columns and its key, and holds one row for each change that a step called', async (t) => {
   const { app, dataFolder, advance } = await flowing(t)
   const run = await started(app, 'twoChanges')
   await untilState(app, run, 'waiting')
@@ -171,7 +171,7 @@ test('[16-4@7b] `_t_once` exists in the data of an app with exactly its columns 
   )
   const data = new DatabaseSync(join(dataFolder, 'data.db'), { readOnly: true })
   try {
-    const columns = data.prepare(`SELECT name, pk FROM pragma_table_info('_t_once')`).all()
+    const columns = data.prepare(`SELECT name, pk FROM pragma_table_info('_f_once')`).all()
     assert.deepEqual(
       columns.map((column) => column.name),
       ['caller', 'key', 'run', 'at', 'result', 'places'],
@@ -180,7 +180,7 @@ test('[16-4@7b] `_t_once` exists in the data of an app with exactly its columns 
       columns.filter((column) => column.pk).map((column) => column.name),
       ['caller', 'key'],
     )
-    const rows = data.prepare('SELECT key, run, result FROM "_t_once" ORDER BY at').all()
+    const rows = data.prepare('SELECT key, run, result FROM "_f_once" ORDER BY at').all()
     // The step called four changes over its two tries, and the run it started called one.
     assert.equal(rows.length, 5)
     assert.equal(rows.filter((row) => row.run === run).length, 4)
@@ -196,9 +196,9 @@ test('[16-4@7b] `_t_once` exists in the data of an app with exactly its columns 
     )
     // The run tables stand beside it, since the app holds a flow.
     const tables = data
-      .prepare(`SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE '\\_t\\_%' ESCAPE '\\'`)
+      .prepare(`SELECT name FROM sqlite_master WHERE type = 'table' AND name LIKE '\\_f\\_%' ESCAPE '\\'`)
       .all()
-    for (const name of ['_t_runs', '_t_steps', '_t_schedule', '_t_once'])
+    for (const name of ['_f_runs', '_f_steps', '_f_schedule', '_f_once'])
       assert.ok(
         tables.some((table) => table.name === name),
         name,

@@ -5,7 +5,7 @@ import { test } from 'node:test'
 import { buildProject } from '../index.ts'
 import { copyOf } from './projects.ts'
 
-const head = "import { screen } from 'tentjs/ui'\n"
+const head = "import { screen } from 'forjr/ui'\n"
 const tail = (uses: string): string =>
   `\nexport const wayScreen = screen('wayScreen', { path: '/way', access: 'anyone', view: () => <span>{String(${uses})}</span> })\n`
 
@@ -32,7 +32,7 @@ function browserFiles(bundle: string): Record<string, string> {
 
 const backend = '../functions/orders.ts'
 
-test('[31-1a] a backend file asked for as its text or as an address is refused: the build ends with T1005 on the line that asks, and writes no bundle', async () => {
+test('[31-1a] a backend file asked for as its text or as an address is refused: the build ends with F1005 on the line that asks, and writes no bundle', async () => {
   // Each way, with the file and the line that asks.
   const ways: Record<string, { files: Record<string, string>; at: [string, number] }> = {
     'as its text': {
@@ -93,7 +93,7 @@ test('[31-1a] a backend file asked for as its text or as an address is refused: 
     for (const [name, way] of Object.entries(ways)) {
       const { made, errors } = await built(`${mode}-${name.replaceAll(' ', '-')}`, way.files, mode)
       const said = `${name}, for ${mode}: ${errors.map((one) => `${one.code} ${one.message}`).join(' | ')}`
-      assert.deepEqual([...new Set(errors.map((one) => one.code))], ['T1005'], said)
+      assert.deepEqual([...new Set(errors.map((one) => one.code))], ['F1005'], said)
       assert.equal(made.bundleFolder, '', said)
       const [found] = errors
       assert.deepEqual([found.where?.file, found.where?.line], way.at, said)

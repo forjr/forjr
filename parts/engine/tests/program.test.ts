@@ -26,16 +26,16 @@ test('[21-19] app.read and app.write pass the table rules for the caller they na
   assert.equal(mine.owner, ada.user?.id)
   const both = await app.write([notes.add({ title: 'of Bob' }), notes.add({ title: 'of Bob too' })], { as: bob })
   assert.deepEqual(named(both), ['of Bob', 'of Bob too'])
-  assert.equal(await codeOf(app.write([notes.add({ title: 'of nobody' })], { as: nobody })), 'T3101')
-  assert.equal(await codeOf(app.write([tags.add({ name: 'not staff' })], { as: bob })), 'T3101')
+  assert.equal(await codeOf(app.write([notes.add({ title: 'of nobody' })], { as: nobody })), 'F3101')
+  assert.equal(await codeOf(app.write([tags.add({ name: 'not staff' })], { as: bob })), 'F3101')
   assert.equal(Object(await app.write([tags.add({ name: 'by staff' })], { as: ada }))[0].name, 'by staff')
   // A row of another is not found for a change, and a list of writes is one write: it is undone whole.
-  assert.equal(await codeOf(app.write([notes.change(mine.id, { done: true })], { as: bob })), 'T2103')
+  assert.equal(await codeOf(app.write([notes.change(mine.id, { done: true })], { as: bob })), 'F2103')
   const half = app.write([notes.add({ title: 'never kept' }), notes.remove(mine.id)], { as: bob })
-  assert.equal(await codeOf(half), 'T2103')
+  assert.equal(await codeOf(half), 'F2103')
   // A caller cannot give themselves a role, and the system writes what it likes.
   const bobId = String(bob.user?.id)
-  assert.equal(await codeOf(app.write([users.change(bobId, { roles: ['staff'] })], { as: bob })), 'T3101')
+  assert.equal(await codeOf(app.write([users.change(bobId, { roles: ['staff'] })], { as: bob })), 'F3101')
   await app.write([users.change(bobId, { roles: ['staff'] }), notes.change(mine.id, { done: true })], { as: 'system' })
   // The rows of a write are told to whoever listens, and no change is, since none was called.
   assert.deepEqual(heard, ['added notes', 'added notes', 'added notes', 'added tags', 'changed users', 'changed notes'])
@@ -57,9 +57,9 @@ test('[21-19] app.read and app.write pass the table rules for the caller they na
     assert.deepEqual(Object(await app.read(users.get(bobId), { as })).roles, ['staff'])
   }
   // What is no plan and no write is refused, and so is a table that the app does not have.
-  assert.equal(await codeOf(app.read({ plan: 'notes' }, { as: system })), 'T0013')
-  assert.equal(await codeOf(app.write([{ add: 5 }], { as: system })), 'T0013')
-  assert.equal(await codeOf(Reflect.apply(app.write, app, [notes.add({ title: 'x' }), { as: system }])), 'T0013')
+  assert.equal(await codeOf(app.read({ plan: 'notes' }, { as: system })), 'F0013')
+  assert.equal(await codeOf(app.write([{ add: 5 }], { as: system })), 'F0013')
+  assert.equal(await codeOf(Reflect.apply(app.write, app, [notes.add({ title: 'x' }), { as: system }])), 'F0013')
 })
 
 test('[21-19] app.seed applies the seed of the running version in each of its forms, as the system', async (t) => {
@@ -185,7 +185,7 @@ test('[21-19] app.snapshot writes the data file out, and app.restore puts it bac
   ])
   assert.equal(await app.call('heavyUsers', {}, { as: nobody }).then((rows) => named(rows, 'name').join()), 'Ada,Bob')
   // A file that is no data file is refused, and the data stays as it was.
-  assert.equal(await codeOf(app.restore(join(dataFolder, 'engine.json'))), 'T0009')
-  assert.equal(await codeOf(app.restore(join(work, 'no such file'))), 'T0009')
+  assert.equal(await codeOf(app.restore(join(dataFolder, 'engine.json'))), 'F0009')
+  assert.equal(await codeOf(app.restore(join(work, 'no such file'))), 'F0009')
   assert.equal(await app.call('countNotes', {}, { as: caller }), 2)
 })

@@ -122,7 +122,7 @@ test('[20-3] of a linked row that the caller may not read nothing is told: by no
         .where({ name: { in: at(read(ada), 'orders').pick(['customer.name']) } })
         .all(),
     ),
-    'T1014',
+    'F1014',
   )
 
   // Code with full access is told everything, as before.
@@ -186,7 +186,7 @@ test('[20-3] a private column is told to a limited caller by no way: a group by 
   })
   assert.deepEqual(
     findings.map((one) => `${one.code} ${one.message}`),
-    ['T1014 notes: `search` names the private column `secret`.'],
+    ['F1014 notes: `search` names the private column `secret`.'],
   )
   const store = shopStore(t, withNotes)
   const s = seedShop(store, withNotes)
@@ -198,11 +198,11 @@ test('[20-3] a private column is told to a limited caller by no way: a group by 
   // A group through a link: one by the private column is refused, and a value worked out from it is left out.
   assert.equal(
     codeOf(() => at(db, 'orders').group('placedBy.salary', { n: count() }).all()),
-    'T0013',
+    'F0013',
   )
   assert.equal(
     codeOf(() => at(db, 'members').group('user.salary', { n: count() }).all()),
-    'T0013',
+    'F0013',
   )
   assert.deepEqual(
     records(
@@ -217,7 +217,7 @@ test('[20-3] a private column is told to a limited caller by no way: a group by 
   )
   assert.equal(
     codeOf(() => at(db, 'lines').group('order.cost', { n: count() }).all()),
-    'T0013',
+    'F0013',
   )
   assert.deepEqual(at(full, 'orders').group('placedBy.salary', { n: count() }).all(), [
     { 'placedBy.salary': 4000, n: 1 },
@@ -239,7 +239,7 @@ test('[20-3] a private column is told to a limited caller by no way: a group by 
         .where({ id: { in: at(db, 'users').where({ salary: 5000 }) } })
         .all(),
   ])
-    assert.equal(codeOf(wrong), 'T0013')
+    assert.equal(codeOf(wrong), 'F0013')
   assert.deepEqual(
     at(full, 'users')
       .where({ id: { in: at(full, 'users').where({ salary: 5000 }) } })
@@ -262,7 +262,7 @@ test('[20-3] a private column is told to a limited caller by no way: a group by 
   assert.equal(at(db, 'notes').search(' ').count(), 1)
 })
 
-test('[20-3] [12-4] given in the filter of a rule that is code is T1014 while running, and the rule shows no row', (t) => {
+test('[20-3] [12-4] given in the filter of a rule that is code is F1014 while running, and the rule shows no row', (t) => {
   const byTeam = (who: User | undefined) => ({ team: given(Reflect.get(Object(who), 'team')) })
   const inside = (who: User | undefined, db: object) => ({
     team: {
@@ -296,19 +296,19 @@ test('[20-3] [12-4] given in the filter of a rule that is code is T1014 while ru
       () => at(db, 'notes').get(note),
       () => at(db, 'notes').history(note),
     ])
-      assert.equal(codeOf(call), 'T1014')
+      assert.equal(codeOf(call), 'F1014')
     const as = writing(store, withNotes, who, {}, rules)
     assert.equal(
       codeOf(() => as((one) => at(one, 'notes').add({ team: s.north, body: 'x' }))),
-      'T1014',
+      'F1014',
     )
     assert.equal(
       codeOf(() => as((one) => at(one, 'notes').change(note, { body: 'x' }))),
-      'T1014',
+      'F1014',
     )
     assert.equal(
       codeOf(() => as((one) => at(one, 'notes').remove(note))),
-      'T1014',
+      'F1014',
     )
   }
   assert.throws(() => at(reading(store, withNotes, user(s.ada), {}, rules), 'notes').all(), /given/)

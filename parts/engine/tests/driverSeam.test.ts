@@ -13,7 +13,7 @@ registerHooks({
   },
 })
 
-test('[27-4] the driver of ai runs with a test env and reaches a tool, _t_memoryRead, _t_memoryAdd, allow, used and tell through it, with no part loaded but core, data, flows and connect', async (t) => {
+test('[27-4] the driver of ai runs with a test env and reaches a tool, _f_memoryRead, _f_memoryAdd, allow, used and tell through it, with no part loaded but core, data, flows and connect', async (t) => {
   const { agent, choice, json, link, model, query, table, text } = await import('../../core/index.ts')
   const { driving } = await import('./driving.ts')
 
@@ -69,14 +69,14 @@ test('[27-4] the driver of ai runs with a test env and reaches a tool, _t_memory
         calls.push(`myOrders ${JSON.stringify(input)}`)
         return [{ id: 'o1' }, { id: 'o2' }]
       },
-      _t_memoryRead: (input) => {
-        calls.push(`_t_memoryRead ${JSON.stringify(input)}`)
+      _f_memoryRead: (input) => {
+        calls.push(`_f_memoryRead ${JSON.stringify(input)}`)
         return { rows: rows.map((one) => ({ ...one })) }
       },
-      _t_memoryAdd: (input) => {
+      _f_memoryAdd: (input) => {
         const added: unknown = Reflect.get(Object(input), 'rows')
         calls.push(
-          `_t_memoryAdd ${JSON.stringify(Array.isArray(added) ? added.map((one) => Reflect.get(Object(one), 'who')) : [])}`,
+          `_f_memoryAdd ${JSON.stringify(Array.isArray(added) ? added.map((one) => Reflect.get(Object(one), 'who')) : [])}`,
         )
         const ids: string[] = []
         for (const one of Array.isArray(added) ? added : []) {
@@ -101,12 +101,12 @@ test('[27-4] the driver of ai runs with a test env and reaches a tool, _t_memory
   ])
   // The tool, the reading and the adding of memory are reached through `call` of the env.
   assert.deepEqual(calls, [
-    '_t_memoryAdd ["user"]',
-    '_t_memoryRead {"agent":"helper","thread":"c-1"}',
+    '_f_memoryAdd ["user"]',
+    '_f_memoryRead {"agent":"helper","thread":"c-1"}',
     'myOrders {"status":"open"}',
-    '_t_memoryAdd ["assistant","tool"]',
-    '_t_memoryRead {"agent":"helper","thread":"c-1"}',
-    '_t_memoryAdd ["assistant"]',
+    '_f_memoryAdd ["assistant","tool"]',
+    '_f_memoryRead {"agent":"helper","thread":"c-1"}',
+    '_f_memoryAdd ["assistant"]',
   ])
   // The limits are asked before each call to the model, and each call is told to `used`.
   assert.deepEqual(allowed, ['writer', 'writer'])

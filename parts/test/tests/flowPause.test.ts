@@ -9,7 +9,7 @@ import { notDropped } from './started.ts'
 const system = { as: 'system' } as const
 
 // A flow that waits an hour between its two steps, each of which adds a customer, one run at a time.
-const flows = `import { flow, text } from 'tentjs'
+const flows = `import { flow, text } from 'forjr'
 import { addCustomer } from '../functions/functions'
 
 export const tick = flow('tick', {

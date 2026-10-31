@@ -22,7 +22,7 @@ test('[31-21] a save is one round: the watcher telling of a file after the round
   let started: Dev | undefined
   t.after(() => started?.close())
   const folder = copied(t, 'one-round', 'devs')
-  const builds = join(folder, '.tent', 'build')
+  const builds = join(folder, '.forjr', 'build')
   // Each list of a version that is written, by its name: a build writes the list of the version it made.
   const lists: string[] = []
   const was = fs.writeFileSync

@@ -2,7 +2,7 @@ import { existsSync } from 'node:fs'
 import { runEnded } from '../ai/runFiles.ts'
 import { join } from 'node:path'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { codes } from '../../core/internal.ts'
 import { applySteps } from '../../data/index.ts'
 import type { At, Fired, RunnerEnv, StepAt, Waiting } from '../../flows/index.ts'
@@ -70,7 +70,7 @@ async function holdNeeded(o: Opened, versions: string[]): Promise<void> {
       if (listAt(place)) await addVersion(o, place)
       else if (existsSync(place)) await holdVersion(o, version)
     } catch {
-      // A version that cannot be loaded any more fails its runs when they are taken up, each with T0007.
+      // A version that cannot be loaded any more fails its runs when they are taken up, each with F0007.
     }
   }
 }
@@ -154,9 +154,9 @@ export async function startRunner(o: Opened, how: { later?: true } = {}): Promis
         const body = flowBodyOf(servedFor(o, at.version), at.flow)
         const { step } = at
         if (!run || !body || !step)
-          throw new TentError('T0013', `No step of ${at.flow} can be carried out beside its run.`)
+          throw new ForjrError('F0013', `No step of ${at.flow} can be carried out beside its run.`)
         // A step that is done answers its result there, and one that failed for good its error, as on the main pass.
-        const saved = (name: string, repeat: number): { result: unknown } | { error: TentError } | undefined => {
+        const saved = (name: string, repeat: number): { result: unknown } | { error: ForjrError } | undefined => {
           const held = run.steps.find((one) => one.name === name && one.repeat === repeat)
           if (held?.state === 'done') return { result: held.result }
           return held?.state === 'failed' && held.error ? { error: held.error } : undefined
@@ -178,7 +178,7 @@ export async function startRunner(o: Opened, how: { later?: true } = {}): Promis
       }),
     told: (what) => {
       runTold(o, what)
-      // Under `tent test`, the test that runs touched the flow whose run works.
+      // Under `forjr test`, the test that runs touched the flow whose run works.
       if (what.kind === 'run' && what.state === 'running') noteTouched('flows', runner.read(what.run)?.flow ?? '')
       tenants?.told(what)
       runCounted(o, runner, what, causer)
@@ -237,10 +237,10 @@ export async function startRunner(o: Opened, how: { later?: true } = {}): Promis
       o.raise('run.stopped', told)
       return
     }
-    // What a caller would see of the error: its own words where it is the caller's to see, and else the sentence of T0009.
+    // What a caller would see of the error: its own words where it is the caller's to see, and else the sentence of F0009.
     const seen = isShown(run.error)
       ? { code: run.error.code, message: run.error.message }
-      : { code: 'T0009', message: codes.T0009.sentence }
+      : { code: 'F0009', message: codes.F0009.sentence }
     const step = run.steps.find((one) => one.state === 'failed')?.name
     const failure = { ...seen, ...(step === undefined ? {} : { step }) }
     o.raise('run.failed', { ...told, failure })
@@ -299,7 +299,7 @@ export async function startRunner(o: Opened, how: { later?: true } = {}): Promis
               (done) => runner.ended(task, [{ done }]),
               (error: unknown) =>
                 runner.ended(task, [
-                  { failed: error instanceof TentError ? error : new TentError('T0009', String(error)) },
+                  { failed: error instanceof ForjrError ? error : new ForjrError('F0009', String(error)) },
                 ]),
             )
             .catch(() => undefined)
@@ -374,7 +374,7 @@ export async function startRunner(o: Opened, how: { later?: true } = {}): Promis
     start: (cx, flow, input) =>
       startFlow(o, runner, agreedOr(cx, flow, flowHeld(cx.app.description, flow)), flow, input),
     emit: (cx, event, data) => {
-      // Under `tent test`, the event a test raised: a flow that listens for it later is its concern.
+      // Under `forjr test`, the event a test raised: a flow that listens for it later is its concern.
       noteTouched('events', event)
       const open = openOf(cx)
       if (!open) return

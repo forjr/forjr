@@ -82,7 +82,7 @@ async function tampered(t: TestContext): Promise<Tampered> {
     folder,
     tamper: asItIs,
     links: 0,
-    fetches: () => world.asked['/_t/copy/data'] ?? 0,
+    fetches: () => world.asked['/_f/copy/data'] ?? 0,
     lost: () => readdirSync(folder).filter((name) => name.startsWith('lost.')),
     async level() {
       made.tamper = asItIs

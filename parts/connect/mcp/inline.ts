@@ -26,7 +26,7 @@ export const partOf = (file: {
 })
 
 /** The words that the description of a `file` field of an input says: its id comes from an upload. */
-const uploadedId = 'The id of a file that was uploaded at /_t/files first.'
+const uploadedId = 'The id of a file that was uploaded at /_f/files first.'
 
 /** A schema of an input with each `file` field described as the id of an upload. */
 export function withUploads(schema: object, input: Record<string, unknown>): object {

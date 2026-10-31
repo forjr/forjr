@@ -6,13 +6,13 @@ import test from 'node:test'
 import { newSecretKey } from '../index.ts'
 import { codeOf, running, system } from './apps.ts'
 
-const variable = 'TENT_SECRET_KEY'
+const variable = 'FORJR_SECRET_KEY'
 
 /** The notes as an app that is opened on the folder reads them. */
 const notesOf = (rows: unknown): string[] =>
   (Array.isArray(rows) ? rows : []).map((row) => String(Reflect.get(Object(row), 'note')))
 
-test('[45-13] an app opened with secretKey seals and opens with that key alone: neither TENT_SECRET_KEY of the program nor a key file of the folder, and none is written', async (t) => {
+test('[45-13] an app opened with secretKey seals and opens with that key alone: neither FORJR_SECRET_KEY of the program nor a key file of the folder, and none is written', async (t) => {
   const [own, programs] = [newSecretKey(), newSecretKey()]
   const was = process.env[variable]
   process.env[variable] = programs
@@ -31,7 +31,7 @@ test('[45-13] an app opened with secretKey seals and opens with that key alone: 
   assert.equal(stored.includes('what is kept'), false)
   // Opened with the program's key, the value does not open; opened with its own again, it does.
   const wrong = await run.engine.open(run.bundle.folder, { dataFolder: run.dataFolder, mode: 'test' })
-  assert.equal(await codeOf(wrong.call('kept', {}, { as: system })), 'T0019')
+  assert.equal(await codeOf(wrong.call('kept', {}, { as: system })), 'F0019')
   await wrong.close()
   const again = await run.engine.open(run.bundle.folder, { dataFolder: run.dataFolder, mode: 'test', secretKey: own })
   assert.deepEqual(notesOf(await again.call('kept', {}, { as: system })), ['what is kept'])
@@ -39,6 +39,6 @@ test('[45-13] an app opened with secretKey seals and opens with that key alone: 
   // A key that is not one is refused.
   await assert.rejects(
     run.engine.open(run.bundle.folder, { dataFolder: run.dataFolder, mode: 'test', secretKey: 'not a key' }),
-    { code: 'T0013' },
+    { code: 'F0013' },
   )
 })

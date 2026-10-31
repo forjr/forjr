@@ -237,7 +237,7 @@ export async function asked(app: App, origin: string, o: Asking = {}): Promise<W
 }
 
 /** The address of a call. */
-export const callOf = (name: string): string => `/_t/call/${name}`
+export const callOf = (name: string): string => `/_f/call/${name}`
 
 /**
  * An answer as two answers are compared whole: its status, its headers without the moment it was sent at, and

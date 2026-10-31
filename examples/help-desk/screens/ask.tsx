@@ -1,5 +1,5 @@
 import { Mic, Square } from 'lucide-react'
-import { Form, screen, useAgent, useCall, useMicrophone } from 'tentjs/ui'
+import { Form, screen, useAgent, useCall, useMicrophone } from 'forjr/ui'
 import { LoneFrame } from '../components/frames'
 import { helper } from '../functions/helper'
 import { signOut } from '../functions/signIn'

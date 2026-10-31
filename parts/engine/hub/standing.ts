@@ -3,7 +3,7 @@ import type { Opened } from '../opened.ts'
 
 /** Where a machine stands among the machines of its app, as the hub asks it: no answer leaves before its write is settled. */
 export interface Standing {
-  /** The write that this machine holds now, with its text in the form of `Tent-At`. Nothing for an app on one machine. */
+  /** The write that this machine holds now, with its text in the form of `Forjr-At`. Nothing for an app on one machine. */
   at(): { n: number; text: string } | undefined
   /** Answers once a write is settled on this machine, and nothing where it is settled already. It is refused where the machine is closed first. */
   settled(n: number): Promise<void> | undefined

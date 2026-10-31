@@ -1,6 +1,6 @@
 // What stands in front of the name of a test, on a line of its own, in what a test file writes out: the line says
 // that what follows was written by that test. It starts with a character that no text of a person holds.
-export const testMark = '\u0000tent test: '
+export const testMark = '\u0000forjr test: '
 
 /**
  * Takes everything that one test file wrote out on one side, the name of a test, and which test of that name it

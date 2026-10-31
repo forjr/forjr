@@ -1,5 +1,5 @@
 import { basename } from 'node:path'
-import { action, each, query, secrets } from 'tentjs'
+import { action, each, query, secrets } from 'forjr'
 
 const double = (n: number) => n * 2
 

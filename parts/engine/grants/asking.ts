@@ -3,7 +3,7 @@ import type { Client } from './clients.ts'
 import { cliClient, returnsTo, untrusted } from './clients.ts'
 import { scopesOf } from './described.ts'
 
-/** What a client asks for at `/_t/oauth/authorize`, as it was sent. */
+/** What a client asks for at `/_f/oauth/authorize`, as it was sent. */
 export interface Asking {
   client: string
   redirect: string
@@ -15,7 +15,7 @@ export interface Asking {
   type: string
 }
 
-/** What a client asks for, read from the fields of the address of `/_t/oauth/authorize`. */
+/** What a client asks for, read from the fields of the address of `/_f/oauth/authorize`. */
 export function askingIn(query: URLSearchParams): Asking {
   const field = (name: string): string => query.get(name) ?? ''
   return {
@@ -48,7 +48,7 @@ export interface Trusted {
  * Holds what a client asks for to the rules: a return address that it lists, the standard's code way, the proof
  * with SHA-256, and the address the token is for: `/mcp`, or the app for a client that may ask for it, which any
  * other client that asks for it, and one that states nothing, is given `/mcp` in place of. A word that is no scope
- * is left out, and a client that asks for none is given `read`; the command line asks for both. Throws T0002 for
+ * is left out, and a client that asks for none is given `read`; the command line asks for both. Throws F0002 for
  * anything that cannot be trusted, which no return is made to.
  */
 export function trusted(o: Opened, client: Client, asking: Asking, origin: string): Trusted {

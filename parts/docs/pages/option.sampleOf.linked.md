@@ -16,7 +16,7 @@ const order = await sampleOf({ kind: 'link', table: 'orders' }, 'order', {
 
 ## Errors
 
-`code.T0002`: a link with no `linked`.
+`code.F0002`: a link with no `linked`.
 
 ## See also
 

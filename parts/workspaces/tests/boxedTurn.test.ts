@@ -35,7 +35,7 @@ test('[52-10] [40-20] the turn, its undo and the tool rows work on the app of a 
 
 // A plain action that sends a mail, which the test side of a workspace writes down in place of sending it.
 const mailing = [
-  "import { action, anyone, mail, text } from 'tentjs'",
+  "import { action, anyone, mail, text } from 'forjr'",
   '',
   "export const mailNote = action('mailNote', {",
   "  about: 'Mails a note to an address',",

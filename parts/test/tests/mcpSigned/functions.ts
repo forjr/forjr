@@ -1,4 +1,4 @@
-import { action, anyone, change, date, file, grants, json, link, list, object, query, sessions, table, text } from 'tentjs'
+import { action, anyone, change, date, file, grants, json, link, list, object, query, sessions, table, text } from 'forjr'
 
 export const users = table('users', {
   columns: { email: text({ unique: true }), roles: list(text()) },
@@ -113,7 +113,7 @@ export const askClient = action('askClient', {
   input: { grant: text(), method: text(), params: json() },
   output: json(),
   run: async ({ input }) => {
-    const request: unknown = Reflect.get(globalThis, 'tentMcpRequest')
+    const request: unknown = Reflect.get(globalThis, 'forjrMcpRequest')
     if (typeof request !== 'function') throw new Error('the maker of the project was handed no request to a client')
     return Reflect.apply(request, undefined, [input.grant, input.method, input.params])
   },

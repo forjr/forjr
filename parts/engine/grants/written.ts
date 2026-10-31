@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { App } from '../app.ts'
 import { openedOf } from '../app.ts'
 import { heldOpen } from '../opened.ts'
@@ -18,15 +18,15 @@ export interface GrantGiven {
 
 /**
  * Takes an app and what a grant is made with. Makes the grant, as a person who allowed a program would, and answers
- * its id, its caller and its access token: it is how `app.grant` of the test helpers makes a caller. Throws T0013
- * for an app that is closed, and T2103 for a user who is not there.
+ * its id, its caller and its access token: it is how `app.grant` of the test helpers makes a caller. Throws F0013
+ * for an app that is closed, and F2103 for a user who is not there.
  */
 export function writeGrant(app: App, given: GrantGiven): { id: string; caller: Caller; token: string } {
   const o = openedOf(app)
-  if (!o) throw new TentError('T0013', 'A grant is written into an app that an engine opened.')
+  if (!o) throw new ForjrError('F0013', 'A grant is written into an app that an engine opened.')
   heldOpen(o)
   // The user is looked for first, so that a grant for nobody leaves no row behind.
-  const gone = new TentError('T2103', `No user ${given.user.slice(0, 40)} is there to give a grant.`)
+  const gone = new ForjrError('F2103', `No user ${given.user.slice(0, 40)} is there to give a grant.`)
   const tables = new Set(o.store.layout().map((one) => one.name))
   const user = tables.has('users')
     ? o.store.read({ from: 'users', one: 'get', id: given.user }, { kind: 'system' }).value

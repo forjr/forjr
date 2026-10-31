@@ -1,4 +1,4 @@
-import { change, fail, input, link, object, query, text } from 'tentjs'
+import { change, fail, input, link, object, query, text } from 'forjr'
 import { skills } from '../tables/skills'
 
 export const skillList = query('skillList', {

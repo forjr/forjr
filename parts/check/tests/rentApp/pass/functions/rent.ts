@@ -1,4 +1,4 @@
-import { boolean, change, fail, link, role, text } from 'tentjs'
+import { boolean, change, fail, link, role, text } from 'forjr'
 
 // The two changes of the rent app that state `system`, each with its check by hand.
 

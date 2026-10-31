@@ -14,7 +14,7 @@ export function recordedCopy(t: TestContext, name: string, ...more: string[]): s
   return project
 }
 
-/** `tent test` as a person types it, in a program of its own: the runner starts no run of tests inside a test. */
+/** `forjr test` as a person types it, in a program of its own: the runner starts no run of tests inside a test. */
 export function tested(project: string, ...words: string[]): Typed {
   const { NODE_TEST_CONTEXT: _, ...env } = process.env
   const temp = join(project, '..', 'temp')

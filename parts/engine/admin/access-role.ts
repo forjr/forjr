@@ -3,9 +3,9 @@ import type { Admin } from '../admin.ts'
 import { badWord, wordOf } from '../admin.ts'
 
 /**
- * `tent access role add <user id> <role>` and `tent access role remove <user id> <role>`: gives a user a role, or
+ * `forjr access role add <user id> <role>` and `forjr access role remove <user id> <role>`: gives a user a role, or
  * takes one away, as the handle `roles` does, with a write of `users` like any other. On a reader the write is
- * the writer's. It answers the user and the roles that stand. Throws T0014 with no `users` table, and T2103 for
+ * the writer's. It answers the user and the roles that stand. Throws F0014 with no `users` table, and F2103 for
  * an id that names no row.
  */
 export const admin: Admin = {

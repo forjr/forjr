@@ -26,7 +26,7 @@ test('[44-5] the picture of a screen whose seo.image names a component is a PNG 
   const at = await served('seoImages')
   const [lamp] = Object(await at.app.call('allProducts', {}, { as: { kind: 'system' } }))
   const address = `/products/${String(Object(lamp).id)}`
-  const picture = `${at.address}/_t/seo/image/productScreen?${address}`
+  const picture = `${at.address}/_f/seo/image/productScreen?${address}`
 
   // The first request draws the component with the screen's answers, into a PNG of the size it states.
   const first = await fetch(picture)
@@ -64,9 +64,9 @@ test('[44-5] the picture of a screen whose seo.image names a component is a PNG 
   assert.equal(meta('og:image:height'), '315')
 
   // A screen whose seo.image names no component, and an address that the screen does not hold, answer 404 and draw nothing.
-  assert.equal((await fetch(`${at.address}/_t/seo/image/aboutScreen?/about`)).status, 404)
-  assert.equal((await fetch(`${at.address}/_t/seo/image/productScreen?/about`)).status, 404)
-  assert.equal((await fetch(`${at.address}/_t/seo/image/productScreen?/products/nothing`)).status, 404)
+  assert.equal((await fetch(`${at.address}/_f/seo/image/aboutScreen?/about`)).status, 404)
+  assert.equal((await fetch(`${at.address}/_f/seo/image/productScreen?/about`)).status, 404)
+  assert.equal((await fetch(`${at.address}/_f/seo/image/productScreen?/products/nothing`)).status, 404)
   assert.equal(keptIn(at.dataFolder).length, 1)
   // A screen whose seo.image names no component has no such lines in its head.
   const about = await (await fetch(`${at.address}/about`)).text()

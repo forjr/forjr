@@ -5,7 +5,7 @@ import { compileFunction } from 'node:vm'
 import type { TestNotes } from '../engine/index.ts'
 import { notesOf, underTest, writeNotes } from '../engine/index.ts'
 
-// What a test file of an app imports as `node:test` under `tent test`: the runner of the runtime, each of whose tests
+// What a test file of an app imports as `node:test` under `forjr test`: the runner of the runtime, each of whose tests
 // and their hooks runs as the work of its test, so that whatever the test touches is noted under it wherever it is done.
 
 /** A function among the words of a test or a hook, and a word of the runner. */
@@ -41,7 +41,7 @@ function inTest(fn: Body): Body {
   const carried = function (this: unknown, ...given: unknown[]): unknown {
     const notes = ofTest(given[0])
     // A failure carries the last call the test made, where it carries none of its own, and the random seed of its
-    // app, which `tent test` tells, so that a run with that seed fails the same way.
+    // app, which `forjr test` tells, so that a run with that seed fails the same way.
     const told = (error: unknown): never => {
       const last = notes.calls.at(-1)
       if (typeof error === 'object' && error !== null) {
@@ -129,6 +129,6 @@ export default Object.assign(test, {
   assert,
 })
 
-// What each test of this program touched is written, as the program ends, where `tent test` gathers it.
-const folder = process.env.TENT_TOUCHED
+// What each test of this program touched is written, as the program ends, where `forjr test` gathers it.
+const folder = process.env.FORJR_TOUCHED
 if (folder) process.once('exit', () => writeNotes(folder, String(process.pid)))

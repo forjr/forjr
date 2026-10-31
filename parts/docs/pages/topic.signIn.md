@@ -9,7 +9,7 @@ The engine holds no way to sign in of its own. It gives the pieces - sessions, p
 | `sessions.start(user)` | Starts a session for a row of `users`, in a cookie that scripts cannot read: from then on the browser is that user. In a change or an action that a browser called |
 | `sessions.end()`, `sessions.endAll(user)`, `sessions.list(user)` | Ends the session of the request; ends every session of a user; lists them, for a screen of "your devices" |
 | `passwords.hash(text)`, `passwords.check(text, stored)`, `passwords.old(stored)` | Makes the text to store for a password, checks one against it, and says whether it was made with older settings |
-| `attempts.limit(key, { tries, per, address })`, `attempts.clear(key)` | Counts one try of a key and fails with `code.T0005` past the bound; empties the count after a sign-in that worked |
+| `attempts.limit(key, { tries, per, address })`, `attempts.clear(key)` | Counts one try of a key and fails with `code.F0005` past the bound; empties the count after a sign-in that worked |
 | `token({ digits })`, `sameSecret(a, b)` | A random code, and a comparison of two secrets that takes as long whatever they hold |
 | `mail.send(...)` | Sends a mail, as a code by mail needs |
 | `identify` of `project` | Reads a token or a cookie of your own, or of a package, from each request and names the user |
@@ -21,8 +21,8 @@ From the moment a session starts, `access: 'signedIn'`, `role(...)`, the rules o
 The project names the screen of the sign-in, which a stranger is sent to from a screen that needs one. Who may make an account is the code of your sign-up alone, and a rule of `'signedIn'` is worth what it lets in: where anyone may sign up, it lets in anyone who cares to.
 
 ```ts
-// tent.ts
-import { project } from 'tentjs'
+// forjr.ts
+import { project } from 'forjr'
 
 export const shop = project('shop', {
   title: 'Shop',
@@ -35,7 +35,7 @@ The engine reads `id` and `roles` of each row of `users`. The rest is yours: her
 
 ```ts
 // tables/users.ts
-import { list, table, text } from 'tentjs'
+import { list, table, text } from 'forjr'
 
 export const users = table('users', {
   columns: {
@@ -54,7 +54,7 @@ A visitor's function states who may call it and why it needs `system`, and write
 
 ```ts
 // functions/signUp.ts
-import { action, anyone, attempts, change, fail, passwords, sessions, text } from 'tentjs'
+import { action, anyone, attempts, change, fail, passwords, sessions, text } from 'forjr'
 
 export const addUser = change('addUser', {
   access: 'nobody',
@@ -81,11 +81,11 @@ export const signUp = action('signUp', {
 
 ## Signing in
 
-The tries are counted before the password is checked, twice: by the email and the address, and by the email alone with a higher bound, so that guesses from many addresses run out too. The sixth wrong try within ten minutes fails with `code.T0005`, also for the right password.
+The tries are counted before the password is checked, twice: by the email and the address, and by the email alone with a higher bound, so that guesses from many addresses run out too. The sixth wrong try within ten minutes fails with `code.F0005`, also for the right password.
 
 ```ts
 // functions/signIn.ts
-import { action, anyone, attempts, fail, passwords, sessions, text } from 'tentjs'
+import { action, anyone, attempts, fail, passwords, sessions, text } from 'forjr'
 
 export const signIn = action('signIn', {
   access: anyone('a visitor signs in'),
@@ -108,7 +108,7 @@ The screen at `signInPath` is a `Form` over `signIn`. A stranger sent there from
 
 ```tsx
 // screens/signIn.tsx
-import { anyone, screen, text, Form } from 'tentjs/ui'
+import { anyone, screen, text, Form } from 'forjr/ui'
 import { signIn } from '../functions/signIn'
 
 export const signInScreen = screen('signInScreen', {
@@ -136,7 +136,7 @@ export const signInScreen = screen('signInScreen', {
 
 ```ts
 // functions/signOut.ts
-import { action, sessions } from 'tentjs'
+import { action, sessions } from 'forjr'
 
 export const signOut = action('signOut', {
   access: 'signedIn',

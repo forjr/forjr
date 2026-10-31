@@ -50,13 +50,13 @@ test('[51-4] rows travel with the task, small ones in it and large ones as a fil
       Array.isArray(work.files) && work.files.includes(fingerprint),
       'the file is named among the files of the task',
     )
-    const fetched = await fetch(`${origin}/_t/work/file/${fingerprint}?task=${work.id}`, { headers: auth })
+    const fetched = await fetch(`${origin}/_f/work/file/${fingerprint}?task=${work.id}`, { headers: auth })
     assert.equal(fetched.status, 200)
     assert.equal(JSON.parse(await fetched.text()).length, 6)
     // For no task, and for one that is not out, it is not found.
-    assert.equal((await fetch(`${origin}/_t/work/file/${fingerprint}`, { headers: auth })).status, 404)
-    assert.equal((await fetch(`${origin}/_t/work/file/${fingerprint}?task=nothing`, { headers: auth })).status, 404)
-    assert.equal((await fetch(`${origin}/_t/work/file/${fingerprint}?task=${work.id}`)).status, 404)
+    assert.equal((await fetch(`${origin}/_f/work/file/${fingerprint}`, { headers: auth })).status, 404)
+    assert.equal((await fetch(`${origin}/_f/work/file/${fingerprint}?task=nothing`, { headers: auth })).status, 404)
+    assert.equal((await fetch(`${origin}/_f/work/file/${fingerprint}?task=${work.id}`)).status, 404)
   }
 })
 
@@ -69,10 +69,10 @@ test('[51-4] an answer past inFrame arrives as a file, and a result past inFrame
   const read = await asked(worker, 'r1', work.id, { what: 'read', plan: { from: 'marks', limit: 10 } })
   assert.equal(read.ok, true)
   assert.equal(typeof read.file, 'string', 'a large answer stands in the frame')
-  const fetched = await fetch(`${origin}/_t/work/file/${read.file}?task=${work.id}`, { headers: auth })
+  const fetched = await fetch(`${origin}/_f/work/file/${read.file}?task=${work.id}`, { headers: auth })
   assert.equal(JSON.parse(await fetched.text()).length, 6)
   const result = { words: 'a result that is larger than one frame may hold, '.repeat(10) }
-  const posted = await fetch(`${origin}/_t/work/file?task=${work.id}&carry=1`, {
+  const posted = await fetch(`${origin}/_f/work/file?task=${work.id}&carry=1`, {
     method: 'POST',
     headers: { ...auth, 'content-type': 'application/octet-stream' },
     body: JSON.stringify(result),
@@ -85,7 +85,7 @@ test('[51-4] an answer past inFrame arrives as a file, and a result past inFrame
   assert.deepEqual(await app.runs.wait(run), result)
 })
 
-test('[51-4] [51-11.5] [51-11.16] a file that the work makes is stored under a name of the engine own, and a progress that names a file its task did not post and its caller may not download is T2104', async (t) => {
+test('[51-4] [51-11.5] [51-11.16] a file that the work makes is stored under a name of the engine own, and a progress that names a file its task did not post and its caller may not download is F2104', async (t) => {
   const { app, origin, dataFolder } = await writerOf(t)
   const worker = await readyWorker(app, joiningKeys.free, ['locked'])
   const ada = await addUser(app, 'Ada')
@@ -93,7 +93,7 @@ test('[51-4] [51-11.5] [51-11.16] a file that the work makes is stored under a n
   await app.start('onLocked', { what: 'one' }, { as: ada })
   const work = Object((await worker.next('work')).task)
   const posted = await fetch(
-    `${origin}/_t/work/file?task=${work.id}&name=${encodeURIComponent('../../etc/passwd')}&kind=text/plain`,
+    `${origin}/_f/work/file?task=${work.id}&name=${encodeURIComponent('../../etc/passwd')}&kind=text/plain`,
     {
       method: 'POST',
       headers: { ...auth, 'content-type': 'application/octet-stream' },
@@ -103,13 +103,13 @@ test('[51-4] [51-11.5] [51-11.16] a file that the work makes is stored under a n
   assert.equal(posted.status, 200)
   const { id } = Object(Object(await posted.json()).value)
   const data = new DatabaseSync(join(dataFolder, 'data.db'), { readOnly: true })
-  const row = data.prepare('SELECT name FROM _t_files WHERE id = ?').get(id)
+  const row = data.prepare('SELECT name FROM _f_files WHERE id = ?').get(id)
   data.close()
   assert.ok(!String(row?.name).includes('/') && !String(row?.name).includes('passwd'), `stored as ${row?.name}`)
   // A file of another caller, which the caller of this task may not download.
   const other = await app.call('keepNote', { text: 'not for Ada' }, { as: bo })
   worker.send({ t: 'progress', task: work.id, n: 1, value: { at: 1 }, files: [String(other)] })
-  assert.equal((await worker.next('refused')).code, 'T2104')
+  assert.equal((await worker.next('refused')).code, 'F2104')
   worker.send({ t: 'progress', task: work.id, n: 2, value: { at: 2 }, files: [id] })
   assert.equal((await worker.next('saved')).n, 2)
   await untilWithin(() => true, 'nothing')

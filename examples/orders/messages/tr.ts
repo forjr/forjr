@@ -1,4 +1,4 @@
-import { messages } from 'tentjs/ui'
+import { messages } from 'forjr/ui'
 
 export default messages('tr', {
   app: { name: 'Siparişler', loading: 'Yükleniyor' },
@@ -124,7 +124,7 @@ export default messages('tr', {
     home: 'Başa dön',
   },
   fail: { 'wrong-sign-in': 'Bu e-posta ve parola eşleşmiyor.' },
-  tent: {
+  forjr: {
     required: 'Bu alan gerekli.',
     type: 'Bu geçerli bir değer değil.',
     min: 'En az {min}.',

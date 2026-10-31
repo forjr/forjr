@@ -2,9 +2,9 @@
 // and the apps they published. Run: node server.ts <bundle of product/> [--port 3000] [--folder ./run]
 import { join, resolve } from 'node:path'
 import { fileURLToPath } from 'node:url'
-import { guardedFetch } from 'tentjs/connect'
-import { apartRoom, createEngine, type Makers } from 'tentjs/engine'
-import { createWorkspaces } from 'tentjs/workspaces'
+import { guardedFetch } from 'forjr/connect'
+import { apartRoom, createEngine, type Makers } from 'forjr/engine'
+import { createWorkspaces } from 'forjr/workspaces'
 import { processBox } from './box.ts'
 import { projects } from './product/tables/projects.ts'
 import { TICKET, tickets } from './ticket.ts'
@@ -20,8 +20,8 @@ export type BuilderOptions = {
   port: number
   mode?: 'test' | 'live'
   makers?: Makers
-  // The words that run `tent` on this computer, for the build of a workspace.
-  tent?: readonly string[]
+  // The words that run `forjr` on this computer, for the build of a workspace.
+  forjr?: readonly string[]
 }
 
 type Frame = { project: string; workspace: string; email: string }
@@ -77,7 +77,7 @@ export async function startBuilder(o: BuilderOptions) {
     templates: { blank: join(HERE, 'templates', 'blank') },
     framedBy: [origin],
     // What a person's AI writes is built in a box of its own and run in a room apart, never in this program.
-    sandbox: processBox({ tent: o.tent ?? ['tent'] }),
+    sandbox: processBox({ forjr: o.forjr ?? ['forjr'] }),
     room: (input) => apartRoom(input),
     // The app of a workspace knows only the person whose project it is.
     identify: async ({ request, call }) => {
@@ -107,7 +107,7 @@ export async function startBuilder(o: BuilderOptions) {
     return new Response(null, {
       status: 302,
       headers: {
-        location: `http://${workspaceName(mine.workspace)}:${o.port}/?t-inspect=${token}`,
+        location: `http://${workspaceName(mine.workspace)}:${o.port}/?f-inspect=${token}`,
         'set-cookie': `${TICKET}=${ticket.make(mine.email)}; Domain=${PRODUCT_NAME}; Path=/; HttpOnly; SameSite=Lax${secure}`,
       },
     })
@@ -135,7 +135,7 @@ if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.ur
     return at === -1 ? otherwise : (words[at + 1] ?? otherwise)
   }
   const bundle = words.find((word) => !word.startsWith('--'))
-  if (!bundle) throw new Error('Name the bundle of product/, as `tent build` wrote it.')
+  if (!bundle) throw new Error('Name the bundle of product/, as `forjr build` wrote it.')
   const builder = await startBuilder({
     bundle,
     folder: resolve(flag('--folder', 'run')),

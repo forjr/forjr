@@ -62,7 +62,7 @@ export const command: Command = {
   needs: 'project',
   run: async ({ args, folder }) => {
     const target = targetOf(args.to)
-    const history = openHistory(typeof args.data === 'string' ? resolve(folder, args.data) : join(folder, '.tent'))
+    const history = openHistory(typeof args.data === 'string' ? resolve(folder, args.data) : join(folder, '.forjr'))
     try {
       const answer = await publish({
         project: folder,

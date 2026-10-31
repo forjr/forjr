@@ -58,8 +58,8 @@ async function partsOf(stream: unknown): Promise<{ parts: unknown[]; ended: stri
 test('[26-10] stream with a shape gives parts of { value, text } that grow, each the whole value so far, by each row of the table, and the last is the checked answer', async () => {
   const written = [
     'Here it is: ```json\n',
-    '{"title": "A te',
-    'nt\\',
+    '{"title": "A ho',
+    'use\\',
     'n", "tags": ["a", "b',
     '"], "score": 1',
     '2, "don',
@@ -74,36 +74,36 @@ test('[26-10] stream with a shape gives parts of { value, text } that grow, each
   // A part is given where the value so far changed, and the last is the answer, checked as `fill` checks one.
   assert.deepEqual(values, [
     // Nothing before the first `{`; an open object closed where it stands, and a text as far as it has come.
-    { title: 'A te' },
+    { title: 'A ho' },
     // An escape that is cut in half is not given.
-    { title: 'A tent' },
+    { title: 'A house' },
     // A number that may not be whole is left out until what follows it has come.
-    { title: 'A tent\n', tags: ['a', 'b'] },
+    { title: 'A house\n', tags: ['a', 'b'] },
     // A key whose value has not begun is left out, as is a word that is not whole.
-    { title: 'A tent\n', tags: ['a', 'b'], score: 12 },
-    { title: 'A tent\n', tags: ['a', 'b'], score: 12, done: true },
-    { title: 'A tent\n', tags: ['a', 'b'], score: 12, done: true },
+    { title: 'A house\n', tags: ['a', 'b'], score: 12 },
+    { title: 'A house\n', tags: ['a', 'b'], score: 12, done: true },
+    { title: 'A house\n', tags: ['a', 'b'], score: 12, done: true },
   ])
   // Beside each value stands the text so far, as the model wrote it.
   assert.equal(Reflect.get(Object(parts.at(-1)), 'text'), written.join(''))
-  assert.ok(String(Reflect.get(Object(parts[0]), 'text')).endsWith('"A te'))
+  assert.ok(String(Reflect.get(Object(parts[0]), 'text')).endsWith('"A ho'))
 })
 
-test('[26-10] an answer that does not fit ends the stream with T7108, and one that was cut off with T7107, each after its parts, and neither goes to a second model', async () => {
-  const misfit = asked(parted(['{"title": "A tent", ', '"score": "many"}']))
+test('[26-10] an answer that does not fit ends the stream with F7108, and one that was cut off with F7107, each after its parts, and neither goes to a second model', async () => {
+  const misfit = asked(parted(['{"title": "A house", ', '"score": "many"}']))
   const one = await partsOf(misfit.call('writer', 'stream', ['Describe it.', { shape }]))
-  assert.equal(one.ended, 'T7108')
+  assert.equal(one.ended, 'F7108')
   assert.ok(one.parts.length >= 1)
   assert.deepEqual(
     misfit.used.map((used) => used.answeredBy),
     ['writer'],
   )
-  const cut = asked(parted(['{"title": "A te'], { fail: 'cutOff' }))
+  const cut = asked(parted(['{"title": "A ho'], { fail: 'cutOff' }))
   const two = await partsOf(cut.call('writer', 'stream', ['Describe it.', { shape }]))
-  assert.equal(two.ended, 'T7107')
+  assert.equal(two.ended, 'F7107')
   assert.deepEqual(
     two.parts.map((part) => Reflect.get(Object(part), 'value')),
-    [{ title: 'A te' }],
+    [{ title: 'A ho' }],
   )
   assert.deepEqual(
     cut.used.map((used) => used.answeredBy),
@@ -112,7 +112,7 @@ test('[26-10] an answer that does not fit ends the stream with T7108, and one th
 })
 
 test('[26-10] a provider that reads the value itself and sends no text gives one part, at the end', async () => {
-  const value = { title: 'A tent', tags: [], score: 3, done: false }
+  const value = { title: 'A house', tags: [], score: 3, done: false }
   const layer = asked(parted([], { value }))
   const { parts, ended } = await partsOf(layer.call('writer', 'stream', ['Describe it.', { shape }]))
   assert.equal(ended, 'ok')

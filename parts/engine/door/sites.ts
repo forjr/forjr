@@ -7,11 +7,11 @@ import { sameOrigin } from './web.ts'
 // The addresses whose answers a page of a listed site may read, and whose question a browser asks first.
 const shared = [
   /^\/api\//,
-  /^\/_t\/call\//,
-  /^\/_t\/read\//,
-  /^\/_t\/files$/,
+  /^\/_f\/call\//,
+  /^\/_f\/read\//,
+  /^\/_f\/files$/,
   /^\/mcp$/,
-  /^\/_t\/oauth\/(token|register)$/,
+  /^\/_f\/oauth\/(token|register)$/,
 ]
 
 /** Whether a path is one that a page of a listed site may call. */
@@ -38,7 +38,7 @@ function siteLines(site: string): Record<string, string> {
 /** The answer to the question a browser asks before a call from a listed site: the methods, headers and time. */
 export function preflightLines(o: Opened, site: string, path: string): Record<string, string> {
   const more: unknown = Reflect.get(Object(o.description.project.api), 'headers')
-  const headers = ['Authorization', 'Content-Type', 'Tent-Agreed']
+  const headers = ['Authorization', 'Content-Type', 'Forjr-Agreed']
   // The standard of MCP sends lines of its own with each request.
   if (path === '/mcp') headers.push('Mcp-Session-Id', 'Mcp-Protocol-Version', 'Mcp-Method', 'Mcp-Name', 'Last-Event-ID')
   if (Array.isArray(more)) for (const one of more) if (typeof one === 'string') headers.push(one)
@@ -63,7 +63,7 @@ export function toSite(o: Opened, request: Request, about: About, answer: Respon
 }
 
 // The addresses that a frame of a chat app reaches with its pass, from a site of no name of its own.
-const framed = [/^\/_t\/read\//, /^\/_t\/call\//, /^\/_t\/files$/]
+const framed = [/^\/_f\/read\//, /^\/_f\/call\//, /^\/_f\/files$/]
 
 /**
  * The answer to the question a browser asks before a frame of a chat app sends its pass: any site may send one,

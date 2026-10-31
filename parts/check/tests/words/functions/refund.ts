@@ -1,4 +1,4 @@
-import { action, boolean, change, fail, input, link, object, role, text } from 'tentjs'
+import { action, boolean, change, fail, input, link, object, role, text } from 'forjr'
 import { stripe } from '../services/stripe'
 import { orders } from '../tables/shop'
 

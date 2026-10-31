@@ -59,7 +59,7 @@ test('[29-11] a reader joins with a key that holds the right copy or far, and wi
   // A key of another right, and a key of the API, open no address of the link.
   for (const key of [read, api]) {
     const answer = await writer.request(
-      new Request('https://writer.test/_t/copy/versions', { headers: { authorization: `Bearer ${key}` } }),
+      new Request('https://writer.test/_f/copy/versions', { headers: { authorization: `Bearer ${key}` } }),
     )
     assert.equal(answer.status, 404)
   }
@@ -75,7 +75,7 @@ test('[29-11] a reader joins with a key that holds the right copy or far, and wi
   assert.equal(rows.filter((one) => one.role !== 'writer' && !one.far).length, 1, 'one near reader')
   // A far reader is believed in nothing it says of a new writer: its took stops no writer.
   const took = await writer.request(
-    new Request('https://writer.test/_t/copy/took', {
+    new Request('https://writer.test/_f/copy/took', {
       method: 'POST',
       headers: { authorization: `Bearer ${far}`, 'content-type': 'application/json' },
       body: JSON.stringify({ epoch: '999:zzzz', own: machineAddress.far }),
@@ -109,7 +109,7 @@ test('[29-11] an app opened with no readers that has written keeps no change; a 
   const near = await opening
   await current(world, near)
   await Promise.all(writes)
-  assert.equal(world.asked['/_t/copy/data'], 1, 'one fetch of the data')
+  assert.equal(world.asked['/_f/copy/data'], 1, 'one fetch of the data')
   await until('the reader holds every write', () => near.at().n === writer.at().n)
   assert.equal((await tags(near)).length, 5 + n)
   // The reader stops, the writer writes ten times and is opened again with no readers: it serves the reader from
@@ -121,5 +121,5 @@ test('[29-11] an app opened with no readers that has written keeps no change; a 
   const back = await readerOf(world, copy, 'near', false)
   await current(world, back)
   assert.equal((await tags(back)).length, 15 + n)
-  assert.equal(world.asked['/_t/copy/data'], 1, 'still one fetch: the ten writes came from what was kept')
+  assert.equal(world.asked['/_f/copy/data'], 1, 'still one fetch: the ten writes came from what was kept')
 })

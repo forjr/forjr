@@ -7,7 +7,7 @@ import { updateInstall } from '../../install/updateInstall.ts'
 
 const [home, from, keys] = process.argv.slice(2)
 const current = readFileSync(join(home, 'current'), 'utf8').trim()
-const whole = existsSync(join(home, 'versions', current, 'player', 'tent.mjs'))
+const whole = existsSync(join(home, 'versions', current, 'player', 'forjr.mjs'))
 console.log(`found ${current} ${whole ? 'whole' : 'broken'}`)
 const port = new URL(from).port
 const done = await updateInstall(home, {

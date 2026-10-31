@@ -9,9 +9,9 @@ import { listedFolder } from './listed.ts'
 // The packages that the screens import are built once in development, apart from the views, and kept between saves.
 
 const files: Record<string, string> = {
-  'tent.ts': "import { project } from 'tentjs'\nexport const shop = project('shop', { title: 'Shop' })\n",
+  'forjr.ts': "import { project } from 'forjr'\nexport const shop = project('shop', { title: 'Shop' })\n",
   'screens/bars.tsx': `import { useState } from 'react'
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 import { BarLine } from 'tiny-bars'
 
 export const barsScreen = screen('barsScreen', {
@@ -63,7 +63,7 @@ test('[31-21] in development a package that a screen imports is built once into 
   // The module of the screen's file names the package by its module, and holds none of it.
   const view = readdirSync(join(first.bundleFolder, 'server')).find((one) => one === 'src.screens.bars.tsx.js')
   const viewText = readFileSync(join(first.bundleFolder, 'server', String(view)), 'utf8')
-  assert.match(viewText, new RegExp(`from "tent-package:${server.replaceAll('.', '\\.')}"`))
+  assert.match(viewText, new RegExp(`from "forjr-package:${server.replaceAll('.', '\\.')}"`))
   assert.doesNotMatch(viewText, /version one/)
   assert.ok(Object(first.description.browser).shared.includes(`browser/${browser}`))
 
@@ -147,10 +147,10 @@ test('[31-21] in development the stylesheet of a package that a screen imports i
   const folder = join(process.cwd(), 'results', 'build', `packageStyles-${Math.random().toString(36).slice(2)}`)
   t.after(() => rmSync(folder, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }))
   const project: Record<string, string> = {
-    'tent.ts': files['tent.ts'],
+    'forjr.ts': files['forjr.ts'],
     'screens/styled.tsx': `import 'tiny-styles/styles.css'
 import { useState } from 'react'
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 export const styledScreen = screen('styledScreen', {
   path: '/',

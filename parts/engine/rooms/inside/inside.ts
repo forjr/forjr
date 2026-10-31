@@ -1,6 +1,6 @@
 // The room runtime: the framework's code that a room which crosses loads into the heap where an app's code runs. It
 // imports no module of the runtime and reads none of its globals, so a host loads it into an isolate unchanged.
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import { setRuntime } from '../../../core/internal.ts'
 import type { Bounds } from '../callables.ts'
 import { intoOf, outOf } from '../callables.ts'
@@ -60,8 +60,8 @@ function arrowAt(exports: Record<string, unknown>, path: string[]): unknown {
   return at
 }
 
-const notHeld = (what: string): TentError =>
-  new TentError('T0011', `The room holds no ${what}.`, {
+const notHeld = (what: string): ForjrError =>
+  new ForjrError('F0011', `The room holds no ${what}.`, {
     fix: 'Build the project again, and run the bundle as the build wrote it.',
   })
 
@@ -132,7 +132,7 @@ export function insideOf(o: InsideInput): Inside {
           const names = [asked.page, asked.part, asked.preview]
             .map((part) => Reflect.get(Object(part), part === asked.page ? 'screen' : 'component'))
             .filter((name): name is string => typeof name === 'string')
-          // The page code is loaded first: a view finds React and `tentjs/ui` in it.
+          // The page code is loaded first: a view finds React and `forjr/ui` in it.
           const page = await code
           const views = await viewsOf(Object(asked.description), names)
           const signal = o.timeout?.(left)

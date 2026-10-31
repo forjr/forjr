@@ -31,10 +31,10 @@ const number: Type = { kind: 'number' }
 const textType: Type = { kind: 'text' }
 const yesNo: Type = { kind: 'boolean' }
 
-/** Adds a finding of T7121 at the line where the check stands, with the two lines of the tool it is about. */
+/** Adds a finding of F7121 at the line where the check stands, with the two lines of the tool it is about. */
 function found(c: Checking, what: string, tool?: string): void {
   const lines = tool ? twoLinesOf(c.description, c.agent, tool, c.o) : ''
-  c.found.push(finding('T7121', `${what}, on line ${c.line}.${lines ? `\n${lines}` : ''}`))
+  c.found.push(finding('F7121', `${what}, on line ${c.line}.${lines ? `\n${lines}` : ''}`))
 }
 
 /** The type of a read into a value by a path: a field of a record, `length`, and a place of a list. */
@@ -209,7 +209,7 @@ function statementsChecked(c: Checking, list: unknown[], around: Names): void {
 
 /**
  * Takes a description, an agent, the stored form of a sequence, and the tools that the run's sources gave it
- * and the outside tools that are held back. Answers what is sure to fail, each T7121 with its line and, for what
+ * and the outside tools that are held back. Answers what is sure to fail, each F7121 with its line and, for what
  * concerns a tool, the two lines of that tool: a name that is no tool, a read of a field that a record's type does
  * not have, a call whose written input lacks a required field or names one the tool does not take, a written value
  * of another kind than its field, a text that is no value of a `choice`, and `fill` where the model has no

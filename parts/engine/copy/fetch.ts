@@ -1,6 +1,6 @@
 import { closeSync, existsSync, openSync, readdirSync, renameSync, rmSync, writeSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Mode } from '../../data/index.ts'
 import { here, setHere, sqliteStore } from '../../data/index.ts'
 import { table as rateTable } from '../tables/rate.ts'
@@ -29,7 +29,7 @@ export function removeHalf(dataFolder: string): void {
 
 /**
  * Takes what reaches the writer, its address, and the key of this reader. Asks one address of the link with the
- * key, and answers what it was answered. Throws T0029 where the writer is not reached, or answers anything but
+ * key, and answers what it was answered. Throws F0029 where the writer is not reached, or answers anything but
  * what was asked for.
  */
 export async function asked(reached: Reached, address: string, path: string, key: string): Promise<Response> {
@@ -41,7 +41,7 @@ export async function asked(reached: Reached, address: string, path: string, key
     )
   } catch (error) {
     // What this machine itself refuses, as an address that is not secure, is told as it is.
-    if (error instanceof TentError) throw error
+    if (error instanceof ForjrError) throw error
     throw notReached(address, error instanceof Error ? error.message : String(error))
   }
   if (!answer.ok) throw notReached(address, `it answered ${path} with the status ${answer.status}`)
@@ -68,12 +68,12 @@ export async function writtenTo(answer: Response, path: string): Promise<number>
 
 /**
  * Takes what reaches the writer, its address, the key of this reader and a data folder. Fetches the data of the
- * writer into `data.db.fetch` of that folder, and holds its length against the answer's. Throws T0029 where the
+ * writer into `data.db.fetch` of that folder, and holds its length against the answer's. Throws F0029 where the
  * writer is not reached or the file did not arrive whole: no half file is left then.
  */
 export async function fetchData(reached: Reached, address: string, key: string, dataFolder: string): Promise<void> {
   removeHalf(dataFolder)
-  const answer = await asked(reached, address, '/_t/copy/data', key)
+  const answer = await asked(reached, address, '/_f/copy/data', key)
   let arrived: number
   try {
     arrived = await writtenTo(answer, fetchFile(dataFolder))
@@ -91,7 +91,7 @@ export async function fetchData(reached: Reached, address: string, key: string, 
   }
 }
 
-/** What a reader writes into the `_t_here` of the data it fetched: its own, in place of the writer's. */
+/** What a reader writes into the `_f_here` of the data it fetched: its own, in place of the writer's. */
 export interface Mine {
   // The id that the machine keeps, where it had one: a new one is made otherwise.
   id?: string
@@ -103,8 +103,8 @@ export interface Mine {
 
 /**
  * Takes a data folder that holds a fetched file, what the reader says of itself, and in `lost` whether the data
- * file that stands there is kept. Sets `_t_here` of the fetched file to the reader's own, so that what the writer
- * held of itself goes and `keptFrom` stays as it came, empties `_t_rate`, and puts the file in the place of the
+ * file that stands there is kept. Sets `_f_here` of the fetched file to the reader's own, so that what the writer
+ * held of itself goes and `keptFrom` stays as it came, empties `_f_rate`, and puts the file in the place of the
  * data file, while no store holds that place open. The file it replaces is removed, or moved beside the data as
  * `lost.<its epoch's number>.<its n>.db`. Answers the name of that file where one was kept. `n` is the number that
  * the machine held, where that is not the number of its data file: of an app that keeps a data file for each

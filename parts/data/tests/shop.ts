@@ -21,7 +21,7 @@ import {
   role,
   round,
   sum,
-  TentError,
+  ForjrError,
   table,
   text,
   where,
@@ -219,7 +219,7 @@ export function fieldsOf(call: () => unknown): Record<string, string> {
   try {
     call()
   } catch (error) {
-    if (error instanceof TentError) return error.fields ?? {}
+    if (error instanceof ForjrError) return error.fields ?? {}
   }
   return {}
 }

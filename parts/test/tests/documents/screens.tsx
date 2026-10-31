@@ -1,4 +1,4 @@
-import { screen, read, Form } from 'tentjs/ui'
+import { screen, read, Form } from 'forjr/ui'
 import { chatMessages, helper } from './functions'
 
 export const chatScreen = screen('chatScreen', {

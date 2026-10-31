@@ -1,5 +1,5 @@
 import { Bar, BarChart, CartesianGrid, Tooltip, XAxis, YAxis } from 'recharts'
-import { read, screen } from 'tentjs/ui'
+import { read, screen } from 'forjr/ui'
 import { allSales } from '../functions'
 
 // A library of charts that draws only in the browser: the server draws the box of its size, and nothing moves.

@@ -27,7 +27,7 @@ const starts = [1, 2, 3]
 const ran = join(folder, 'ran.log')
 const made = join(folder, 'made')
 const description = {
-  format: 'tent.description/1',
+  format: 'forjr.description/2',
   app: { name: 'paced', needsEngine: '1' },
   project: {},
   tables: {},

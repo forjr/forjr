@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { limitDefaults, isWritten } from '../core/internal.ts'
 import type { Driver } from './face.ts'
 import type { Held } from './held.ts'
@@ -32,7 +32,7 @@ const numberOf = (value: unknown, unless: number): number => (typeof value === '
 /**
  * Takes a version of the app and the name of a flow. Answers what the runner reads of its record: its kind, the
  * driver of that kind where one was given, its limits, its tries and whose rights a run of it has. An action
- * stands for the run that the engine makes for it. Throws T0001 for a name that is neither.
+ * stands for the run that the engine makes for it. Throws F0001 for a name that is neither.
  */
 export function flowOf(held: Held, version: string, name: string): FlowOf {
   const description = held.env.description(version)
@@ -40,8 +40,8 @@ export function flowOf(held: Held, version: string, name: string): FlowOf {
   const action = Object.hasOwn(description.functions, name) ? description.functions[name] : undefined
   const record = flow ?? action
   if (!record)
-    throw new TentError('T0001', `The version ${version} holds no flow named ${JSON.stringify(name).slice(0, 80)}.`, {
-      fix: 'Start a flow of the app by its name: `tent map` lists them.',
+    throw new ForjrError('F0001', `The version ${version} holds no flow named ${JSON.stringify(name).slice(0, 80)}.`, {
+      fix: 'Start a flow of the app by its name: `forjr map` lists them.',
     })
   const kind = flow ? ([...held.drivers.keys()].find((one) => record[one] !== undefined) ?? 'flow') : 'action'
   const driven = held.drivers.get(kind)

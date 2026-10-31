@@ -1,4 +1,4 @@
-import { later, TentError } from '../../core/index.ts'
+import { later, ForjrError } from '../../core/index.ts'
 import { rowIds } from '../../data/index.ts'
 import type { Opened } from '../opened.ts'
 import { callerWritten } from '../program.ts'
@@ -6,8 +6,8 @@ import { newApiKey } from './form.ts'
 import type { KeyRow } from './kept.ts'
 import { isStored } from '../../core/internal.ts'
 
-const bad = (words: string, field: string, check = 'type'): TentError =>
-  new TentError('T0002', words, { fields: { [field]: check } })
+const bad = (words: string, field: string, check = 'type'): ForjrError =>
+  new ForjrError('F0002', words, { fields: { [field]: check } })
 
 /** A list of names as a key holds it: texts, each once. */
 function namesOf(given: unknown, field: string): string[] {
@@ -37,7 +37,7 @@ function workOf(given: unknown, rights: string[]): Record<string, unknown> {
   }
 }
 
-/** A key as `keys.add` is handed it, held to its fields. Throws T0002 for one that does not fit, T2103 for a user of no row. */
+/** A key as `keys.add` is handed it, held to its fields. Throws F0002 for one that does not fit, F2103 for a user of no row. */
 function keyFrom(o: Opened, given: unknown, id: string): KeyRow {
   if (!isStored(given)) throw bad('`keys.add` takes a record: `{ name, scopes, roles, user, perMinute, for }`.', '')
   if (typeof given.name !== 'string' || given.name.trim() === '') throw bad('A key has a `name`.', 'name', 'required')
@@ -76,6 +76,7 @@ function keyFrom(o: Opened, given: unknown, id: string): KeyRow {
 /** A key as a list shows it: what it carries, and neither its rights nor its work. */
 export type Shown = Omit<KeyRow, 'rights' | 'work'>
 
+/** Takes a kept key. Answers it as a list shows it, with neither its rights nor its work. */
 export const shownOf = (key: KeyRow): Shown => ({
   id: key.id,
   name: key.name,
@@ -91,8 +92,8 @@ export const shownOf = (key: KeyRow): Shown => ({
 
 /**
  * Takes an app and what a key is made with: `{ name, scopes, roles, user, perMinute, for, asks, rights, work }`.
- * Answers its row, the key itself, which is shown once, and the fingerprint that is kept of it. Throws T0002 for
- * a field that does not fit, and T2103 for a user of no row.
+ * Answers its row, the key itself, which is shown once, and the fingerprint that is kept of it. Throws F0002 for
+ * a field that does not fit, and F2103 for a user of no row.
  */
 export function madeKey(o: Opened, given: unknown): { row: KeyRow; key: string; fingerprint: string } {
   const id = rowIds.next()

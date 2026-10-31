@@ -1,4 +1,4 @@
-import { anyone, count, max, min, number, sum, table, text } from 'tentjs'
+import { anyone, count, max, min, number, sum, table, text } from 'forjr'
 import { orders } from './orders'
 
 const open = anyone('a test reads and writes it')

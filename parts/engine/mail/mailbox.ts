@@ -6,7 +6,7 @@ import type { Opened } from '../opened.ts'
 /** A message as a `Mailer` is handed it, where the mode `development` may keep one that is from nobody yet. */
 export type Unsent = Omit<Parameters<Mailer['send']>[0], 'from'> & { from?: Who }
 
-/** A message as `/_t/mail` and `tent logs --mail` show it: who it is from and to, its words, and the names of its files. */
+/** A message as `/_f/mail` and `forjr logs --mail` show it: who it is from and to, its words, and the names of its files. */
 export interface KeptMail {
   id: string
   at: number
@@ -28,7 +28,7 @@ const boxes = new WeakMap<object, { id: string; at: number; message: Unsent }[]>
 
 /**
  * Keeps a message that an app sent where nothing is sent, in the mode `development` and `test`, in its mailbox:
- * the one place that `/_t/mail`, `tent logs --mail` and `app.mailbox` of a test read.
+ * the one place that `/_f/mail`, `forjr logs --mail` and `app.mailbox` of a test read.
  */
 export function keepInMailbox(o: Opened, message: Unsent): void {
   const box = boxes.get(o.handles) ?? []

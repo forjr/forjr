@@ -55,7 +55,7 @@ function usedOf(amounts: Gathered[], machine: string): Used[] {
   return [...things.values()]
 }
 
-/** The number of the last batch of a machine that the copy of `_t_counting` on this machine says was written. */
+/** The number of the last batch of a machine that the copy of `_f_counting` on this machine says was written. */
 function writtenOf(o: Opened, machine: string): { start: number; n: number } | undefined {
   const row: unknown = o.store.read({ from: countingTable.name, one: 'get', id: `batch:${machine}` }, system).value
   const value: unknown = Reflect.get(Object(row), 'value')
@@ -67,7 +67,7 @@ function writtenOf(o: Opened, machine: string): { start: number; n: number } | u
 /**
  * Takes a reader, the link to its writer as it opens, and how the writer counts. From then on the reader counts as
  * its writer does, and hands what it counted to the writer in batches, once every `countEvery`: each with the moment
- * its program started and a number that grows. A batch is kept until the reader's copy of `_t_counting` says that
+ * its program started and a number that grows. A batch is kept until the reader's copy of `_f_counting` says that
  * the writer wrote it, and is sent again over each new link until then.
  */
 export function countsToWriter(o: Opened, link: Link, said: unknown): void {

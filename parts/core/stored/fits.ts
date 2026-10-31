@@ -63,7 +63,7 @@ function said(told: Told, option: string, message: string): void {
   const named = (finding: { message: string }): boolean =>
     finding.message.startsWith(`${told.name}: `) &&
     (finding.message.includes(`\`${option}\``) || finding.message.includes(`\`${option}.`))
-  if (!told.findings.some(named)) report(told, 'T1014', message, fix)
+  if (!told.findings.some(named)) report(told, 'F1014', message, fix)
 }
 
 /**
@@ -108,7 +108,7 @@ function placeOf(
 /**
  * Takes the record that was stored of one definition, the part of the description it stands in, and the options
  * as they were written. Holds each option that was written against what was stored of it, for what the shape
- * cannot see, since the shape takes what holds when an option is left out: T1014, by the name of the option,
+ * cannot see, since the shape takes what holds when an option is left out: F1014, by the name of the option,
  * where nothing is stored of it and its value is of another kind than its field is made of; where a record
  * stands in the place of one plain value; where it is kept as code and is no arrow; and where the shape names no
  * place for it and it is no arrow. What was stored of such an option is left out. What a written value may hold
@@ -187,10 +187,10 @@ function keptIn(description: Description): Kept[] {
  * The last thing `describe` does. Takes the description; `toldOf`, which answers what is known of a definition
  * by its name; and `net`, which carries a piece of work out for one definition and answers whether it ended.
  * Holds what was stored of each definition as `checkDescription` holds it, each inside its net, and whatever
- * fails is T1014 on the definition whose record it stands in, by the name of the option as its author wrote it and
+ * fails is F1014 on the definition whose record it stands in, by the name of the option as its author wrote it and
  * with the words of the checker, and is left out: the option, or the whole record where a field that the shape
  * requires is missing. A body that is refused, as one that hands a word a value in the place of its arrow, is
- * T0011, and its definition is left out. A definition whose walk did not end was reported by its net, and is left
+ * F0011, and its definition is left out. A definition whose walk did not end was reported by its net, and is left
  * out too. So what `describe` answers passes `checkDescription`.
  */
 export function netted(
@@ -227,11 +227,11 @@ export function netted(
       }
       const option = field ? (keptAt(writtenName, field) ?? field) : rest.split('.')[0]
       // A body is what the build read, and no option: one that is refused leaves no definition to carry out.
-      if (miss.code === 'T0011' || (field === 'body' && at === one.record)) {
+      if (miss.code === 'F0011' || (field === 'body' && at === one.record)) {
         one.takeOut()
         report(
           told,
-          'T0011',
+          'F0011',
           `\`${path}\` ${words}, and the definition is left out.`,
           'A word that takes an arrow is handed one that is written in place.',
         )

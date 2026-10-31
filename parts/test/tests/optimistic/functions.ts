@@ -1,4 +1,4 @@
-import { action, boolean, change, input, query, role, table, text } from 'tentjs'
+import { action, boolean, change, input, query, role, table, text } from 'forjr'
 
 export const todos = table('todos', {
   columns: { title: text(), box: text(), done: boolean({ default: false }) },

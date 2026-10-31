@@ -1,7 +1,7 @@
-import { action, allow, avg, boolean, calc, caller, change, count, each, fail, given, input, later, link, list, mail, now, number, object, query, role, round, settings, sum, text, where } from 'tentjs'
+import { action, allow, avg, boolean, calc, caller, change, count, each, fail, given, input, later, link, list, mail, now, number, object, query, role, round, settings, sum, text, where } from 'forjr'
 import intro from '../prompts/intro.txt'
 import { customers, members, orders } from '../tables/shop'
-import { shop } from '../tent'
+import { shop } from '../forjr'
 
 const LABELS = { open: 'Open', paid: 'Paid', shipped: 'On its way' }
 const PAGE = 20

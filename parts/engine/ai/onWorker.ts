@@ -1,5 +1,5 @@
 import type { Used } from '../../ai/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { rowIds } from '../../data/index.ts'
 import type { CallContext } from '../context.ts'
 import { mayPlace } from '../flows/workPlace.ts'
@@ -15,7 +15,7 @@ const mays = new WeakMap<Remote, Map<string, { may: string; key: string; nth: nu
  */
 export async function mayOnWorker(cx: CallContext, asked: { model: string; call: string }): Promise<void> {
   const remote = cx.remote
-  if (!remote) throw new TentError('T0009', 'A call of a worker is made in the work of a task.')
+  if (!remote) throw new ForjrError('F0009', 'A call of a worker is made in the work of a task.')
   const { key, nth } = mayPlace(cx, asked.model, asked.call)
   const may = rowIds.next()
   const held = mays.get(remote) ?? new Map<string, { may: string; key: string; nth: number }>()

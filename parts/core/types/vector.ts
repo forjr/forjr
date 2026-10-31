@@ -1,4 +1,4 @@
-import { TentError } from '../errors.ts'
+import { ForjrError } from '../errors.ts'
 import type { Only, VectorOptions } from '../type.ts'
 
 /**
@@ -9,7 +9,7 @@ export function vector<const O extends VectorOptions>(
   o: Only<O, VectorOptions>,
 ): { kind: 'vector'; model?: string } & Omit<O, 'model'> {
   if (typeof o !== 'object' || o === null)
-    throw new TentError('T1014', 'vector takes its options as a record, of which `size` is required.')
+    throw new ForjrError('F1014', 'vector takes its options as a record, of which `size` is required.')
   const { model, ...rest } = o
   return model ? { kind: 'vector', ...rest, model: model.definition } : { kind: 'vector', ...rest }
 }

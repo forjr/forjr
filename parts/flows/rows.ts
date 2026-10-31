@@ -24,7 +24,7 @@ export const inWrite = <T>(source: Source, work: (tx: Tx) => T): T =>
 /** A step whose result is larger than this many bytes is read without its result, which is read when a pass comes to it. */
 const smallResult = 4096
 
-/** One row of `_t_runs`, as the runner holds it. */
+/** One row of `_f_runs`, as the runner holds it. */
 export interface RunRow {
   id: string
   flow: string
@@ -55,7 +55,7 @@ export interface RunRow {
   trace?: string
 }
 
-/** One row of `_t_steps`, as the runner holds it. `whole` is false where its result was left unread for its size. */
+/** One row of `_f_steps`, as the runner holds it. `whole` is false where its result was left unread for its size. */
 export interface StepRow {
   run: string
   name: string
@@ -125,7 +125,7 @@ const textOf = (value: unknown): string | undefined => (typeof value === 'string
 const states: RunState[] = ['queued', 'running', 'waiting', 'done', 'failed', 'stopped']
 const leaves: Leave[] = ['agreed', 'trusted', 'none']
 
-/** Reads what a store answered as one row of `_t_runs`. */
+/** Reads what a store answered as one row of `_f_runs`. */
 function runOf(row: unknown): RunRow | undefined {
   if (!isWritten(row) || typeof row.id !== 'string') return undefined
   const by = isWritten(row.startedBy) ? row.startedBy : {}
@@ -174,7 +174,7 @@ function runOf(row: unknown): RunRow | undefined {
   }
 }
 
-/** Reads what a store answered as one row of `_t_steps`. */
+/** Reads what a store answered as one row of `_f_steps`. */
 export function stepOf(row: unknown, whole = true): StepRow | undefined {
   if (!isWritten(row) || typeof row.run !== 'string') return undefined
   const state = row.state === 'started' || row.state === 'waiting' || row.state === 'failed' ? row.state : 'done'
@@ -331,7 +331,7 @@ export function removeRun(tx: Tx, run: string): void {
   tx.remove(runsTable.name, run, system)
 }
 
-/** One row of `_t_schedule`. */
+/** One row of `_f_schedule`. */
 export interface ScheduleRow {
   flow: string
   trigger: string

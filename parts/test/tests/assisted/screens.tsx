@@ -1,4 +1,4 @@
-import { screen, read, useAgent, useParams, Form } from 'tentjs/ui'
+import { screen, read, useAgent, useParams, Form } from 'forjr/ui'
 import { helper } from './functions'
 
 // A screen written in code: the conversation of its address, with the answer as it is written and each ask.

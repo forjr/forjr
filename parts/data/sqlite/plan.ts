@@ -1,5 +1,5 @@
 import type { SQLInputValue } from 'node:sqlite'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Plan } from '../../core/internal.ts'
 import type { ColumnType, ReadAnswer, Row, StorePlan } from '../store.ts'
 import type { Filter } from '../worked.ts'
@@ -42,7 +42,7 @@ interface Named {
   number?: { sql: string; table: string }
 }
 
-const unknown = (what: string): TentError => new TentError('T0009', `The store cannot read a plan with ${what}.`)
+const unknown = (what: string): ForjrError => new ForjrError('F0009', `The store cannot read a plan with ${what}.`)
 
 /**
  * Names a column of a table, which may run through links: each link is followed by its inside number, in the one
@@ -375,7 +375,7 @@ function decided(
  * rule is applied here: whoever hands the plan has written each rule into it. Where the plan holds `after`, its
  * value is the sort values and the id of the last row of the page before, and the rows are cut by their ids.
  * Every text that a plan is turned into is compiled and run from here, so what SQLite itself refuses of one is
- * thrown as an error of ours: T0009 with the words of SQLite, and that failure as its cause.
+ * thrown as an error of ours: F0009 with the words of SQLite, and that failure as its cause.
  */
 export function readPlan(held: Held, plan: StorePlan): ReadAnswer {
   try {

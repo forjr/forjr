@@ -4,9 +4,9 @@
   "files": {
     "includes": [
       "**",
-      "!tent.d.ts",
+      "!forjr.d.ts",
       "!walk/pictures",
-      "!!.tent",
+      "!!.forjr",
       "!!results",
       "!!node_modules",
       "!!desktop/target",

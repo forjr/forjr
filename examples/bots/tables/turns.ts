@@ -1,4 +1,4 @@
-import { choice, date, json, link, table, text } from 'tentjs'
+import { choice, date, json, link, table, text } from 'forjr'
 
 // One row for each run of a bot, whoever started it, so the list of runs holds the routine's runs too.
 export const turns = table('turns', {

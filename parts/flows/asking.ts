@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { At, Place, StepAt } from './face.ts'
 import type { Held } from './held.ts'
 import { asSaved, keptError } from './kept.ts'
@@ -18,7 +18,8 @@ const samePlace = (a: Place, b: Place): boolean => a.name === b.name && a.nth ==
  * row, or nothing for any other failure.
  */
 export function askFor(pass: Pass, at: StepAt, failure: unknown): StepRow | undefined {
-  if (!(failure instanceof TentError) || failure.code !== 'T7111' || !failure.place || !pass.of.driven) return undefined
+  if (!(failure instanceof ForjrError) || failure.code !== 'F7111' || !failure.place || !pass.of.driven)
+    return undefined
   const { env } = pass.of.held
   // The places that were agreed to are kept by the engine's own asking while the work ran: the row is read anew.
   const agreed = readStep(readIn(env, pass.of.run.id), pass.of.run.id, at)?.agreed ?? []
@@ -43,7 +44,7 @@ export function askedForTask(
   failure: unknown,
   now: number,
 ): Given<StepRow> | undefined {
-  if (!(failure instanceof TentError) || failure.code !== 'T7111' || !failure.place) return undefined
+  if (!(failure instanceof ForjrError) || failure.code !== 'F7111' || !failure.place) return undefined
   const own = flowOf(held, run.version, run.flow)
   const top = run.top === run.id ? undefined : runOf(held.env, run.top)
   const driven = top ? top.kind !== 'flow' && top.kind !== 'action' : own.driver !== undefined
@@ -68,15 +69,15 @@ export function yesOf(
 
 /**
  * Notes that the agreed call at this place was made and ended well, and keeps its answer as plain data. Throws
- * T5102 for an answer past `most` bytes, which fails the step.
+ * F5102 for an answer past `most` bytes, which fails the step.
  */
 export function madeOf(held: Held, at: At, call: Place, answer: unknown, most: number): void {
   if (!at.step) return
   const step = at.step
   const kept = asSaved(answer)
   if (kept.size > most)
-    throw new TentError(
-      'T5102',
+    throw new ForjrError(
+      'F5102',
       `The answer of the agreed call ${call.name} is ${kept.size} bytes, past \`limits.result\` of ${most}.`,
       { fix: 'Have the call answer less, or raise `limits.result`.' },
     )
@@ -95,16 +96,16 @@ export function madeOf(held: Held, at: At, call: Place, answer: unknown, most: n
   })
 }
 
-const noSuch = (words: string): TentError =>
-  new TentError('T0002', words, {
+const noSuch = (words: string): ForjrError =>
+  new ForjrError('F0002', words, {
     fix: 'Name a step that waits for an answer, with the pass and the ask that `runs.find` and `runs.read` show of it.',
   })
 
 /**
  * Answers the step of a run that waits for a person: approved or refused. Of a wait-for the step is done, with
  * what was decided as its result. Of an ask about a call, a yes moves the place of the call among the agreed ones
- * and has the step made again, and a no fails the step with T7111. The run is queued in the same write. Throws
- * T0001 for a run that is not there, and T0002 where no step of that name waits, or where `repeat` or `n` name
+ * and has the step made again, and a no fails the step with F7111. The run is queued in the same write. Throws
+ * F0001 for a run that is not there, and F0002 where no step of that name waits, or where `repeat` or `n` name
  * another pass or another ask than the one that waits.
  */
 export function answerStep(
@@ -118,7 +119,7 @@ export function answerStep(
   const { clock } = held.env
   const store = readIn(held.env, run)
   const row = readRun(store, run)
-  if (!row) throw new TentError('T0001', `No run ${JSON.stringify(run).slice(0, 80)} is there.`)
+  if (!row) throw new ForjrError('F0001', `No run ${JSON.stringify(run).slice(0, 80)} is there.`)
   const waiting = readSteps(store, run)
     .filter(
       (one) =>
@@ -143,7 +144,7 @@ export function answerStep(
       const agreed = [...(found.agreed ?? []), call]
       writeStep(tx, run, at, { state: 'started', agreed, ask: null, show: null, wakeAt: null }, false)
     } else if (call) {
-      const error = keptError(new TentError('T7111', `A person refused the call of ${call.name}.`))
+      const error = keptError(new ForjrError('F7111', `A person refused the call of ${call.name}.`))
       writeStep(tx, run, at, { state: 'failed', error, ask: null, wakeAt: null, endedAt: now }, false)
     } else {
       const result = asSaved({

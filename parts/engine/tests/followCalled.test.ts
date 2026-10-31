@@ -28,7 +28,7 @@ const calledIn = (got: Message[], id: string): string[] =>
     return Array.isArray(runs) ? runs.map(String) : []
   })
 
-test('[27-15] a called agent: the tool step above carries the id of the run it called in a step part; its starter follows that run with a run-watch of its own, and another caller is answered T0001; working names it in under, and working with { run } answers its entry with its text', async (t) => {
+test('[27-15] a called agent: the tool step above carries the id of the run it called in a step part; its starter follows that run with a run-watch of its own, and another caller is answered F0001; working names it in under, and working with { run } answers its entry with its text', async (t) => {
   const h = await followedApp(t)
   const inside = held()
   t.after(inside.go)
@@ -68,7 +68,7 @@ test('[27-15] a called agent: the tool step above carries the id of the run it c
   await untilTried('both watches failed', () => other.of('failed').length === 2)
   assert.deepEqual(
     other.of('failed').map((one) => Object(one.error).code),
-    ['T0001', 'T0001'],
+    ['F0001', 'F0001'],
   )
   inside.go()
   await untilTried('the called run ended', () => partsOf(page.got, 'below', 'done').length === 1)
@@ -94,7 +94,7 @@ test('[27-15] an agent that a step of a flow of the system calls is followed by 
     page.send({ t: 'run-watch', id: 'agent', run: inner.id })
     await untilTried('both watches were answered', () => page.of('run').length + page.of('failed').length === 2)
     assert.equal(page.of('run', 'flow').length, flow === 'sweep' ? 1 : 0, `${flow}: its own follow`)
-    assert.equal(Object(page.of('failed', 'agent')[0]?.error).code, 'T0001', `${flow}: the agent under it`)
+    assert.equal(Object(page.of('failed', 'agent')[0]?.error).code, 'F0001', `${flow}: the agent under it`)
     // Its asks are passed up to nobody either: working of the agent holds none for the starter of the flow.
     assert.deepEqual(await h.app.call('inner.working', { run: inner.id }, { as: h.maya }), [])
     assert.equal(h.app.runs.read(inner.id)?.state, 'waiting')

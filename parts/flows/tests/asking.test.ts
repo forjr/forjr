@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import type { TestContext } from 'node:test'
 import { test } from 'node:test'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { At, Driver, FlowBody, Runner } from '../index.ts'
 import type { Bench, Made } from './bench.ts'
 import { bench, codeOf, handClock, openStore, version, workFolder } from './bench.ts'
@@ -10,7 +10,7 @@ const hour = 3_600_000
 
 /**
  * The stand-in for the engine in one making of a step: it counts the calls of each name, asks the runner whether
- * a person agreed to the call at that place, refuses one that nobody agreed to with T7111 and its place, gives an
+ * a person agreed to the call at that place, refuses one that nobody agreed to with F7111 and its place, gives an
  * agreed call that was made already the answer it had, and tells the runner of an agreed call that ended well.
  */
 function making(runner: Runner, at: At, made: string[]) {
@@ -21,7 +21,7 @@ function making(runner: Runner, at: At, made: string[]) {
       const nth = counts.get(name) ?? 0
       counts.set(name, nth + 1)
       const said = runner.yes(at, { name, nth })
-      if (!said.agreed) throw new TentError('T7111', `Nobody agreed to ${name}.`, { place: { name, nth } })
+      if (!said.agreed) throw new ForjrError('F7111', `Nobody agreed to ${name}.`, { place: { name, nth } })
       if (said.made) return said.answer
       const answer = await work()
       made.push(`${name} ${JSON.stringify(input)}`)
@@ -113,12 +113,12 @@ test('[23-28] a call that the engine refuses under a driven run makes its step w
   assert.deepEqual(stepOf(b, run, 'tool 1')?.show, { call: 'refund' })
   assert.throws(
     () => b.runner.approve(run, 'tool 1', undefined, { n: 1 }),
-    { code: 'T0002' },
+    { code: 'F0002' },
     'ask 1 is answered, and ask 2 waits',
   )
   assert.throws(
     () => b.runner.approve(run, 'tool 1', undefined, { repeat: 2 }),
-    { code: 'T0002' },
+    { code: 'F0002' },
     'no second pass of the step waits',
   )
 
@@ -172,7 +172,7 @@ test('[23-28] the place of a call is not moved by a call inside an agreed call, 
   })
 })
 
-test('[23-28] an agreed call that fails is made again by the next try with no new ask, and a refusal and the end of the time fail the step with T7111', async (t) => {
+test('[23-28] an agreed call that fails is made again by the next try with no new ask, and a refusal and the end of the time fail the step with F7111', async (t) => {
   const made: string[] = []
   let fails = 1
   let b: Bench
@@ -194,7 +194,7 @@ test('[23-28] an agreed call that fails is made again by the next try with no ne
             { tries: 2 },
           )
         } catch (error) {
-          caught.push(error instanceof TentError ? error.code : 'another error')
+          caught.push(error instanceof ForjrError ? error.code : 'another error')
           return 'went on without the call'
         }
       },
@@ -218,15 +218,15 @@ test('[23-28] an agreed call that fails is made again by the next try with no ne
   b.runner.refuse(refused, 'tool 1')
   assert.equal(await b.runner.wait(refused), 'went on without the call')
   assert.equal(stepOf(b, refused, 'tool 1')?.state, 'failed')
-  assert.equal(stepOf(b, refused, 'tool 1')?.error?.code, 'T7111')
+  assert.equal(stepOf(b, refused, 'tool 1')?.error?.code, 'F7111')
 
   const late = b.start('helper')
   await b.until(late, 'waiting')
   // Nobody answers within `limits.ask` of the agent at the top: the step gives up.
   b.clock.advance(hour)
   assert.equal(await b.runner.wait(late), 'went on without the call')
-  assert.equal(stepOf(b, late, 'tool 1')?.error?.code, 'T7111')
-  assert.deepEqual(caught, ['T7111', 'T7111'])
+  assert.equal(stepOf(b, late, 'tool 1')?.error?.code, 'F7111')
+  assert.deepEqual(caught, ['F7111', 'F7111'])
   assert.deepEqual(made, ['charge 1'], 'neither refused call was made')
 })
 
@@ -270,7 +270,7 @@ test('[23-28] the program killed between the refusal and the yes, and between th
   assert.deepEqual(made, ['mail.send "hello"'])
 })
 
-test('[23-28] of two calls that are refused side by side the first waits, and a T7111 from a called run makes the step above wait for nobody', async (t) => {
+test('[23-28] of two calls that are refused side by side the first waits, and a F7111 from a called run makes the step above wait for nobody', async (t) => {
   const made: string[] = []
   let b: Bench
   const leaves: unknown[] = []
@@ -314,7 +314,7 @@ test('[23-28] of two calls that are refused side by side the first waits, and a 
     {
       flows: {
         refusing: async () => {
-          throw new TentError('T7111', 'A person refused inside the called run.')
+          throw new ForjrError('F7111', 'A person refused inside the called run.')
         },
         started: async ({ step }) => step('work', () => void leaves.push(b.inside.at(-1)?.leave)),
       },
@@ -326,7 +326,7 @@ test('[23-28] of two calls that are refused side by side the first waits, and a 
   assert.equal(stepOf(b, both, 'tool 1')?.ask, 1)
 
   const above = b.start('above')
-  assert.equal(await codeOf(b.runner.wait(above)), 'T7111')
+  assert.equal(await codeOf(b.runner.wait(above)), 'F7111')
   assert.equal(stepOf(b, above, 'tool 1')?.state, 'failed', 'the step above fails, and is not tried again')
   assert.equal(stepOf(b, above, 'tool 1')?.ask, undefined, 'and waits for nobody')
 
@@ -352,7 +352,7 @@ test('[23-28] in a run with no driven run at its top the step fails at once, and
           return making(b.runner, b.inside.at(-1) ?? Object(), made).call('mail.send', 'hello')
         })
       } catch (error) {
-        caught.push(error instanceof TentError ? `${error.code} ${error.message}` : 'another error')
+        caught.push(error instanceof ForjrError ? `${error.code} ${error.message}` : 'another error')
       }
       await step.wait('1 day')
       return 'went on'
@@ -360,13 +360,13 @@ test('[23-28] in a run with no driven run at its top the step fails at once, and
   })
   const run = b.start('plain')
   await b.until(run, 'waiting')
-  // Nobody can be asked: the step failed with T7111 at its first try, and waits for no yes.
+  // Nobody can be asked: the step failed with F7111 at its first try, and waits for no yes.
   assert.equal(stepOf(b, run, 'send')?.state, 'failed')
   assert.equal(stepOf(b, run, 'send')?.ask, undefined)
   assert.equal(works, 1)
   b.clock.advance(86_400_000)
   assert.equal(await b.runner.wait(run), 'went on')
   assert.equal(works, 1, 'the work of the failed step is not carried out again')
-  assert.deepEqual(caught, ['T7111 Nobody agreed to mail.send.', 'T7111 Nobody agreed to mail.send.'])
+  assert.deepEqual(caught, ['F7111 Nobody agreed to mail.send.', 'F7111 Nobody agreed to mail.send.'])
   assert.deepEqual(made, [])
 })

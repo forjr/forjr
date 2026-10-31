@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Opened } from '../opened.ts'
 import type { TenantFiles } from './face.ts'
 import type { Failed } from './directory.ts'
@@ -8,7 +8,7 @@ import { isUnswept, sweepAll } from './pass.ts'
 import type { Stray } from './upkeep.ts'
 import { upkeepFiles } from './upkeep.ts'
 
-/** One file of a tenant as `tent data files` prints it. */
+/** One file of a tenant as `forjr data files` prints it. */
 interface Listed {
   table: string
   id: string
@@ -27,7 +27,7 @@ interface Listed {
   due?: number
 }
 
-/** What `tent data files` answers: the directory, and with a flag what that flag did. */
+/** What `forjr data files` answers: the directory, and with a flag what that flag did. */
 export interface FilesAnswer {
   files: Listed[]
   stray?: Stray
@@ -67,8 +67,8 @@ function listedFiles(o: Opened, tenantFiles: TenantFiles): Listed[] {
 async function retried(tenantFiles: TenantFiles, id: string): Promise<{ id: string; ok: boolean; error?: string }> {
   const row = rowsIn(tenantFiles.files.shared).find((one) => one.file.id === id)
   if (!row)
-    throw new TentError('T2103', `No data file of a tenant is found under ${JSON.stringify(id).slice(0, 60)}.`, {
-      fix: '`tent data files` lists the files, each with the id of its tenant.',
+    throw new ForjrError('F2103', `No data file of a tenant is found under ${JSON.stringify(id).slice(0, 60)}.`, {
+      fix: '`forjr data files` lists the files, each with the id of its tenant.',
     })
   if (!row.failed) return { id, ok: true }
   tenantFiles.sharedWrite((tx) => setRow(tx, row.file, { failed: null }))
@@ -81,7 +81,7 @@ async function retried(tenantFiles: TenantFiles, id: string): Promise<{ id: stri
 }
 
 /**
- * `tent data files`: prints the directory of the files of tenants. `behind`, `unswept` and `due` narrow it.
+ * `forjr data files`: prints the directory of the files of tenants. `behind`, `unswept` and `due` narrow it.
  * `stray` has the upkeep done at once, and says what it found and did. `sweep` opens and sweeps every file that is
  * unswept. `retry` tries a file again that could not be brought up, by the id of its tenant.
  */

@@ -1,4 +1,4 @@
-import { get, object, service, text } from 'tentjs'
+import { get, object, service, text } from 'forjr'
 
 export const weather = service('weather', {
   url: 'https://weather.example.com',

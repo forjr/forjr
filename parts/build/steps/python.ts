@@ -8,12 +8,12 @@ import { pythonFiles } from '../python/pyFiles.ts'
 import type { Step, Work } from '../work.ts'
 import { found } from '../work.ts'
 
-const fix = 'Run `tent python lock`, which makes the lock anew from the `packages` of the project.'
+const fix = 'Run `forjr python lock`, which makes the lock anew from the `packages` of the project.'
 
 /** Where a definition was written, by its name: its file and its line, where the build knows them. */
 function written(work: Work, name: string): { file: string; line: number | undefined } {
   const loaded = work.loaded.find((one) => Reflect.get(one.value, 'definition') === name)
-  return { file: loaded?.file ?? 'tent.ts', line: loaded?.line }
+  return { file: loaded?.file ?? 'forjr.ts', line: loaded?.line }
 }
 
 /** Whether an index is named by an `https` address that holds no name and no password. */
@@ -27,7 +27,7 @@ function isIndexAddress(address: unknown): boolean {
   }
 }
 
-/** Holds the entries of `packages`, and `index` and `build` of `python` in `project`, to the forms they take: T1014. */
+/** Holds the entries of `packages`, and `index` and `build` of `python` in `project`, to the forms they take: F1014. */
 function heldEntries(work: Work, python: Record<string, unknown>, functions: [string, unknown][]): void {
   for (const [name, record] of functions) {
     const lock: unknown = isStored(record) ? Reflect.get(Object(record.python), 'lock') : undefined
@@ -35,7 +35,7 @@ function heldEntries(work: Work, python: Record<string, unknown>, functions: [st
       const at = written(work, name)
       found(
         work,
-        'T1014',
+        'F1014',
         at.file,
         at.line,
         `${name}: the \`lock\` ${JSON.stringify(lock).slice(0, 60)} is no name of a lock: a name holds letters, digits and hyphens alone.`,
@@ -49,7 +49,7 @@ function heldEntries(work: Work, python: Record<string, unknown>, functions: [st
         const at = written(work, name)
         found(
           work,
-          'T1014',
+          'F1014',
           at.file,
           at.line,
           `${name}: the entry ${JSON.stringify(entry)} of \`packages\` is no name of a package with a version or a range: an entry never holds an option, an address or a file.`,
@@ -64,7 +64,7 @@ function heldEntries(work: Work, python: Record<string, unknown>, functions: [st
     if (!isIndexAddress(isStored(entry) ? entry.url : entry))
       found(
         work,
-        'T1014',
+        'F1014',
         project.file,
         project.line,
         '`python.index` of `project` names an index that is no `https` address, or whose address holds a name or a password.',
@@ -74,7 +74,7 @@ function heldEntries(work: Work, python: Record<string, unknown>, functions: [st
     if (!isLockName(named))
       found(
         work,
-        'T1014',
+        'F1014',
         project.file,
         project.line,
         `\`python.locks\` of \`project\` names the lock ${JSON.stringify(named).slice(0, 60)}, which is no name: a name holds letters, digits and hyphens alone.`,
@@ -85,7 +85,7 @@ function heldEntries(work: Work, python: Record<string, unknown>, functions: [st
     if (!isPackageName(entry))
       found(
         work,
-        'T1014',
+        'F1014',
         project.file,
         project.line,
         `\`python.build\` of \`project\` holds ${JSON.stringify(entry)}, which is not one name of a package.`,
@@ -96,7 +96,7 @@ function heldEntries(work: Work, python: Record<string, unknown>, functions: [st
 /**
  * Holds each lock of the project to what its definitions name today, and answers its bytes where it is there: its
  * lines to their form, its second line to the entries of `packages`, its first to the Python the project names.
- * What does not hold is T7020, at its line.
+ * What does not hold is F7020, at its line.
  */
 function heldLock(work: Work, description: Description, lock: Locked): Uint8Array | undefined {
   const { file } = lock
@@ -107,7 +107,7 @@ function heldLock(work: Work, description: Description, lock: Locked): Uint8Arra
     const at = written(work, lock.definitions[0] ?? '')
     found(
       work,
-      'T7020',
+      'F7020',
       at.file,
       at.line,
       `${lock.definitions.join(', ')} ${lock.definitions.length > 1 ? 'are' : 'is'} locked into ${file}, which is not there.`,
@@ -119,12 +119,12 @@ function heldLock(work: Work, description: Description, lock: Locked): Uint8Arra
   const bytes = readFileSync(lies)
   const read = readLock(bytes.toString('utf8'))
   for (const one of read.found)
-    found(work, 'T7020', file, one.line, `Line ${one.line} of ${file} is no line of a lock: ${one.why}.`, fix)
+    found(work, 'F7020', file, one.line, `Line ${one.line} of ${file} is no line of a lock: ${one.why}.`, fix)
   const wanted = pythonOfLock(description, lock.lock)
   if (read.version && wanted && read.version !== wanted)
     found(
       work,
-      'T7020',
+      'F7020',
       file,
       1,
       `${file} was made for Python ${read.version}, and the project names Python ${wanted}.`,
@@ -139,7 +139,7 @@ function heldLock(work: Work, description: Description, lock: Locked): Uint8Arra
     ]
     found(
       work,
-      'T7020',
+      'F7020',
       file,
       2,
       `${file} was made from other entries of \`packages\` than ${lock.definitions.join(', ')} name${lock.definitions.length > 1 ? '' : 's'} today: ${told.length ? told.join(', and ') : 'they stand in another order'}.`,
@@ -173,7 +173,7 @@ export const step: Step = {
       const at = written(work, definition)
       found(
         work,
-        'T1014',
+        'F1014',
         at.file,
         at.line,
         `${definition}: \`files\` names ${path}, which lies outside the folder of the project.`,

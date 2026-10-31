@@ -5,7 +5,7 @@ Answers who looks at the page, in the code of a view. A view is handed the same 
 ## Example
 
 ```tsx
-import { component, useUser } from 'tentjs/ui'
+import { component, useUser } from 'forjr/ui'
 
 export const Greeting = component('Greeting', {
   view: () => {

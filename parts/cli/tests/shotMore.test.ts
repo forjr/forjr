@@ -8,7 +8,7 @@ import { createEngine } from '../../engine/index.ts'
 import { copied, typed } from './typed.ts'
 
 /** A screen that anyone may see, whose style file changes the background of the page for a dark device. */
-const home = `import { screen } from 'tentjs/ui'
+const home = `import { screen } from 'forjr/ui'
 import './home.css'
 
 export const homeScreen = screen('homeScreen', {
@@ -28,7 +28,7 @@ function firstPixel(answer: Record<string, unknown>): number[] {
   return [...readPng(new Uint8Array(readFileSync(String(value.file)))).pixels.slice(0, 3)]
 }
 
-test('[32-12] tent shot --dark asks the page for the dark set of the device', async (t) => {
+test('[32-12] forjr shot --dark asks the page for the dark set of the device', async (t) => {
   const project = copied(t, 'shot-dark')
   writeFileSync(join(project, 'home.tsx'), home)
   writeFileSync(join(project, 'home.css'), style)
@@ -36,7 +36,7 @@ test('[32-12] tent shot --dark asks the page for the dark set of the device', as
   assert.deepEqual(built.findings, [])
   const engine = createEngine({ port: 0 })
   try {
-    await engine.open(built.bundleFolder, { dataFolder: join(project, '.tent'), mode: 'test' })
+    await engine.open(built.bundleFolder, { dataFolder: join(project, '.forjr'), mode: 'test' })
     const light = await typed(project, 'shot', '/', '--size', '64x64', '--json')
     assert.equal(light.ended, 0, light.printed)
     assert.deepEqual(firstPixel(light.answer), [255, 255, 255])
@@ -48,7 +48,7 @@ test('[32-12] tent shot --dark asks the page for the dark set of the device', as
   }
 })
 
-test('[32-12] on live data tent shot takes a picture as nobody, tent shot takes no --as, and app.shot as a user is T0013 there', async (t) => {
+test('[32-12] on live data forjr shot takes a picture as nobody, forjr shot takes no --as, and app.shot as a user is F0013 there', async (t) => {
   const project = copied(t, 'shot-live')
   writeFileSync(join(project, 'home.tsx'), home)
   writeFileSync(join(project, 'home.css'), style)
@@ -56,7 +56,7 @@ test('[32-12] on live data tent shot takes a picture as nobody, tent shot takes 
   assert.deepEqual(built.findings, [])
   const engine = createEngine({ port: 0 })
   try {
-    const app = await engine.open(built.bundleFolder, { dataFolder: join(project, '.tent'), mode: 'live' })
+    const app = await engine.open(built.bundleFolder, { dataFolder: join(project, '.forjr'), mode: 'live' })
     const made: unknown[] = Object(
       await app.write([{ add: 'users', values: { name: 'Cem', roles: [] } }], { as: 'system' }),
     )
@@ -65,9 +65,9 @@ test('[32-12] on live data tent shot takes a picture as nobody, tent shot takes 
     assert.equal(nobody.ended, 0, nobody.printed)
     const as = await typed(project, 'shot', '/', '--as', id, '--json')
     assert.notEqual(as.ended, 0)
-    assert.equal(Object(Object(as.answer).findings?.[0]).message, 'tent shot takes no --as.', as.printed)
+    assert.equal(Object(Object(as.answer).findings?.[0]).message, 'forjr shot takes no --as.', as.printed)
     // A program that holds the app on live data takes no picture as a user either.
-    await assert.rejects(app.shot('/', { as: id, size: { width: 64, height: 64 } }), { code: 'T0013' })
+    await assert.rejects(app.shot('/', { as: id, size: { width: 64, height: 64 } }), { code: 'F0013' })
   } finally {
     await engine.close()
   }

@@ -9,7 +9,7 @@ const load = createRequire(import.meta.url)
  * wait at. Data that holds no run table says nothing, and nothing of the flows is loaded for it.
  */
 export function waitingNames(store: Store): Record<string, string[]> {
-  if (!store.layout().some((table) => table.name === '_t_runs')) return {}
+  if (!store.layout().some((table) => table.name === '_f_runs')) return {}
   const flows: typeof import('../../flows/index.ts') = load('../../flows/index.ts')
   return flows.waitingStepNamesOf(store)
 }
@@ -19,7 +19,7 @@ export function waitingNames(store: Store): Record<string, string[]> {
  * unfinished runs of every file have saved or wait at: each file is visited, the closed ones too.
  */
 export async function waitingNamesInFiles(files: Files): Promise<Record<string, string[]>> {
-  if (!files.shared.layout().some((table) => table.name === '_t_runs')) return {}
+  if (!files.shared.layout().some((table) => table.name === '_f_runs')) return {}
   const flows = await import('../../flows/index.ts')
   return flows.waitingStepNamesOf(files)
 }

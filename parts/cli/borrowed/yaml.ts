@@ -4,7 +4,7 @@ import { fetchPart } from '../../engine/index.ts'
 
 /**
  * Takes a text in YAML. Answers the value it reads as, with the reader of YAML, a part that the tools fetch on its
- * first use (`yaml`, ISC). Throws T0016 where the part cannot be fetched, and the reader's error for a text that
+ * first use (`yaml`, ISC). Throws F0016 where the part cannot be fetched, and the reader's error for a text that
  * does not read.
  */
 export async function readYaml(text: string): Promise<unknown> {

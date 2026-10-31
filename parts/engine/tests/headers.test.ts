@@ -21,8 +21,8 @@ test('[21-11] unlock: each entry opens what its row names and nothing else', () 
   const closed = policyOf({})
   assert.deepEqual(closed, {
     'default-src': "'self'",
-    'script-src': 'https://shop.example/_t/b/',
-    'style-src': 'https://shop.example/_t/b/',
+    'script-src': 'https://shop.example/_f/b/',
+    'style-src': 'https://shop.example/_f/b/',
     'style-src-attr': "'unsafe-inline'",
     'img-src': "'self' data: blob:",
     'media-src': "'self' blob:",
@@ -37,14 +37,14 @@ test('[21-11] unlock: each entry opens what its row names and nothing else', () 
   })
   // Each entry, alone: the lines that differ from the closed policy are the ones its row names, and no other.
   const opens: [object, Record<string, string>][] = [
-    [{ scripts: ['https://js.stripe.com'] }, { 'script-src': 'https://shop.example/_t/b/ https://js.stripe.com' }],
-    [{ styles: ['https://css.example.com'] }, { 'style-src': 'https://shop.example/_t/b/ https://css.example.com' }],
+    [{ scripts: ['https://js.stripe.com'] }, { 'script-src': 'https://shop.example/_f/b/ https://js.stripe.com' }],
+    [{ styles: ['https://css.example.com'] }, { 'style-src': 'https://shop.example/_f/b/ https://css.example.com' }],
     [{ fonts: ['https://fonts.example.com'] }, { 'font-src': "'self' https://fonts.example.com" }],
     [{ frames: ['https://maps.example.com'] }, { 'frame-src': 'https://maps.example.com' }],
-    [{ styleTags: true }, { 'style-src': "https://shop.example/_t/b/ 'unsafe-inline'" }],
-    [{ wasm: true }, { 'script-src': "https://shop.example/_t/b/ 'wasm-unsafe-eval'" }],
+    [{ styleTags: true }, { 'style-src': "https://shop.example/_f/b/ 'unsafe-inline'" }],
+    [{ wasm: true }, { 'script-src': "https://shop.example/_f/b/ 'wasm-unsafe-eval'" }],
     [{ blobWorkers: true }, { 'worker-src': "'self' blob:" }],
-    [{ eval: true }, { 'script-src': "https://shop.example/_t/b/ 'unsafe-eval'" }],
+    [{ eval: true }, { 'script-src': "https://shop.example/_f/b/ 'unsafe-eval'" }],
     [{ camera: true }, { permissions: 'camera=(self), microphone=(), geolocation=()' }],
     [{ microphone: true }, { permissions: 'camera=(), microphone=(self), geolocation=()' }],
     [{ location: true }, { permissions: 'camera=(), microphone=(), geolocation=(self)' }],

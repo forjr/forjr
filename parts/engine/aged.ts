@@ -98,7 +98,7 @@ async function removeOld(o: Opened, keep: Keep, of: string | undefined): Promise
 /**
  * Takes what the engine holds of an app. Removes the rows of each table that states `keep` that are past their
  * age, in the shared file and in each tenant's file, a page at a time. In the mode `development` it removes
- * nothing, unless the app was opened with `keep`, as `tent dev --keep` opens it. The log says how many it removed.
+ * nothing, unless the app was opened with `keep`, as `forjr dev --keep` opens it. The log says how many it removed.
  */
 export async function removeAged(o: Opened): Promise<void> {
   if (o.mode === 'development' && o.keepRows !== true) return

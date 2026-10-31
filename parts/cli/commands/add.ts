@@ -18,11 +18,11 @@ export const command: Command = {
     if (named.startsWith('-')) throw new Error(`"${named}" is no name of a package.`)
     const scripts = args['allow-scripts'] === true
     // npm installs into the nearest folder above that holds a package file: so the project must hold its own,
-    // which `tent new` wrote.
+    // which `forjr new` wrote.
     const file = join(folder, 'package.json')
     if (!existsSync(file))
       throw new Error(
-        'The project has no `package.json`, which `tent new` writes. Write one with `{ "private": true, "type": "module" }`, and type the command again.',
+        'The project has no `package.json`, which `forjr new` writes. Write one with `{ "private": true, "type": "module" }`, and type the command again.',
       )
     const words = ['install', '--prefix', folder, '--no-audit', '--no-fund', ...(scripts ? [] : ['--ignore-scripts'])]
     await commandPoint(folder)

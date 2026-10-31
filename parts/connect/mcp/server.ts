@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { answerOf, isStored } from '../../core/internal.ts'
 import type { ToolAnswer } from './answer.ts'
@@ -65,7 +65,7 @@ export function mcpServer(env: McpEnv): McpServer {
       // Where the sign-in is described, which a client that names no caller is pointed to.
       const pointer = `Bearer resource_metadata="${origin}/.well-known/oauth-protected-resource/mcp"`
       const unsigned = (): Answered => {
-        const { status, error } = told(new TentError('T0006', 'A request of MCP names no caller.'))
+        const { status, error } = told(new ForjrError('F0006', 'A request of MCP names no caller.'))
         return new Answered(json(status, { ok: false, error }, { 'www-authenticate': pointer }))
       }
       if (request.method === 'GET') {
@@ -185,7 +185,7 @@ export function mcpServer(env: McpEnv): McpServer {
       function outsideScope(one: Offered): Response {
         const scope = onlyReads(one) ? 'read' : 'write'
         const { status, error } = told(
-          new TentError('T3101', `${one.tool} is outside the scopes that the person granted.`, {
+          new ForjrError('F3101', `${one.tool} is outside the scopes that the person granted.`, {
             fix: `Ask the person for the scope \`${scope}\`.`,
           }),
         )
@@ -207,10 +207,10 @@ export function mcpServer(env: McpEnv): McpServer {
 }
 
 /** The failure of a name that no tool answers to. */
-const notFound = (tool: string): TentError =>
-  new TentError('T0001', `No tool named ${JSON.stringify(tool).slice(0, 80)} is offered.`, {
+const notFound = (tool: string): ForjrError =>
+  new ForjrError('F0001', `No tool named ${JSON.stringify(tool).slice(0, 80)} is offered.`, {
     fix: 'Call a tool that the list names, or one that findFunction answered.',
   })
 
-const missing = (message: string): TentError =>
-  new TentError('T0002', message, { fix: 'Name the tool in `name`, and its input in `arguments`.' })
+const missing = (message: string): ForjrError =>
+  new ForjrError('F0002', message, { fix: 'Name the tool in `name`, and its input in `arguments`.' })

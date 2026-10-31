@@ -12,10 +12,10 @@ async function foundIn(code: string, side: 'pass' | 'fail'): Promise<Finding[]> 
   return findings.filter((one) => one.code === code)
 }
 
-test('[32-9] a key that one language has and another lacks is T9001, a warning that names the key and the language', async () => {
-  assert.ok(list.some((one) => one.name === 'T9001'))
-  assert.deepEqual(await foundIn('T9001', 'pass'), [])
-  const found = await foundIn('T9001', 'fail')
+test('[32-9] a key that one language has and another lacks is F9001, a warning that names the key and the language', async () => {
+  assert.ok(list.some((one) => one.name === 'F9001'))
+  assert.deepEqual(await foundIn('F9001', 'pass'), [])
+  const found = await foundIn('F9001', 'fail')
   assert.deepEqual(
     found.map((one) => [one.level, one.where?.file]),
     [
@@ -28,14 +28,14 @@ test('[32-9] a key that one language has and another lacks is T9001, a warning t
   for (const one of found) {
     assert.match(one.message, /`tr`/)
     assert.ok(one.fix)
-    assert.equal(one.docs, 'tent docs T9001')
+    assert.equal(one.docs, 'forjr docs F9001')
   }
 })
 
-test('[32-9] a word whose key no language has is T9003: in a view, as the label of a type, and for a value of a choice that states its words', async () => {
-  assert.ok(list.some((one) => one.name === 'T9003'))
-  assert.deepEqual(await foundIn('T9003', 'pass'), [])
-  const found = await foundIn('T9003', 'fail')
+test('[32-9] a word whose key no language has is F9003: in a view, as the label of a type, and for a value of a choice that states its words', async () => {
+  assert.ok(list.some((one) => one.name === 'F9003'))
+  assert.deepEqual(await foundIn('F9003', 'pass'), [])
+  const found = await foundIn('F9003', 'fail')
   const said = found.map((one) => `${one.where?.file} ${one.message}`).join('\n')
   assert.equal(found.length, 3, said)
   assert.match(said, /screens\/orders\.tsx .*nothing\.here/)

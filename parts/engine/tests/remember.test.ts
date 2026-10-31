@@ -82,14 +82,14 @@ test("[51-6] a person's removal removes the answers that were remembered for the
   await app.call('counted', { n: 1 }, { as: ada })
   await app.call('counted', { n: 1 }, { as: bo })
   const token = String(JSON.parse(readFileSync(join(dataFolder, 'engine.json'), 'utf8')).token)
-  const answered = await send(app, `${origin}/_t/admin/data`, {
+  const answered = await send(app, `${origin}/_f/admin/data`, {
     body: JSON.stringify({ args: { what: 'user', do: 'remove', id: ada.user?.id, yes: true } }),
     headers: { authorization: `Bearer ${token}` },
   })
   assert.equal(answered.status, 200, JSON.stringify(answered.body))
   const data = new DatabaseSync(join(dataFolder, 'data.db'), { readOnly: true })
   const callers = data
-    .prepare('SELECT caller FROM _t_remembered')
+    .prepare('SELECT caller FROM _f_remembered')
     .all()
     .map((row) => String(row.caller))
   data.close()

@@ -18,7 +18,7 @@ const mine: Provider = {
 
 test("[51-11.14@9a] a worker's outside call under a tool call that nobody agreed to is refused and asked about; after the person's yes it is made, and the run goes on", async (t) => {
   const { clock } = testClock()
-  const bundle = await bundled(t, { project: 'reviewWork' })
+  const bundle = await bundled(t, { project: 'workCalls' })
   const engine = engineOf(t, { makers: { clock: () => clock, providers: () => ({ mine }) } })
   const app: App = await engine.open(bundle.folder, {
     dataFolder: join(workFolder(t), 'data'),

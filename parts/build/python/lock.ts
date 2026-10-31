@@ -45,12 +45,12 @@ function notLocked(lock: Locked, told: string): Finding {
   if (shared) {
     const [name, definitions] = shared
     return finding(
-      'T7020',
+      'F7020',
       `${[...new Set(definitions)].join(' and ')} need versions of ${name} that cannot stand in one lock, ${file}: ${told}`,
       { fix, where: { file, line: 1 } },
     )
   }
-  return finding('T7020', `${file} could not be made: ${told}`, {
+  return finding('F7020', `${file} could not be made: ${told}`, {
     fix: 'Mend what the installer names: a package that is not there, or one that may only be built, which `python.build` of `project` names.',
     where: { file, line: 1 },
   })
@@ -98,7 +98,7 @@ async function resolved(
       if (!alone.ok)
         warnings.push(
           finding(
-            'T7020',
+            'F7020',
             `${pinned} has no ready-built file for ${system}: ${file} cannot be installed there.`,
             {
               fix: 'Where it may be built on such a computer, name it in `python.build` of `project`.',
@@ -119,7 +119,7 @@ async function resolved(
  * Takes the folder of a project, its description, and the installer. Resolves the `packages` of every `python` of
  * the project, for every system the installer names, into each of its locks: `python.lock` and one for each
  * `lock` that a definition names, written into the root of the project. Answers the Python they were made for, the
- * files that were written, and what was found: T7020 for a Python that the engine does not pin and for a lock that
+ * files that were written, and what was found: F7020 for a Python that the engine does not pin and for a lock that
  * could not be made, with nothing written then, and a warning for each package with no ready-built file for a system.
  */
 export async function lockPython(
@@ -139,11 +139,11 @@ export async function lockPython(
     if (!pinned.includes(version)) {
       findings.push(
         finding(
-          'T7020',
+          'F7020',
           `${lock.file} is to be made for Python ${version}, which the engine does not pin: it pins ${pinned.join(' and ')}.`,
           {
             fix: `Name one of them in \`python.version\` of \`project\`, as '${newest}'.`,
-            where: { file: 'tent.ts', line: 1 },
+            where: { file: 'forjr.ts', line: 1 },
           },
         ),
       )

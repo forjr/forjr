@@ -1,4 +1,4 @@
-import { screen, Form, Link } from 'tentjs/ui'
+import { screen, Form, Link } from 'forjr/ui'
 import { touch } from './functions'
 
 // Addresses that a value known only while running hands to `to` of a `Link` and to `href` of `then`: no link is

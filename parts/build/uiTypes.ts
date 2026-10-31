@@ -36,7 +36,7 @@ function handedAs(type: unknown): string {
 
 /**
  * Takes the description of a project. Answers the text that the type list gives a screen file: the keys of the
- * default language, and the state of `project`, inside the lists that `tentjs/ui` declares empty.
+ * default language, and the state of `project`, inside the lists that `forjr/ui` declares empty.
  */
 export function uiTypeList(description: Description): string {
   const state = Object.entries(isStored(description.project.state) ? description.project.state : {})
@@ -58,5 +58,5 @@ export function uiTypeList(description: Description): string {
     keys.length ? `  interface Messages {\n${keys.join('\n')}\n  }` : '  interface Messages {}',
     state.length ? `  interface AppState {\n${state.join('\n')}\n  }` : '  interface AppState {}',
   ]
-  return `declare module 'tentjs/ui' {\n${lists.join('\n')}\n}\n`
+  return `declare module 'forjr/ui' {\n${lists.join('\n')}\n}\n`
 }

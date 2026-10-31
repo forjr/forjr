@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { RunView } from '../../flows/index.ts'
 import { isAgentRun } from '../ai/working.ts'
 import { ruled } from '../door/rule.ts'
@@ -10,13 +10,13 @@ import { flowRuled } from './allowed.ts'
 /**
  * Whether a caller may follow a run: the starter of the run at the top of its calls, of a run of an agent
  * whose `access` lets them in, of a run that runs as its starter under a run they may follow, or of a run of a
- * flow whose `follow` lets them in. Throws T0001 otherwise: the caller learns nothing of it.
+ * flow whose `follow` lets them in. Throws F0001 otherwise: the caller learns nothing of it.
  */
 export function mayFollow(o: Opened, run: RunView, caller: Caller): void {
   // On a reader the runs are read from its own data.
   const r = o.flows?.runner ?? o.runsRead
   const top = r?.read(run.top)
-  const notFound = new TentError('T0001', `No run ${JSON.stringify(run.id).slice(0, 80)} is there.`, {
+  const notFound = new ForjrError('F0001', `No run ${JSON.stringify(run.id).slice(0, 80)} is there.`, {
     fix: 'Follow a run that the caller started, or one under it.',
   })
   if (!r || !top || !startedBy(top.startedBy, byOfCaller(caller))) throw notFound

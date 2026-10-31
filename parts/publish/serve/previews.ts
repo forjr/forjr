@@ -1,6 +1,6 @@
 import { copyFileSync, existsSync, mkdirSync, readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { write, writeOwnerOnly } from '../../core/internal.ts'
 import type { App, Engine } from '../../engine/index.ts'
@@ -91,7 +91,7 @@ const opened = (p: Previews, branch: string, host: string, key: string): Promise
  */
 function testKey(p: Previews): string | undefined {
   const file = join(p.dataFolder, 'secret.key')
-  const written = process.env.TENT_SECRET_KEY ?? (existsSync(file) ? readFileSync(file, 'utf8') : '')
+  const written = process.env.FORJR_SECRET_KEY ?? (existsSync(file) ? readFileSync(file, 'utf8') : '')
   return written.trim() || undefined
 }
 
@@ -100,7 +100,7 @@ function testKey(p: Previews): string | undefined {
  * by. Runs the version as an app of its own, at `<branch>.<that name>`, in the mode `test`: on a copy of the
  * data of the server where it runs in the mode `test`, and on the seed alone where it runs another, so a
  * preview never holds live rows. A preview of a branch that had one replaces it. The app of the server is not
- * touched. Throws T0002 for a branch that cannot name one, T9107 for what was not sent, and T9103 where the
+ * touched. Throws F0002 for a branch that cannot name one, F9107 for what was not sent, and F9103 where the
  * version does not open.
  */
 export async function previewed(
@@ -110,18 +110,18 @@ export async function previewed(
 ): Promise<{ version: string; point: string; preview: string; hard: false; opens: false; breaks: []; findings: [] }> {
   const branch = body.preview
   if (typeof branch !== 'string' || !isLabel(branch))
-    throw new TentError('T0002', 'A preview is of a branch whose name is small letters, digits and hyphens.', {
+    throw new ForjrError('F0002', 'A preview is of a branch whose name is small letters, digits and hyphens.', {
       fields: { preview: 'pattern' },
       fix: 'Name the branch so, as `rush` or `new-cart`, and publish its preview again.',
     })
   if (typeof body.point !== 'string' || typeof body.version !== 'string')
-    throw new TentError('T0002', 'A publish names `point`, `version` and `files`.', { fields: { point: 'required' } })
+    throw new ForjrError('F0002', 'A publish names `point`, `version` and `files`.', { fields: { point: 'required' } })
   const named = p.history.read(body.point)
   if (named?.kind !== 'published' || named.name !== body.version)
     throw notHeld(`The server holds no point of the publish of the version ${body.version}.`, { point: body.point })
   const files: Record<string, unknown> = Object(body.files)
   if (Object.values(files).some((one) => typeof one !== 'string'))
-    throw new TentError('T0002', '`files` names each file of the bundle by its fingerprint.', {
+    throw new ForjrError('F0002', '`files` names each file of the bundle by its fingerprint.', {
       fields: { files: 'type' },
     })
   const at = keepBundle(p.history, body.version, Object(files))
@@ -155,7 +155,7 @@ export async function previewed(
     rmSync(folder, { recursive: true, force: true, maxRetries: 20, retryDelay: 50 })
     throw refusedPush(
       `The preview of ${branch} does not open: ${error instanceof Error ? error.message : String(error)}`,
-      { reason: 'preview', code: error instanceof TentError ? error.code : 'T0009' },
+      { reason: 'preview', code: error instanceof ForjrError ? error.code : 'F0009' },
       'Mend what is named, and publish the preview again.',
     )
   }

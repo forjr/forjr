@@ -1,5 +1,5 @@
 import type { WireError } from '../../core/index.ts'
-import { object, TentError } from '../../core/index.ts'
+import { object, ForjrError } from '../../core/index.ts'
 import { coreVersion, isStored, toJsonSchema } from '../../core/internal.ts'
 import type { ToolAnswer } from './answer.ts'
 import { answered, failed } from './answer.ts'
@@ -10,9 +10,9 @@ import { failures, methods, newest, older } from './standard.ts'
 /** A failure as a caller is shown it: its code, the short word of the code, its message and its fix. */
 function failureShown(thrown: unknown): WireError {
   const error =
-    thrown instanceof TentError
+    thrown instanceof ForjrError
       ? thrown
-      : new TentError('T0009', thrown instanceof Error ? thrown.message : String(thrown))
+      : new ForjrError('F0009', thrown instanceof Error ? thrown.message : String(thrown))
   return {
     code: error.code,
     name: error.name,
@@ -36,7 +36,7 @@ async function called(tools: LocalTool[], params: Record<string, unknown>): Prom
   const tool = tools.find((one) => one.name === params.name)
   if (!tool)
     return failed(
-      failureShown(new TentError('T0001', `No tool named ${JSON.stringify(params.name).slice(0, 80)} is offered.`)),
+      failureShown(new ForjrError('F0001', `No tool named ${JSON.stringify(params.name).slice(0, 80)} is offered.`)),
     )
   try {
     return answered(await tool.run(isStored(params.arguments) ? params.arguments : {}))

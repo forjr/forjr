@@ -137,22 +137,22 @@ test('[21-8] a watch of a change, of an action, of a name that is none, of a tab
     assert.deepEqual([message.t, message.id], ['failed', id])
     return Object(message.error).code
   }
-  assert.equal(await code('change', 'addCard', { title: 'not added', rank: 1 }), 'T0001')
-  assert.equal(await code('action', 'ping'), 'T0001')
-  assert.equal(await code('none', 'noSuchQuery'), 'T0001')
-  assert.equal(await code('engine', '_t_meta'), 'T0001')
-  assert.equal(await code('quiet', 'quietCards'), 'T0001')
-  assert.equal(await code('no text', 7), 'T0001')
-  assert.equal(await code('staff', 'staffCards'), 'T0006')
-  assert.equal(await code('signed', 'myCards'), 'T0006')
-  assert.equal(await code('misfit', 'cardsAt', { rank: 'first' }), 'T0002')
-  assert.equal(await code('more', 'cardsAt', { rank: 1, also: true }), 'T0002')
+  assert.equal(await code('change', 'addCard', { title: 'not added', rank: 1 }), 'F0001')
+  assert.equal(await code('action', 'ping'), 'F0001')
+  assert.equal(await code('none', 'noSuchQuery'), 'F0001')
+  assert.equal(await code('engine', '_f_meta'), 'F0001')
+  assert.equal(await code('quiet', 'quietCards'), 'F0001')
+  assert.equal(await code('no text', 7), 'F0001')
+  assert.equal(await code('staff', 'staffCards'), 'F0006')
+  assert.equal(await code('signed', 'myCards'), 'F0006')
+  assert.equal(await code('misfit', 'cardsAt', { rank: 'first' }), 'F0002')
+  assert.equal(await code('more', 'cardsAt', { rank: 1, also: true }), 'F0002')
   // A version that cannot be loaded is told with the one that runs, and no file is looked for by its name.
   const gone = page.got.length
   page.send({ t: 'watch', id: 'old', query: 'allCards', input: {}, version: '../../../data' })
   await untilTried('the watch of a version that is gone was answered', () => page.got.length > gone)
   const told = Object(page.got[gone].error)
-  assert.deepEqual([told.code, told.running], ['T0007', bundle.versionId])
+  assert.deepEqual([told.code, told.running], ['F0007', bundle.versionId])
   // The running version is served, named or not.
   assert.equal((await page.watch('named', 'allCards', {}, { version: bundle.versionId })).t, 'result')
   // Nothing was written and nothing was called, and the connection stands.
@@ -216,7 +216,7 @@ test('[21-3] over a real connection a page of the app is sent the first answer, 
   const first = await addCard(app, 'first', 1)
   /** Opens a live connection as a page of the app does, and answers what it was sent and whether it was closed. */
   const dialled = (): { link: ReturnType<typeof dial>; got: Message[]; closed: () => boolean } => {
-    const link = dial(`http://localhost:${port}/_t/live`, { origin })
+    const link = dial(`http://localhost:${port}/_f/live`, { origin })
     t.after(() => link.close())
     const got: Message[] = []
     let closed = false
@@ -232,7 +232,7 @@ test('[21-3] over a real connection a page of the app is sent the first answer, 
   page.link.send(JSON.stringify({ t: 'watch', id: 'cards', query: 'allCards', input: {} }))
   await untilTried('the first answer arrived', () => page.got.length === 1)
   assert.deepEqual([page.got[0].t, idsOf(page.got[0].value)], ['result', [first]])
-  const added = await send(app, `${origin}/_t/call/addCard`, { input: { title: 'through the door', rank: 2 } })
+  const added = await send(app, `${origin}/_f/call/addCard`, { input: { title: 'through the door', rank: 2 } })
   assert.equal(added.status, 200)
   await untilTried('the change arrived', () => page.got.length === 2)
   assert.deepEqual([page.got[1].t, page.got[1].was, putOf(page.got[1])[0][1]], ['rows', page.got[0].mark, first])
@@ -300,7 +300,7 @@ test('[21-9] [night] a list of 5,000 rows in which one row changes is one rows m
   const lastOne = watcher(app, origin)
   await lastOne.watch('count', 'countCards')
   // The door has answered a call before, so that no call of the measure loads the code of the door first.
-  assert.equal((await send(app, `${origin}/_t/call/countCards`, {})).status, 200)
+  assert.equal((await send(app, `${origin}/_f/call/countCards`, {})).status, 200)
   // One write to the table. While the groups are run, calls are made, and each is answered within 50 ms.
   await app.call('addCard', { title: 'the one of rank 7', rank: -7 }, { as: system })
   const times: number[] = []
@@ -309,7 +309,7 @@ test('[21-9] [night] a list of 5,000 rows in which one row changes is one rows m
   const calls = (async () => {
     while (!done) {
       const began = performance.now()
-      await send(app, `${origin}/_t/call/countCards`, {})
+      await send(app, `${origin}/_f/call/countCards`, {})
       times.push(performance.now() - began)
       await new Promise((next) => setImmediate(next))
     }

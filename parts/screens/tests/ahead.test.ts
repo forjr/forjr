@@ -77,7 +77,7 @@ test('[32-6] hovering a link to a screen asks for its screen once, with prefetch
   const page = livingPage(first(), [list, waiting], at.reach)
   page.prefetch?.('/orders/7')
   page.prefetch?.('/orders/7')
-  assert.deepEqual(at.asked, ['/_t/screen?path=%2Forders%2F7&version=v1&prefetch=1'])
+  assert.deepEqual(at.asked, ['/_f/screen?path=%2Forders%2F7&version=v1&prefetch=1'])
   await at.letGo()
   // The files of the next screen are prefetched too.
   assert.deepEqual(at.loaded, [['order.js']])
@@ -96,8 +96,8 @@ test('[32-6] a screen that reads an action is asked for once more when the move 
   page.goTo('/orders/7')
   await at.letGo()
   assert.deepEqual(at.asked, [
-    '/_t/screen?path=%2Forders%2F7&version=v1&prefetch=1',
-    '/_t/screen?path=%2Forders%2F7&version=v1',
+    '/_f/screen?path=%2Forders%2F7&version=v1&prefetch=1',
+    '/_f/screen?path=%2Forders%2F7&version=v1',
   ])
   const other = world(() => next())
   const again = livingPage(first(), [list, waiting], other.reach)

@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { CallContext } from '../context.ts'
 import { within } from '../context.ts'
 import type { Opened } from '../opened.ts'
@@ -16,13 +16,13 @@ export type EntryAnswer = { ok: true; value: unknown } | { ok: false; error: obj
 const isCaller = (value: unknown): value is Caller =>
   typeof value === 'object' && value !== null && typeof Reflect.get(value, 'kind') === 'string'
 
-const wrongLength = (): TentError => new TentError('T0009', 'A batch answered no list of the length it was handed.')
+const wrongLength = (): ForjrError => new ForjrError('F0009', 'A batch answered no list of the length it was handed.')
 
 /**
  * Takes the code of a version, a batch as the writer handed it, what reaches the writer under each entry, the
  * signal that ends the work, and what the work may do with its machine. Hands the action's `run` the entries, each
  * with its own caller, its own `db` and its own rows, and answers an answer for each: an entry of the answer that is
- * an error fails its own caller, and an answer that is no list of the length it was handed is T0009 for each. A
+ * an error fails its own caller, and an answer that is no list of the length it was handed is F0009 for each. A
  * batch that throws fails each entry, but where the definition states `split`: it is then cut in two, and each half
  * carried out as a batch of its own, until the entry that throws stands alone.
  */
@@ -36,7 +36,7 @@ export async function carryBatch(
   const name = String(task.definition)
   const record = Object.hasOwn(served.description.functions, name) ? served.description.functions[name] : undefined
   const run = served.runs.get(name)
-  if (!record || !run) throw new TentError('T0011', `The version ${served.version} holds no \`run\` of ${name}.`)
+  if (!record || !run) throw new ForjrError('F0011', `The version ${served.version} holds no \`run\` of ${name}.`)
   const split = Reflect.get(Object(record.batch), 'split') === true
   const all: Record<string, unknown>[] = Array.isArray(task.entries) ? task.entries.map((one) => Object(one)) : []
   const cx: CallContext = {

@@ -26,7 +26,7 @@ test('[23-3] a change that starts a flow and then fails leaves no run, and one t
   // `start` answers the id of its run in an action too, and is refused in a query.
   const second = String(await app.call('startInAction', { name: 'Cy' }, { as: system }))
   assert.equal(await app.runs.wait(second), 'hello Cy')
-  assert.equal(await codeOf(app.call('startInQuery', {}, { as: system })), 'T0013')
+  assert.equal(await codeOf(app.call('startInQuery', {}, { as: system })), 'F0013')
   assert.equal(app.runs.find({ flow: 'greet' }).length, 2)
 })
 
@@ -111,7 +111,7 @@ test('[23-4] a `where` that reaches through a link fires for the rows whose link
   assert.equal(changed[0].by, 'total')
 })
 
-test('[23-15] [16-2@7b] a flow called from a step: the caller waits and gets its answer, a fourth level is T5105, and a call from a query is T0013', async (t) => {
+test('[23-15] [16-2@7b] a flow called from a step: the caller waits and gets its answer, a fourth level is F5105, and a call from a query is F0013', async (t) => {
   const { app } = await flowing(t)
   const run = await started(app, 'outer', { name: 'Ada' })
   await untilWithin(
@@ -130,16 +130,16 @@ test('[23-15] [16-2@7b] a flow called from a step: the caller waits and gets its
   assert.deepEqual(await app.runs.wait(run), { name: 'Ada', approved: true })
   assert.deepEqual(await marksOf(app), ['inner Ada'])
 
-  // Called runs are three deep: one more fails its call with T5105.
+  // Called runs are three deep: one more fails its call with F5105.
   const deep = await started(app, 'deepOne')
-  assert.equal(await codeOf(app.runs.wait(deep)), 'T5105')
+  assert.equal(await codeOf(app.runs.wait(deep)), 'F5105')
   const [third] = app.runs.find({ flow: 'deepThree' })
   assert.equal(third.state, 'failed')
-  assert.equal(third.steps[0].error?.code, 'T5105')
+  assert.equal(third.steps[0].error?.code, 'F5105')
   assert.match(String(third.steps[0].error?.message), /callDepth/)
   assert.equal(app.runs.find({ flow: 'greet' }).length, 0, 'no run was added for the fourth level')
 
-  assert.equal(await codeOf(app.call('flowInQuery', {}, { as: system })), 'T0013')
+  assert.equal(await codeOf(app.call('flowInQuery', {}, { as: system })), 'F0013')
   // From an action a flow is called and waited for, and its answer is the answer of the call.
   assert.equal(await app.call('callGreet', { name: 'Cy' }, { as: system }), 'hello Cy')
 })
@@ -187,17 +187,17 @@ test('[23-19] [23-26] a step that calls changes and is run twice writes each onc
   assert.equal(app.runs.read(greeting)?.parent, undefined, "a started run is nobody's child")
 })
 
-test('[23-24] a flow given an input that does not fit its `input` is refused with T0002, when started and when called', async (t) => {
+test('[23-24] a flow given an input that does not fit its `input` is refused with F0002, when started and when called', async (t) => {
   const { app } = await flowing(t)
   const refused = await refusal(app.start('greet', { name: 7 }, { as: system }))
-  assert.equal(refused.code, 'T0002')
+  assert.equal(refused.code, 'F0002')
   assert.deepEqual(refused.fields, { name: 'type' })
-  assert.equal(await codeOf(app.start('greet', { name: 'Ada', more: true }, { as: system })), 'T0002')
-  assert.equal(await codeOf(app.start('greet', undefined, { as: system })), 'T0002')
-  assert.equal(await codeOf(app.call('startBadly', {}, { as: system })), 'T0002', '`start` in code')
-  assert.equal(await codeOf(app.call('callGreetBadly', {}, { as: system })), 'T0002', 'a call of the flow in code')
-  assert.equal(await codeOf(app.call('greet', { name: 7 }, { as: system })), 'T0002', 'a call of the flow by a program')
-  assert.equal(await codeOf(app.start('nothing', {}, { as: system })), 'T0001')
+  assert.equal(await codeOf(app.start('greet', { name: 'Ada', more: true }, { as: system })), 'F0002')
+  assert.equal(await codeOf(app.start('greet', undefined, { as: system })), 'F0002')
+  assert.equal(await codeOf(app.call('startBadly', {}, { as: system })), 'F0002', '`start` in code')
+  assert.equal(await codeOf(app.call('callGreetBadly', {}, { as: system })), 'F0002', 'a call of the flow in code')
+  assert.equal(await codeOf(app.call('greet', { name: 7 }, { as: system })), 'F0002', 'a call of the flow by a program')
+  assert.equal(await codeOf(app.start('nothing', {}, { as: system })), 'F0001')
   await settle()
   assert.deepEqual(app.runs.find({}), [], 'no run was added')
 })
@@ -221,5 +221,5 @@ test('[23-27] a wait for an event with `where` is woken by the event that fits a
   advance(2 * 86_400_000)
   assert.equal(await app.runs.wait(other), 'never shipped')
   // An event is part of the write of a change: outside one it is refused.
-  assert.equal(await codeOf(app.call('emitInAction', {}, { as: system })), 'T0013')
+  assert.equal(await codeOf(app.call('emitInAction', {}, { as: system })), 'F0013')
 })

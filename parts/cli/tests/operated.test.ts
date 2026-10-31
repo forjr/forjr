@@ -32,7 +32,7 @@ function actsOf(data: string): { message: string; data: Record<string, unknown> 
   }
 }
 
-test('[48-9] with a key of the right operate, tent runs, runs show, a try again from a failed step, a move, an approval, a refusal, a stop and tent logs at --at a server answer and do what they do on this computer, each act kept in the log with the id of the key; any other key, and that key for any other command, a function or a row, is refused', async (t) => {
+test('[48-9] with a key of the right operate, forjr runs, runs show, a try again from a failed step, a move, an approval, a refusal, a stop and forjr logs at --at a server answer and do what they do on this computer, each act kept in the log with the id of the key; any other key, and that key for any other command, a function or a row, is refused', async (t) => {
   // The engine ends before the copy of the project is taken away.
   const engine = createEngine({ port: 0 })
   t.after(() => engine.close())
@@ -48,11 +48,11 @@ test('[48-9] with a key of the right operate, tent runs, runs show, a try again 
   const deploy = writeKey(app, { name: 'deploy', rights: ['publish'] })
 
   // The person keeps the key of the server under a name, as for publishing.
-  process.env.TENT_KEY = operator.key
-  process.env.TENT_AT = origin
+  process.env.FORJR_KEY = operator.key
+  process.env.FORJR_AT = origin
   t.after(() => {
-    delete process.env.TENT_KEY
-    delete process.env.TENT_AT
+    delete process.env.FORJR_KEY
+    delete process.env.FORJR_AT
   })
   const kept = await typed(project, 'login', origin, '--name', 'box', '--insecure', host, '--json')
   assert.equal(kept.ended, 0, kept.printed)
@@ -117,14 +117,14 @@ test('[48-9] with a key of the right operate, tent runs, runs show, a try again 
       headers: { 'content-type': 'application/json', ...(key ? { authorization: `Bearer ${key}` } : {}) },
       body: JSON.stringify(body),
     })
-  assert.equal((await sent('/_t/admin/runs', operator.key)).status, 200)
+  assert.equal((await sent('/_f/admin/runs', operator.key)).status, 200)
   // No key, a key without the right, and that key for any other command, a function or a row: each is refused.
   for (const [path, key] of [
-    ['/_t/admin/runs', undefined],
-    ['/_t/admin/runs', deploy.key],
-    ['/_t/admin/logs', deploy.key],
-    ['/_t/admin/values', operator.key],
-    ['/_t/admin/shot', operator.key],
+    ['/_f/admin/runs', undefined],
+    ['/_f/admin/runs', deploy.key],
+    ['/_f/admin/logs', deploy.key],
+    ['/_f/admin/values', operator.key],
+    ['/_f/admin/shot', operator.key],
   ] as const) {
     const refused = await sent(path, key)
     assert.equal(
@@ -147,17 +147,17 @@ test('[48-9] with a key of the right operate, tent runs, runs show, a try again 
   const before = await app.read({ from: 'orders' }, { as: 'system' })
   for (const called of [
     await api(operator.key, 'addOrder', { title: 'By the operator' }),
-    await sent('/_t/call/addOrder', operator.key, { input: { title: 'By the operator' } }),
+    await sent('/_f/call/addOrder', operator.key, { input: { title: 'By the operator' } }),
   ])
     assert.notEqual(called.status, 200, `${called.url}: ${await called.text()}`)
   assert.deepEqual(await app.read({ from: 'orders' }, { as: 'system' }), before)
   for (const read of [
     await api(operator.key, 'everyOrder'),
-    await sent('/_t/read/everyOrder', operator.key, { input: {} }),
+    await sent('/_f/read/everyOrder', operator.key, { input: {} }),
   ]) {
     assert.notEqual(read.status, 200)
     assert.doesNotMatch(await read.text(), /By the system/)
   }
   // The mails of the log are no answer for a key.
-  assert.equal((await sent('/_t/admin/logs', operator.key, { args: { mail: true } })).status, 401)
+  assert.equal((await sent('/_f/admin/logs', operator.key, { args: { mail: true } })).status, 401)
 })

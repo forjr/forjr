@@ -1,12 +1,12 @@
 import type { TableLayout } from '../../data/index.ts'
 
 /**
- * `_t_oauth`: one row for each grant that a person gave a program. It holds the fingerprints of the access token
+ * `_f_oauth`: one row for each grant that a person gave a program. It holds the fingerprints of the access token
  * and of the renewal token, and of the renewal token before the present one, and nothing that opens them, so a copy
  * of the data makes nobody a caller.
  */
 export const table: TableLayout = {
-  name: '_t_oauth',
+  name: '_f_oauth',
   columns: {
     id: { kind: 'text' },
     user: { kind: 'text' },

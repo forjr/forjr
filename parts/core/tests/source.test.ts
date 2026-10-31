@@ -3,10 +3,11 @@ import { test } from 'node:test'
 import { action, boolean, list, number, project, python, query, table, text, where } from '../index.ts'
 import type { Loaded } from '../internal.ts'
 import { definitionSource, describe, fileSource } from '../internal.ts'
+import { measureAt } from '../description.ts'
 
 /** The description of a project of one file, with the definitions that are handed. */
 function described(more: Loaded[]): ReturnType<typeof describe>['description'] {
-  const made = describe({ definitions: [{ value: project('shop', {}), file: 'tent.ts', from: 0, to: 1 }, ...more] })
+  const made = describe({ definitions: [{ value: project('shop', {}), file: 'forjr.ts', from: 0, to: 1 }, ...more] })
   assert.deepEqual(
     made.findings.filter((one) => one.level === 'error').map((one) => one.message),
     [],
@@ -66,7 +67,7 @@ test('[34-2] definitionSource writes a length of time and a size in words, in th
   )
 })
 
-test('[34-2] code has no text of this kind: definitionSource throws T0013 for a code function, a python, a table one of whose rules is code, a project that states identify, a screen and a component, and T0001 for a name that is not there', () => {
+test('[34-2] code has no text of this kind: definitionSource throws F0013 for a code function, a python, a table one of whose rules is code, a project that states identify, a screen and a component, and F0001 for a name that is not there', () => {
   const description = describe({
     definitions: [
       { value: project('shop', { identify: () => 'u1' }) },
@@ -91,9 +92,9 @@ test('[34-2] code has no text of this kind: definitionSource throws T0013 for a 
     }
     return undefined
   }
-  for (const name of ['shop', 'notes', 'send', 'churn', 'homeScreen', 'Card']) assert.equal(code(name), 'T0013', name)
+  for (const name of ['shop', 'notes', 'send', 'churn', 'homeScreen', 'Card']) assert.equal(code(name), 'F0013', name)
   assert.equal(code('users'), undefined)
-  assert.equal(code('nothingOfThatName'), 'T0001')
+  assert.equal(code('nothingOfThatName'), 'F0001')
 })
 
 test('[34-2] fileSource writes each top-level name that its definitions read above them, from the value that is stored, and throws where two of them hold different values under one name', () => {
@@ -102,7 +103,7 @@ test('[34-2] fileSource writes each top-level name that its definitions read abo
   const made = (values: unknown[]): ReturnType<typeof describe>['description'] =>
     describe({
       definitions: [
-        { value: project('shop', {}), file: 'tent.ts', from: 0, to: 1 },
+        { value: project('shop', {}), file: 'forjr.ts', from: 0, to: 1 },
         ...values.map((value, k) => ({
           value: query(`q${k}`, { access: 'signedIn', run: () => 'x' }),
           file: 'functions/labels.ts',
@@ -115,7 +116,7 @@ test('[34-2] fileSource writes each top-level name that its definitions read abo
   assert.equal(
     fileSource(made([one, one]), ['q0', 'q1'], { path: 'functions/labels.ts' }),
     [
-      "import { query } from 'tentjs'",
+      "import { query } from 'forjr'",
       '',
       "const LABELS = { open: 'Open' }",
       '',
@@ -135,4 +136,34 @@ test('[34-2] fileSource writes each top-level name that its definitions read abo
     () => fileSource(made([one, { object: [['open', 'Other']] }]), ['q0', 'q1'], { path: 'functions/labels.ts' }),
     /LABELS/,
   )
+})
+
+/** The code of what a call throws, or nothing where it throws no error with a code. */
+function codeOf(call: () => unknown): unknown {
+  try {
+    call()
+  } catch (error) {
+    return error instanceof Error ? Reflect.get(error, 'code') : undefined
+  }
+  return undefined
+}
+
+test('[34-2] code has no text of this kind: a table one of whose rules is code is F0013, the rule of a column among them', () => {
+  const notes = table('notes', {
+    columns: { body: text({ read: where(() => ({ body: 'x' })) }), tags: list(text()) },
+    access: { read: 'signedIn' },
+  })
+  const { description } = describe({ definitions: [{ value: project('shop', {}) }, { value: notes }] })
+  assert.match(JSON.stringify(description.tables.notes), /"export":"notes__body_access_read"/)
+  assert.equal(
+    codeOf(() => definitionSource(description, 'notes')),
+    'F0013',
+  )
+})
+
+test('[34-2] the shape of the description marks which numbers are a length of time and which a size: maxSize of a file and debounce of the work that fills a column', () => {
+  assert.equal(measureAt('tables', '*', 'columns', '*', 'maxSize'), 'size')
+  assert.equal(measureAt('tables', '*', 'columns', '*', 'by', 'debounce'), 'time')
+  assert.equal(measureAt('routes', '*', 'limits', 'time'), 'time')
+  assert.equal(measureAt('routes', '*', 'limits', 'size'), 'size')
 })

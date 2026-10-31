@@ -1,4 +1,4 @@
-import type { TentError } from '../../core/index.ts'
+import type { ForjrError } from '../../core/index.ts'
 import type { Runner } from '../../flows/index.ts'
 import type { Asked } from '../door/call.ts'
 import { callerOf, refusedBy, ruled } from '../door/rule.ts'
@@ -12,7 +12,7 @@ import { flowLetsIn } from './allowed.ts'
 /**
  * A flow that is called through the door, or by a program: it passes the flow's `access` and the types of its
  * `input`, starts a run, waits for it, and answers the flow's answer, and nothing where the flow states no
- * `output`. It is held to `actionTime`: a run that outlasts it goes on, and the caller is answered T0008 with the
+ * `output`. It is held to `actionTime`: a run that outlasts it goes on, and the caller is answered F0008 with the
  * id of the run in `fields.run`. The same call with `{ run }` alone waits for that run again, and with
  * `{ run, stop: true }` stops it, for the caller who started it. Answers nothing for a name that is no flow, and
  * for a flow that states no `access` where the caller is not the system: such a flow is not found.
@@ -30,7 +30,7 @@ export function offeredFlow(
   const { caller } = asked
   if (record.access === undefined && caller.kind !== 'system') return undefined
   return loggedCall(o, name, caller, async () => {
-    const denied = (rule: string, needs: string): TentError => {
+    const denied = (rule: string, needs: string): ForjrError => {
       o.log.write('denied', { at: o.clock.now(), name, ...callerOf(caller), rule })
       return refusedBy(name, needs, caller)
     }

@@ -1,5 +1,5 @@
 import { argon2, randomBytes, timingSafeEqual } from 'node:crypto'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { underWay } from '../context.ts'
 import { storedLimit } from '../limits.ts'
 import type { Opened } from '../opened.ts'
@@ -62,12 +62,12 @@ const today = (o: Opened): Settings => ({
   lanes: 1,
 })
 
-/** Holds a member that answers a promise to where a call may wait. Throws T0013 in a query, a change and a rule. */
+/** Holds a member that answers a promise to where a call may wait. Throws F0013 in a query, a change and a rule. */
 function mayWait(member: string): void {
   const kind = underWay()?.work.kind
   if (kind === 'action' || kind === 'seed' || kind === undefined) return
-  throw new TentError(
-    'T0013',
+  throw new ForjrError(
+    'F0013',
     `\`passwords.${member}\` answers a promise, and was used in a ${kind}, which waits for nothing.`,
     {
       fix: 'Hash and check a password in an action, a route or a step of a flow.',

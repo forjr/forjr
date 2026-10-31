@@ -48,8 +48,8 @@ const hookOf = (): Hook | undefined => {
     : undefined
 }
 
-/** Whether the screen lives in the browser: the root of the drawing carries `data-t-alive`. */
-const alive = (): boolean => document.querySelector('body > div#tent')?.hasAttribute('data-t-alive') === true
+/** Whether the screen lives in the browser: the root of the drawing carries `data-f-alive`. */
+const alive = (): boolean => document.querySelector('body > div#forjr')?.hasAttribute('data-f-alive') === true
 
 /** Carries the work out once the browser has drawn what changed: after two of its frames, or a short while in a page it draws none for. */
 function drawnThen(work: () => void): void {
@@ -95,7 +95,7 @@ function middleOf(element: Element): Point {
 function tell(record: PageRecord, store: PageStore): void {
   const hook = hookOf()
   if (!hook) return
-  window.addEventListener('tent-clock', () => store.changed())
+  window.addEventListener('forjr-clock', () => store.changed())
   const missed = (asked: Asked): Finding => find(asked)
   hook.give({
     landed: (write) =>
@@ -110,10 +110,10 @@ function tell(record: PageRecord, store: PageStore): void {
           })
         }
         ends.push(record.listen(look), store.listen(look))
-        const root = document.querySelector('body > div#tent')
+        const root = document.querySelector('body > div#forjr')
         if (root) {
           const watch = new MutationObserver(look)
-          watch.observe(root, { attributes: true, attributeFilter: ['data-t-alive'] })
+          watch.observe(root, { attributes: true, attributeFilter: ['data-f-alive'] })
           ends.push(() => watch.disconnect())
         }
         look()

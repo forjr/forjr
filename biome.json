@@ -8,10 +8,10 @@
       "tests/**",
       "examples/**",
       "docs/*.mjs",
-      "!tests/planted",
-      "!examples/*/tent.d.ts",
+      "!tests/rigs/projects",
+      "!examples/*/forjr.d.ts",
       "!examples/*/walk/pictures",
-      "!!**/.tent",
+      "!!**/.forjr",
       "!!results",
       "!!.claude",
       "!parts/*/tests/*/*"

@@ -1,11 +1,11 @@
 import { readFileSync, rmSync } from 'node:fs'
-import { number, object, TentError, text } from '../../core/index.ts'
+import { number, object, ForjrError, text } from '../../core/index.ts'
 import { runWorkspace } from '../opening.ts'
 import type { ProjectTool } from './face.ts'
 
 /** The error of a `shot` of anything but a path of the workspace's own app. */
-const notOwn = (path: string): TentError =>
-  new TentError('T0002', `\`shot\` takes a path of the app, and was handed ${JSON.stringify(path).slice(0, 80)}.`, {
+const notOwn = (path: string): ForjrError =>
+  new ForjrError('F0002', `\`shot\` takes a path of the app, and was handed ${JSON.stringify(path).slice(0, 80)}.`, {
     fields: { path: 'pattern' },
     fix: 'Name a path of the app, as `/orders`: a full address is no path of it.',
   })

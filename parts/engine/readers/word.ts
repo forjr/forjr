@@ -1,22 +1,22 @@
 import { inflateRawSync } from 'node:zlib'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { htmlDecoded } from './html.ts'
 
 /** The error of a packed file that opens to more than may be read. */
-const tooLarge = (most: number): TentError =>
-  new TentError('T0003', `The packed file opens to more than ${most} bytes, the most that is read of one.`, {
+const tooLarge = (most: number): ForjrError =>
+  new ForjrError('F0003', `The packed file opens to more than ${most} bytes, the most that is read of one.`, {
     fix: 'Read a smaller file, or raise `readSize` in `project.limits`.',
   })
 
-const notWord = (): TentError =>
-  new TentError('T0015', 'The file is no Word document: it holds no `word/document.xml`.', {
+const notWord = (): ForjrError =>
+  new ForjrError('F0015', 'The file is no Word document: it holds no `word/document.xml`.', {
     fix: 'Read a file that Word wrote as `.docx`.',
   })
 
 /**
  * Takes the bytes of a packed file, the name of one entry of it, and the most bytes that the entry may open to.
  * Answers the bytes of the entry, or nothing where the pack holds none of that name. The list at the end of the
- * pack says where each entry lies. Throws T0003 for an entry that opens to more than `most`, also where the list
+ * pack says where each entry lies. Throws F0003 for an entry that opens to more than `most`, also where the list
  * states less: the entry is opened no further than `most`.
  */
 function entryOf(pack: Uint8Array, name: string, most: number): Uint8Array | undefined {
@@ -66,8 +66,8 @@ function entryOf(pack: Uint8Array, name: string, most: number): Uint8Array | und
 
 /**
  * Takes the bytes of a Word document (`.docx`) and the most bytes that it may open to. Answers its words: each
- * paragraph is a line, a tab is a tab, and a break inside a paragraph is a line break. Throws T0015 for a file
- * that is no Word document, and T0003 for one that opens to more than `most`.
+ * paragraph is a line, a tab is a tab, and a break inside a paragraph is a line break. Throws F0015 for a file
+ * that is no Word document, and F0003 for one that opens to more than `most`.
  */
 export function wordsOfWord(pack: Uint8Array, most: number): string {
   const document = entryOf(pack, 'word/document.xml', most)

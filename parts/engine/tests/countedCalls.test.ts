@@ -17,7 +17,7 @@ async function through(
 ): Promise<{ sent: string; answered: string }> {
   const sent = JSON.stringify({ input })
   const answer = await app.request(
-    new Request(`${origin}/_t/call/${name}`, {
+    new Request(`${origin}/_f/call/${name}`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: sent,

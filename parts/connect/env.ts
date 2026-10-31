@@ -23,7 +23,7 @@ export type Signer = (request: Request, o: { service: string; user?: string }) =
 /**
  * A check of a signature of the builder's own, by the name a scheme gives in `{ by }`: it is handed the headers,
  * the exact bytes, the secret and the time, and answers the id and the time of the call where it has them. It
- * throws T7118 for a signature that does not hold.
+ * throws F7118 for a signature that does not hold.
  */
 export type Verifier = (o: {
   headers: Headers
@@ -48,7 +48,7 @@ export interface Reach {
 export interface ConnectEnv {
   description(version: string): Description
   fetch: GuardedFetch
-  // T0019 when the secret has no value.
+  // F0019 when the secret has no value.
   secret(name: string): string
   // The engine keeps them, encrypted.
   tokens: {

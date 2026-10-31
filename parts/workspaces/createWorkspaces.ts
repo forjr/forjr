@@ -1,6 +1,6 @@
 import { rmSync } from 'node:fs'
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { rowIds } from '../engine/index.ts'
 import { copyProject } from './copied.ts'
 import type { Workspace, Workspaces, WorkspacesOptions } from './face.ts'
@@ -37,9 +37,9 @@ async function closeOne(one: One): Promise<void> {
  */
 export function createWorkspaces(o: WorkspacesOptions): Workspaces {
   const held: Held = { o, ones: new Map(), closed: false }
-  /** The workspace of an id, as the workspaces hold it now: T0001 for none. */
+  /** The workspace of an id, as the workspaces hold it now: F0001 for none. */
   const need = (id: string): One => oneOf(held, id)
-  /** The id of a workspace, once its caller was held to it: T0001 for none, and T3101 for a caller that may not. */
+  /** The id of a workspace, once its caller was held to it: F0001 for none, and F3101 for a caller that may not. */
   const reached = (id: string, caller: Caller): string => {
     heldTo(o, caller, need(id).workspace)
     return id
@@ -51,7 +51,7 @@ export function createWorkspaces(o: WorkspacesOptions): Workspaces {
       const template = asked.from === undefined ? undefined : o.templates?.[asked.from]
       const from = template ?? (asked.from === undefined ? undefined : need(asked.from).folders.project)
       if (asked.from !== undefined && !from)
-        throw new TentError('T0001', `No template and no workspace ${asked.from} is there.`)
+        throw new ForjrError('F0001', `No template and no workspace ${asked.from} is there.`)
       if (from) copyProject(from, folders.project)
       const workspace: Workspace = {
         id,

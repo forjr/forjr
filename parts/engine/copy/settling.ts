@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { setHere } from '../../data/index.ts'
 import { tell } from './link.ts'
 import type { WriterState } from './writerState.ts'
@@ -55,7 +55,7 @@ export interface Settling {
   ready(): Promise<void>
   /** Counts every write that the writer holds now as settled. With `forget`, no reader is waited for any more. */
   allSettled(forget: boolean): void
-  /** Takes the timer back, and refuses every answer that still waits with T0029. */
+  /** Takes the timer back, and refuses every answer that still waits with F0029. */
   close(): void
 }
 
@@ -213,7 +213,7 @@ export function settlingOf(w: WriterState, named: string[], lostNoMore: () => vo
       // An answer that waited for a write to be settled does not leave a writer that is closed: nobody says it was.
       for (const one of waiting.splice(0))
         one.fail(
-          new TentError('T0029', 'The writer was closed before a write that this answer rests on was settled.', {
+          new ForjrError('F0029', 'The writer was closed before a write that this answer rests on was settled.', {
             fix: 'Ask again: the write may have been carried out.',
           }),
         )

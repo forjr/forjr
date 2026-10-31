@@ -1,5 +1,5 @@
 import { ArrowLeft, Compass } from 'lucide-react'
-import { Link, screen, useTranslations } from 'tentjs/ui'
+import { Link, screen, useTranslations } from 'forjr/ui'
 import { PlainFrame } from '../components/frames'
 import { button } from '../components/ui'
 

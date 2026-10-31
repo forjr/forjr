@@ -5,7 +5,7 @@ import type { Description } from '../../core/internal.ts'
 import { bundled, engineOf, system, workFolder } from './apps.ts'
 import { addCard } from './watching.ts'
 
-test('[40-3b] app.facts with back says, with nothing changed, whether the data can follow a way back: a rename and what was added since are no finding, and rows that do not fit the older files are T2001', async (t) => {
+test('[40-3b] app.facts with back says, with nothing changed, whether the data can follow a way back: a rename and what was added since are no finding, and rows that do not fit the older files are F2001', async (t) => {
   const work = workFolder(t)
   const first = await bundled(t, { project: 'board' }, work)
   const newer = await bundled(
@@ -32,7 +32,7 @@ test('[40-3b] app.facts with back says, with nothing changed, whether the data c
 
   // Without `back` the older files are refused, for what is gone with no statement.
   const plain = await app.facts(older)
-  assert.ok(plain.tableFindings.some((one) => /^T200[2-4]$/.test(one.code)))
+  assert.ok(plain.tableFindings.some((one) => /^F200[2-4]$/.test(one.code)))
   // With `back` the data can follow: the rename is turned round, and what was added since is retired.
   assert.deepEqual((await app.facts(older, { back: true })).tableFindings, [])
 
@@ -42,7 +42,7 @@ test('[40-3b] app.facts with back says, with nothing changed, whether the data c
   const found = (await app.facts(strict, { back: true })).tableFindings
   assert.deepEqual(
     found.map((one) => one.code),
-    ['T2001'],
+    ['F2001'],
   )
   // Nothing was changed by the asking: the app reads its row under the newer name.
   const rows = Object(await app.read({ from: 'cards' }, { as: system }))

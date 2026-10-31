@@ -9,7 +9,7 @@ import { copied, typed } from './typed.ts'
 
 const timed = object({ flow: text(), times: list(text()), runs: list(text()), done: boolean() })
 
-test('[46-7] `tent run --times` that would start more than 100 runs lists the times and starts nothing without `--yes`, and starts them with it', async (t) => {
+test('[46-7] `forjr run --times` that would start more than 100 runs lists the times and starts nothing without `--yes`, and starts them with it', async (t) => {
   // The engine is closed before the folder of the copy is removed: the hooks of a test run in their order.
   const engine = createEngine({ port: 0 })
   t.after(() => engine.close())
@@ -24,7 +24,7 @@ test('[46-7] `tent run --times` that would start more than 100 runs lists the ti
   const runs = async (...words: string[]): Promise<Record<string, unknown>> => {
     const asked = await typed(project, 'run', ...words, '--data', data, '--json')
     assert.equal(asked.ended, 0, asked.printed)
-    assert.deepEqual(checkValue(timed, asked.answer.value), [], `the shape of tent run ${words.join(' ')}`)
+    assert.deepEqual(checkValue(timed, asked.answer.value), [], `the shape of forjr run ${words.join(' ')}`)
     return Object(asked.answer.value)
   }
   // Two days of a quarter of an hour: some two hundred times.

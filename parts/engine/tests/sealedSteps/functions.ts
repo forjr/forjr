@@ -1,4 +1,4 @@
-import { action, anyone, change, flow, input, text } from 'tentjs'
+import { action, anyone, change, flow, input, text } from 'forjr'
 import { vault } from './tables.ts'
 
 const open = anyone('a test calls it')

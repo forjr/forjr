@@ -1,4 +1,4 @@
-import { action, query, runs, table, text } from 'tentjs'
+import { action, query, runs, table, text } from 'forjr'
 import { noted } from './helpers/seen.ts'
 import { customers } from './tables.ts'
 

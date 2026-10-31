@@ -1,5 +1,5 @@
 import type { RunPart } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored } from '../../core/internal.ts'
 import type { Reach } from '../env.ts'
 import { Unrunnable } from './flags.ts'
@@ -13,11 +13,11 @@ const lostAfter = 45_000
 /**
  * Follows a run over the live connection that the reach opens, as a page does. Answers its parts in their order:
  * first where the run stands, as `{ kind: 'run', ... }`, then each part as the engine sends it, up to its end.
- * A run the caller may not follow is refused with the error the engine sends, T0001. A connection on which nothing
+ * A run the caller may not follow is refused with the error the engine sends, F0001. A connection on which nothing
  * at all arrived for 45 seconds is lost, and throws `Unrunnable`.
  */
 export async function* followed(reach: Reach, run: string): AsyncIterable<RunPart> {
-  const line = await reach.live(new Request('http://localhost/_t/live'))
+  const line = await reach.live(new Request('http://localhost/_f/live'))
   const waiting: Record<string, unknown>[] = []
   let wake = (): void => undefined
   line.each((message) => {
@@ -47,7 +47,7 @@ export async function* followed(reach: Reach, run: string): AsyncIterable<RunPar
       const { t, id: _, ...rest } = message
       if (t === 'failed') {
         const error = isStored(message.error) ? message.error : {}
-        throw new TentError(String(error.code ?? 'T0001'), String(error.message ?? 'The run cannot be followed.'))
+        throw new ForjrError(String(error.code ?? 'F0001'), String(error.message ?? 'The run cannot be followed.'))
       }
       yield t === 'run' ? { kind: 'run', ...rest } : rest
       if (t === 'run-part' && ends.includes(String(message.kind))) return

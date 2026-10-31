@@ -1,4 +1,4 @@
-import { event, flow, mail } from 'tentjs'
+import { event, flow, mail } from 'forjr'
 import { encodeOne, slack, videos, writer } from '../app/shop.ts'
 
 export const flowTools = flow('flowTools', {

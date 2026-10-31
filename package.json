@@ -1,5 +1,5 @@
 {
-  "name": "tent.js-repository",
+  "name": "forjr-repository",
   "private": true,
   "type": "module",
   "license": "MIT",
@@ -11,8 +11,11 @@
     "types": "tsc",
     "test": "node scripts/tests.mjs",
     "night": "node scripts/tests.mjs --night",
-    "tent": "node parts/cli/shell.ts",
-    "all": "npm run lists && npm run lint && npm run types && node scripts/search.mjs && npm test"
+    "forjr": "node parts/cli/shell.ts",
+    "map": "node scripts/map.mjs",
+    "check": "node scripts/check.mjs",
+    "impact": "node scripts/impact.mjs",
+    "all": "npm run lists && npm run lint && npm run types && node scripts/imports.mjs && node scripts/names.mjs && node scripts/search.mjs && npm test"
   },
   "dependencies": {
     "nodemailer": "10.1.0",

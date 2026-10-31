@@ -79,7 +79,7 @@ test('[23-11] [night] with 100,000 waiting runs the runner holds one timer and d
   }
   await b.settle()
   assert.equal(
-    b.store.read({ from: '_t_runs', where: { col: 'state', is: 'waiting' }, count: true }, { kind: 'system' }).value,
+    b.store.read({ from: '_f_runs', where: { col: 'state', is: 'waiting' }, count: true }, { kind: 'system' }).value,
     100_000,
   )
   assert.deepEqual(b.clock.timers(), [began + minute], 'one timer, at the earliest wake of the hundred thousand')

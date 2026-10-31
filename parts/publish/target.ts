@@ -1,5 +1,5 @@
 import type { GuardedFetch } from '../connect/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { blobsType } from './blobsBody.ts'
 
 /** A server that is published to, pushed to and pulled from: its address, and the key of a right there. */
@@ -13,11 +13,11 @@ const asLong = 600_000
 const asLarge = 1_073_741_824 + 1_048_576
 
 /** The error that a target answered, as it was sent: its code, its words and its fields. */
-function refusal(sent: unknown, status: number): TentError {
+function refusal(sent: unknown, status: number): ForjrError {
   const error = Object(sent)
   const fields = typeof error.fields === 'object' && error.fields !== null ? { fields: error.fields } : {}
-  return new TentError(
-    typeof error.code === 'string' ? error.code : 'T0009',
+  return new ForjrError(
+    typeof error.code === 'string' ? error.code : 'F0009',
     typeof error.message === 'string' ? error.message : `The target answered ${status}.`,
     { ...fields, ...(typeof error.fix === 'string' ? { fix: error.fix } : {}) },
   )
@@ -26,7 +26,7 @@ function refusal(sent: unknown, status: number): TentError {
 /**
  * Sends one request to an address of a target, with its key, and answers its value: what the answer holds in the
  * wire form, or the bytes of blobs where the target answers them. Throws the error the target answered, with its
- * code, and T0009 for an answer that is neither.
+ * code, and F0009 for an answer that is neither.
  */
 export async function asked(o: { to: Target; fetch: GuardedFetch }, path: string, body: unknown): Promise<unknown> {
   const bytes = body instanceof Uint8Array
@@ -43,8 +43,8 @@ export async function asked(o: { to: Target; fetch: GuardedFetch }, path: string
   try {
     read = await answer.json()
   } catch {
-    throw new TentError(
-      'T0009',
+    throw new ForjrError(
+      'F0009',
       `${path} of ${o.to.address} answered ${answer.status} with no answer of the wire form.`,
     )
   }

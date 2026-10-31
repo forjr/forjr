@@ -74,7 +74,7 @@ export const listStock = query('listStock', {
 `
 
 // The functions of the desk that keeps no file yet.
-const plainFunctions = `import { anyone, change, input, text } from 'tentjs'
+const plainFunctions = `import { anyone, change, input, text } from 'forjr'
 import { teams } from '../tables/tables'
 
 export const addTeam = change('addTeam', {
@@ -116,13 +116,15 @@ function deskProject(t: TestContext, o: DeskChange = {}): string {
       text.replace('total: number({ default: 0 }),', 'total: text({ optional: true }),'),
     )
   if (o.openFiles !== undefined)
-    rewritten(project, 'tent.ts', (text) => text.replace('openFiles: 50', `openFiles: ${o.openFiles}`))
+    rewritten(project, 'forjr.ts', (text) => text.replace('openFiles: 50', `openFiles: ${o.openFiles}`))
   if (o.filesAtOnce !== undefined)
-    rewritten(project, 'tent.ts', (text) => text.replace('filesAtOnce: 4', `filesAtOnce: ${o.filesAtOnce}`))
+    rewritten(project, 'forjr.ts', (text) => text.replace('filesAtOnce: 4', `filesAtOnce: ${o.filesAtOnce}`))
   if (o.changeTime !== undefined)
-    rewritten(project, 'tent.ts', (text) => text.replace('filesAtOnce:', `changeTime: '${o.changeTime}', filesAtOnce:`))
+    rewritten(project, 'forjr.ts', (text) =>
+      text.replace('filesAtOnce:', `changeTime: '${o.changeTime}', filesAtOnce:`),
+    )
   if (o.queryTime !== undefined)
-    rewritten(project, 'tent.ts', (text) => text.replace('filesAtOnce:', `queryTime: '${o.queryTime}', filesAtOnce:`))
+    rewritten(project, 'forjr.ts', (text) => text.replace('filesAtOnce:', `queryTime: '${o.queryTime}', filesAtOnce:`))
   if (o.shops) {
     rewritten(project, 'tables/tables.ts', (text) => `${text}${shopTables}`)
     rewritten(project, 'functions/functions.ts', (text) => `${text}${shopFunctions}`)
@@ -150,7 +152,7 @@ export async function appIn(t: TestContext, project: string): Promise<Desk> {
   const before = new Set(readdirSync(temp))
   const app = await testApp({ folder: project })
   closing(t, () => app.close())
-  const [home] = readdirSync(temp).filter((one) => one.startsWith('tent-test-') && !before.has(one))
+  const [home] = readdirSync(temp).filter((one) => one.startsWith('forjr-test-') && !before.has(one))
   return { app, dataFolder: join(temp, home ?? '', 'data') }
 }
 
@@ -215,7 +217,7 @@ export interface Pair {
   close(): Promise<void>
 }
 
-const addresses = { writer: 'https://writer.tent.test', reader: 'https://reader.tent.test' }
+const addresses = { writer: 'https://writer.forjr.test', reader: 'https://reader.forjr.test' }
 
 /**
  * Opens a bundle of the desk as a writer that lets one near reader join, and that reader beside it, on data
@@ -311,7 +313,7 @@ export async function pairOf(
 /** Carries a command of the admin channel out on an app, with no network, and answers its value. Throws its error. */
 export async function command(app: App, dataFolder: string, name: string, args: object = {}): Promise<unknown> {
   const { port, token } = JSON.parse(readFileSync(join(dataFolder, 'engine.json'), 'utf8'))
-  const request = new Request(`http://127.0.0.1:${port}/_t/admin/${name}`, {
+  const request = new Request(`http://127.0.0.1:${port}/_f/admin/${name}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
     body: JSON.stringify({ args }),
@@ -322,7 +324,7 @@ export async function command(app: App, dataFolder: string, name: string, args: 
   throw Object.assign(new Error(String(error.message)), { code: error.code })
 }
 
-/** One file of a tenant as `tent data files` lists it. */
+/** One file of a tenant as `forjr data files` lists it. */
 interface Listed {
   table: string
   id: string
@@ -337,7 +339,7 @@ interface Listed {
   due?: number
 }
 
-/** What `tent data files` answers: the directory, and with a flag what that flag did. */
+/** What `forjr data files` answers: the directory, and with a flag what that flag did. */
 export interface FilesAnswer {
   files: Listed[]
   stray?: { removed: string[]; listed: string[]; folded: string[]; refused: string[]; temporary: number }
@@ -345,7 +347,7 @@ export interface FilesAnswer {
   retried?: { id: string; ok: boolean }
 }
 
-/** `tent data files`, asked of a running app. */
+/** `forjr data files`, asked of a running app. */
 export async function listed(app: App, dataFolder: string, flags: object = {}): Promise<FilesAnswer> {
   const answer: unknown = await command(app, dataFolder, 'data', { what: 'files', ...flags })
   const held: Record<string, unknown> = Object(answer)

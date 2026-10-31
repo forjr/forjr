@@ -1,0 +1,13 @@
+change markPaid  functions/orders.ts:17  role staff  reads ~orders  writes ~orders.status, ~orders.total  emits ~paid  code
+functions/orders.ts:17-24
+    export const markPaid = change('markPaid', {
+      access: role('staff'),
+      input: { id: text() },
+      run: ({ db, input }) => {
+        db.orders.change(input.id, { status: 'paid', total: cents(1) / 100 })
+        emit('paid', { id: input.id })
+      },
+    })
+reads ~table orders  tables/orders.ts:5  read anyone signed in, add anyone signed in, change role staff  customer (customers), total, status? open|paid  links to customers  read by openOrders, ~markPaid  written by addOrder, ~markPaid
+writes ~table orders  tables/orders.ts:5  read anyone signed in, add anyone signed in, change role staff  customer (customers), total, status? open|paid  links to customers  read by openOrders, ~markPaid  written by addOrder, ~markPaid
+emits ~event paid  wakes tell  emitted by ~markPaid

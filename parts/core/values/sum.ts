@@ -14,7 +14,7 @@ export function sumWith(tick: Tick, ...values: unknown[]): unknown {
 /**
  * Takes a list, and the name of a field of each entry where the numbers stand in one. Answers the sum of the
  * numbers, and 0 for an empty list: an entry that holds nothing is passed over. Handed one text and nothing else,
- * it answers what `group` takes for a column. Handed a reference it answers its record. Throws T0027 for an entry
+ * it answers what `group` takes for a column. Handed a reference it answers its record. Throws F0027 for an entry
  * that is no number, and for a value that is no list.
  */
 export function sum(list: readonly unknown[], field?: string): number

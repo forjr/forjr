@@ -1,4 +1,4 @@
-import { action, anyone, text } from 'tentjs'
+import { action, anyone, text } from 'forjr'
 
 // What the test laid down for this call: the fetching of a part, as the engine does it for a call that needs one.
 const part = (): Promise<string> => Reflect.get(globalThis, 'partOfTheTest')()

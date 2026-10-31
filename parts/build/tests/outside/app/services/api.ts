@@ -1,4 +1,4 @@
-import { service } from 'tentjs'
+import { service } from 'forjr'
 
 export const api = service('api', {
   url: 'https://api.example.com',

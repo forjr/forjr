@@ -1,4 +1,4 @@
-import { flow, text } from 'tentjs'
+import { flow, text } from 'forjr'
 
 // A run whose step reads the private value of a card, and then waits for a yes.
 export const lookCard = flow('lookCard', {

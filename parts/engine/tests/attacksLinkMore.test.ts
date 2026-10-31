@@ -60,8 +60,8 @@ test('[29-11.1@4] a key of another app opens no link and no address serves it, a
   await addNote(app, 'a secret of the writer')
 
   // A key of another app: of the right form, but no reader of this writer holds it.
-  assert.equal(await codeOf((async () => rawLink(app, otherApp))()), 'T0001', 'a key of another app opens no link')
-  for (const path of ['/_t/copy/versions', '/_t/copy/data', `/_t/copy/blob/${'0'.repeat(64)}`]) {
+  assert.equal(await codeOf((async () => rawLink(app, otherApp))()), 'F0001', 'a key of another app opens no link')
+  for (const path of ['/_f/copy/versions', '/_f/copy/data', `/_f/copy/blob/${'0'.repeat(64)}`]) {
     const answer = await app.request(
       new Request(`https://writer.test${path}`, { headers: { authorization: `Bearer ${otherApp}` } }),
     )
@@ -141,13 +141,13 @@ test('[29-11.2@4] a from whose number, epoch or sum is made up, each alone and t
   )
   // A made-up epoch, newer than the writer's: the writer says it is not the one, and sends nothing.
   const epoch = await tryFrom('a made-up epoch', { n: at.n, epoch: '999.attacker', sum: at.sum })
-  assert.deepEqual([epoch[0]?.t, epoch[0]?.code], ['no', 'T0030'], 'a from of a newer epoch is refused')
+  assert.deepEqual([epoch[0]?.t, epoch[0]?.code], ['no', 'F0030'], 'a from of a newer epoch is refused')
   // A made-up sum at the right number: the place does not fit, so `again`.
   const sum = await tryFrom('a made-up sum', { n: at.n, epoch: at.epoch, sum: 'f'.repeat(64) })
   assert.equal(sum[0]?.t, 'again', 'a from of a made-up sum is told to fetch anew')
   // All three made up together: the newer epoch wins, and it is refused.
   const all = await tryFrom('all made up', { n: at.n + 10_000, epoch: '999.attacker', sum: 'f'.repeat(64) })
-  assert.deepEqual([all[0]?.t, all[0]?.code], ['no', 'T0030'], 'a from all made up is refused')
+  assert.deepEqual([all[0]?.t, all[0]?.code], ['no', 'F0030'], 'a from all made up is refused')
 
   // The writer kept answering throughout, and its data is as it was.
   assert.deepEqual(await inTime('a read after the from attacks', tags(app)), ['a secret of the writer'])
@@ -158,7 +158,7 @@ test('[29-11.5] a took from a machine that took nothing - twice, with an older a
   const bundle = await bundled(t, {}, world.work)
 
   const tookOn = (app: App, body: object, key?: string) =>
-    send(app, 'https://writer.test/_t/copy/took', {
+    send(app, 'https://writer.test/_f/copy/took', {
       body: JSON.stringify(body),
       ...(key ? { headers: { authorization: `Bearer ${key}` } } : {}),
     })
@@ -167,7 +167,7 @@ test('[29-11.5] a took from a machine that took nothing - twice, with an older a
   const plain = await writerIn(world, bundle, world.engine())
   for (const key of [undefined, keys.none]) {
     const answer = await tookOn(plain, { epoch: '999.attacker' }, key)
-    assert.deepEqual([answer.status, answer.error.code], [404, 'T0001'], String(key))
+    assert.deepEqual([answer.status, answer.error.code], [404, 'F0001'], String(key))
   }
   // A took of an older or equal epoch, by a copy key: the writer does not give way, and answers its own epoch.
   // An epoch of the writer's own number with the lowest possible id is older; the writer's own epoch is equal.
@@ -179,7 +179,7 @@ test('[29-11.5] a took from a machine that took nothing - twice, with an older a
   }
   // The writer still writes: it did not give way for an older took.
   assert.equal(
-    (await send(plain, 'https://writer.test/_t/call/addWord', { input: { text: 'still writing' } })).status,
+    (await send(plain, 'https://writer.test/_f/call/addWord', { input: { text: 'still writing' } })).status,
     200,
   )
 
@@ -191,9 +191,9 @@ test('[29-11.5] a took from a machine that took nothing - twice, with an older a
   assert.equal((await tookOn(victim, { epoch: newer, own: 'https://attacker.test' }, keys.near)).status, 200)
   const again = await tookOn(victim, { epoch: newer, own: 'https://attacker.test' }, keys.near)
   assert.equal(again.status, 200, 'a second took is borne')
-  // From then on the writer refuses what writes with T0030: it was stopped for good by the copy key, as section 7.4 says.
-  const write = await send(victim, 'https://writer.test/_t/call/addWord', { input: { text: 'after took' } })
-  assert.deepEqual([write.status, write.error.code], [409, 'T0030'], 'the writer is stopped for good')
+  // From then on the writer refuses what writes with F0030: it was stopped for good by the copy key, as section 7.4 says.
+  const write = await send(victim, 'https://writer.test/_f/call/addWord', { input: { text: 'after took' } })
+  assert.deepEqual([write.status, write.error.code], [409, 'F0030'], 'the writer is stopped for good')
 })
 
 test('[29-11.10] a request handed on with each of its four headers made up, alone and together, by a key of each right and by none', async (t) => {
@@ -201,40 +201,40 @@ test('[29-11.10] a request handed on with each of its four headers made up, alon
   const writer = await writerIn(world, await bundled(t, {}, world.work))
   const epoch = writer.at().epoch
   const asked = (headers: Record<string, string>) =>
-    send(writer, 'https://writer.test/_t/call/whoAmI', { from: '10.0.0.9', headers })
+    send(writer, 'https://writer.test/_f/call/whoAmI', { from: '10.0.0.9', headers })
 
-  // Each header alone, with no key behind it: the three that only a reader sets are T0001; a lone made-up ref is
+  // Each header alone, with no key behind it: the three that only a reader sets are F0001; a lone made-up ref is
   // ignored, and the request is answered as the sender's own.
-  for (const header of ['tent-reader', 'tent-for', 'tent-epoch']) {
-    const answer = await asked({ [header]: header === 'tent-for' ? '1.2.3.4; https; evil.test' : 'made-up' })
-    assert.deepEqual([answer.status, answer.error.code], [404, 'T0001'], header)
+  for (const header of ['forjr-reader', 'forjr-for', 'forjr-epoch']) {
+    const answer = await asked({ [header]: header === 'forjr-for' ? '1.2.3.4; https; evil.test' : 'made-up' })
+    assert.deepEqual([answer.status, answer.error.code], [404, 'F0001'], header)
     tellsNothing(`${header} alone`, JSON.stringify(answer.body))
   }
-  const refAlone = await asked({ 'tent-ref': 'deadbeef' })
+  const refAlone = await asked({ 'forjr-ref': 'deadbeef' })
   assert.deepEqual(refAlone.body, { ok: true, value: 'no user' }, 'a lone ref is ignored')
 
   // A valid key of each right, with the right epoch: the request is believed and carried out, as the caller that
-  // its own cookies name, and nobody here. A made-up Tent-For is believed (the key is trusted), never held against anything.
+  // its own cookies name, and nobody here. A made-up Forjr-For is believed (the key is trusted), never held against anything.
   for (const key of [keys.near, keys.far]) {
     const believed = await asked({
-      'tent-reader': key,
-      'tent-epoch': epoch,
-      'tent-for': '203.0.113.7; https; writer.test',
-      'tent-ref': 'abcd1234',
+      'forjr-reader': key,
+      'forjr-epoch': epoch,
+      'forjr-for': '203.0.113.7; https; writer.test',
+      'forjr-ref': 'abcd1234',
     })
     assert.equal(believed.status, 200, key)
     assert.equal(believed.body.value, 'no user', 'a handed-on request is its own caller, and no header names one')
   }
-  // A valid key but a made-up epoch: the request is not the writer's to carry out under it, T0030.
+  // A valid key but a made-up epoch: the request is not the writer's to carry out under it, F0030.
   const wrongEpoch = await asked({
-    'tent-reader': keys.near,
-    'tent-epoch': '999.attacker',
-    'tent-for': '9.9.9.9; https; writer.test',
+    'forjr-reader': keys.near,
+    'forjr-epoch': '999.attacker',
+    'forjr-for': '9.9.9.9; https; writer.test',
   })
   assert.deepEqual(
     [wrongEpoch.status, wrongEpoch.error.code],
-    [409, 'T0030'],
-    'a handed request under another epoch is T0030',
+    [409, 'F0030'],
+    'a handed request under another epoch is F0030',
   )
   tellsNothing('a handed request under another epoch', JSON.stringify(wrongEpoch.body))
 })
@@ -252,7 +252,7 @@ test('[29-11.11@4] the addresses that hand out the data and a version by a key o
     )
 
   // A key that holds neither right (and none): the data and the versions are not found, and nothing is sent.
-  for (const path of ['/_t/copy/versions', '/_t/copy/data', `/_t/copy/blob/${'0'.repeat(64)}`]) {
+  for (const path of ['/_f/copy/versions', '/_f/copy/data', `/_f/copy/blob/${'0'.repeat(64)}`]) {
     for (const key of [undefined, keys.none]) {
       const answer = await get(path, key)
       assert.equal(answer.status, 404, `${path} ${key}`)
@@ -260,16 +260,16 @@ test('[29-11.11@4] the addresses that hand out the data and a version by a key o
     }
   }
   // A far key holds the right `far`, so the data and the versions are answered to it (a made-up blob is still not found).
-  assert.equal((await get('/_t/copy/versions', keys.far)).status, 200, 'a far key reads the versions')
-  assert.equal((await get('/_t/copy/data', keys.far)).status, 200, 'a far key reads the data')
-  assert.equal((await get(`/_t/copy/blob/${'0'.repeat(64)}`, keys.far)).status, 404, 'a made-up blob is not found')
+  assert.equal((await get('/_f/copy/versions', keys.far)).status, 200, 'a far key reads the versions')
+  assert.equal((await get('/_f/copy/data', keys.far)).status, 200, 'a far key reads the data')
+  assert.equal((await get(`/_f/copy/blob/${'0'.repeat(64)}`, keys.far)).status, 404, 'a made-up blob is not found')
 
   // While the data changes under it, the data endpoint answers a whole, valid snapshot each time, never an error.
   const writing = (async () => {
     for (let i = 0; i < 30; i++) await addNote(writer, `change ${i}`)
   })()
   for (let i = 0; i < 12; i++) {
-    const answer = await inTime(`a snapshot while the data changes ${i}`, get('/_t/copy/data', keys.near))
+    const answer = await inTime(`a snapshot while the data changes ${i}`, get('/_f/copy/data', keys.near))
     assert.equal(answer.status, 200, `snapshot ${i}`)
     const bytes = new Uint8Array(await answer.arrayBuffer())
     assert.equal(Number(answer.headers.get('content-length')), bytes.length, `snapshot ${i} length`)

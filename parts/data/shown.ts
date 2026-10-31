@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Plan } from '../core/internal.ts'
 import { shownLayouts } from '../core/internal.ts'
 import type { TableModel } from './model.ts'
@@ -8,9 +8,9 @@ const shownBy = (stored: string): string =>
   Object.entries(shownLayouts).find(([, layout]) => layout.name === stored)?.[0] ?? 'counts'
 
 /** The error of what is not for a table that shows a table of the engine's own: it is read, and never written. */
-const misused = (model: TableModel, what: string): TentError =>
-  new TentError(
-    'T2016',
+const misused = (model: TableModel, what: string): ForjrError =>
+  new ForjrError(
+    'F2016',
     `The table ${model.name} shows the ${shownBy(String(model.stored))} of the engine: ${what} is not for it.`,
     { fix: 'Read it with a filter, a sort, a limit, `count` or `group`. Its rows are written by the engine alone.' },
   )

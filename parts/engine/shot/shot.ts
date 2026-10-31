@@ -1,7 +1,7 @@
 import { mkdirSync, writeFileSync } from 'node:fs'
 import { dirname, join } from 'node:path'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored } from '../../core/internal.ts'
 import type { Opened } from '../opened.ts'
 import { drivenEnded, madeSession } from '../sessions.ts'
@@ -41,9 +41,9 @@ export async function shotOf(
   asked: ShotAsked = {},
 ): Promise<{ file: string; width: number; height: number; status: number }> {
   if (!path.startsWith('/') || path.startsWith('//'))
-    throw new TentError('T0002', 'A picture is taken of a path of the app.')
+    throw new ForjrError('F0002', 'A picture is taken of a path of the app.')
   if (asked.as !== undefined && asked.as !== 'nobody' && o.mode === 'live')
-    throw new TentError('T0013', 'On live data a picture is taken as nobody.', {
+    throw new ForjrError('F0013', 'On live data a picture is taken as nobody.', {
       fix: 'A program that holds the app gets a signed-in page with `app.page(path, { as })`.',
     })
   const width = asked.size?.width ?? 1280
@@ -98,7 +98,7 @@ export async function shotOf(
           // A still document holds no page code: it is settled once it and its fonts are loaded.
           expression:
             asked.document === undefined
-              ? "document.querySelector('body > div#tent')?.hasAttribute('data-t-alive') === true"
+              ? "document.querySelector('body > div#forjr')?.hasAttribute('data-f-alive') === true"
               : "document.readyState === 'complete' && document.fonts.status === 'loaded'",
           returnByValue: true,
         })

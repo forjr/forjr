@@ -1,4 +1,4 @@
-import { each, log, query, sum } from 'tentjs'
+import { each, log, query, sum } from 'forjr'
 
 type Line = { qty: number; price: number; note?: string }
 

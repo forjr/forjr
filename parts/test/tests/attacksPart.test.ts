@@ -7,8 +7,8 @@ import { buildProject } from '../../build/index.ts'
 import { createEngine } from '../../engine/index.ts'
 import { copyOf } from './projects.ts'
 
-test('[48-7.5] /_t/part/ with no path asked in live or development answers 404 and draws nothing, however it is asked', async (t) => {
-  const home = mkdtempSync(join(tmpdir(), 'tent-attack-part-'))
+test('[48-7.5] /_f/part/ with no path asked in live or development answers 404 and draws nothing, however it is asked', async (t) => {
+  const home = mkdtempSync(join(tmpdir(), 'forjr-attack-part-'))
   t.after(() => rmSync(home, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }))
   const built = await buildProject(copyOf(t, 'looked'), { for: 'dev', out: join(home, 'bundle') })
   const props = encodeURIComponent(JSON.stringify({ label: 'Alone' }))
@@ -19,16 +19,16 @@ test('[48-7.5] /_t/part/ with no path asked in live or development answers 404 a
       const app = await engine.open(built.bundleFolder, { dataFolder: data, mode })
       const origin = `http://localhost:${Number(JSON.parse(readFileSync(join(data, 'engine.json'), 'utf8')).port)}`
       const tries: [string, RequestInit][] = [
-        [`/_t/part/Badge?props=${props}`, {}],
+        [`/_f/part/Badge?props=${props}`, {}],
         // With the mark of a browser that a test drives, which only the mode `test` reads.
-        [`/_t/part/Badge?props=${props}`, { headers: { cookie: 'tent_test=1' } }],
-        [`/_t/part/%42adge?props=${props}`, {}],
-        [`/_t/part/Badge/?props=${props}`, {}],
-        [`/_t/part/Badge?props=${props}&path=`, {}],
-        [`/_t/part/Badge`, { method: 'HEAD' }],
+        [`/_f/part/Badge?props=${props}`, { headers: { cookie: 'forjr_test=1' } }],
+        [`/_f/part/%42adge?props=${props}`, {}],
+        [`/_f/part/Badge/?props=${props}`, {}],
+        [`/_f/part/Badge?props=${props}&path=`, {}],
+        [`/_f/part/Badge`, { method: 'HEAD' }],
         // The drawing of a part on the server, with no `path`.
         [
-          `/_t/part/Badge`,
+          `/_f/part/Badge`,
           {
             method: 'POST',
             body: JSON.stringify({ props: { label: 'Alone' } }),
@@ -36,7 +36,7 @@ test('[48-7.5] /_t/part/ with no path asked in live or development answers 404 a
           },
         ],
         [
-          `/_t/part/Badge`,
+          `/_f/part/Badge`,
           {
             method: 'POST',
             body: JSON.stringify({ props: { label: 'Alone' }, path: '' }),

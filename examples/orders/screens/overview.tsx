@@ -1,5 +1,5 @@
 import { ArrowRight, Plus } from 'lucide-react'
-import { Link, read, role, screen, useTranslations } from 'tentjs/ui'
+import { Link, read, role, screen, useTranslations } from 'forjr/ui'
 import { TakingsChart } from '../components/charts'
 import { StaffFrame, Waiting } from '../components/frames'
 import { Avatar, Badge, button, Card, DOTS, label, PageHeader, Stat, table } from '../components/ui'

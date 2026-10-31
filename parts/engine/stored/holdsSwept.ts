@@ -22,7 +22,7 @@ export function stands(read: HoldsReading, hold: Row): boolean {
   const [tableName, rowId, keptAt] = [String(hold.tableName), String(hold.rowId), String(hold.keptAt ?? '')]
   if (keptAt === '') return read({ from: tableName, one: 'get', id: rowId }) !== undefined
   const versions = read({
-    from: '_t_history',
+    from: '_f_history',
     where: {
       all: [
         { col: 'tableName', is: tableName },

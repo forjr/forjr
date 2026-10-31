@@ -1,6 +1,6 @@
 # The commands
 
-`tent` is a thin shell: each command is a few lines over a part that a program can use by itself.
+`forjr` is a thin shell: each command is a few lines over a part that a program can use by itself.
 
 | Command | Does |
 |---|---|
@@ -12,7 +12,7 @@
 | `command.export` | Writes the public part of the app out as plain files for any host of files |
 | `command.add` | Installs an npm package into the project, with its install scripts switched off |
 | `command.docs` | Prints a page of the docs |
-| `command.map` | Prints the whole app as a short outline |
+| `command.map` | The app for the AI that reads it: each definition with its file and line, who may call it, what it reads and writes, who uses it and its tests; or one definition, column or file |
 | `command.start` | Runs a bundle as a server |
 | `command.run` | Calls a function, and prints what it answered and the lines of its log |
 | `command.data` | The rows of a table, backups, a restore, a cleaning, and the data of one person |
@@ -24,17 +24,17 @@
 
 ## How a command is typed
 
-A command that works on a project is typed in the folder of the project, the one that holds `tent.ts`, or in a folder inside it. What a command takes is given as a word after its name, or as `--name <value>`. A flag that takes a list is given once for each value. The reference writes each value as its flag, `tent new --name <text>`, and the pages as the word typed in its place, `tent new <name>`: a word that is no flag fills the first value that the command takes and that no flag gave, in the order the reference lists them, so `tent new my-app` is `tent new --name my-app`, and `tent data rows users` is `tent data rows --table users`.
+A command that works on a project is typed in the folder of the project, the one that holds `forjr.ts`, or in a folder inside it. What a command takes is given as a word after its name, or as `--name <value>`. A flag that takes a list is given once for each value. The reference writes each value as its flag, `forjr new --name <text>`, and the pages as the word typed in its place, `forjr new <name>`: a word that is no flag fills the first value that the command takes and that no flag gave, in the order the reference lists them, so `forjr new my-app` is `forjr new --name my-app`, and `forjr data rows users` is `forjr data rows --table users`.
 
-A command that is one of several under one name is typed as two words, as `tent data rows`. A command that asks a running engine finds it through `--data <folder>`, and then needs no project, or through the `.tent/` of the project.
+A command that is one of several under one name is typed as two words, as `forjr data rows`. A command that asks a running engine finds it through `--data <folder>`, and then needs no project, or through the `.forjr/` of the project.
 
 ## Commands and a running engine
 
-`run`, `data`, `logs` and `access` are carried out by the engine of the app, and never open its data themselves. An engine that runs writes `engine.json` into its data folder, with its port and a token, readable by the current user alone. A command reads that file in `.tent/` of the project, or in the folder that `--data` names, and sends the engine the command with the token, to an address that answers this computer alone. A file whose program runs no more was left behind: for it no engine runs. Where no engine runs for the project, the command builds the project, starts an engine for the length of the command, on the development data, and closes it again.
+`run`, `data`, `logs` and `access` are carried out by the engine of the app, and never open its data themselves. An engine that runs writes `engine.json` into its data folder, with its port and a token, readable by the current user alone. A command reads that file in `.forjr/` of the project, or in the folder that `--data` names, and sends the engine the command with the token, to an address that answers this computer alone. A file whose program runs no more was left behind: for it no engine runs. Where no engine runs for the project, the command builds the project, starts an engine for the length of the command, on the development data, and closes it again.
 
 ## `--version`
 
-`tent --version`, or `tent -v`, prints the version of the `tentjs` that runs, in one line, as `0.1.0`, and ends with 0. With `--json` the version is the `value`. In a project, `npx tent --version` prints the version that the project holds.
+`forjr --version`, or `forjr -v`, prints the version of the `forjr` that runs, in one line, as `0.1.0`, and ends with 0. With `--json` the version is the `value`. In a project, `npx forjr --version` prints the version that the project holds.
 
 ## `--json`
 
@@ -46,4 +46,4 @@ Every command takes `--json`, and then prints one record: `{ "ok", "value", "fin
 |---|---|
 | 0 | No finding is an error |
 | 1 | A finding is an error |
-| 2 | The command itself failed: it was typed with a word, a flag or a value it does not take, or without one it needs, which is `code.T0038` with how it is typed; or it threw, which is `code.T0009` where the failure is no code of its own |
+| 2 | The command itself failed: it was typed with a word, a flag or a value it does not take, or without one it needs, which is `code.F0038` with how it is typed; or it threw, which is `code.F0009` where the failure is no code of its own |

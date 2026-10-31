@@ -91,7 +91,7 @@ test('[27-17] the start of a request is the same, byte for byte, for two starter
   assert.equal(startOf(called[0]), startOf(called[1]))
 })
 
-test('[27-17] with tell list the model is handed the engine words, the list and the instructions, with call and sequence as its tools; a call by name runs its tool as a step named after it; a name the list does not hold is T0001, and an input that does not fit is T0002 with the two lines of the tool', async (t) => {
+test('[27-17] with tell list the model is handed the engine words, the list and the instructions, with call and sequence as its tools; a call by name runs its tool as a step named after it; a name the list does not hold is F0001, and an input that does not fit is F0002 with the two lines of the tool', async (t) => {
   const h = await toldApp(t)
   h.model.say((request) => {
     const answered = request.messages.filter((one) => one.who === 'tool').length
@@ -118,10 +118,10 @@ test('[27-17] with tell list the model is handed the engine words, the list and 
   assert.match(JSON.stringify(model1), /"tool":"call"/, 'the model step saved the call as call')
   const answers = h.model.asked.flatMap((one) => one.messages).filter((one) => one.who === 'tool')
   assert.ok(
-    answers.some((one) => String(one.error) === 'Error T0001: no such tool'),
+    answers.some((one) => String(one.error) === 'Error F0001: no such tool'),
     JSON.stringify(answers),
   )
-  const misfit = answers.find((one) => String(one.error).startsWith('Error T0002'))
+  const misfit = answers.find((one) => String(one.error).startsWith('Error F0002'))
   assert.ok(misfit, JSON.stringify(answers))
   assert.match(
     String(misfit?.error),

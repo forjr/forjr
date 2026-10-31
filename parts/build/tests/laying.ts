@@ -53,7 +53,7 @@ function ownNames(tree: Node): Set<string> {
 function readNames(tree: Node, seen: Scan, definitions: Record<string, unknown>): Map<string, string> {
   const names = new Map([...ownNames(tree)].map((name) => [name, 'of its file']))
   for (const one of seen.imports)
-    if (!one.from.startsWith('tentjs') && !(one.name === one.local && Object.hasOwn(definitions, one.local)))
+    if (!one.from.startsWith('forjr') && !(one.name === one.local && Object.hasOwn(definitions, one.local)))
       names.set(one.local, 'that its file imports')
   return names
 }
@@ -161,9 +161,9 @@ export async function layDefinition(
     return { wrote: false, why: 'the new text does not read' }
   }
   const imported = new Set(now.imports.map((one) => one.local))
-  // A word of ours comes from the entry that the file may import: a backend file never gains `tentjs/ui`.
-  const entry = now.imports.some((one) => one.from === 'tentjs/ui') || path.endsWith('.tsx') ? 'tentjs/ui' : 'tentjs'
-  const words: object = entry === 'tentjs/ui' ? ui : core
+  // A word of ours comes from the entry that the file may import: a backend file never gains `forjr/ui`.
+  const entry = now.imports.some((one) => one.from === 'forjr/ui') || path.endsWith('.tsx') ? 'forjr/ui' : 'forjr'
+  const words: object = entry === 'forjr/ui' ? ui : core
   const lines: string[] = []
   for (const read of namesRead(again.statement)) {
     if (imported.has(read) || read === name) continue

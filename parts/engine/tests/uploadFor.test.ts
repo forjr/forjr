@@ -4,7 +4,7 @@ import { running } from './apps.ts'
 import { scripted } from './followedApp.ts'
 import { addBoardUser, cookieOf } from './watching.ts'
 
-test('[22-12@9a] an upload whose for names an agent is held to the files of its start, as one that names a function: files and audio are taken, any other field is T0002', async (t) => {
+test('[22-12@9a] an upload whose for names an agent is held to the files of its start, as one that names a function: files and audio are taken, any other field is F0002', async (t) => {
   const model = scripted()
   const { app, origin } = await running(t, {
     project: 'told',
@@ -13,7 +13,7 @@ test('[22-12@9a] an upload whose for names an agent is held to the files of its 
   const cookie = cookieOf(app, await addBoardUser(app, 'Maya'))
   const upload = (query: string) =>
     app.request(
-      new Request(`${origin}/_t/files?name=a.txt${query}`, {
+      new Request(`${origin}/_f/files?name=a.txt${query}`, {
         method: 'POST',
         headers: { cookie, origin, 'content-type': 'text/plain', 'content-length': '5' },
         body: 'hello',
@@ -26,6 +26,6 @@ test('[22-12@9a] an upload whose for names an agent is held to the files of its 
   for (const query of ['&for=helper&field=message', '&for=helper.working&field=files']) {
     const refused = await upload(query)
     assert.equal(refused.status, 400, query)
-    assert.equal(Object(Object(await refused.json()).error).code, 'T0002', query)
+    assert.equal(Object(Object(await refused.json()).error).code, 'F0002', query)
   }
 })

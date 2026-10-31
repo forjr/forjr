@@ -39,30 +39,30 @@ test('[25-5] a client that can ask is answered "more is needed", and a yes runs 
   assert.deepEqual(again, ran)
 })
 
-test('[25-5] [05-13.4] the same yes with another input, a yes after eleven minutes, and a no are T7120', async (t) => {
+test('[25-5] [05-13.4] the same yes with another input, a yes after eleven minutes, and a no are F7120', async (t) => {
   const app = await mcpApp(t)
   const { ada } = await people(app)
   const client = app.mcp({ as: ada, asks: true })
   const [first, second] = [await orderOf(app, ada, 'first'), await orderOf(app, ada, 'second')]
   const asked = await client.call('removeOrder', { order: first })
   const yes = { inputResponses: { ask: { action: 'accept', content: {} } }, requestState: asked.requestState }
-  assert.equal(errorOf(await client.call('removeOrder', { order: second }, yes)).code, 'T7120')
+  assert.equal(errorOf(await client.call('removeOrder', { order: second }, yes)).code, 'F7120')
   const no = { inputResponses: { ask: { action: 'decline' } }, requestState: asked.requestState }
-  assert.equal(errorOf(await client.call('removeOrder', { order: first }, no)).code, 'T7120')
+  assert.equal(errorOf(await client.call('removeOrder', { order: first }, no)).code, 'F7120')
   const late = await client.call('removeOrder', { order: first })
   app.clock.advance('11 minutes')
   const lateYes = { inputResponses: { ask: { action: 'accept', content: {} } }, requestState: late.requestState }
-  assert.equal(errorOf(await client.call('removeOrder', { order: first }, lateYes)).code, 'T7120')
+  assert.equal(errorOf(await client.call('removeOrder', { order: first }, lateYes)).code, 'F7120')
   assert.equal(await counted(app), 2, 'nothing was removed')
 })
 
-test("[25-5] [05-13.4] a client of the older form and one that cannot ask are T7120, and with `asks: 'client'` or the client's host in the list the function runs", async (t) => {
+test("[25-5] [05-13.4] a client of the older form and one that cannot ask are F7120, and with `asks: 'client'` or the client's host in the list the function runs", async (t) => {
   const app = await mcpApp(t)
   const { ada } = await people(app)
   const order = await orderOf(app, ada)
   for (const client of [app.mcp({ as: ada, form: '2025-06-18', asks: true }), app.mcp({ as: ada })]) {
     const refused = await client.call('removeOrder', { order })
-    assert.equal(errorOf(refused).code, 'T7120')
+    assert.equal(errorOf(refused).code, 'F7120')
   }
   const trusting = await mcpApp(t, [{ from: 'mcp: { names', to: "mcp: { asks: 'client', names" }])
   const { ada: trusted } = await people(trusting)
@@ -85,18 +85,18 @@ test("[25-5] [05-13.4] a client of the older form and one that cannot ask are T7
   const three = await orderOf(listed, person)
   assert.equal(
     errorOf(await listed.mcp({ as: { token: other.token } }).call('removeOrder', { order: three })).code,
-    'T7120',
+    'F7120',
   )
 })
 
-test("[25-5] [05-13.38] a client of the older form is answered T7120 with the address of the page, the signed-in person's yes there lets the next call run once, and another person's yes does nothing", async (t) => {
+test("[25-5] [05-13.38] a client of the older form is answered F7120 with the address of the page, the signed-in person's yes there lets the next call run once, and another person's yes does nothing", async (t) => {
   const app = await mcpApp(t)
   const { ada, bob } = await people(app)
   const order = await orderOf(app, ada)
   const client = app.mcp({ as: ada, form: '2025-06-18' })
   const refused = await client.call('removeOrder', { order, note: 'a secret note' })
   const page = String(Object(errorOf(refused).fields).page)
-  assert.match(page, /^http:\/\/localhost\/_t\/ask\?a=/)
+  assert.match(page, /^http:\/\/localhost\/_f\/ask\?a=/)
   const path = page.slice('http://localhost'.length)
   const asBob = app.browser({ as: bob })
   assert.equal((await asBob.request('GET', path)).status, 404, 'another person is not shown it')
@@ -112,20 +112,20 @@ test("[25-5] [05-13.38] a client of the older form is answered T7120 with the ad
   assert.match(String(shown.headers.get('content-security-policy')), /frame-ancestors 'none'/)
   const text = /name="t" value="([^"]+)"/.exec(html)?.[1] ?? ''
   const answer = (browser: typeof asAda, said: string) =>
-    browser.request('POST', '/_t/ask', {
+    browser.request('POST', '/_f/ask', {
       headers: { 'content-type': 'application/x-www-form-urlencoded' },
       body: new URLSearchParams({ t: text, answer: said }).toString(),
     })
-  assert.equal(errorOf(await client.call('removeOrder', { order, note: 'a secret note' })).code, 'T7120')
+  assert.equal(errorOf(await client.call('removeOrder', { order, note: 'a secret note' })).code, 'F7120')
   await answer(asBob, 'allow')
-  assert.equal(errorOf(await client.call('removeOrder', { order, note: 'a secret note' })).code, 'T7120')
-  assert.equal((await asAda.request('GET', '/_t/ask', {})).status, 404)
+  assert.equal(errorOf(await client.call('removeOrder', { order, note: 'a secret note' })).code, 'F7120')
+  assert.equal((await asAda.request('GET', '/_f/ask', {})).status, 404)
   assert.equal((await answer(asAda, 'allow')).status, 200)
   const ran = await client.call('removeOrder', { order, note: 'a secret note' })
   assert.equal(ran.isError, undefined, JSON.stringify(ran))
   assert.equal(await counted(app), 0)
   const another = await orderOf(app, ada)
-  assert.equal(errorOf(await client.call('removeOrder', { order: another })).code, 'T7120', 'the yes ran one call')
+  assert.equal(errorOf(await client.call('removeOrder', { order: another })).code, 'F7120', 'the yes ran one call')
   assert.equal((await answer(asAda, 'allow')).status, 400, 'the text of the page works once')
 })
 
@@ -156,7 +156,7 @@ export const pagesOnly = flow('pagesOnly', {`,
   },
 ]
 
-test('[25-3] [25-5] the ask of a run of an offered flow is the question of a client that can ask, its answer agrees or refuses and the call waits again; for one that cannot, T0008 carries the page of the ask', async (t) => {
+test('[25-3] [25-5] the ask of a run of an offered flow is the question of a client that can ask, its answer agrees or refuses and the call waits again; for one that cannot, F0008 carries the page of the ask', async (t) => {
   const app = await mcpApp(t, askedJob)
   const { ada, bob } = await people(app)
   const client = app.mcp({ as: ada, asks: true })
@@ -177,15 +177,15 @@ test('[25-3] [25-5] the ask of a run of an offered flow is the question of a cli
   // A client that cannot ask is told the run and the page where the person says yes or no.
   const plain = app.mcp({ as: ada })
   const waits = await plain.call('askedJob', { word: 'page' })
-  assert.equal(errorOf(waits).code, 'T0008', JSON.stringify(waits))
+  assert.equal(errorOf(waits).code, 'F0008', JSON.stringify(waits))
   const fields = Object(errorOf(waits).fields)
   const page = String(fields.page)
-  assert.match(page, /^http:\/\/localhost\/_t\/ask\?a=/)
+  assert.match(page, /^http:\/\/localhost\/_f\/ask\?a=/)
   const browser = app.browser({ as: ada })
   const shown = await browser.request('GET', page.slice('http://localhost'.length))
   assert.equal(shown.status, 200)
   const text = /name="t" value="([^"]+)"/.exec(await shown.text())?.[1] ?? ''
-  const said = await browser.request('POST', '/_t/ask', {
+  const said = await browser.request('POST', '/_f/ask', {
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ t: text, answer: 'allow' }).toString(),
   })
@@ -198,7 +198,7 @@ test("[25-5] the project's own screen `for: 'ask'` is drawn in place of the engi
   const folder = mcpProject(t)
   writeFileSync(
     join(folder, 'ask.tsx'),
-    `import { screen, Form } from 'tentjs/ui'
+    `import { screen, Form } from 'forjr/ui'
 
 export const askPerson = screen('askPerson', {
   for: 'ask',

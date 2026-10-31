@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Offered } from '../../core/internal.ts'
 import { apiNameOf, offeredToApi } from '../../core/internal.ts'
 import { bodyInput, queryInput } from '../api/input.ts'
@@ -26,8 +26,8 @@ function offeredAt(o: Opened, name: string): Offered | undefined {
 }
 
 /** What a name that reaches nothing is answered, the same for a function that is not offered and one that is not there. */
-const notFound = (): TentError =>
-  new TentError('T0001', 'Nothing at the API answers this address and method.', {
+const notFound = (): ForjrError =>
+  new ForjrError('F0001', 'Nothing at the API answers this address and method.', {
     fix: 'A function that states `offer: ["api"]` is reached at `/api/<name>`; `/api/openapi.json` lists them.',
   })
 
@@ -42,7 +42,7 @@ function sunsetOf(record: Record<string, unknown>): Record<string, string> {
  * `GET` and `POST` of `/api/<name>`: a function, a flow or an agent that states `offer: ['api']`. It passes
  * all ten steps of the door, and every failure is answered in the standard form of a problem. A query takes both
  * methods, and every other kind `POST` alone. A request whose `Origin` is neither the app's own nor listed in
- * `api.origins` is T0004, a read too. Every caller is asked a person for a function that states `danger: 'ask'`,
+ * `api.origins` is F0004, a read too. Every caller is asked a person for a function that states `danger: 'ask'`,
  * but a key that states `asks: 'none'`.
  */
 export const address: Address = {
@@ -65,7 +65,7 @@ export const address: Address = {
     try {
       const origin = request.headers.get('origin')
       if (origin !== null && !ownOrListed(o, origin, about))
-        throw new TentError('T0004', `The request came from ${JSON.stringify(origin).slice(0, 80)}, another site.`, {
+        throw new ForjrError('F0004', `The request came from ${JSON.stringify(origin).slice(0, 80)}, another site.`, {
           fix: 'List the site in `api.origins` of the project.',
         })
       offered = offeredAt(o, name)
@@ -79,7 +79,7 @@ export const address: Address = {
       refusedCall(o, offered?.name ?? name, caller, began, error)
       return problemAnswer(o, offered?.name ?? name, error)
     }
-    const agreed = request.headers.get('tent-agreed') ?? undefined
+    const agreed = request.headers.get('forjr-agreed') ?? undefined
     const asks = asksNobody(o, caller) ? {} : { asks: agreed === undefined ? {} : { agreed } }
     try {
       const callId = callIdOf(request.headers.get('idempotency-key'))

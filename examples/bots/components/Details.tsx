@@ -1,4 +1,4 @@
-import { component, Form, Link, read, text, useCall } from 'tentjs/ui'
+import { component, Form, Link, read, text, useCall } from 'forjr/ui'
 import { appList, setBotApp } from '../functions/apps'
 import { changeBot, getBot } from '../functions/bots'
 import { addRoutine, removeRoutine, routineList } from '../functions/routines'

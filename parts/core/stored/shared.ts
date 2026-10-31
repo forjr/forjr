@@ -52,53 +52,53 @@ function lettersApart(a: string, b: string): number {
   return row[b.length]
 }
 
-/** Answers the name of a list that is nearest to a word. */
-const nearest = (word: string, names: readonly string[]): string =>
+/** Answers the name of a list that is nearest to a word: the one reading of the nearest name within `core`. */
+export const nearestWord = (word: string, names: readonly string[]): string =>
   [...names].sort((a, b) => lettersApart(word, a) - lettersApart(word, b) || (a < b ? -1 : 1))[0]
 
-/** Reports each option that is none of the names: T1003, with the nearest real one. */
+/** Reports each option that is none of the names: F1003, with the nearest real one. */
 export function known(told: Told, what: string, options: Stored, names: readonly string[]): void {
   for (const option of Object.keys(options)) {
     if (names.includes(option) || options[option] === undefined) continue
-    const near = nearest(option, names)
+    const near = nearestWord(option, names)
     report(
       told,
-      'T1003',
+      'F1003',
       `${what} has no option \`${option}\`. The nearest one is \`${near}\`.`,
       `Write \`${near}\`, or take \`${option}\` out.`,
     )
   }
 }
 
-/** Reports each required option that is left out: T1008. */
+/** Reports each required option that is left out: F1008. */
 export function required(told: Told, what: string, options: Stored, names: readonly string[]): void {
   for (const option of names)
     if (options[option] === undefined)
-      report(told, 'T1008', `${what} states no \`${option}\`, which is required.`, `State \`${option}\`.`)
+      report(told, 'F1008', `${what} states no \`${option}\`, which is required.`, `State \`${option}\`.`)
 }
 
-/** Turns a length of time in words into milliseconds. A number is taken as milliseconds. T1011 where the words do not read. */
+/** Turns a length of time in words into milliseconds. A number is taken as milliseconds. F1011 where the words do not read. */
 export function ms(told: Told, option: string, written: unknown): number | undefined {
   if (written === undefined || typeof written === 'number') return written
   const read = lengthOf(written)
   if (read) return Math.round(read.n * msOf(read.unit))
   report(
     told,
-    'T1011',
+    'F1011',
     `\`${option}\` is no length of time: ${shownAs(written)}.`,
     "Write a number and a unit, as '30 seconds' or '7 days'.",
   )
   return undefined
 }
 
-/** Turns a size in words into bytes. A number is taken as bytes. T1011 where the words do not read. */
+/** Turns a size in words into bytes. A number is taken as bytes. F1011 where the words do not read. */
 export function bytes(told: Told, option: string, written: unknown): number | undefined {
   if (written === undefined || typeof written === 'number') return written
   const read = sizeOf(written)
   if (read !== undefined) return read
   report(
     told,
-    'T1011',
+    'F1011',
     `\`${option}\` is no size: ${shownAs(written)}.`,
     "Write a number and KB, MB or GB, as '10 MB'.",
   )
@@ -152,7 +152,8 @@ export function insideOf(node: Stored): unknown[] {
 
 /**
  * Takes a table and the names of a path through its columns. Answers the tables that the links among them lead
- * to, one after another, as far as each name is a link.
+ * to, one after another, as far as each name is a link. It walks the options a definition was written with, as
+ * `columnsUsed` walks the columns of a description: one rule on two inputs.
  */
 export function throughLinks(told: Told, table: string, names: readonly string[]): string[] {
   const found: string[] = []

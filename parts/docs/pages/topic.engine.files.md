@@ -31,4 +31,4 @@ Each is told once the write it belongs to is committed. A change that was undone
 
 `createEngine({ makers })` takes a function for each part that the program puts in place of ours: `adapter.Store`, `adapter.Clock` and `adapter.Lease`. Each is called once when an app opens, and is handed where the data of that app lies. A made thing that has `close` is told when the app is closed.
 
-`createEngine({ readBody })` takes the reader of a sequence, which the program that starts the engine hands over where the build tools are installed, as `tent start` does. An engine that was handed none offers no `sequence` to a model: its agents work by tool calls alone.
+`createEngine({ readBody })` takes the reader of a sequence, which the program that starts the engine hands over where the build tools are installed, as `forjr start` does. An engine that was handed none offers no `sequence` to a model: its agents work by tool calls alone.

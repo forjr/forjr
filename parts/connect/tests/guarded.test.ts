@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { gzipSync } from 'node:zlib'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Mode } from '../../data/index.ts'
 import { addressWith } from '../guardedAddress.ts'
 import { fetchWith } from '../guardedFetch.ts'
@@ -157,8 +157,8 @@ test('[22-19] an answer over the size cap is cut off, also one that is packed an
   const fetch = guardedFetch({ mode: 'development' })
   const cut = async (work: Promise<Response>): Promise<void> => {
     const error = await failure(whole(work))
-    assert.ok(error instanceof TentError, `${error.name}: ${error.message}`)
-    assert.equal(error.code, 'T0023')
+    assert.ok(error instanceof ForjrError, `${error.name}: ${error.message}`)
+    assert.equal(error.code, 'F0023')
     assert.match(error.message, /size/)
   }
 
@@ -222,7 +222,7 @@ test('[21-16@6b] a local address in the guarded fetch is allowed in the mode dev
   await refused(development('http://192.168.1.20/'), 'secure')
 })
 
-test('[16-2@6b] T0022: each rule refuses with the address and the rule named', async () => {
+test('[16-2@6b] F0022: each rule refuses with the address and the rule named', async () => {
   const held = names({ 'far.test': [[far]] })
   for (const mode of modes) {
     const fetch = fetchWith({ mode }, held.lookup)
@@ -252,7 +252,7 @@ test('[16-2@6b] T0022: each rule refuses with the address and the rule named', a
   assert.equal(await guardedAddress(far, { mode: 'live' }), far)
 })
 
-test('[16-2@6b] T0022: an address written in another form is read into the address it means before the ranges are checked', async () => {
+test('[16-2@6b] F0022: an address written in another form is read into the address it means before the ranges are checked', async () => {
   const none = names({})
   const forms = [
     // One number, base eight, base sixteen, and fewer than four numbers.
@@ -309,7 +309,7 @@ test('[16-2@6b] T0022: an address written in another form is read into the addre
   assert.deepEqual(none.asked, [])
 })
 
-test('[16-2@6b] T0023: an answer that passes its time is cut off, before its head and inside its body', async (t) => {
+test('[16-2@6b] F0023: an answer that passes its time is cut off, before its head and inside its body', async (t) => {
   const server = await standIn(t, (_request, response, asked) => {
     if (asked.path === '/never') return
     response.writeHead(200, { 'content-type': 'text/plain' })
@@ -322,8 +322,8 @@ test('[16-2@6b] T0023: an answer that passes its time is cut off, before its hea
   const late = async (work: Promise<unknown>): Promise<void> => {
     const started = performance.now()
     const error = await failure(work)
-    assert.ok(error instanceof TentError, `${error.name}: ${error.message}`)
-    assert.equal(error.code, 'T0023')
+    assert.ok(error instanceof ForjrError, `${error.name}: ${error.message}`)
+    assert.equal(error.code, 'F0023')
     assert.match(error.message, /time/)
     assert.ok(performance.now() - started < 5000, 'the answer was cut at its time, and not at the 30 seconds')
   }

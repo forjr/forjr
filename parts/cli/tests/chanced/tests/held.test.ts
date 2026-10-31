@@ -1,6 +1,6 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 import { stamp } from '../functions/drawn'
 
 const moment = Date.parse('2030-01-01T00:00:00Z')

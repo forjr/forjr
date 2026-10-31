@@ -1,4 +1,4 @@
-import { component, read, screen, useUser } from 'tentjs/ui'
+import { component, read, screen, useUser } from 'forjr/ui'
 import { allNotes, headerNotes } from './functions'
 
 export const Coming = component('Coming', {

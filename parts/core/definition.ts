@@ -1,4 +1,4 @@
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 import { runtime } from './runtime.ts'
 
 /** The kinds of definition. */
@@ -45,20 +45,20 @@ export const helperWordOf = (definition: object): string | undefined => helperWo
 /**
  * Takes the name of a definition, or of a member of one. Answers a marker that is called as a function: reading it
  * does no work, and a call is handed on to the runtime under that name, with all its arguments in order. A call
- * throws T0010 where the slot is empty.
+ * throws F0010 where the slot is empty.
  */
 export function calls(name: string): ((...args: unknown[]) => unknown) & Marker {
   return Object.assign((...args: unknown[]) => runtime(name).call(name, args), { definition: name })
 }
 
 /**
- * Takes a kind, and the name and the options that a word was handed. Throws T1014 where the name is no text or the
+ * Takes a kind, and the name and the options that a word was handed. Throws F1014 where the name is no text or the
  * options are no record: a word does no work, and what it is handed in those two places is all it reads.
  */
 function heldTo(kind: Kind, name: unknown, options: unknown): void {
   if (typeof name !== 'string' || typeof options !== 'object' || options === null || Array.isArray(options))
-    throw new TentError(
-      'T1014',
+    throw new ForjrError(
+      'F1014',
       `A word that makes ${kind === 'action' || kind === 'agent' || kind === 'incoming' ? 'an' : 'a'} ${kind} takes a name as text and its options as a record.`,
       {
         fix: "Write the word as <word>('name', { ... }).",

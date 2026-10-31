@@ -11,7 +11,7 @@ import { killedStart } from '../../../../rig/kill.ts'
 import { openHistory } from '../../index.ts'
 
 const folder = process.argv[2]
-const data = join(folder, '.tent')
+const data = join(folder, '.forjr')
 mkdirSync(data, { recursive: true })
 const print = (bytes) => createHash('sha256').update(bytes).digest('hex')
 const broken = (words) => {

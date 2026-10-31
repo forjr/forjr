@@ -1,6 +1,6 @@
 # Marketing site
 
-The site of a product, built with Tent.js: a home page that moves, a pricing page, a gallery of screenshots that opens a page for each feature, and a contact form. In English and Turkish, with every page served as whole HTML for search engines, and fast on a phone.
+The site of a product, built with Forjr: a home page that moves, a pricing page, a gallery of screenshots that opens a page for each feature, and a contact form. In English and Turkish, with every page served as whole HTML for search engines, and fast on a phone.
 
 ## What it shows
 
@@ -14,11 +14,11 @@ The site of a product, built with Tent.js: a home page that moves, a pricing pag
 ## Run it
 
 ```sh
-npm install -g tentjs
-git clone https://github.com/tentislabs/tent.js
-cd tent.js/examples/marketing-site
+npm install -g forjr
+git clone https://github.com/forjr/forjr
+cd forjr/examples/marketing-site
 npm install
-tent dev
+forjr dev
 ```
 
-Open `http://localhost:3000`. `tent check` checks the whole app, and `tent test` runs its tests.
+Open `http://localhost:3000`. `forjr check` checks the whole app, and `forjr test` runs its tests.

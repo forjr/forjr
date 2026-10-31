@@ -19,8 +19,8 @@ export const splitNames = backfill('splitNames', {
 
 ## Errors
 
-`code.T2001`: a row still holds nothing in the column once the backfill ran.
+`code.F2001`: a row still holds nothing in the column once the backfill ran.
 
 ## See also
 
-`word.backfill`, `code.T2001`
+`word.backfill`, `code.F2001`

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { CallContext } from '../context.ts'
 
 // The members of the handles that only read: a flow may use them between two steps.
@@ -18,9 +18,9 @@ const free = ['settings', 'secrets', 'log']
 export const betweenSteps = (cx: CallContext): boolean => cx.run !== undefined && cx.run.step === undefined
 
 /** The error of work that the code of a flow does outside a step. */
-export const outsideStep = (cx: CallContext, what: string): TentError =>
-  new TentError(
-    'T5001',
+export const outsideStep = (cx: CallContext, what: string): ForjrError =>
+  new ForjrError(
+    'F5001',
     `${what} was used in the flow ${cx.work.name} outside a step, where the code runs again on every pass.`,
     {
       fix: "Do it inside a step: `await step('a name', () => ...)`. The time and a random number between steps are `step.now()` and `step.random()`.",
@@ -29,7 +29,7 @@ export const outsideStep = (cx: CallContext, what: string): TentError =>
 
 /**
  * Takes the working object behind a handle, its name, and the call context of code between two steps of a flow.
- * Answers the handle as that code may use it: a member that only reads works, and every other member throws T5001.
+ * Answers the handle as that code may use it: a member that only reads works, and every other member throws F5001.
  */
 export function readingOnly(working: object, name: string, cx: CallContext): object {
   if (free.includes(name)) return working

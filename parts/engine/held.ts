@@ -6,7 +6,7 @@ import type { Opened } from './opened.ts'
 
 const system = { kind: 'system' } as const
 
-/** What a data file says of itself under one key of `_t_meta`, or nothing. */
+/** What a data file says of itself under one key of `_f_meta`, or nothing. */
 export function metaOf(store: Store, key: string): unknown {
   const row = store.read({ from: metaTable.name, one: 'get', id: key }, system).value
   return typeof row === 'object' && row !== null && !Array.isArray(row) ? row.value : undefined

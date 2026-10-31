@@ -5,7 +5,7 @@ import { pathToFileURL } from 'node:url'
 import { test } from 'node:test'
 import { findPageCode } from '../draw.ts'
 
-// A module of a view names a package built apart by `tent-package:<file>`: the page code answers it with the file
+// A module of a view names a package built apart by `forjr-package:<file>`: the page code answers it with the file
 // where it first found it, so the versions of a session that hold the same file load it once.
 
 test('[31-21] two bundles that hold one module of a package by the same name load it once, and a module of another name is another module', async (t) => {
@@ -17,7 +17,7 @@ test('[31-21] two bundles that hold one module of a package by the same name loa
     writeFileSync(join(server, file), 'export const made = { at: Math.random() }\n')
     writeFileSync(
       join(server, 'view.js'),
-      `export { made } from ${JSON.stringify(`tent-package:${file}`)}\nexport const where = import.meta.url\n`,
+      `export { made } from ${JSON.stringify(`forjr-package:${file}`)}\nexport const where = import.meta.url\n`,
     )
     findPageCode(server)
     return pathToFileURL(join(server, 'view.js')).href

@@ -75,7 +75,7 @@ export const layoutFor = (description: Description): TableLayout[] => [...layout
 
 /** Switches a writer to a description, in one write that holds the steps, as a start does. */
 export function switchTo(writer: Store, description: Description): void {
-  const held = writer.layout().filter((one) => !own.some((mine) => mine.name === one.name) && one.name !== '_t_meta')
+  const held = writer.layout().filter((one) => !own.some((mine) => mine.name === one.name) && one.name !== '_f_meta')
   const { steps, findings } = planTableChanges(held, [...layoutOf(description), historyTable])
   assert.deepEqual(findings, [])
   writer.write((tx) => applySteps(tx, writer, steps, { seal }), { steps: true })
@@ -107,14 +107,14 @@ export function stored(store: Store, name: string): Row[] {
   const rows = store.read({ from: name }, system).value
   const all = Array.isArray(rows) ? rows : []
   // A table with a key of its own answers its rows in the order a file keeps them, which is each machine's own.
-  return name === '_t_meta' ? all.sort((a, b) => (String(a.key) < String(b.key) ? -1 : 1)) : all
+  return name === '_f_meta' ? all.sort((a, b) => (String(a.key) < String(b.key) ? -1 : 1)) : all
 }
 
 /** What a raw text reads of a store. */
 export const raw = (store: Store, sql: string, values: unknown[] = []): Row[] =>
   (store.sql?.(sql, values) ?? []).map((row) => ({ ...Object(row) }))
 
-/** What a store holds of the tables a record covers, table by table: its rows, its vectors as they are stored, and what `_t_meta` says. */
+/** What a store holds of the tables a record covers, table by table: its rows, its vectors as they are stored, and what `_f_meta` says. */
 export function held(store: Store): Record<string, unknown> {
   const tables = store.layout().filter((one) => !one.own)
   const all: Record<string, unknown> = {}

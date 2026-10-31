@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import { test } from 'node:test'
-import { calc, col, json, list, number, object, project, TentError, table, text, vector } from '../../core/index.ts'
+import { calc, col, json, list, number, object, project, ForjrError, table, text, vector } from '../../core/index.ts'
 import type { Row } from '../index.ts'
 import { createDb } from '../index.ts'
 import { failed } from '../sqlite/failed.ts'
@@ -166,7 +166,7 @@ test('[20-2] the mark of a page holds a whole number past what the runtime holds
     ['7'],
     { whole: '7' },
   ])
-    assert.equal(codeOf(after([2 ** 53, id, { 0: digits }])), 'T0002', JSON.stringify(digits))
+    assert.equal(codeOf(after([2 ** 53, id, { 0: digits }])), 'F0002', JSON.stringify(digits))
   for (const mark of [
     [2 ** 53, id, { 1: '7' }],
     [2 ** 53, id, { big: '7' }],
@@ -174,7 +174,7 @@ test('[20-2] the mark of a page holds a whole number past what the runtime holds
     [2 ** 53, id, '7'],
     [2 ** 53, id, { 0: '7' }, { 0: '7' }],
   ])
-    assert.equal(codeOf(after(mark)), 'T0002', JSON.stringify(mark))
+    assert.equal(codeOf(after(mark)), 'F0002', JSON.stringify(mark))
   // The largest and the smallest whole number that SQLite holds are marks, and so are the digits of a small one.
   const labels = (mark: unknown) => Object(after(mark)()).rows.map((row: Row) => row.label)
   assert.deepEqual(labels([2 ** 63, id, { 0: '9223372036854775807' }]), [])
@@ -242,17 +242,17 @@ test('[20-2] a page that is sorted by a list, a record or a json column goes on 
   assert.deepEqual(first.loose, { whole: '7' })
 })
 
-test('[16-2@3] T0009: what an act of the store throws that is neither an error of SQLite nor one of ours is an error of ours, and what the function of a write itself throws leaves the write as it was thrown', (t) => {
+test('[16-2@3] F0009: what an act of the store throws that is neither an error of SQLite nor one of ours is an error of ours, and what the function of a write itself throws leaves the write as it was thrown', (t) => {
   // What the runtime throws for a value that it cannot hold, a plain error and a thrown text.
   for (const thrown of [new RangeError('too large'), new Error('plain'), 'a text']) {
     const made = failed(thrown, 'wide')
-    assert.ok(made instanceof TentError)
-    assert.equal(made.code, 'T0009')
+    assert.ok(made instanceof ForjrError)
+    assert.equal(made.code, 'F0009')
     assert.equal(made.cause, thrown)
     assert.match(made.message, /too large|plain|a text/)
   }
   // An error of ours passes as it is.
-  const ours = new TentError('T2103', 'not found')
+  const ours = new ForjrError('F2103', 'not found')
   assert.equal(failed(ours, 'wide'), ours)
 
   // An error of the function of a write is no error of the store: it leaves as it was thrown, and the write is undone.
@@ -275,42 +275,42 @@ test('[16-2@3] T0009: what an act of the store throws that is neither an error o
   assert.equal(store.read({ from: 'wide', count: true }, system).value, 0)
 })
 
-test('[16-2@3] T0013: a raw text that names a table whose name starts _t_ is refused whether the file holds that table or not', (t) => {
+test('[16-2@3] F0013: a raw text that names a table whose name starts _f_ is refused whether the file holds that table or not', (t) => {
   const store = opened(workFolder(t))
   switched(store, wide())
-  // The store was just made: it holds `_t_meta`, and neither `_t_history` nor any other table of the engine.
+  // The store was just made: it holds `_f_meta`, and neither `_f_history` nor any other table of the engine.
   assert.deepEqual(
     store
       .layout()
       .map((one) => one.name)
-      .filter((name) => name.startsWith('_t_')),
-    ['_t_meta'],
+      .filter((name) => name.startsWith('_f_')),
+    ['_f_meta'],
   )
   for (const text of [
-    'SELECT * FROM "_t_meta"',
-    'SELECT * FROM "_t_history"',
-    'SELECT count(*) AS "n" FROM _t_history',
-    'SELECT * FROM _T_Runs',
-    'SELECT "label" FROM "wide" WHERE "id" IN (SELECT "rowId" FROM "_t_history")',
-    'SELECT * FROM main._t_holds',
-    'DELETE FROM "_t_history"',
-    'UPDATE _t_none SET x = 1',
-    'INSERT INTO "_t_history" ("id") VALUES (1)',
+    'SELECT * FROM "_f_meta"',
+    'SELECT * FROM "_f_history"',
+    'SELECT count(*) AS "n" FROM _f_history',
+    'SELECT * FROM _F_Runs',
+    'SELECT "label" FROM "wide" WHERE "id" IN (SELECT "rowId" FROM "_f_history")',
+    'SELECT * FROM main._f_holds',
+    'DELETE FROM "_f_history"',
+    'UPDATE _f_none SET x = 1',
+    'INSERT INTO "_f_history" ("id") VALUES (1)',
   ]) {
     assert.equal(
       codeOf(() => store.sql?.(text, [])),
-      'T0013',
+      'F0013',
       text,
     )
     assert.equal(
       codeOf(() => store.write((tx) => tx.sql(text, []))),
-      'T0013',
+      'F0013',
       text,
     )
   }
   // A table of an app that the file does not hold is no table of the engine: the store fails in its own words.
   assert.equal(
     codeOf(() => store.sql?.('SELECT * FROM "tables"', [])),
-    'T0009',
+    'F0009',
   )
 })

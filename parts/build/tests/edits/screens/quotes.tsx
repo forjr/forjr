@@ -1,4 +1,4 @@
-import { screen, read } from "tentjs/ui";
+import { screen, read } from "forjr/ui";
 import { openOrders } from "../functions/orders";
 
 export const quotesScreen = screen("quotesScreen", {

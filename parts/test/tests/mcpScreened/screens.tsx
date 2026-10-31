@@ -1,4 +1,4 @@
-import { screen, read, Form, Image, Link } from 'tentjs/ui'
+import { screen, read, Form, Image, Link } from 'forjr/ui'
 import { addOrder, openOrders } from './functions'
 
 // A screen that is offered to MCP: the orders of the person, with their pictures, and a form that adds one.

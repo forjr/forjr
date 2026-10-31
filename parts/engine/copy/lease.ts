@@ -57,9 +57,9 @@ export function keepLease(o: Opened, lease: Lease): { close(): void; first: Prom
       try {
         o.machine
           .reached(own)
-          .request(new Request(`${own}/_t/health`, { signal: stop.signal }))
+          .request(new Request(`${own}/_f/health`, { signal: stop.signal }))
           .then(
-            (answer) => told(Number((answer.headers.get('tent-at') ?? '').split('.')[1])),
+            (answer) => told(Number((answer.headers.get('forjr-at') ?? '').split('.')[1])),
             () => told(Number.NaN),
           )
       } catch {

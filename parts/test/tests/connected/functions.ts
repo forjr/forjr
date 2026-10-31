@@ -1,4 +1,4 @@
-import { action, connections, flow, json, list, query, table, text } from 'tentjs'
+import { action, connections, flow, json, list, query, table, text } from 'forjr'
 import { github, githubUploads } from './services'
 
 export const users = table('users', {

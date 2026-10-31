@@ -1,8 +1,8 @@
 import { randomBytes, timingSafeEqual } from 'node:crypto'
 import { fingerprintOf } from '../../core/internal.ts'
 
-// A key as it is sent: `tent_`, the id of its row, an underscore, and 32 random bytes in base64 for an address.
-const form = /^tent_([0-9a-hjkmnp-tv-z]{26})_([A-Za-z0-9_-]{43})$/
+// A key as it is sent: `forjr_`, the id of its row, an underscore, and 32 random bytes in base64 for an address.
+const form = /^forjr_([0-9a-hjkmnp-tv-z]{26})_([A-Za-z0-9_-]{43})$/
 
 // What the door compares against for an id that names no key, so that such an id takes the time of a wrong key.
 const none = '0'.repeat(64)
@@ -13,7 +13,7 @@ const keyPrint = (random: string): string => fingerprintOf(Buffer.from(random, '
 /** A new key for the row of an id: the key itself, and the fingerprint that is kept of it. */
 export function newApiKey(id: string): { key: string; fingerprint: string } {
   const random = randomBytes(32).toString('base64url')
-  return { key: `tent_${id}_${random}`, fingerprint: keyPrint(random) }
+  return { key: `forjr_${id}_${random}`, fingerprint: keyPrint(random) }
 }
 
 /**

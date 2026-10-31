@@ -1,4 +1,4 @@
-import { secret, service } from 'tentjs'
+import { secret, service } from 'forjr'
 
 // Each address of this file is written anew by the test, with the port of its stand-in; the program of `local` is
 // named by the test too.

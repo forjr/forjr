@@ -2,7 +2,7 @@ import { callerText } from '../../data/index.ts'
 import { readFileSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import type { Runner } from '../../flows/index.ts'
 import type { CallContext } from '../context.ts'
@@ -15,7 +15,7 @@ import { importPrint, importRecords } from './run.ts'
 import { isStored } from '../../core/internal.ts'
 
 /** The flow that the engine makes for the runs of `importFile`, under a name no flow of an app can have. */
-const importFlow = '_t_import'
+const importFlow = '_f_import'
 
 /** What a run of an import is handed: the id of the file, the change, the names it maps, its language, and whether it writes. */
 export interface ImportAsked {
@@ -26,11 +26,11 @@ export interface ImportAsked {
   dry?: true
 }
 
-/** Takes what a run was handed. Answers it as an import asks it, or throws T0002 for what is none. */
+/** Takes what a run was handed. Answers it as an import asks it, or throws F0002 for what is none. */
 function askedOf(given: unknown): ImportAsked {
   const o = isStored(given) ? given : {}
   if (typeof o.file !== 'string' || typeof o.change !== 'string')
-    throw new TentError('T0002', 'A run of an import names its file and its change.', { fields: { file: 'required' } })
+    throw new ForjrError('F0002', 'A run of an import names its file and its change.', { fields: { file: 'required' } })
   const map = isStored(o.map) ? Object.fromEntries(Object.entries(o.map).map(([from, to]) => [from, String(to)])) : {}
   return {
     file: o.file,
@@ -58,7 +58,7 @@ export const withImportFlow = (description: Description): Description => ({
 export async function imported(o: Opened, caller: Caller, asked: ImportAsked): Promise<object> {
   const file = fileRow(o, asked.file)
   if (!file || file.removedAt !== undefined)
-    throw new TentError('T0001', `No file has the id ${JSON.stringify(asked.file).slice(0, 60)}.`, {
+    throw new ForjrError('F0001', `No file has the id ${JSON.stringify(asked.file).slice(0, 60)}.`, {
       fix: 'Name the id of a file that this caller may download.',
     })
   const content = await wholeBytes(o, file)
@@ -105,7 +105,7 @@ export function driveImports(o: Opened, runner: Runner): void {
 export function startImport(o: Opened, cx: CallContext, asked: ImportAsked): { run: string } {
   const runner = o.flows?.runner
   if (!runner)
-    throw new TentError('T0009', 'An import was asked of an app that keeps no runs.', {
+    throw new ForjrError('F0009', 'An import was asked of an app that keeps no runs.', {
       fix: 'Build the app again: an action that names `importFile` makes its app keep runs.',
     })
   const run = runner.add({ flow: importFlow, version: cx.version, startedBy: byOfCaller(cx.caller), input: asked })

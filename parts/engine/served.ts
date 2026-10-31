@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Mode } from '../data/index.ts'
 import type { App } from './app.ts'
 import type { Opened } from './opened.ts'
@@ -33,17 +33,17 @@ export interface Served {
 const served = new WeakMap<App, Served[]>()
 
 /**
- * Takes an app, a prefix under `/_t/`, what the addresses under it are held to, and what answers them. Puts them
- * behind the door for that app: a prefix given again takes the place of the first. Throws T0013 for a prefix that
- * is not under `/_t/`, and for options that have not their form.
+ * Takes an app, a prefix under `/_f/`, what the addresses under it are held to, and what answers them. Puts them
+ * behind the door for that app: a prefix given again takes the place of the first. Throws F0013 for a prefix that
+ * is not under `/_f/`, and for options that have not their form.
  */
 export function serveUnder(app: App, prefix: string, o: ServedOptions, handler: Served['handler']): void {
-  if (!/^\/_t\/[a-z0-9/-]+$/.test(prefix) || prefix.endsWith('/'))
-    throw new TentError('T0013', `\`${prefix}\` is no prefix of addresses that a program may serve.`, {
-      fix: 'Serve addresses under `/_t/`, as `/_t/sync`, with no `/` at the end.',
+  if (!/^\/_f\/[a-z0-9/-]+$/.test(prefix) || prefix.endsWith('/'))
+    throw new ForjrError('F0013', `\`${prefix}\` is no prefix of addresses that a program may serve.`, {
+      fix: 'Serve addresses under `/_f/`, as `/_f/sync`, with no `/` at the end.',
     })
   if (typeof o?.right !== 'function' || typeof o.size !== 'function' || !(o.perMinute > 0) || !(o.time > 0))
-    throw new TentError('T0013', `What \`engine.serve\` was handed for \`${prefix}\` has not its form.`, {
+    throw new ForjrError('F0013', `What \`engine.serve\` was handed for \`${prefix}\` has not its form.`, {
       fix: 'Hand `{ right(request), size(request), perMinute, time }` and a handler.',
     })
   const all = (served.get(app) ?? []).filter((one) => one.prefix !== prefix)

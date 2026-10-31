@@ -7,7 +7,7 @@ import { isStored } from '../../core/internal.ts'
 
 const badNonce = 'urn:ietf:params:acme:error:badNonce'
 // The standard asks every request to say who sends it, and an authority may refuse one that does not.
-const who = 'tentjs-certs/1'
+const who = 'forjr-certs/1'
 const pause = (ms: number): Promise<void> => new Promise((done) => setTimeout(done, ms))
 
 /** What an authority refused, in its own words. */

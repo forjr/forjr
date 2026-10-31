@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 
 test('the orders are counted', async () => {
   const app = await testApp()

@@ -1,8 +1,8 @@
-import { action, text } from 'tentjs'
+import { action, text } from 'forjr'
 
 /** Where a test holds the work back, and what the work was handed: kept on the program. */
 function held(): { gate?: Promise<void>; calls: string[] } {
-  const key = Symbol.for('tentjs.test.engineFilling')
+  const key = Symbol.for('forjr.test.engineFilling')
   const found: unknown = Reflect.get(globalThis, key)
   if (found && typeof found === 'object' && 'calls' in found) return Object(found)
   const made = { calls: [] }

@@ -1,4 +1,4 @@
-import { flow } from 'tentjs'
+import { flow } from 'forjr'
 import { addMark } from './functions.ts'
 
 // A run that waits for a time between its two steps.

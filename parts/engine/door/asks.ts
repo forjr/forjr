@@ -1,11 +1,11 @@
 import { createHash, createHmac, randomBytes, timingSafeEqual } from 'node:crypto'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { storedLimit } from '../limits.ts'
 import type { Opened } from '../opened.ts'
 import { callerOf } from './rule.ts'
 
-/** What a call is asked of a person with: the text of a yes that came back with it, in `Tent-Agreed`. */
+/** What a call is asked of a person with: the text of a yes that came back with it, in `Forjr-Agreed`. */
 export interface Asks {
   agreed?: string
 }
@@ -75,7 +75,7 @@ function holds(o: Opened, text: string, what: string): boolean {
 /**
  * Asks a person before a function that states `danger: 'ask'` runs, after its input was checked: a text of a yes
  * that fits this function, this input and this caller, that was not used before and is no older than `askTime`,
- * lets it run once. Any other call is T7120, with a new text in `fields.ask`.
+ * lets it run once. Any other call is F7120, with a new text in `fields.ask`.
  */
 export function agreedTo(o: Opened, name: string, input: unknown, caller: Caller, asks: Asks): void {
   const what = whatOf(name, input, caller)
@@ -87,8 +87,8 @@ export function agreedTo(o: Opened, name: string, input: unknown, caller: Caller
     used.set(agreed, now + storedLimit(o.description, 'askTime'))
     return
   }
-  throw new TentError('T7120', `${name} asks a person before it runs, and no yes came with this call.`, {
-    fix: 'Ask the person, and send the same call again with the text of `fields.ask` in the header `Tent-Agreed`.',
+  throw new ForjrError('F7120', `${name} asks a person before it runs, and no yes came with this call.`, {
+    fix: 'Ask the person, and send the same call again with the text of `fields.ask` in the header `Forjr-Agreed`.',
     fields: { ask: textOf(o, what) },
   })
 }

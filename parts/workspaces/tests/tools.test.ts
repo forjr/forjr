@@ -11,12 +11,13 @@ test('[40-17] map, read, search and docs answer what their rows say, and write n
   const { tool, made } = await tooled(t)
   const before = fileOf(made.folder, 'tables/users.ts')
   const map = Object(await tool('map', {}))
-  assert.match(map.outline, /notes/)
-  assert.match(map.outline, /addNote/)
+  assert.equal(map.page, 'none')
+  const names = map.lines.map((one: { name: string }) => one.name)
+  assert.ok(names.includes('notes') && names.includes('addNote'), JSON.stringify(names))
   const read = Object(await tool('read', { path: 'tables/users.ts' }))
   assert.equal(read.text, before)
   const lines = Object(await tool('read', { path: 'tables/users.ts', from: 1, to: 1 }))
-  assert.equal(lines.text, "import { anyone, list, table, text } from 'tentjs'")
+  assert.equal(lines.text, "import { anyone, list, table, text } from 'forjr'")
   const found = Object(await tool('search', { text: 'notes' }))
   assert.ok(found.found.some((one: { path: string }) => one.path === 'tables/users.ts'))
   assert.ok(found.found.every((one: { text: string }) => one.text.includes('notes')))
@@ -26,7 +27,7 @@ test('[40-17] map, read, search and docs answer what their rows say, and write n
   assert.equal(docs.name, 'word.table')
   assert.match(docs.text, /^# `table`/)
   // A topic that reaches out of the pages finds none.
-  assert.equal((await refusal(tool('docs', { topic: '../../x' })))?.code, 'T0001')
+  assert.equal((await refusal(tool('docs', { topic: '../../x' })))?.code, 'F0001')
   assert.equal(fileOf(made.folder, 'tables/users.ts'), before)
 })
 
@@ -45,16 +46,16 @@ test('[40-17] search with in naming a file searches that one file, and with in n
   )
 })
 
-test('[40-17] [16-2@10a] edit puts a text in the place of one that stands once, and is T9106 with how often it stands', async (t) => {
+test('[40-17] [16-2@10a] edit puts a text in the place of one that stands once, and is F9106 with how often it stands', async (t) => {
   const { tool, made } = await tooled(t)
   await tool('edit', { path: 'screens/home.tsx', find: 'No notes', with: 'Nothing yet' })
   assert.match(fileOf(made.folder, 'screens/home.tsx'), /Nothing yet/)
   const twice = await refusal(tool('edit', { path: 'tables/users.ts', find: 'anyone(', with: 'role(' }))
-  assert.equal(twice?.code, 'T9106')
+  assert.equal(twice?.code, 'F9106')
   assert.equal(twice?.fields?.count, '2')
   assert.match(String(twice?.message), /2 times/)
   const none = await refusal(tool('edit', { path: 'tables/users.ts', find: 'no such text', with: 'x' }))
-  assert.equal(none?.code, 'T9106')
+  assert.equal(none?.code, 'F9106')
   assert.equal(none?.fields?.count, '0')
 })
 
@@ -62,13 +63,13 @@ test('[40-17] write writes a whole file, rename adds was and changes every plain
   const { tool, made } = await tooled(t)
   await tool('write', {
     path: 'functions/more.ts',
-    text: "import { anyone, query } from 'tentjs'\nimport { notes } from '../tables/users'\n\nexport const someNotes = query('someNotes', {\n  about: 'Some notes',\n  access: anyone('the notes of a test app'),\n  rows: notes.limit(3),\n})\n",
+    text: "import { anyone, query } from 'forjr'\nimport { notes } from '../tables/users'\n\nexport const someNotes = query('someNotes', {\n  about: 'Some notes',\n  access: anyone('the notes of a test app'),\n  rows: notes.limit(3),\n})\n",
   })
   assert.ok(existsSync(join(made.folder, 'project', 'functions', 'more.ts')))
   // A screen whose view names the query: a view is code, as the body of an action is.
   await tool('write', {
     path: 'screens/count.tsx',
-    text: "import { anyone, screen } from 'tentjs/ui'\nimport { allNotes } from '../functions/users'\n\nexport const countScreen = screen('countScreen', {\n  path: '/count',\n  access: anyone('the notes of a test app'),\n  view: () => <p>{typeof allNotes}</p>,\n})\n",
+    text: "import { anyone, screen } from 'forjr/ui'\nimport { allNotes } from '../functions/users'\n\nexport const countScreen = screen('countScreen', {\n  path: '/count',\n  access: anyone('the notes of a test app'),\n  view: () => <p>{typeof allNotes}</p>,\n})\n",
   })
   const renamed = Object(await tool('rename', { name: 'allNotes', to: 'everyNote' }))
   const functions = fileOf(made.folder, 'functions/users.ts')
@@ -121,8 +122,8 @@ test('[40-17] run calls a function of the workspace on the test data as a user o
   const me = Object(await tool('run', { name: 'whoAmI', input: {}, as: Object(user).id }))
   assert.equal(Object(me.answer).email, 'bo@example.com')
   // As nobody where `as` is left out, and the system only where the policy says so.
-  assert.equal((await refusal(tool('run', { name: 'whoAmI', input: {} })))?.code, 'T0006')
-  assert.equal((await refusal(tool('run', { name: 'whoAmI', input: {}, as: 'system' })))?.code, 'T0002')
+  assert.equal((await refusal(tool('run', { name: 'whoAmI', input: {} })))?.code, 'F0006')
+  assert.equal((await refusal(tool('run', { name: 'whoAmI', input: {}, as: 'system' })))?.code, 'F0002')
   const logs = Object(await tool('logs', {}))
   assert.ok(logs.calls.some((one: { name: string }) => one.name === 'addNote'))
   const failures = Object(await tool('logs', { errors: true }))
@@ -153,32 +154,32 @@ test('[40-17] history, compare and changedBy answer the points of the workspace 
   assert.equal(last.by.kind, 'tool')
 })
 
-test('[40-17] a path that leaves the folder of the workspace is T9105, and so is a file the framework writes itself', async (t) => {
+test('[40-17] a path that leaves the folder of the workspace is F9105, and so is a file the framework writes itself', async (t) => {
   const { tool, made } = await tooled(t)
   for (const path of [
     '../x.ts',
-    '../../workspaces/x/project/tent.ts',
+    '../../workspaces/x/project/forjr.ts',
     'functions/../../x.ts',
     '/etc/passwd',
     'C:/x.ts',
   ])
-    assert.equal((await refusal(tool('read', { path })))?.code, 'T9105', path)
-  for (const path of ['.tent/x.ts', 'tent.clash.ts', 'tent.d.ts', 'mcp.lock.json', 'TENT.CLASH.TS', '.Tent/x.ts'])
-    assert.equal((await refusal(tool('write', { path, text: 'x' })))?.code, 'T9105', path)
+    assert.equal((await refusal(tool('read', { path })))?.code, 'F9105', path)
+  for (const path of ['.forjr/x.ts', 'forjr.clash.ts', 'forjr.d.ts', 'mcp.lock.json', 'FORJR.CLASH.TS', '.Forjr/x.ts'])
+    assert.equal((await refusal(tool('write', { path, text: 'x' })))?.code, 'F9105', path)
   // `engine.ts` is written only where the policy names `engine` in `also`.
-  assert.equal((await refusal(tool('write', { path: 'engine.ts', text: 'export default {}\n' })))?.code, 'T9105')
+  assert.equal((await refusal(tool('write', { path: 'engine.ts', text: 'export default {}\n' })))?.code, 'F9105')
   assert.ok(!existsSync(join(made.folder, 'project', 'engine.ts')))
   await tool('write', { path: 'engine.ts', text: 'export default {}\n' }, 'coder')
   assert.ok(existsSync(join(made.folder, 'project', 'engine.ts')))
 })
 
-test('[40-17] a write that the policy refuses leaves the file as it was, an edit that takes a whole definition away under remove: [] is T9105, and tool from the product code renames under the policy and is T9105 where it refuses', async (t) => {
+test('[40-17] a write that the policy refuses leaves the file as it was, an edit that takes a whole definition away under remove: [] is F9105, and tool from the product code renames under the policy and is F9105 where it refuses', async (t) => {
   const { tool, made } = await tooled(t)
   const before = fileOf(made.folder, 'functions/users.ts')
   // `narrow` may change screens and tables, and create screens alone.
   const query = `${before}\nexport const moreNotes = query('moreNotes', {\n  access: anyone('the notes of a test app'),\n  rows: notes.limit(2),\n})\n`
   const created = await refusal(tool('write', { path: 'functions/users.ts', text: query }, 'narrow'))
-  assert.equal(created?.code, 'T9105')
+  assert.equal(created?.code, 'F9105')
   assert.match(String(created?.fields?.rule), /create/)
   assert.equal(fileOf(made.folder, 'functions/users.ts'), before)
   const start = before.indexOf('export const whoAmI')
@@ -186,13 +187,40 @@ test('[40-17] a write that the policy refuses leaves the file as it was, an edit
   const gone = await refusal(
     tool('edit', { path: 'functions/users.ts', find: before.slice(start, end), with: '' }, 'narrow'),
   )
-  assert.equal(gone?.code, 'T9105')
+  assert.equal(gone?.code, 'F9105')
   assert.match(String(gone?.fields?.rule), /remove/)
   assert.equal(fileOf(made.folder, 'functions/users.ts'), before)
   // From the product's own code, under the policy of the agent it names.
   await tool('rename', { name: 'homeScreen', to: 'startScreen' }, 'builder')
   assert.match(fileOf(made.folder, 'screens/home.tsx'), /screen\('startScreen'/)
-  assert.equal((await refusal(tool('remove', { name: 'addNote' }, 'narrow')))?.code, 'T9105')
+  assert.equal((await refusal(tool('remove', { name: 'addNote' }, 'narrow')))?.code, 'F9105')
   // A policy that names no tool offers none.
-  assert.equal((await refusal(tool('write', { path: 'screens/x.tsx', text: '' }, 'reader')))?.code, 'T0001')
+  assert.equal((await refusal(tool('write', { path: 'screens/x.tsx', text: '' }, 'reader')))?.code, 'F0001')
+})
+
+test('[40-17] rename changes the plain places of the data arrow of a screen, which the description holds as it is written', async (t) => {
+  const { tool, made } = await tooled(t)
+  // `data` written as an arrow over the values of the address: the description holds it as it is written.
+  await tool('write', {
+    path: 'screens/desk.tsx',
+    text: "import { anyone, read, screen } from 'forjr/ui'\nimport { allNotes } from '../functions/users'\n\nexport const deskScreen = screen('deskScreen', {\n  path: '/desk/:id',\n  access: anyone('the notes of a test app'),\n  data: ({ params }) => ({ notes: read(allNotes) }),\n  view: ({ notes }) => <p>{notes.length}</p>,\n})\n",
+  })
+  await tool('rename', { name: 'allNotes', to: 'everyNote' })
+  const desk = fileOf(made.folder, 'screens/desk.tsx')
+  assert.match(desk, /import \{ everyNote \} from '..\/functions\/users'/)
+  assert.match(desk, /data: \(\{ params \}\) => \(\{ notes: read\(everyNote\) \}\)/, desk)
+})
+
+test('[40-17] rename leaves a place in code as it stands and lists it, also in a file whose comment holds a quote', async (t) => {
+  const { tool, made } = await tooled(t)
+  await tool('write', {
+    path: 'screens/count.tsx',
+    text: "import { anyone, screen } from 'forjr/ui'\nimport { allNotes } from '../functions/users'\n\n// The count of a person's notes.\nexport const countScreen = screen('countScreen', {\n  path: '/count',\n  access: anyone('the notes of a test app'),\n  view: () => <p>{typeof allNotes}</p>,\n})\n",
+  })
+  const renamed = Object(await tool('rename', { name: 'allNotes', to: 'everyNote' }))
+  const count = fileOf(made.folder, 'screens/count.tsx')
+  assert.match(count, /import \{ everyNote \} from '..\/functions\/users'/)
+  // Code is never rewritten by a tool: the view is left, and its line is listed.
+  assert.match(count, /view: \(\) => <p>\{typeof allNotes\}<\/p>/, count)
+  assert.deepEqual(renamed.code, [{ path: 'screens/count.tsx', line: 8 }])
 })

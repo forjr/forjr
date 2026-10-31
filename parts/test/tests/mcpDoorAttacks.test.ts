@@ -49,7 +49,7 @@ test('[05-13.1] /mcp with no caller, with an ended token, and with a removed key
   assert.equal((await tokenClient.request('tools/list', {})).status, 401, 'an ended token')
 })
 
-test('[05-13.2] a call of a function that is not offered, and of one that `mcp.only` leaves out, also through callFunction, is T0001', async (t) => {
+test('[05-13.2] a call of a function that is not offered, and of one that `mcp.only` leaves out, also through callFunction, is F0001', async (t) => {
   const app = await mcpApp(t, [
     { from: 'mcp: { names:', to: "mcp: { toolsListed: 1, only: ['openOrders', 'titles', 'addNote'], names:" },
   ])
@@ -58,17 +58,17 @@ test('[05-13.2] a call of a function that is not offered, and of one that `mcp.o
   const names = (await client.tools()).map((one) => String(one.name)).sort()
   assert.deepEqual(names, ['callFunction', 'findFunction'], 'above toolsListed the pair is listed')
   for (const name of ['hidden', 'addOrder'])
-    assert.equal(errorOf(await client.call(name, {})).code, 'T0001', `${name} called by its own name`)
+    assert.equal(errorOf(await client.call(name, {})).code, 'F0001', `${name} called by its own name`)
   for (const name of ['hidden', 'addOrder', 'onlyApi'])
     assert.equal(
       errorOf(await client.call('callFunction', { name, input: {} })).code,
-      'T0001',
+      'F0001',
       `${name} called through callFunction`,
     )
   assert.equal(errorOf(await client.call('callFunction', { name: 'titles', input: {} })).code, undefined)
 })
 
-test('[05-13.34] a session cookie at /mcp from a page of a site that is not listed is T0004', async (t) => {
+test('[05-13.34] a session cookie at /mcp from a page of a site that is not listed is F0004', async (t) => {
   const app = await mcpApp(t)
   const { ada } = await people(app)
   const browser = app.browser({ as: ada, site: 'https://evil.example' })
@@ -81,10 +81,10 @@ test('[05-13.34] a session cookie at /mcp from a page of a site that is not list
     body: JSON.stringify({ jsonrpc: '2.0', id: 1, method: 'tools/list', params: {} }),
   })
   assert.equal(answer.status, 403)
-  assert.match(await answer.text(), /T0004/)
+  assert.match(await answer.text(), /F0004/)
 })
 
-test('[05-13.43] the yes of an ask page is used by no other program of the same person, and a GET of /_t/ask with the text of the yes agrees to nothing', async (t) => {
+test('[05-13.43] the yes of an ask page is used by no other program of the same person, and a GET of /_f/ask with the text of the yes agrees to nothing', async (t) => {
   const app = await mcpApp(t)
   const { ada } = await people(app)
   const added = await app.mcp({ as: ada }).call('addOrder', { title: 'to remove' })
@@ -95,7 +95,7 @@ test('[05-13.43] the yes of an ask page is used by no other program of the same 
   /** The text of the yes on the page of the ask that a call of the first program was answered. */
   const yesOf = async (): Promise<string> => {
     const refused = await first.call('removeOrder', { order })
-    assert.equal(errorOf(refused).code, 'T7120')
+    assert.equal(errorOf(refused).code, 'F7120')
     const page = String(Object(errorOf(refused).fields).page).slice('http://localhost'.length)
     const html = await (await browser.request('GET', page)).text()
     return /name="t" value="([^"]+)"/.exec(html)?.[1] ?? ''
@@ -103,24 +103,24 @@ test('[05-13.43] the yes of an ask page is used by no other program of the same 
   const looked = await yesOf()
   assert.ok(looked)
   for (const path of [
-    `/_t/ask?t=${encodeURIComponent(looked)}&answer=allow`,
-    `/_t/ask?a=${encodeURIComponent(looked)}&answer=allow`,
+    `/_f/ask?t=${encodeURIComponent(looked)}&answer=allow`,
+    `/_f/ask?a=${encodeURIComponent(looked)}&answer=allow`,
   ])
     await browser.request('GET', path)
-  assert.equal(errorOf(await first.call('removeOrder', { order })).code, 'T7120', 'a GET agreed to nothing')
+  assert.equal(errorOf(await first.call('removeOrder', { order })).code, 'F7120', 'a GET agreed to nothing')
   const text = await yesOf()
-  const said = await browser.request('POST', '/_t/ask', {
+  const said = await browser.request('POST', '/_f/ask', {
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams({ t: text, answer: 'allow' }).toString(),
   })
   assert.equal(said.status, 200)
-  assert.equal(errorOf(await second.call('removeOrder', { order })).code, 'T7120', 'another program of the person')
+  assert.equal(errorOf(await second.call('removeOrder', { order })).code, 'F7120', 'another program of the person')
   assert.equal((await app.rows('orders')).length, 1, 'the function did not run')
   assert.equal(errorOf(await first.call('removeOrder', { order })).code, undefined, 'the program it was given for')
   assert.equal((await app.rows('orders')).length, 0)
 })
 
-test('[05-13.46] kept streams of /mcp from one address past `liveConnections` are T0005', async (t) => {
+test('[05-13.46] kept streams of /mcp from one address past `liveConnections` are F0005', async (t) => {
   const app = await mcpApp(t, streamed, 'mcpSigned')
   const ada = await app.user({ email: 'ada@example.com' })
   const chat = await chatApp(t)
@@ -166,7 +166,7 @@ test('[05-13.46] a kept stream that never reads is closed once more than 1 MB wa
     ),
     new Promise<string[]>((done) => setTimeout(() => done(['still waiting']), 3000)),
   ])
-  assert.ok(told.includes('T7120'), `the stream was closed, and what waited on it failed: ${told.join(' ')}`)
+  assert.ok(told.includes('F7120'), `the stream was closed, and what waited on it failed: ${told.join(' ')}`)
   stream.close()
 })
 

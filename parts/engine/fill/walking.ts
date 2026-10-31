@@ -79,7 +79,7 @@ export function dropOld(
 
 /**
  * Walks, a page at a time, by the one walk of a switch, the rows of each filled column whose walk the shared file
- * notes: a row that has no row in `_t_filled` for it is marked due at once. The note moves on with each page, and
+ * notes: a row that has no row in `_f_filled` for it is marked due at once. The note moves on with each page, and
  * goes at the end, so a writer that stops in the middle goes on from there.
  */
 export function walk(o: Opened, groups: FillGroup[]): boolean {

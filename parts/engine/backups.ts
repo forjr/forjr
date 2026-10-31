@@ -48,7 +48,7 @@ function restored(file: string, intoFolder: string): number {
     store.open(folder, { readOnly: true })
     let rows = 0
     for (const table of store.layout()) {
-      if (table.retired || table.name.startsWith('_t_')) continue
+      if (table.retired || table.name.startsWith('_f_')) continue
       rows += Number(store.read({ from: table.name, count: true }, system).value)
     }
     return rows

@@ -45,7 +45,7 @@ export function flowRuled(
 }
 
 /**
- * As `flowRuled`, for a start: answers nothing where the rule lets the caller in. Throws T0006 or T3101 for a
+ * As `flowRuled`, for a start: answers nothing where the rule lets the caller in. Throws F0006 or F3101 for a
  * caller it keeps out, which `denied` of the log records.
  */
 export function flowLetsIn(o: Opened, name: string, access: unknown, input: unknown, caller: Caller): void {

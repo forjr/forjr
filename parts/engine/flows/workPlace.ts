@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { At } from '../../flows/index.ts'
 import type { CallContext } from '../context.ts'
 import type { Remote } from '../work/remote.ts'
@@ -42,7 +42,7 @@ export function nthOnWorker(remote: Remote, name: string): number {
  */
 export function mayPlace(cx: CallContext, name: string, input: unknown): { key: string; nth: number; agreed: boolean } {
   const remote = cx.remote
-  if (!remote) throw new TentError('T0009', 'A call of a worker is made in the work of a task.')
+  if (!remote) throw new ForjrError('F0009', 'A call of a worker is made in the work of a task.')
   const agreed = cx.agreed?.name === name ? cx.agreed : undefined
   const nth = agreed ? agreed.nth : nthOnWorker(remote, name)
   const key = onceKey(atOnWorker(cx), callAmong(countsOf(remote).calls, name, input))

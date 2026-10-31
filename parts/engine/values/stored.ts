@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync } from 'node:fs'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import type { ValuesMode, ValueKind } from './files.ts'
 import { valuesFile } from './files.ts'
@@ -40,7 +40,7 @@ export function secretsNamed(description: Description): string[] {
 
 /**
  * Takes a data folder. Makes its key file, `secret.key`, with a new key, by the one rule of who makes one: only
- * where no key is given by `TENT_SECRET_KEY`, the folder holds no key file, and no secrets file is there yet.
+ * where no key is given by `FORJR_SECRET_KEY`, the folder holds no key file, and no secrets file is there yet.
  * Answers whether it made one. So no key is ever made beside a secrets file that another key wrote.
  */
 export function makeSecretKey(dataFolder: string): boolean {
@@ -59,8 +59,8 @@ export const newSecretKey = (): string => keyText(newKey())
  * Takes what was asked, the secrets and the settings it is asked of, and the description. Carries it out, and
  * answers what a command prints: for a list of secrets the names that are set and those that a definition names
  * and that are not, and never a value; for a list of settings each with its value; for a set or a removal the
- * name, and of a setting its value. Throws T0002 for an asking that names nothing, T0019 where a secret is
- * set with no key at hand or under a key that does not open the file, and T0002 for a setting that the project
+ * name, and of a setting its value. Throws F0002 for an asking that names nothing, F0019 where a secret is
+ * set with no key at hand or under a key that does not open the file, and F0002 for a setting that the project
  * does not state or a value that does not fit its type.
  */
 export function carriedOut(
@@ -74,14 +74,14 @@ export function carriedOut(
     return { set, missing: secretsNamed(at.description).filter((one) => !set.includes(one)) }
   }
   if (typeof name !== 'string' || name === '')
-    throw new TentError('T0002', `A ${asked.kind === 'secrets' ? 'secret' : 'setting'} is named.`, {
+    throw new ForjrError('F0002', `A ${asked.kind === 'secrets' ? 'secret' : 'setting'} is named.`, {
       fields: { name: 'required' },
     })
   if (asked.kind === 'secrets') {
     if (asked.remove === true) at.secrets.remove(name)
     else {
       if (typeof asked.value !== 'string' || asked.value === '')
-        throw new TentError('T0002', `The secret ${name} is set to a value: a text that holds something.`, {
+        throw new ForjrError('F0002', `The secret ${name} is set to a value: a text that holds something.`, {
           fields: { value: 'required' },
         })
       at.secrets.set(name, asked.value)
@@ -93,7 +93,7 @@ export function carriedOut(
     return { name, set: false, ...valueOf(at.settings, name) }
   }
   if (asked.value === undefined)
-    throw new TentError('T0002', `The setting ${name} is set to a value.`, { fields: { value: 'required' } })
+    throw new ForjrError('F0002', `The setting ${name} is set to a value.`, { fields: { value: 'required' } })
   at.settings.set(name, asked.value, asked.written === true)
   return { name, set: true, ...valueOf(at.settings, name) }
 }

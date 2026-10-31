@@ -95,7 +95,7 @@ export function mayBeDataFile(path: string, shared: string): boolean {
 
 /**
  * The highest id of a row in a table that a file holds and says nothing of: a table of the app that stands in the
- * file itself, and that its `_t_meta` does not list. A file that the engine made lists every table it holds, so
+ * file itself, and that its `_f_meta` does not list. A file that the engine made lists every table it holds, so
  * such a table was laid there by a hand. Nothing where the file holds none, or where its store gives no raw SQL.
  */
 function unlistedId(store: Store, listed: string[]): string | undefined {
@@ -103,7 +103,7 @@ function unlistedId(store: Store, listed: string[]): string | undefined {
   const names = store
     .sql(`SELECT "name" FROM "sqlite_master" WHERE "type" = 'table'`, [])
     .map((row) => String(Reflect.get(Object(row), 'name')))
-    .filter((name) => !name.startsWith('_t_') && !name.startsWith('sqlite_') && !listed.includes(name))
+    .filter((name) => !name.startsWith('_f_') && !name.startsWith('sqlite_') && !listed.includes(name))
   let highest: string | undefined
   for (const name of names) {
     const [row] = store.sql(`SELECT "id" FROM "${name.replaceAll('"', '""')}" ORDER BY "id" DESC LIMIT 1`, [])
@@ -118,7 +118,7 @@ export function saidBy(store: Store): Said {
   const tables = store
     .layout()
     .map((one) => one.name)
-    .filter((name) => !name.startsWith('_t_'))
+    .filter((name) => !name.startsWith('_f_'))
     .sort()
   let lastId: string | undefined
   for (const name of tables) {

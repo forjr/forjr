@@ -1,4 +1,4 @@
-import { choice, json, link, table, text } from 'tentjs'
+import { choice, json, link, table, text } from 'forjr'
 
 // The talk of each bot. Claude Code keeps the bot's own memory in its session; these rows are what the screen draws.
 export const memories = table('memories', {

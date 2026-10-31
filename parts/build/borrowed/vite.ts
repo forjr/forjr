@@ -138,7 +138,7 @@ function markedForRelease(): { plugin: Plugin; release(): void } {
     else process.env.NODE_ENV = markBefore
   }
   const plugin: Plugin = {
-    name: 'tent:marked-for-release',
+    name: 'forjr:marked-for-release',
     config() {
       if (releaseMarks === 0) markBefore = process.env.NODE_ENV
       releaseMarks++
@@ -175,7 +175,7 @@ export async function bundlePage(o: {
 }): Promise<string> {
   const { build } = await import('vite')
   const server = o.side === 'server'
-  const mark = '\0tent-page:'
+  const mark = '\0forjr-page:'
   const texts = new Map<string, string>()
   const marked = markedForRelease()
   const built = await build({
@@ -193,7 +193,7 @@ export async function bundlePage(o: {
     plugins: [
       marked.plugin,
       {
-        name: 'tent:page',
+        name: 'forjr:page',
         enforce: 'pre',
         async resolveId(source, importer, options) {
           if (o.made !== undefined && source === o.entry) return source
@@ -213,7 +213,7 @@ export async function bundlePage(o: {
       {
         // The files of the page code load one another and nothing else, so the builder's helper that preloads what
         // a loaded file needs does nothing for them: it is weight that every page would carry. Each load is left bare.
-        name: 'tent:bare-loads',
+        name: 'forjr:bare-loads',
         renderChunk: server || !o.small ? undefined : (code) => ({ code: bareLoads(code), map: null }),
       },
     ],
@@ -289,12 +289,12 @@ export async function bundle(o: {
     ssr: { noExternal: true },
     plugins: [
       {
-        name: 'tent:source',
+        name: 'forjr:source',
         // A source file is handed over with one line ending, so that every system builds the same bytes.
         load: (id) => o.read(id.replaceAll('\\', '/')) ?? null,
       },
       {
-        name: 'tent:outside',
+        name: 'forjr:outside',
         // What a package imports of the runtime is seen as it is asked for, before the builder takes it as the runtime's.
         enforce: 'pre',
         resolveId: (id, importer) => {
@@ -420,7 +420,7 @@ export interface MadeView {
 }
 
 /** What the id of a made-up module starts with, as the builder knows it. */
-export const madeMark = '\0tent:'
+export const madeMark = '\0forjr:'
 
 /**
  * Takes what answers the end of the module of a file, by its real place, and what answers the real place of an id.
@@ -429,7 +429,7 @@ export const madeMark = '\0tent:'
  */
 function refreshed(tail: (file: string) => string | undefined, lies: (id: string) => string): Plugin {
   return {
-    name: 'tent:refresh',
+    name: 'forjr:refresh',
     enforce: 'post',
     transform(code, id) {
       if (id.startsWith('\0')) return null
@@ -445,7 +445,7 @@ function refreshed(tail: (file: string) => string | undefined, lies: (id: string
  * a component drawn on the server alone reads its classes on the server.
  */
 const modulesKept: Plugin = {
-  name: 'tent:modules-kept',
+  name: 'forjr:modules-kept',
   enforce: 'post',
   transform: (code, id) =>
     /\.module\.(?:css|scss|sass|less|styl|stylus|pcss|postcss|sss)$/.test(id)
@@ -501,7 +501,7 @@ export async function bundleViews(o: {
   const server = o.side === 'server'
   const mark = madeMark
   // What a module of development that was made before is imported as, until it is written as its own file.
-  const keptMark = 'tent-kept:'
+  const keptMark = 'forjr-kept:'
   // What stands in place of a held file that was asked for as its text or its bytes: a module that gives nothing.
   const nothing = 'refused'
   const taken = new Set<string>()
@@ -516,7 +516,7 @@ export async function bundleViews(o: {
   const packagesNamed = new Map<string, string>()
   const packageLooks = new Map<string, string[]>()
   const looksFollowed: Plugin = {
-    name: 'tent:looks-followed',
+    name: 'forjr:looks-followed',
     generateBundle() {
       const looksOf = (id: string, seen: Set<string>): string[] => {
         if (seen.has(id)) return []
@@ -533,7 +533,7 @@ export async function bundleViews(o: {
   }
   // The builder builds a worker by itself, apart from the modules: the same hold stands in both.
   const hold = (worker: boolean): Plugin => ({
-    name: 'tent:views',
+    name: 'forjr:views',
     enforce: 'pre',
     async resolveId(id, importer, options) {
       if (o.made.has(id)) return `${mark}${id}`
@@ -731,7 +731,7 @@ export async function watching(folder: string, saved: (file: string) => void): P
       middlewareMode: true,
       ws: false,
       hmr: false,
-      watch: { ignored: ['**/.tent/**', '**/node_modules/**', '**/tent.d.ts'] },
+      watch: { ignored: ['**/.forjr/**', '**/node_modules/**', '**/forjr.d.ts'] },
     },
   })
   server.watcher.on('all', (event, file) => {

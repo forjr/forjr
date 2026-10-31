@@ -41,7 +41,7 @@ test('[22-23@7a] a call that arrives while the app is opened again for other mak
   while (!settled) {
     sent.push(app.call('words', { id }, system).then(String, (error) => `failed ${error.code}`))
     asked.push(
-      fetch(`http://localhost:${port}/_t/health`).then(
+      fetch(`http://localhost:${port}/_f/health`).then(
         (one) => one.status,
         () => 0,
       ),

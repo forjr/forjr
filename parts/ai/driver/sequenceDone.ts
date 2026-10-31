@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { errorText } from './tools.ts'
 
 /** One call that a sequence made: its place, its tool, its input, and what it answered. */
@@ -47,18 +47,18 @@ export function failedText(
 }
 
 /** An error that ends the sequence whole: an `all` that goes on past failures passes it on. */
-export function ending(error: TentError): TentError {
+export function ending(error: ForjrError): ForjrError {
   Object.defineProperty(error, 'endsSequence', { value: true })
   return error
 }
 
-/** What a tool's failure is to a sequence: its own error where a caller would be told it, and else T0009 with its reference. */
+/** What a tool's failure is to a sequence: its own error where a caller would be told it, and else F0009 with its reference. */
 export function toldError(error: unknown, words: Record<string, string>): unknown {
   if (Reflect.get(Object(error), 'endsSequence') === true) return error
   const text = errorText(error, words)
-  if (!text.startsWith('Error T0009')) return error
+  if (!text.startsWith('Error F0009')) return error
   const ref: unknown = Reflect.get(Object(error), 'ref')
-  const told = new TentError('T0009', `Something went wrong.${typeof ref === 'string' ? ` Reference ${ref}.` : ''}`)
+  const told = new ForjrError('F0009', `Something went wrong.${typeof ref === 'string' ? ` Reference ${ref}.` : ''}`)
   if (typeof ref === 'string') Object.defineProperty(told, 'ref', { value: ref })
   return told
 }

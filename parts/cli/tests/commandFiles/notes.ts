@@ -1,4 +1,4 @@
-import { command, number, role } from 'tentjs/cli'
+import { command, number, role } from 'forjr/cli'
 import { addNote, openNotes, whoAmI } from '../functions'
 
 // A command that reads a line and a key, reads and calls as its caller, and writes a control code two ways.

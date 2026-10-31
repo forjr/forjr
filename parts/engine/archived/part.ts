@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { SinkChange, Wrote } from '../../data/index.ts'
 
 /**
@@ -26,7 +26,7 @@ function keptOf(wrote: Wrote): Wrote {
 export function changeBytes(change: SinkChange): Uint8Array {
   const { record = new Uint8Array(), rows = [], ...rest } = change
   // The tables of the engine are never taken back: the record alone holds their rows.
-  const kept = rows.filter((one) => !one.table.startsWith('_t_')).map(keptOf)
+  const kept = rows.filter((one) => !one.table.startsWith('_f_')).map(keptOf)
   const head = new TextEncoder().encode(
     JSON.stringify({ ...rest, raw: undefined, ...(kept.length ? { rows: kept } : {}) }),
   )
@@ -78,10 +78,10 @@ export function wholeChangesIn(bytes: Uint8Array): { changes: SinkChange[]; size
   return { changes, size: at }
 }
 
-/** Takes the bytes of a part of the archive. Answers its changes, in the order they were made. Throws T0009 for bytes that are no part. */
+/** Takes the bytes of a part of the archive. Answers its changes, in the order they were made. Throws F0009 for bytes that are no part. */
 export function changesIn(bytes: Uint8Array, name: string): SinkChange[] {
   const { changes, size } = wholeChangesIn(bytes)
   if (size !== bytes.length)
-    throw new TentError('T0009', `The part \`${name}\` of the archive is broken: it cannot be read.`)
+    throw new ForjrError('F0009', `The part \`${name}\` of the archive is broken: it cannot be read.`)
   return changes
 }

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Address } from '../door/address.ts'
 import { backTo, sentBack } from '../grants/back.ts'
 import { newCode } from '../grants/codes.ts'
@@ -11,20 +11,20 @@ import { errorAnswer, okAnswer } from '../wire.ts'
 const textsOf = (value: unknown): string[] => (Array.isArray(value) ? value.map(String) : [])
 
 /** The refusal of an answer that grants nothing: a text that does not hold, for this person, once. */
-const nothingGranted = (): TentError =>
-  new TentError('T0002', 'This answer grants nothing: it was sent by another person, a second time, or too late.', {
+const nothingGranted = (): ForjrError =>
+  new ForjrError('F0002', 'This answer grants nothing: it was sent by another person, a second time, or too late.', {
     fix: 'Sign in from the program again, and answer on the page it opens.',
   })
 
 /**
- * `POST /_t/oauth/decide`: the person's yes or no, from the engine's page and from a screen of the builder's alike,
+ * `POST /_f/oauth/decide`: the person's yes or no, from the engine's page and from a screen of the builder's alike,
  * with the engine's own text, which holds this person and this request, works once and for `askTime`. A yes sends
  * the person back with a code, and a no with the standard's refusal. A `GET` is 405: a look grants nothing. The
  * page code asks for the address as JSON, and loads it whole itself.
  */
 export const address: Address = {
   order: 2,
-  match: (request) => programsAt(request, '/_t/oauth/decide') && { name: 'oauth-decide' },
+  match: (request) => programsAt(request, '/_f/oauth/decide') && { name: 'oauth-decide' },
   steps: [1, 2, 3],
   async handle({ app: o, request, caller, about }) {
     if (request.method !== 'POST')

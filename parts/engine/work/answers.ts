@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { At, By, Runner } from '../../flows/index.ts'
 import type { Link } from '../copy/link.ts'
 import { tell } from '../copy/link.ts'
@@ -82,7 +82,7 @@ function atOf(runner: Runner, callerOf: (by: By) => Caller, j: Joined, task: str
 
 /**
  * Takes what the writer needs to carry a call of a worker out, and the call. A call of a task that is not out to
- * that worker is answered T5108. A `read` is a plan carried out as the caller of the run; a `do` is a function or
+ * that worker is answered F5108. A `read` is a plan carried out as the caller of the run; a `do` is a function or
  * a flow called from code inside the step, with its once-only key; a `handle` is a member of a handle, called as
  * the caller of the run. What does more than read is kept, and a call that comes again under its id is answered
  * what the first was.
@@ -104,16 +104,16 @@ export function answerCall(
   const failure = (error: unknown): object => ({
     ok: false,
     error:
-      error instanceof TentError
+      error instanceof ForjrError
         ? workPlaced(error, { code: error.code, message: error.message, ...(error.fix ? { fix: error.fix } : {}) })
         : wireError(error, true).error,
   })
   const failed = (error: unknown): void => send(failure(error))
-  // Inside a batch each call names its entry, and is carried out as the caller of that entry; one that names none is T0013.
+  // Inside a batch each call names its entry, and is carried out as the caller of that entry; one that names none is F0013.
   const entry = typeof message.entry === 'number' ? message.entry : undefined
   if ((j.out.get(task)?.steps.length ?? 0) > 1 && entry === undefined) {
     failed(
-      new TentError('T0013', 'A call from inside a batch names no entry, and a batch has no caller of its own.', {
+      new ForjrError('F0013', 'A call from inside a batch names no entry, and a batch has no caller of its own.', {
         fix: 'Make the call with the `db` of the entry it is for.',
       }),
     )
@@ -122,7 +122,7 @@ export function answerCall(
   const at = j.out.has(task) ? atOf(runner, callerOf, j, task, entry) : undefined
   if (!at) {
     failed(
-      new TentError('T5108', `The task ${task.slice(0, 40)} is not out to this worker.`, {
+      new ForjrError('F5108', `The task ${task.slice(0, 40)} is not out to this worker.`, {
         fix: 'Drop what was kept of it: its work is the current try of another task.',
       }),
     )
@@ -138,7 +138,7 @@ export function answerCall(
     }
     return
   }
-  // Code that states what it uses is held to it: a function, a flow or a member of a handle that it does not name is T0013.
+  // Code that states what it uses is held to it: a function, a flow or a member of a handle that it does not name is F0013.
   const uses = j.out.get(task)?.uses
   const asks =
     what === 'do'
@@ -148,7 +148,7 @@ export function answerCall(
         : undefined
   if (uses && asks !== undefined && !uses.includes(asks)) {
     failed(
-      new TentError('T0013', `The work asks for ${asks}, which its \`uses\` does not name.`, {
+      new ForjrError('F0013', `The work asks for ${asks}, which its \`uses\` does not name.`, {
         fix: 'Name it in `uses` of the step or the action.',
       }),
     )
@@ -186,13 +186,13 @@ export function answerCall(
     if (fills && (what === 'read' || asked === 'query')) throw readsInFill(what === 'read' ? 'A read' : 'A query')
     heldToBody(o.description, at.flow, what, message)
     if (what === 'read') {
-      if (!isPlan(message.plan)) throw new TentError('T0002', 'A read that a worker asks for holds a plan.')
+      if (!isPlan(message.plan)) throw new ForjrError('F0002', 'A read that a worker asks for holds a plan.')
       // A read with `system` is the system's only where the definition of the task states `system`, with its reason.
       if (message.system === true) {
         const stated: unknown =
           Reflect.get(o.description.functions, at.flow) ?? Reflect.get(o.description.flows, at.flow)
         if (typeof Reflect.get(Object(stated), 'system') !== 'string')
-          throw new TentError('T0013', `A read as the system, for work of ${at.flow}, which states no \`system\`.`, {
+          throw new ForjrError('F0013', `A read as the system, for work of ${at.flow}, which states no \`system\`.`, {
             fix: 'State `system` on the definition, with its reason, or read as the caller of the task.',
           })
         return dbOf(o, { ...at, as: { kind: 'system' } }).read(message.plan)
@@ -226,7 +226,7 @@ export function answerCall(
       }
       const was = out?.mays?.get(String(message.may))
       if (out?.mays && (was?.key !== named.key || was.nth !== named.nth))
-        throw new TentError('T0013', 'A worker tells of a call that ended, which no `may` it was answered names.', {
+        throw new ForjrError('F0013', 'A worker tells of a call that ended, which no `may` it was answered names.', {
           fix: 'Send the `did` with the id, the key and the nth of the `may` of the call.',
         })
       if (message.ok === true) keptOfDid(runner, at, leave, call, message.answer)
@@ -237,7 +237,7 @@ export function answerCall(
     // A `fetch` of a kind whose `outside` names `fetch`: the writer makes it, as the caller of the task.
     if (what === 'fetch') {
       if (!fetchByWriter(o, j.out.get(task)?.kind))
-        throw new TentError('T0013', 'A worker asks the writer to fetch for a kind whose `outside` names no `fetch`.')
+        throw new ForjrError('F0013', 'A worker asks the writer to fetch for a kind whose `outside` names no `fetch`.')
       return import('./outsideFetch.ts').then(({ fetchForWorker }) =>
         fetchForWorker(o, j.out.get(task), message.request),
       )
@@ -246,11 +246,11 @@ export function answerCall(
       const handle: unknown = slot.handle(String(message.handle))
       const member: unknown = Reflect.get(Object(handle), String(message.member))
       if (typeof member !== 'function')
-        throw new TentError('T0013', `The handle has no member ${String(message.member)}.`)
+        throw new ForjrError('F0013', `The handle has no member ${String(message.member)}.`)
       return Reflect.apply(member, handle, Array.isArray(message.args) ? message.args : [])
     }
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `A worker asks for ${JSON.stringify(what).slice(0, 40)}, which a writer does not carry out.`,
     )
   }

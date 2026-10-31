@@ -1,4 +1,4 @@
-import { allow, agent, model, query } from 'tentjs'
+import { allow, agent, model, query } from 'forjr'
 import { notes } from '../tables/orders'
 
 export const writer = model('writer', { provider: 'openai', name: 'gpt-5' })

@@ -31,7 +31,7 @@ test('[20-8] a heavy read that passes its time is stopped, an ordinary one is lo
   // A heavy query is carried out on a query thread where it is asked through the door, and from an action.
   assert.equal(await app.call('onThread', {}, { as: nobody }), true)
   assert.equal(await app.call('actsHeavy', {}, { as: nobody }), true)
-  assert.deepEqual((await send(app, `${origin}/_t/call/onThread`)).body, { ok: true, value: true })
+  assert.deepEqual((await send(app, `${origin}/_f/call/onThread`)).body, { ok: true, value: true })
   // Called by a query, it runs where its caller runs.
   assert.equal(await app.call('callsHeavy', {}, { as: nobody }), false)
   // What its code writes into the log is in the log of the app, with the row of its call.
@@ -46,7 +46,7 @@ test('[20-8] a heavy read that passes its time is stopped, an ordinary one is lo
     Array(4).fill(['query', 'nobody', 1]),
   )
 
-  // A heavy read that passes its time is stopped: its thread is ended, the call fails with T0008, and meanwhile
+  // A heavy read that passes its time is stopped: its thread is ended, the call fails with F0008, and meanwhile
   // the engine answered others.
   const began = performance.now()
   const spinning = refusal(Promise.resolve(app.call('heavySpin', {}, { as: nobody })))
@@ -59,20 +59,20 @@ test('[20-8] a heavy read that passes its time is stopped, an ordinary one is lo
   // What is held is the order: the others were answered before the heavy read was stopped.
   assert.equal(ended, false, 'the engine answered while the heavy read ran')
   const stopped = await spinning
-  assert.equal(stopped.code, 'T0008')
+  assert.equal(stopped.code, 'F0008')
   assert.ok(performance.now() - began >= 1400)
   assert.deepEqual(
     logRows(dataFolder, 'calls')
       .filter((row) => row.name === 'heavySpin')
       .map((row) => [row.kind, row.ok, row.code]),
-    [['query', 0, 'T0008']],
+    [['query', 0, 'F0008']],
   )
   // The threads of the app work on: a thread that was ended is made anew.
   assert.equal(await app.call('onThread', {}, { as: nobody }), true)
   assert.equal(await app.call('onThread', {}, { as: nobody }), true)
 
   // An ordinary query cannot be stopped in the middle: past its time its next read fails, and it is logged.
-  assert.equal(await codeOf(app.call('slowRead', {}, { as: nobody })), 'T0008')
+  assert.equal(await codeOf(app.call('slowRead', {}, { as: nobody })), 'F0008')
   const slow = logRows(dataFolder, 'slow').filter((row) => row.name === 'slowRead')
   assert.ok(slow.some((row) => Number(row.ms) >= 1400))
 
@@ -92,7 +92,7 @@ test('[20-8] a heavy query whose run was read is carried out on a query thread w
   assert.equal(await app.call('heavyWalk', {}, { as: nobody }), 2)
   assert.equal(await app.call('heavyWalk', {}, { as: nobody }), 2)
   // A heavy query that is code needs its module on the thread, which is not there to load.
-  assert.equal(await codeOf(app.call('onThread', {}, { as: nobody })), 'T0011')
+  assert.equal(await codeOf(app.call('onThread', {}, { as: nobody })), 'F0011')
   // The main thread loaded every module when the app opened, and answers the same query where a query calls it.
   assert.equal(await app.call('callsHeavy', {}, { as: nobody }), false)
   assert.equal(await app.call('heavyWalk', {}, { as: nobody }), 2)
@@ -109,22 +109,22 @@ test('[21-21b] a heavy query written with run and no output answers rows as db h
   const notes = await app.call('heavyNotes', {}, { as: ada })
   assert.deepEqual(titles(notes), ['first', 'second'])
   assert.ok(Array.isArray(notes) && notes[0].createdAt instanceof Date)
-  assert.equal(await codeOf(app.call('heavyNotes', {}, { as: nobody })), 'T0006')
+  assert.equal(await codeOf(app.call('heavyNotes', {}, { as: nobody })), 'F0006')
   // A copy of a row is refused, as on the main thread, and the log holds the error under the ref of its call.
   const copied = await refusal(app.call('heavyCopies', {}, { as: ada }))
-  assert.equal(copied.code, 'T0009')
+  assert.equal(copied.code, 'F0009')
   assert.match(copied.message, /output/)
   // A `private` column does not cross: through `app.call`, and through the web.
   const users = await app.call('heavyUsers', {}, { as: nobody })
   assert.ok(Array.isArray(users) && users.length === 2)
   for (const row of users) assert.deepEqual(Object.keys(row).sort(), ['createdAt', 'id', 'name', 'roles', 'updatedAt'])
-  const sent = await send(app, `${origin}/_t/call/heavyUsers`)
+  const sent = await send(app, `${origin}/_f/call/heavyUsers`)
   assert.equal(sent.status, 200)
   assert.equal(JSON.stringify(sent.body).includes('5000'), false)
   assert.deepEqual(
     Object(sent.body.value).map((row: Record<string, unknown>) => row.name),
     ['Ada', 'Bob'],
   )
-  const failed = await send(app, `${origin}/_t/call/heavySpin`, { input: { more: 1 } })
-  assert.deepEqual([failed.status, failed.error.code, failed.error.fields], [400, 'T0002', { more: 'unknown' }])
+  const failed = await send(app, `${origin}/_f/call/heavySpin`, { input: { more: 1 } })
+  assert.deepEqual([failed.status, failed.error.code, failed.error.fields], [400, 'F0002', { more: 'unknown' }])
 })

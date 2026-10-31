@@ -1,5 +1,5 @@
 import type { Type } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { checkValue } from '../core/internal.ts'
 
 /** Whether a stored record is the record of a type. */
@@ -25,7 +25,7 @@ function onTheWire(value: unknown): unknown {
 /**
  * Takes the name of a call, the fields of its input as the description stores them, and what code handed it.
  * Answers the input with every moment written as text in the standard form, and a field with no value and no
- * default left out. Throws T0002 where a field does not fit its type or is not declared: `fields` names each.
+ * default left out. Throws F0002 where a field does not fit its type or is not declared: `fields` names each.
  */
 export function callInput(name: string, fields: unknown, given: unknown): Record<string, unknown> {
   const type = shapeOf(fields)
@@ -34,7 +34,7 @@ export function callInput(name: string, fields: unknown, given: unknown): Record
   if (found.length) {
     const failed = Object.assign({}, ...found.map((one) => one.fields ?? {}))
     const more = found.length > 1 ? `, and ${found.length - 1} more` : ''
-    throw new TentError('T0002', `The input of ${name} does not fit: ${found[0].message.replace(/\.$/, '')}${more}.`, {
+    throw new ForjrError('F0002', `The input of ${name} does not fit: ${found[0].message.replace(/\.$/, '')}${more}.`, {
       fields: failed,
       fix: 'Give each field of the call a value of its declared type, and no field that is not declared.',
     })

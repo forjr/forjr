@@ -43,13 +43,13 @@ test('[05-2.22@7b] a step whose db is limited to the starter of its run reads a 
   for (const pay of ['5100', '4200']) assert.equal(kept.includes(pay), false, pay)
 })
 
-test('[05-4.15@7b] an action that a page reads, which calls a flow or starts one, is refused with T0013 and starts no run', async (t) => {
+test('[05-4.15@7b] an action that a page reads, which calls a flow or starts one, is refused with F0013 and starts no run', async (t) => {
   const { app, origin, dataFolder } = await attacked(t)
   for (const name of ['callsFlow', 'startsFlow']) {
-    const read = await send(app, `${origin}/_t/read/${name}`, { input: {} })
+    const read = await send(app, `${origin}/_f/read/${name}`, { input: {} })
     assert.equal(read.body.ok, false, name)
     const [logged] = logRows(dataFolder, 'calls').filter((row) => row.name === name)
-    assert.equal(logged?.code, 'T0013', name)
+    assert.equal(logged?.code, 'F0013', name)
   }
   await settle()
   assert.deepEqual(app.runs.find({ flow: 'marking' }), [])
@@ -61,13 +61,13 @@ test('[05-4.15@7b] an action that a page reads, which calls a flow or starts one
 
 test('[05-4.15@7b] an action that states `background`, read by a page, holds the read-only rule inside its work: the change it calls is refused, and nothing is written', async (t) => {
   const { app, origin } = await attacked(t)
-  const read = await send(app, `${origin}/_t/read/heavyMarks`, { input: {} })
+  const read = await send(app, `${origin}/_f/read/heavyMarks`, { input: {} })
   await settle()
   assert.deepEqual(await marksOf(app), [], `a read wrote a row, and was answered ${JSON.stringify(read.body)}`)
   assert.equal(read.body.ok, false)
 })
 
-test('[05-8.10@7b] a run that outlives its starter: the user is removed, and the run fails with T3101 when it is next taken up', async (t) => {
+test('[05-8.10@7b] a run that outlives its starter: the user is removed, and the run fails with F3101 when it is next taken up', async (t) => {
   const { app, advance } = await attacked(t)
   const ada = await addUser(app, 'Ada')
   const { run } = notDropped(await app.start('outlives', undefined, { as: ada }))
@@ -75,7 +75,7 @@ test('[05-8.10@7b] a run that outlives its starter: the user is removed, and the
   await app.call('removeUser', { user: ada.user?.id }, { as: system })
   advance(hour + 1)
   await untilState(app, run, 'failed')
-  assert.equal(app.runs.read(run)?.error?.code, 'T3101')
+  assert.equal(app.runs.read(run)?.error?.code, 'F3101')
   assert.deepEqual(await marksOf(app), [], 'no step of the run was carried out after its starter was gone')
 })
 
@@ -114,12 +114,12 @@ test('[23-26] a step that starts a run, and is tried again after that run failed
 
 test('[23-30a] a caller who is nobody with no visitor id can neither wait for nor stop the run of another such caller', async (t) => {
   const { app, origin } = await attacked(t)
-  const call = (input: unknown) => send(app, `${origin}/_t/call/slowOffered`, { input })
+  const call = (input: unknown) => send(app, `${origin}/_f/call/slowOffered`, { input })
   const late = await call({})
-  assert.equal(late.error.code, 'T0008')
+  assert.equal(late.error.code, 'F0008')
   const run = String(Object(late.error.fields).run)
   // A second caller, who sends no cookie either, names that run.
-  assert.equal((await call({ run, stop: true })).error.code, 'T0001')
+  assert.equal((await call({ run, stop: true })).error.code, 'F0001')
   assert.equal(app.runs.read(run)?.state, 'waiting', 'the run of another caller was stopped')
 })
 

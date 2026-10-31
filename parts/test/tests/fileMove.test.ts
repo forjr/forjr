@@ -88,7 +88,7 @@ function countIn(file: string): number {
 
 /** Whether the shared file of a data folder notes a move, read with no engine. */
 const movesIn = (dataFolder: string): boolean =>
-  readFile(join(dataFolder, 'data.db'), `SELECT "value" FROM "_t_meta" WHERE "key" = 'move'`).some(
+  readFile(join(dataFolder, 'data.db'), `SELECT "value" FROM "_f_meta" WHERE "key" = 'move'`).some(
     (row) => JSON.parse(String(row.value)) !== null,
   )
 
@@ -113,7 +113,7 @@ test('[50-7] a table of 10,000 rows is moved into the files of its tenants by a 
 
   // A version in which a table gains `tenant` while it holds rows is not taken as it is: its finding names the way.
   const refused = await refusalOf(app.switch(kept))
-  assert.deepEqual([refused?.code, String(refused?.fix).includes('--move'), running(app)], ['T2001', true, first])
+  assert.deepEqual([refused?.code, String(refused?.fix).includes('--move'), running(app)], ['F2001', true, first])
 
   // With `move` the rows are added where they go, a tenant at a time. Meanwhile a read of the table is answered
   // from where the rows still stand, and a write of it waits.
@@ -225,7 +225,7 @@ test('[50-7] a move that a unique rule refuses is undone, naming the table, the 
   const whole = await app.add(await project.bundle())
   for (const how of [{ move: true, dry: true }, { move: true }]) {
     const refused = await refusalOf(app.switch(whole, how))
-    assert.equal(refused?.code, 'T2001', JSON.stringify(how))
+    assert.equal(refused?.code, 'F2001', JSON.stringify(how))
     // In the whole app the code of the second team is taken: its one row cannot be added.
     assert.match(String(refused?.message), new RegExp(`1 row of \`notes\`.*teams ${south}`), JSON.stringify(how))
     assert.equal(running(app), first)

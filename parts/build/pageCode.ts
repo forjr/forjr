@@ -14,7 +14,7 @@ interface PageForm {
 
 /** What names the files of the page code, as it lies beside them. */
 export interface PageJson {
-  format: 'tent.page/1'
+  format: 'forjr.page/1'
   fingerprint: string
   browser: PageForm
   browserDev: PageForm
@@ -138,7 +138,7 @@ export async function madePageCode(folder: string): Promise<void> {
     return { main: files.page, names, parts }
   }
   const browser = await form(true)
-  // The form for one file holds plain scripts that name each other by `__tent` alone, so each is named by its text.
+  // The form for one file holds plain scripts that name each other by `__forjr` alone, so each is named by its text.
   const one = filesFromRepository(await browserFiles({ screens, small: true, pure, names: gives, single: true }))
   const single = {
     main: write('page.single.<fp>.js', one.main),
@@ -149,7 +149,7 @@ export async function madePageCode(folder: string): Promise<void> {
     ),
   }
   const page: PageJson = {
-    format: 'tent.page/1',
+    format: 'forjr.page/1',
     // One fingerprint for the pair of forms: both give the same names with the same meaning.
     fingerprint: fingerprintOf(encode([browser.main, server].join('\n'))),
     browser,
@@ -209,11 +209,7 @@ export function pageCode(): Promise<{ folder: string; page: PageJson }> {
         makers: makers.map((file) => readFileSync(join(partFolder('build'), file), 'utf8').replace(/\r\n?/g, '\n')),
       }),
     )
-    const kept = join(
-      dirname(dirname(fileURLToPath(import.meta.resolve('vite/package.json')))),
-      '.cache',
-      'tentjs-page',
-    )
+    const kept = join(dirname(dirname(fileURLToPath(import.meta.resolve('vite/package.json')))), '.cache', 'forjr-page')
     const folder = join(kept, key)
     if (!existsSync(join(folder, 'page.json'))) {
       // It is made in a folder of its own and put in its place whole: two programs may make it at one time.

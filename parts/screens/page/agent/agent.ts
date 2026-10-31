@@ -92,7 +92,7 @@ function followedRuns(send: (message: object) => boolean): FollowedRuns {
   }
 
   const errorOf = (value: Record<string, unknown>): WireError => ({
-    code: String(value.code ?? 'T0009'),
+    code: String(value.code ?? 'F0009'),
     name: String(value.name ?? ''),
     message: String(value.message ?? ''),
   })

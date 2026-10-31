@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fromOutside, wordsOf } from '../../core/internal.ts'
 import type { Message, ToolCall } from '../face.ts'
 import type { GuardOf } from './agentOf.ts'
@@ -9,14 +9,14 @@ import type { Running } from './running.ts'
 type From = 'person' | 'tool' | 'assistant'
 
 /** The error of a guard that did not pass: it names the guard and its reason. */
-const refusedBy = (guard: string, why: string | undefined): TentError =>
-  new TentError('T7131', `The guard ${guard} refused it: ${why ?? 'it gave no reason'}.`, {
+const refusedBy = (guard: string, why: string | undefined): ForjrError =>
+  new ForjrError('F7131', `The guard ${guard} refused it: ${why ?? 'it gave no reason'}.`, {
     fields: { guard, ...(why === undefined ? {} : { why }) },
     fix: 'Read why the guard refused, and change what the run was handed or the guard itself.',
   })
 
 /** Whether an error is the refusal of a guard. */
-export const isRefusal = (error: unknown): error is TentError => error instanceof TentError && error.code === 'T7131'
+export const isRefusal = (error: unknown): error is ForjrError => error instanceof ForjrError && error.code === 'F7131'
 
 /** What one guard says of a text: a definition is called with `{ text, from }`, and a guard of the engine's own through the engine. */
 async function saidBy(r: Running, step: string, guard: GuardOf, text: string, from: From): Promise<unknown> {
@@ -25,12 +25,12 @@ async function saidBy(r: Running, step: string, guard: GuardOf, text: string, fr
     const judged = await judgedIn(r, guard.judge, step, r.message, text)
     return judged.score >= guard.judge.pass ? { pass: true } : { pass: false, why: judged.why }
   }
-  return guard.ours ? r.env.call('_t_guard', [{ guard: guard.name, text }]) : r.env.call(guard.name, [{ text, from }])
+  return guard.ours ? r.env.call('_f_guard', [{ guard: guard.name, text }]) : r.env.call(guard.name, [{ text, from }])
 }
 
 /**
  * Runs one guard on a text, as a saved step of the run, as its starter. A guard that does not pass, or that fails,
- * fails its step with T7131, which the caller of this catches: what is not seen to pass does not pass.
+ * fails its step with F7131, which the caller of this catches: what is not seen to pass does not pass.
  */
 async function guarded(r: Running, step: string, guard: GuardOf, text: string, from: From): Promise<void> {
   await r.step(
@@ -53,7 +53,7 @@ async function guarded(r: Running, step: string, guard: GuardOf, text: string, f
 
 /**
  * Takes a run, which side of its guards, the place of the text in the run, the text and who wrote it. Runs each
- * guard of that side on it in turn, in a step `guard <side> <place> <guard>`, and throws the T7131 of the first that
+ * guard of that side on it in turn, in a step `guard <side> <place> <guard>`, and throws the F7131 of the first that
  * does not pass.
  */
 export async function guardsOn(r: Running, side: 'in' | 'out', place: string, text: string, from: From): Promise<void> {
@@ -92,17 +92,17 @@ function outside(r: Running, tool: string): boolean {
 /**
  * Takes a run, the number of the `model` step whose calls these answer, the calls and their answers. Runs the `in`
  * guards on each answer, and each error, that came from outside the app, before the model sees it. Answers the
- * answers, with the one that a guard refused in place of its own, and the T7131 that ends the turn, where one refused.
+ * answers, with the one that a guard refused in place of its own, and the F7131 that ends the turn, where one refused.
  */
 export async function guardedAnswers(
   r: Running,
   n: number,
   calls: ToolCall[],
   answers: Message[],
-): Promise<{ answers: Message[]; refused?: TentError }> {
+): Promise<{ answers: Message[]; refused?: ForjrError }> {
   if (!r.agent.guards.in.length) return { answers }
   const kept: Message[] = []
-  let refused: TentError | undefined
+  let refused: ForjrError | undefined
   for (const answer of answers) {
     const at = calls.findIndex((call) => call.id === answer.id)
     const call = calls[at]
@@ -117,7 +117,7 @@ export async function guardedAnswers(
       if (!isRefusal(error)) throw error
       refused = error
       // What a guard refused is kept from the model in every later turn too.
-      kept.push({ who: 'tool', id: answer.id, error: `Error T7131: ${wordsOf(r.agent.words, 'guarded')}` })
+      kept.push({ who: 'tool', id: answer.id, error: `Error F7131: ${wordsOf(r.agent.words, 'guarded')}` })
     }
   }
   return { answers: kept, ...(refused ? { refused } : {}) }

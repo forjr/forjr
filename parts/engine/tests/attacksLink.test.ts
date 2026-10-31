@@ -107,7 +107,7 @@ function rawLink(
   key: string,
   scheme = 'https',
 ): { link: Link; got: Record<string, unknown>[]; closed: () => boolean } {
-  const link = app.link(new Request(`${scheme}://writer.test/_t/copy`, { headers: { authorization: `Bearer ${key}` } }))
+  const link = app.link(new Request(`${scheme}://writer.test/_f/copy`, { headers: { authorization: `Bearer ${key}` } }))
   const got: Record<string, unknown>[] = []
   let shut = false
   link.each(
@@ -149,13 +149,13 @@ test('[29-11.1@4] each address of the link asked with no key, with a key that ho
       new Request(`${scheme}://writer.test${path}`, key ? { headers: { authorization: `Bearer ${key}` } } : {}),
     )
   const addresses = [
-    '/_t/copy',
-    '/_t/copy/versions',
-    '/_t/copy/data',
-    `/_t/copy/blob/${'0'.repeat(64)}`,
-    `/_t/copy/file/${'0'.repeat(64)}`,
-    '/_t/copy/took',
-    '/_t/copy/do',
+    '/_f/copy',
+    '/_f/copy/versions',
+    '/_f/copy/data',
+    `/_f/copy/blob/${'0'.repeat(64)}`,
+    `/_f/copy/file/${'0'.repeat(64)}`,
+    '/_f/copy/took',
+    '/_f/copy/do',
   ]
   for (const path of addresses) {
     for (const [what, how] of [
@@ -170,15 +170,15 @@ test('[29-11.1@4] each address of the link asked with no key, with a key that ho
       assert.equal(text.includes('a secret of the writer'), false, `${path}: ${what} sent data`)
     }
   }
-  // A link opened with no key, with a key of neither right, and over http is refused: the opening throws T0001.
+  // A link opened with no key, with a key of neither right, and over http is refused: the opening throws F0001.
   for (const [what, key, scheme] of [
     ['no key of a reader', keys.none, 'https'],
     ['over http', keys.near, 'http'],
   ] as const)
-    assert.equal(await codeOf((async () => rawLink(app, key, scheme))()), 'T0001', what)
+    assert.equal(await codeOf((async () => rawLink(app, key, scheme))()), 'F0001', what)
 })
 
-test('[29-11.3] a reader that sends a wrote, and one that sends a change through /_t/copy, closes the link, and nothing is written', async (t) => {
+test('[29-11.3] a reader that sends a wrote, and one that sends a change through /_f/copy, closes the link, and nothing is written', async (t) => {
   const world = worldOf(t)
   const app = await writerIn(world, await bundled(t, {}, world.work))
   const before = await tags(app)
@@ -217,7 +217,7 @@ test('[29-11.3] a reader that sends a wrote, and one that sends a change through
   assert.equal((await app.read({ from: 'tags', count: true }, { as: system })) as number, before.length)
 })
 
-test('[29-11.11@4] /_t/copy/file/ and /_t/copy/blob/ asked with a true key, for a fingerprint that no row and no version names, and for a path, is not found', async (t) => {
+test('[29-11.11@4] /_f/copy/file/ and /_f/copy/blob/ asked with a true key, for a fingerprint that no row and no version names, and for a path, is not found', async (t) => {
   const world = worldOf(t)
   const app = await writerIn(world, await bundled(t, {}, world.work))
   const asked = (path: string): Promise<number> =>
@@ -238,23 +238,23 @@ test('[29-11.11@4] /_t/copy/file/ and /_t/copy/blob/ asked with a true key, for 
     'ABC',
     '',
   ]) {
-    assert.equal(await asked(`/_t/copy/blob/${name}`), 404, `blob ${name}`)
-    assert.equal(await asked(`/_t/copy/file/${name}`), 404, `file ${name}`)
+    assert.equal(await asked(`/_f/copy/blob/${name}`), 404, `blob ${name}`)
+    assert.equal(await asked(`/_f/copy/file/${name}`), 404, `file ${name}`)
   }
   // The blob of a loadable version is answered, so the address itself works.
   const versions = JSON.parse(
     await (
       await app.request(
-        new Request('https://writer.test/_t/copy/versions', { headers: { authorization: `Bearer ${keys.near}` } }),
+        new Request('https://writer.test/_f/copy/versions', { headers: { authorization: `Bearer ${keys.near}` } }),
       )
     ).text(),
   )
   const some = Object(Object(versions.list)[0])
   const fingerprint = Object.values(Object(some.files))[0]
-  if (typeof fingerprint === 'string') assert.equal(await asked(`/_t/copy/blob/${fingerprint}`), 200)
+  if (typeof fingerprint === 'string') assert.equal(await asked(`/_f/copy/blob/${fingerprint}`), 200)
 })
 
-test('[29-11.13] /_t/copy/do asked in the mode live, with a true key, is not found', async (t) => {
+test('[29-11.13] /_f/copy/do asked in the mode live, with a true key, is not found', async (t) => {
   const world = worldOf(t)
   const bundle = await bundled(t, {}, world.work)
   const engine = world.engine()
@@ -271,16 +271,16 @@ test('[29-11.13] /_t/copy/do asked in the mode live, with a true key, is not fou
     as: 'system',
   })
   for (const key of [keys.near, keys.far, keys.none, undefined]) {
-    const answer = await send(live, 'https://writer.test/_t/copy/do', {
+    const answer = await send(live, 'https://writer.test/_f/copy/do', {
       body,
       ...(key ? { headers: { authorization: `Bearer ${key}` } } : {}),
     })
-    assert.deepEqual([answer.status, answer.error.code], [404, 'T0001'], String(key))
+    assert.deepEqual([answer.status, answer.error.code], [404, 'F0001'], String(key))
   }
   assert.equal((await live.read({ from: 'tags', count: true }, { as: 'system' })) as number, 0)
 })
 
-test('[29-11.10] a request to a reader that carries Tent-Reader, Tent-For and Tent-Epoch of the sender own making: the reader takes them out, and hands on its own', async (t) => {
+test('[29-11.10] a request to a reader that carries Forjr-Reader, Forjr-For and Forjr-Epoch of the sender own making: the reader takes them out, and hands on its own', async (t) => {
   const world = worldOf(t)
   const writer = await writerIn(world, await bundled(t, {}, world.work))
   const near = await readerIn(world, 'near')
@@ -288,12 +288,12 @@ test('[29-11.10] a request to a reader that carries Tent-Reader, Tent-For and Te
   // The sender's own headers name a reader that is no key, a false address and a false epoch. The reader takes
   // them out before it hands the request to the writer, and sets its own key, address and epoch.
   const forged = {
-    'tent-reader': 'not-a-real-key-of-any-reader',
-    'tent-for': '9.9.9.9; https; evil.test',
-    'tent-epoch': '99.attacker',
-    'tent-ref': 'deadbeef',
+    'forjr-reader': 'not-a-real-key-of-any-reader',
+    'forjr-for': '9.9.9.9; https; evil.test',
+    'forjr-epoch': '99.attacker',
+    'forjr-ref': 'deadbeef',
   }
-  const answer = await send(near, 'https://near.test/_t/call/addWord', {
+  const answer = await send(near, 'https://near.test/_f/call/addWord', {
     input: { text: 'through the reader' },
     from: '203.0.113.7',
     headers: forged,
@@ -318,31 +318,31 @@ test('[29-11.10] a request to a reader that carries Tent-Reader, Tent-For and Te
   assert.equal(writer.at().current, true)
 })
 
-test('[29-11.5] an old writer that is stopped by the machine that took over, and is then sent writes, answers T0030 for each, and its readers take nothing from it', async (t) => {
+test('[29-11.5] an old writer that is stopped by the machine that took over, and is then sent writes, answers F0030 for each, and its readers take nothing from it', async (t) => {
   const world = worldOf(t)
   const writer = await writerIn(world, await bundled(t, {}, world.work))
   await addTag(writer, 'before the take-over')
   // Another machine took over: it tells this writer so, with a key of the right `copy` and a newer epoch. The
   // writer gives way and is stopped for good, as a machine that took over does to the one it followed.
   const newer = `${Number(writer.at().epoch.split('.')[0]) + 1}.the-machine-that-took-over`
-  const answer = await send(writer, 'https://writer.test/_t/copy/took', {
+  const answer = await send(writer, 'https://writer.test/_f/copy/took', {
     body: JSON.stringify({ epoch: newer, own: address.near }),
     headers: { authorization: `Bearer ${keys.near}` },
   })
   assert.equal(answer.status, 200)
-  // From then on the old writer refuses what writes with T0030, and answers T0029 to everything else.
+  // From then on the old writer refuses what writes with F0030, and answers F0029 to everything else.
   for (let i = 0; i < 3; i++) {
-    const write = await send(writer, 'https://writer.test/_t/call/addWord', {
+    const write = await send(writer, 'https://writer.test/_f/call/addWord', {
       input: { text: `from the old writer ${i}` },
     })
-    assert.deepEqual([write.status, write.error.code], [409, 'T0030'], `write ${i}`)
+    assert.deepEqual([write.status, write.error.code], [409, 'F0030'], `write ${i}`)
   }
   for (const name of ['wordList', 'publicTags']) {
-    const read = await send(writer, `https://writer.test/_t/call/${name}`, {})
-    assert.equal(read.error.code, 'T0029', name)
+    const read = await send(writer, `https://writer.test/_f/call/${name}`, {})
+    assert.equal(read.error.code, 'F0029', name)
   }
   // Its data, which its readers follow, holds nothing of the writes that were refused: a reader takes nothing.
-  // A stopped writer answers no read of its own (app.read is T0029), so its file is read on the disk beside it.
+  // A stopped writer answers no read of its own (app.read is F0029), so its file is read on the disk beside it.
   const db = new DatabaseSync(join(world.work, 'writer', 'data.db'), { readOnly: true })
   try {
     assert.equal(Number(db.prepare('SELECT count(*) AS n FROM "words"').get()?.n), 0)
@@ -351,31 +351,34 @@ test('[29-11.5] an old writer that is stopped by the machine that took over, and
   }
 })
 
-test('[29-11.2@4] a request to the writer with Tent-Reader made up, and with Tent-For or Tent-Epoch and no Tent-Reader, is T0001, and the made-up address is not believed', async (t) => {
+test('[29-11.2@4] a request to the writer with Forjr-Reader made up, and with Forjr-For or Forjr-Epoch and no Forjr-Reader, is F0001, and the made-up address is not believed', async (t) => {
   const world = worldOf(t)
   const writer = await writerIn(world, await bundled(t, {}, world.work))
   const forgedAddress = '1.2.3.4; https; evil.test'
   for (const [what, headers] of [
-    ['a Tent-Reader that names no key', { 'tent-reader': 'not-a-real-key', 'tent-for': forgedAddress }],
-    ['Tent-For and no Tent-Reader', { 'tent-for': forgedAddress }],
-    ['Tent-Epoch and no Tent-Reader', { 'tent-epoch': '99.attacker' }],
-    ['Tent-Reader of the right form that is no reader', { 'tent-reader': 'z'.repeat(40), 'tent-for': forgedAddress }],
+    ['a Forjr-Reader that names no key', { 'forjr-reader': 'not-a-real-key', 'forjr-for': forgedAddress }],
+    ['Forjr-For and no Forjr-Reader', { 'forjr-for': forgedAddress }],
+    ['Forjr-Epoch and no Forjr-Reader', { 'forjr-epoch': '99.attacker' }],
+    [
+      'Forjr-Reader of the right form that is no reader',
+      { 'forjr-reader': 'z'.repeat(40), 'forjr-for': forgedAddress },
+    ],
   ] as const) {
-    const answer = await send(writer, 'https://writer.test/_t/call/whoAmI', {
+    const answer = await send(writer, 'https://writer.test/_f/call/whoAmI', {
       method: 'POST',
       from: '10.9.9.9',
       headers,
     })
-    assert.deepEqual([answer.status, answer.error.code], [404, 'T0001'], what)
+    assert.deepEqual([answer.status, answer.error.code], [404, 'F0001'], what)
     // The forged address is in no answer: the request was never believed to come from it.
     assert.equal(JSON.stringify(answer.body).includes('evil.test'), false, what)
   }
   // A request with none of those headers is answered as the sender's own, as nobody.
-  const own = await send(writer, 'https://writer.test/_t/call/whoAmI', { from: '10.9.9.9' })
+  const own = await send(writer, 'https://writer.test/_f/call/whoAmI', { from: '10.9.9.9' })
   assert.deepEqual(own.body, { ok: true, value: 'no user' })
 })
 
-test('[29-11.7] a cookie tent_wrote with a number far ahead, one of another epoch, and one of 100 kB, and the same in Tent-After, cost one wait of catchUp and one crossing, and no more', async (t) => {
+test('[29-11.7] a cookie forjr_wrote with a number far ahead, one of another epoch, and one of 100 kB, and the same in Forjr-After, cost one wait of catchUp and one crossing, and no more', async (t) => {
   const world = worldOf(t)
   const writer = await writerIn(world, await bundled(t, {}, world.work))
   const far = await readerIn(world, 'far')
@@ -383,23 +386,23 @@ test('[29-11.7] a cookie tent_wrote with a number far ahead, one of another epoc
   await addTag(writer, 'one')
   await world.beat(2)
   await until('the far reader holds the write', () => far.at().n >= 1)
-  // Each mark names a write the far reader does not hold, in a cookie and in Tent-After. The read waits catchUp
+  // Each mark names a write the far reader does not hold, in a cookie and in Forjr-After. The read waits catchUp
   // at most, then is handed to the writer and answered: it is never an error, and never a loop.
   const ahead = `${1 + far.at().n}`
   const marks: [string, Record<string, string>][] = [
-    ['a number far ahead, in the cookie', { cookie: 'tent_wrote.desk=1.999999' }],
-    ['a number far ahead, in Tent-After', { 'tent-after': '1.999999' }],
-    ['another epoch, in Tent-After', { 'tent-after': '999.1' }],
-    ['one of 100 kB, in Tent-After', { 'tent-after': `1.${'9'.repeat(100_000)}` }],
-    ['one of 100 kB, in the cookie', { cookie: `tent_wrote.desk=1.${'9'.repeat(100_000)}` }],
-    ['the next write, in Tent-After', { 'tent-after': `1.${ahead}` }],
+    ['a number far ahead, in the cookie', { cookie: 'forjr_wrote.desk=1.999999' }],
+    ['a number far ahead, in Forjr-After', { 'forjr-after': '1.999999' }],
+    ['another epoch, in Forjr-After', { 'forjr-after': '999.1' }],
+    ['one of 100 kB, in Forjr-After', { 'forjr-after': `1.${'9'.repeat(100_000)}` }],
+    ['one of 100 kB, in the cookie', { cookie: `forjr_wrote.desk=1.${'9'.repeat(100_000)}` }],
+    ['the next write, in Forjr-After', { 'forjr-after': `1.${ahead}` }],
   ]
   for (const [what, headers] of marks) {
     // Each crossing is one call that the writer carried out, and so one row of its log.
     const crossed = (): number =>
       logRows(join(world.work, 'writer'), 'calls').filter((row) => row.name === 'publicTags').length
     const before = crossed()
-    const pending = send(far, 'https://far.test/_t/call/publicTags', { headers })
+    const pending = send(far, 'https://far.test/_f/call/publicTags', { headers })
     // The read waits: while the clock of the app stands still it has not crossed to the writer.
     await moment(30)
     assert.equal(crossed() - before, 0, `${what}: the read crossed with no wait`)
@@ -433,7 +436,7 @@ test('[29-11.9] the key of a far reader, used to join as near, to take over, and
   )
   // Its `took` is not believed: the writer answers the newer epoch it knows, and goes on as the writer.
   const newer = `${Number(writer.at().epoch.split('.')[0]) + 1}.the-far-machine`
-  const tookAnswer = await send(writer, 'https://writer.test/_t/copy/took', {
+  const tookAnswer = await send(writer, 'https://writer.test/_f/copy/took', {
     body: JSON.stringify({ epoch: newer, own: 'https://far-attacker.test' }),
     headers: { authorization: `Bearer ${keys.far}` },
   })
@@ -441,10 +444,10 @@ test('[29-11.9] the key of a far reader, used to join as near, to take over, and
   assert.ok(Object(tookAnswer.body.value).other, 'the writer answered the far took with its own epoch')
   // The writer still writes: it did not give way, and did not stand back.
   assert.equal(
-    (await send(writer, 'https://writer.test/_t/call/addWord', { input: { text: 'the writer goes on' } })).status,
+    (await send(writer, 'https://writer.test/_f/call/addWord', { input: { text: 'the writer goes on' } })).status,
     200,
   )
-  // A request handed on with the far key is counted for the key: past handedPerMinute it is T0005.
+  // A request handed on with the far key is counted for the key: past handedPerMinute it is F0005.
   const limitedWork = join(world.work, 'limited')
   const limited = await writerIn(
     { ...world, work: limitedWork },
@@ -452,15 +455,15 @@ test('[29-11.9] the key of a far reader, used to join as near, to take over, and
     world.engine(),
   )
   const handed = (i: number) =>
-    send(limited, 'https://writer.test/_t/call/whoAmI', {
+    send(limited, 'https://writer.test/_f/call/whoAmI', {
       from: '10.0.0.9',
       headers: {
-        'tent-reader': keys.far,
-        'tent-for': '203.0.113.7; https; writer.test',
-        'tent-epoch': limited.at().epoch,
-        'tent-ref': `ref${String(i).padStart(5, '0')}`,
+        'forjr-reader': keys.far,
+        'forjr-for': '203.0.113.7; https; writer.test',
+        'forjr-epoch': limited.at().epoch,
+        'forjr-ref': `ref${String(i).padStart(5, '0')}`,
       },
     })
   for (let i = 0; i < 20; i++) assert.equal((await handed(i)).status, 200, `handed ${i}`)
-  assert.deepEqual([(await handed(99)).status, (await handed(98)).error.code], [429, 'T0005'])
+  assert.deepEqual([(await handed(99)).status, (await handed(98)).error.code], [429, 'F0005'])
 })

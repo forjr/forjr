@@ -16,16 +16,16 @@ import { handLine, linesHanded, linesTold } from '../parts/engine/threadLines.ts
 
 // The tree that runs, which `scripts/tests.mjs` names, and the test file whose program this is or started it. A
 // program that a test file's program started, and a thread of it, finds the file named by the one that started it.
-const tree = process.env.TENT_TOUCHED_TREE
+const tree = process.env.FORJR_TOUCHED_TREE
 const of =
-  process.env.TENT_TOUCHED_OF ??
+  process.env.FORJR_TOUCHED_OF ??
   (tree && process.env.NODE_TEST_CONTEXT && process.argv[1]
     ? relative(tree, process.argv[1]).split(sep).join('/')
     : undefined)
 
-// A program of the run has the share of the cores that the run hands it: what it starts side by side, as `tent test`
+// A program of the run has the share of the cores that the run hands it: what it starts side by side, as `forjr test`
 // starts test files, is no more than that share holds beside the other programs of the run.
-const cores = Number(process.env.TENT_RUN_CORES)
+const cores = Number(process.env.FORJR_RUN_CORES)
 if (cores > 0) {
   Reflect.set(os, 'availableParallelism', () => cores)
   syncBuiltinESMExports()
@@ -39,7 +39,7 @@ function placeOf(path: string): string | undefined {
   if (!tree) return undefined
   const place = relative(tree, resolve(path)).split(sep).join('/')
   if (place === '' || place.startsWith('..') || isAbsolute(place)) return undefined
-  return /(?:^|\/)(?:results|node_modules|\.git|\.tent)(?:\/|$)/.test(place) ? undefined : place
+  return /(?:^|\/)(?:results|node_modules|\.git|\.forjr)(?:\/|$)/.test(place) ? undefined : place
 }
 
 const print = (bytes: string | Uint8Array): string => createHash('sha256').update(bytes).digest('hex')
@@ -155,7 +155,7 @@ function noteFound(found: unknown, cwd: unknown): void {
 if (tree && of) {
   // The program tells how long it ran and the most memory it held, as it ends: the profile of a run is made of them.
   // A thread shares its program's memory, and tells nothing of it.
-  const top = process.env.TENT_TOUCHED_OF === undefined
+  const top = process.env.FORJR_TOUCHED_OF === undefined
   if (threadId === 0)
     process.once('exit', () =>
       tell({
@@ -166,7 +166,7 @@ if (tree && of) {
       }),
     )
   process.once('exit', flush)
-  process.env.TENT_TOUCHED_OF = of
+  process.env.FORJR_TOUCHED_OF = of
   // A program that a test starts carries this hook too, and notes under the same test file.
   const hook = `--import=${new URL(import.meta.url).href}`
   if (!(process.env.NODE_OPTIONS ?? '').includes(hook))

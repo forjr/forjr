@@ -11,7 +11,7 @@ A screen with `cache` keeps what it draws for nobody with the screen's `loading`
 ## Example
 
 ```tsx
-import { component, useUser } from 'tentjs/ui'
+import { component, useUser } from 'forjr/ui'
 
 export const Greeting = component('Greeting', {
   personal: true,

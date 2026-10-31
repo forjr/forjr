@@ -20,7 +20,7 @@ export async function fetchedFrom(
   let head: string | undefined
   let after: string | undefined
   for (;;) {
-    const page = Object(await asked(o, '/_t/sync/points', { from, have, ...(after ? { after } : {}) }))
+    const page = Object(await asked(o, '/_f/sync/points', { from, have, ...(after ? { after } : {}) }))
     if (typeof page.head === 'string') head = page.head
     if (Array.isArray(page.points)) points.push(...page.points)
     if (typeof page.next !== 'string') break

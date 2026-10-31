@@ -14,7 +14,7 @@ import {
   runs,
   start,
   text,
-} from 'tentjs'
+} from 'forjr'
 import { marks, users } from './tables.ts'
 
 export const addUser = change('addUser', {

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import type { Ranker, Seal, Searcher } from '../../data/index.ts'
 import { ranker } from '../ai/ranker.ts'
@@ -6,23 +6,23 @@ import { secretKeyAt, keyFile, secretKeyIn } from './key.ts'
 import { foundText, openText, sealText } from './sealing.ts'
 
 /** What a sealed value is bound to: its table, its column and its row, so that a value moved to another row does not open. */
-const boundTo = (bound: string): string => `tent.sealed/1\n${bound}`
+const boundTo = (bound: string): string => `forjr.sealed/1\n${bound}`
 
 /**
  * Takes a key of the secrets, and with it a second one that values may still be sealed under. Answers what seals
  * the value of a `sealed` column before it reaches the store, and opens it after: each value by itself, as a
  * secret is, bound to its place. A value is sealed under the first key, and opened with the one of the two that
- * fits it. `open` throws T0019 for a value that neither opens.
+ * fits it. `open` throws F0019 for a value that neither opens.
  */
 function sealWith(key: Uint8Array, other?: Uint8Array): Seal {
   return {
     close: (value, bound) => sealText(key, JSON.stringify(value), boundTo(bound)),
-    find: (value, bound) => foundText(key, JSON.stringify(value), `tent.found/1\n${bound}`),
+    find: (value, bound) => foundText(key, JSON.stringify(value), `forjr.found/1\n${bound}`),
     open(text, bound) {
       const opened = openText(key, text, boundTo(bound)) ?? (other ? openText(other, text, boundTo(bound)) : undefined)
       if (opened === undefined)
-        throw new TentError('T0019', `The sealed value of ${bound} does not open under the key at hand.`, {
-          fix: 'Give the engine the key that the value was sealed under, as `TENT_SECRET_KEY` or as `secret.key` of its data folder.',
+        throw new ForjrError('F0019', `The sealed value of ${bound} does not open under the key at hand.`, {
+          fix: 'Give the engine the key that the value was sealed under, as `FORJR_SECRET_KEY` or as `secret.key` of its data folder.',
         })
       return JSON.parse(opened)
     },
@@ -107,7 +107,7 @@ export function sealed(o: {
 function onReader(seal: Seal | undefined, writes: (what: string) => void): Seal {
   const needs = (): Error => {
     writes('a sealed value that this machine cannot open')
-    return new TentError('T0019', 'A sealed value does not open under the key at hand.')
+    return new ForjrError('F0019', 'A sealed value does not open under the key at hand.')
   }
   return {
     close(value, bound) {
@@ -123,7 +123,7 @@ function onReader(seal: Seal | undefined, writes: (what: string) => void): Seal 
       try {
         return seal.open(text, bound)
       } catch (error) {
-        throw error instanceof TentError && error.code === 'T0019' ? needs() : error
+        throw error instanceof ForjrError && error.code === 'F0019' ? needs() : error
       }
     },
   }

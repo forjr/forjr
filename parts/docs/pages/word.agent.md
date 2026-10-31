@@ -53,7 +53,7 @@ A function that starts a run, waits for it and answers `{ text }`, and `{ text, 
 
 ## Errors
 
-`code.T0010`: it was called with no engine: nothing stands in the runtime slot.
+`code.F0010`: it was called with no engine: nothing stands in the runtime slot.
 
 ## See also
 

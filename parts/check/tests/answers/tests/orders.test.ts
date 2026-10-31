@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 import { addOrder, addOrderOut } from '../functions/orders'
 
 test('what a change answers', async () => {

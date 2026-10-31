@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { writeTokens } from '../connections/kept.ts'
 import type { State } from '../connections/state.ts'
 import { openState } from '../connections/state.ts'
@@ -13,7 +13,7 @@ import { errorAnswer } from '../wire.ts'
 import { decoded } from '../web/decoded.ts'
 import { isStored } from '../../core/internal.ts'
 
-const prefix = '/_t/connect/'
+const prefix = '/_f/connect/'
 
 /** Whether a service of an app signs in with the connection of a user: its own `oauth`. */
 function oauthOf(o: Opened, name: string): boolean {
@@ -37,7 +37,7 @@ const sentTo = (location: string): Response =>
   })
 
 /**
- * `GET /_t/connect/<service>`: the return of "connect your account", the address the builder registers with the
+ * `GET /_f/connect/<service>`: the return of "connect your account", the address the builder registers with the
  * provider. It passes steps 1 to 4 and 10 of the door, and a key is nobody here. A caller who is nobody is sent to
  * `signInPath` with this address as `back`. The state is held to four things: it opens under this key and this
  * service, it is not older than `limits.connectTime`, its user is the caller, and the request came by the name it
@@ -51,7 +51,7 @@ export const address: Address = {
     const { pathname } = new URL(request.url)
     if (request.method !== 'GET' || !pathname.startsWith(prefix)) return false
     const service = decoded(pathname.slice(prefix.length)) ?? ''
-    return /^[A-Za-z][A-Za-z0-9]*$/.test(service) && { service, name: '/_t/connect' }
+    return /^[A-Za-z][A-Za-z0-9]*$/.test(service) && { service, name: '/_f/connect' }
   },
   steps: [1, 2, 3, 4],
   async handle({ app, request, matched, about, caller: found, began }) {
@@ -59,16 +59,16 @@ export const address: Address = {
     // A key reaches nothing here: the return is a browser's.
     const caller: Caller = found.kind === 'key' ? { kind: 'nobody' } : found
     const ended = (answer: Response, error?: unknown): Response => {
-      logCall(app, { name: `/_t/connect/${service}`, caller, began, ...(error === undefined ? {} : { error }) })
+      logCall(app, { name: `/_f/connect/${service}`, caller, began, ...(error === undefined ? {} : { error }) })
       return answer
     }
     if (!oauthOf(app, service))
       return ended(
         errorAnswer(
           app,
-          '/_t/connect',
-          new TentError('T0001', 'No service of this app is connected here.', {
-            fix: 'Register the address of a service whose auth is `oauth`: /_t/connect/<service>.',
+          '/_f/connect',
+          new ForjrError('F0001', 'No service of this app is connected here.', {
+            fix: 'Register the address of a service whose auth is `oauth`: /_f/connect/<service>.',
           }),
         ),
       )
@@ -96,7 +96,7 @@ export const address: Address = {
         service,
         version: app.version,
         code,
-        redirect: `${reached}/_t/connect/${service}`,
+        redirect: `${reached}/_f/connect/${service}`,
         verifier: state.verifier,
       })
       writeTokens(app, { service, user: caller.user.id, account: state.account }, tokens)

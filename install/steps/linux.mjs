@@ -20,12 +20,12 @@ function xzOf(bytes) {
  */
 export function linux(c) {
   const archives = {}
-  const runs = (path) => path === 'runtime/bin/node' || path.endsWith('/launcher/tent') || /\/lib\/tsc$/.test(path)
+  const runs = (path) => path === 'runtime/bin/node' || path.endsWith('/launcher/forjr') || /\/lib\/tsc$/.test(path)
   for (const system of c.systems.filter((one) => one.startsWith('linux'))) {
     const laid = join(c.work, system)
     for (const [name, folders] of [
-      ['tent', ['runtime', 'player']],
-      ['tent-tools', ['tools']],
+      ['forjr', ['runtime', 'player']],
+      ['forjr-tools', ['tools']],
     ]) {
       const bytes = tarOf(laid, folders, { time: Math.floor(c.made / 1000), runs })
       const packed = { 'tar.gz': gzipSync(bytes, { level: 9 }) }

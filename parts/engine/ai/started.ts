@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored, startTypes, projectZone } from '../../core/internal.ts'
 import { checkedInput } from '../door/input.ts'
 import type { Opened } from '../opened.ts'
@@ -14,9 +14,9 @@ export const agentRecordOf = (record: Record<string, unknown>): Record<string, u
 /**
  * Takes an app, the name of an agent, its flow record, what a start was handed, the caller it starts for, and
  * whether its own `access` is held too. Checks the start as one from code and from a program is checked, which the
- * door does too, after its own rule: the types of a start (T0002), a message or a recording (T0002), a
- * conversation only where the agent has memory (T0002), and one the caller may open (T2103), files the caller
- * may download (T2104), and a voice for `audio` and `speak` (T7105). With `access`, its rule too, which the system
+ * door does too, after its own rule: the types of a start (F0002), a message or a recording (F0002), a
+ * conversation only where the agent has memory (F0002), and one the caller may open (F2103), files the caller
+ * may download (F2104), and a voice for `audio` and `speak` (F7105). With `access`, its rule too, which the system
  * passes. Answers the input of the run.
  */
 export function agentInput(
@@ -33,18 +33,18 @@ export function agentInput(
   // The rule is asked of the checked start, as the rule of a function is of its checked input.
   if (held.access && own.access !== undefined) flowLetsIn(o, name, own.access, input, caller)
   if (typeof input.message !== 'string' && input.audio === undefined)
-    throw new TentError('T0002', `A start of ${name} holds neither a message nor a recording.`, {
+    throw new ForjrError('F0002', `A start of ${name} holds neither a message nor a recording.`, {
       fields: { message: 'required' },
       fix: 'Hand the agent `message`, or `audio`.',
     })
   if (input.thread !== undefined && !isStored(own.memory))
-    throw new TentError('T0002', `The agent ${name} keeps no conversation, and was handed \`thread\`.`, {
+    throw new ForjrError('F0002', `The agent ${name} keeps no conversation, and was handed \`thread\`.`, {
       fields: { thread: 'unknown' },
       fix: 'Leave `thread` out, or give the agent a `memory`.',
     })
   if ((input.audio !== undefined || input.speak === true) && !isStored(own.voice))
-    throw new TentError(
-      'T7105',
+    throw new ForjrError(
+      'F7105',
       `The agent ${name} has no voice, and was handed ${input.audio === undefined ? '`speak`' : '`audio`'}.`,
       {
         fix: 'Give the agent a `voice`, or send it text.',

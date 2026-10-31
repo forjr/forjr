@@ -7,7 +7,7 @@ import { logColumns, logRows, running } from './apps.ts'
 
 /** A call of a query that every visitor may make, as a program sends it to the door. */
 const asked = (origin: string): Request =>
-  new Request(`${origin}/_t/call/publicTags`, {
+  new Request(`${origin}/_f/call/publicTags`, {
     method: 'POST',
     headers: { 'content-type': 'application/json' },
     body: JSON.stringify({ input: {} }),

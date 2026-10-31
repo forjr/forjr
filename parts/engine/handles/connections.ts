@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isPath, isStored, proofOf } from '../../core/internal.ts'
 import { connectionsOf, tokensOf, writeTokens } from '../connections/kept.ts'
 import { sealState } from '../connections/state.ts'
@@ -14,20 +14,20 @@ import { visit } from '../visit.ts'
 function serviceIn(o: Opened, service: unknown): string {
   const name = typeof service === 'string' ? service : Reflect.get(Object(service), 'definition')
   if (typeof name !== 'string' || !Object.hasOwn(o.description.services, name))
-    throw new TentError('T0002', 'A member of `connections` is handed a service of the app.', {
+    throw new ForjrError('F0002', 'A member of `connections` is handed a service of the app.', {
       fields: { service: 'type' },
       fix: 'Hand it the service itself, as it is imported: `connections.start(github)`.',
     })
   return name
 }
 
-/** The user that a member names: the caller's own, or another in code with full access (T0013 without). */
+/** The user that a member names: the caller's own, or another in code with full access (F0013 without). */
 function userOf(cx: CallContext, member: string, named: unknown): string | undefined {
   const own = cx.caller.user?.id
   if (named === undefined || named === own) return own
   if (typeof named !== 'string' || !hasFullAccess(cx))
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `${cx.work.name} used \`connections.${member}\` for another user, which is full access.`,
       {
         fix: "Name the user of the call, or state `system: 'why'` on the definition.",
@@ -38,8 +38,8 @@ function userOf(cx: CallContext, member: string, named: unknown): string | undef
 
 /**
  * `connections.start`: answers the address of the provider that the user is sent to, with a state that travels
- * with the user and is kept nowhere. Throws T0006 for a caller who is nobody, T0013 for one that is no user (a key
- * of nobody, the system) and where no request names the address the user comes back to, and T0002 for a `back`
+ * with the user and is kept nowhere. Throws F0006 for a caller who is nobody, F0013 for one that is no user (a key
+ * of nobody, the system) and where no request names the address the user comes back to, and F0002 for a `back`
  * that is no path of the app.
  */
 function start(o: Opened, service: unknown, how: unknown): string {
@@ -47,24 +47,28 @@ function start(o: Opened, service: unknown, how: unknown): string {
   const name = serviceIn(o, service)
   const user = cx.caller.user?.id
   if (cx.caller.kind === 'nobody')
-    throw new TentError('T0006', 'Connecting an account needs a signed-in user.', { fix: 'Sign the user in first.' })
+    throw new ForjrError('F0006', 'Connecting an account needs a signed-in user.', { fix: 'Sign the user in first.' })
   if (user === undefined)
-    throw new TentError('T0013', `\`connections.start\` was used by a caller who is no user: ${cx.caller.kind}.`, {
+    throw new ForjrError('F0013', `\`connections.start\` was used by a caller who is no user: ${cx.caller.kind}.`, {
       fix: 'Start a connection for a signed-in user, or with a key that was made for a user.',
     })
   const given = isStored(how) ? how : {}
   const back = given.back === undefined ? '/' : given.back
   if (typeof back !== 'string' || !isPath(back))
-    throw new TentError('T0002', '`back` of `connections.start` is a path of the app.', {
+    throw new ForjrError('F0002', '`back` of `connections.start` is a path of the app.', {
       fields: { back: 'path' },
       fix: "Name a path of the app, as '/settings'.",
     })
   const account = typeof given.account === 'string' ? given.account : ''
   const about = visit()?.about
   if (!about)
-    throw new TentError('T0013', '`connections.start` was used with no request that names where the user comes back.', {
-      fix: 'Start a connection from a call of a page or of a program.',
-    })
+    throw new ForjrError(
+      'F0013',
+      '`connections.start` was used with no request that names where the user comes back.',
+      {
+        fix: 'Start a connection from a call of a page or of a program.',
+      },
+    )
   const reached = `${about.scheme}://${about.host}`
   const { verifier, challenge } = proofOf()
   const state = sealState(o, name, { user, account, back, verifier, name: reached, at: o.clock.now() })
@@ -72,7 +76,7 @@ function start(o: Opened, service: unknown, how: unknown): string {
     service: name,
     version: cx.version,
     state,
-    redirect: `${reached}/_t/connect/${name}`,
+    redirect: `${reached}/_f/connect/${name}`,
     challenge,
   })
 }

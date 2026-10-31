@@ -4,5 +4,5 @@ import time
 time.sleep(3)
 
 
-def run(input, tent):
+def run(input, forjr):
     return "loaded"

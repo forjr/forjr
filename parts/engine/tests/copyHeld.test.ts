@@ -57,7 +57,7 @@ test('[29-2] a reader whose fetch takes longer than the writer needs to write si
       link: (request) => inner.link(request),
       async request(request, o) {
         const answer = await inner.request(request, o)
-        if (new URL(request.url).pathname !== '/_t/copy/data') return answer
+        if (new URL(request.url).pathname !== '/_f/copy/data') return answer
         sent = true
         await held
         return answer
@@ -76,7 +76,7 @@ test('[29-2] a reader whose fetch takes longer than the writer needs to write si
   arrive()
   const near = await joining
   await until('the reader holds every write', () => near.at().n === app.at().n)
-  assert.equal(world.asked['/_t/copy/data'], 1)
+  assert.equal(world.asked['/_f/copy/data'], 1)
   await current(world, near)
   assert.deepEqual(await tags(near), await tags(app))
   assert.equal((await tags(near)).length, 41)
@@ -108,7 +108,7 @@ test('[29-2] a reader whose fetch takes longer than twice changesKept is not sen
       link: (request) => inner.link(request),
       async request(request, o) {
         const answer = await inner.request(request, o)
-        if (new URL(request.url).pathname !== '/_t/copy/data') return answer
+        if (new URL(request.url).pathname !== '/_f/copy/data') return answer
         sent = true
         await held
         return answer
@@ -132,7 +132,7 @@ test('[29-2] a reader whose fetch takes longer than twice changesKept is not sen
   arrive()
   const near = await joining
   await until('the reader holds every write', () => near.at().n === app.at().n)
-  assert.equal(world.asked['/_t/copy/data'], 1)
+  assert.equal(world.asked['/_f/copy/data'], 1)
   // Nine minutes after the data was sent the changes are still kept, and after eleven they are kept no more.
   await near.close()
   const asked = async (): Promise<unknown> => {
@@ -169,14 +169,14 @@ test('[29-2] a reader that holds the number and the sum at which its writer bega
   let near = await readerIn(world, 'near')
   let far = await readerIn(world, 'far')
   assert.deepEqual([near.at().n, far.at().n], [began.n, began.n])
-  assert.equal(world.asked['/_t/copy/data'], 2)
+  assert.equal(world.asked['/_f/copy/data'], 2)
   await near.close()
   await far.close()
   // The writer keeps the change after that number: a reader at the number is told to go on, and fetches nothing.
   await addNote(app, 'the change after')
   far = await readerIn(world, 'far')
   await until('the reader that was told to go on holds the write', () => far.at().n === app.at().n)
-  assert.equal(world.asked['/_t/copy/data'], 2)
+  assert.equal(world.asked['/_f/copy/data'], 2)
   await current(world, far)
   assert.deepEqual(await tags(far), ['before any reader', 'before any reader too', 'the change after'])
   // The writer keeps that change no more: the reader at the number fetches the data anew, once, and keeps nothing.
@@ -184,13 +184,13 @@ test('[29-2] a reader that holds the number and the sum at which its writer bega
   await pastWhatIsKept(app, 'past what is kept')
   near = await readerIn(world, 'near')
   await until('the reader that fell out of what is kept joined again', () => near.at().n === app.at().n)
-  assert.equal(world.asked['/_t/copy/data'], 3)
+  assert.equal(world.asked['/_f/copy/data'], 3)
   assert.deepEqual(lostIn(join(world.work, 'near')), [])
   await current(world, near)
   assert.equal((await tags(near)).length, 43)
 })
 
-test('[29-3] a reader whose request was refused by its writer under another epoch answers its caller T0029, asks the writer once, and goes on following it', async (t) => {
+test('[29-3] a reader whose request was refused by its writer under another epoch answers its caller F0029, asks the writer once, and goes on following it', async (t) => {
   const world = worldOf(t)
   const app = await writerIn(world, await bundled(t, {}, world.work))
   // What the reader hands on reaches its writer under an epoch that is not the writer's, while the test says so.
@@ -202,10 +202,10 @@ test('[29-3] a reader whose request was refused by its writer under another epoc
     return {
       link: (request) => inner.link(request),
       request(request, o) {
-        if (!other || !request.headers.has('tent-epoch')) return inner.request(request, o)
+        if (!other || !request.headers.has('forjr-epoch')) return inner.request(request, o)
         handed++
         const headers = new Headers(request.headers)
-        headers.set('tent-epoch', '0.none')
+        headers.set('forjr-epoch', '0.none')
         return inner.request(new Request(request, { headers }), o)
       },
     }
@@ -213,7 +213,7 @@ test('[29-3] a reader whose request was refused by its writer under another epoc
   const near = await readerIn(world, 'near', world.engine(), reach)
   await current(world, near)
   const sendWord = (text: string): ReturnType<typeof send> =>
-    send(near, 'https://near.test/_t/call/addWord', { input: { text } })
+    send(near, 'https://near.test/_f/call/addWord', { input: { text } })
   const readWords = async (): Promise<unknown[]> =>
     Object(await app.read({ from: 'words', sort: [{ by: 'createdAt' }] }, { as: { kind: 'system' } })).map(
       (row: { text: string }) => row.text,
@@ -222,7 +222,7 @@ test('[29-3] a reader whose request was refused by its writer under another epoc
   other = true
   const refused = await sendWord('refused')
   // The writer said that it is not the writer under that epoch: the caller is told that the writer was not reached.
-  assert.deepEqual([refused.status, refused.error.code], [503, 'T0029'])
+  assert.deepEqual([refused.status, refused.error.code], [503, 'F0029'])
   assert.equal(refused.error.fields, undefined, 'nothing says that the request may have been carried out')
   assert.equal(handed, 1, 'the request went to the writer once, and not round')
   assert.deepEqual(await readWords(), ['handed on'])
@@ -323,7 +323,7 @@ for (const startedAgain of [false, true])
     assert.equal(late.at().epoch.split('.')[0], '2')
   })
 
-test('[29-7] a change that was under way when the lease of its writer ran out is undone with T0030, and the writer writes again with its next yes', async (t) => {
+test('[29-7] a change that was under way when the lease of its writer ran out is undone with F0030, and the writer writes again with its next yes', async (t) => {
   const world = worldOf(t)
   let yes = true
   const lease: Lease = { hold: () => yes }
@@ -358,7 +358,7 @@ test('[29-7] a change that was under way when the lease of its writer ran out is
     yes = false
     world.clock.advance(6000)
   }
-  assert.equal(await codeOf(addNote(app, 'under way when the lease ran out')), 'T0030')
+  assert.equal(await codeOf(addNote(app, 'under way when the lease ran out')), 'F0030')
   assert.equal(ranOut, 1)
   // With its next yes the writer goes on, and holds nothing of the write that was undone.
   yes = true
@@ -398,13 +398,13 @@ async function restoredAndStarted(t: TestContext): Promise<{ world: World; app: 
 
 test('[29-2] a reader that was away while its writer put a file back and was started again fetches the data anew, once, and follows the writer under its newer epoch', async (t) => {
   const { world, app } = await restoredAndStarted(t)
-  const fetched = world.asked['/_t/copy/data']
+  const fetched = world.asked['/_f/copy/data']
   const near = await readerIn(world, 'near')
   await until(
     'the reader fetched the data anew',
     () => near.at().epoch === app.at().epoch && near.at().n === app.at().n,
   )
-  assert.equal(world.asked['/_t/copy/data'], fetched + 1)
+  assert.equal(world.asked['/_f/copy/data'], fetched + 1)
   await current(world, near)
   assert.deepEqual(await tags(near), ['kept by the mark'])
   await addNote(app, 'after the restore')

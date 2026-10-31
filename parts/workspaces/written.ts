@@ -1,8 +1,9 @@
 import { existsSync, mkdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import { describeProject } from '../build/index.ts'
+import type { Source } from '../build/index.ts'
 import type { Finding } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import { limitDefaults } from '../core/internal.ts'
 import type { Point } from '../history/index.ts'
@@ -13,10 +14,14 @@ import { needsOf, refusedBy } from './policy.ts'
 import { historyOf } from './state.ts'
 import type { ToolAt } from './tools/face.ts'
 
-/** What the reader of a workspace's project read of it now: its description and what it found. */
+/**
+ * What the reader of a workspace's project read of it now: its description, what it found, and the source it read
+ * where the host described the project; a workspace in its box gives no source to the program of the product.
+ */
 export interface Described {
   description?: Description
   findings: Finding[]
+  source?: Source
 }
 
 /**
@@ -41,7 +46,7 @@ async function describedAnew(at: ToolAt): Promise<Described> {
     return { ...(built.versionId ? { description: built.description } : {}), findings: built.findings }
   }
   const read = await describeProject(one.folders.project)
-  return { description: read.description, findings: read.findings }
+  return { description: read.description, findings: read.findings, source: read.source }
 }
 
 /** One file that a tool writes: its path in the project, and its new text, or nothing where the file is removed. */
@@ -51,15 +56,15 @@ export interface Writing {
 }
 
 /** The error of a file larger than a tool may write at once, `callSize` (1 MB). */
-const tooLarge = (path: string): TentError =>
-  new TentError('T0003', `The text of ${path} is larger than a tool writes at once.`, {
+const tooLarge = (path: string): ForjrError =>
+  new ForjrError('F0003', `The text of ${path} is larger than a tool writes at once.`, {
     fix: 'Write the file in pieces, with `edit`, or keep what is large as an asset.',
   })
 
 /**
  * Takes where a tool works, the files it writes, and what the write is: the tool, and a definition it renamed.
  * Holds the paths to the project, writes the files, reads the project again as the policy says, and holds what
- * changed against the policy. A write that the policy refuses is undone, and is T9105 with the rule. A write that
+ * changed against the policy. A write that the policy refuses is undone, and is F9105 with the rule. A write that
  * `ask` names is undone, the person is asked, and it is written again after their yes. Then a point of the kind
  * `command` is recorded, by whoever acts, with the description. Answers the point.
  */
@@ -102,7 +107,7 @@ export async function writeHeld(
     // An option that the reader does not know is in no description, so no rule of the policy could hold it.
     const files = new Set(places.map((one) => one.file))
     const unknown = after.findings.find(
-      (one) => one.code === 'T1003' && one.level === 'error' && files.has(String(one.where?.file ?? '')),
+      (one) => one.code === 'F1003' && one.level === 'error' && files.has(String(one.where?.file ?? '')),
     )
     if (unknown) throw refusedBy(`unknown option: ${unknown.message}`)
     const asks = new Set<string>(at.policy.ask.includes(o.tool) ? [o.tool] : [])

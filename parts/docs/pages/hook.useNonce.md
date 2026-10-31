@@ -8,7 +8,7 @@ Answers the nonce of the page: the content policy lets in a style tag that carri
 import createCache from '@emotion/cache'
 import { CacheProvider } from '@emotion/react'
 import { Button } from '@mui/material'
-import { screen, useNonce } from 'tentjs/ui'
+import { screen, useNonce } from 'forjr/ui'
 
 export const ordersScreen = screen('ordersScreen', {
   path: '/orders',

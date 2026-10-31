@@ -1,5 +1,6 @@
-import { TentError } from '../../core/index.ts'
-import { allows, definitionsOf } from '../policy.ts'
+import { ForjrError } from '../../core/index.ts'
+import { definitionsOf } from '../../core/internal.ts'
+import { allows } from '../policy.ts'
 import { describedNow } from '../written.ts'
 import type { ToolAt } from './face.ts'
 
@@ -18,7 +19,7 @@ export async function shownFile(at: ToolAt, path: string): Promise<boolean> {
 }
 
 /** The error of a file that the policy's `read` does not show: it is not found, as anything a caller may not read. */
-export const notShown = (path: string): TentError =>
-  new TentError('T0001', `No file ${JSON.stringify(path).slice(0, 120)} is shown to this agent.`, {
+export const notShown = (path: string): ForjrError =>
+  new ForjrError('F0001', `No file ${JSON.stringify(path).slice(0, 120)} is shown to this agent.`, {
     fix: 'Read a file that the policy of the agent shows.',
   })

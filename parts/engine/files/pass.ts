@@ -93,7 +93,7 @@ export function isUnswept(tenantFiles: TenantFiles, row: Pick<FileRow, 'file' | 
   return said?.tenant !== undefined && said.swept !== told
 }
 
-// The key of `_t_meta` under which the shared file notes that a pass of a removal is under way.
+// The key of `_f_meta` under which the shared file notes that a pass of a removal is under way.
 const sweepKey = 'sweep'
 
 /** Notes in the shared file, inside a write, that a pass of a removal is under way, or takes the note away. */

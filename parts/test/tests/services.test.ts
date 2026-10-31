@@ -31,7 +31,7 @@ test('[24-1a] a signer made in `engine.ts` changes the request, after the once-o
   for (const one of remote.heard) assert.equal(one.headers['x-signed'], `by the signer, key ${key}`)
 })
 
-test('[24-1a] [16-2@8a] a service whose signer nobody made stops the app from opening, with T7113', async (t) => {
+test('[24-1a] [16-2@8a] a service whose signer nobody made stops the app from opening, with F7113', async (t) => {
   const remote = await remoteOf(t, (_, response) => answerJson(response, 200, {}))
   const folder = copyOf(t, 'serviced')
   writeFileSync(join(folder, 'engine.ts'), 'export default { signers: () => ({}) }\n')
@@ -46,7 +46,7 @@ test('[24-1a] [16-2@8a] a service whose signer nobody made stops the app from op
     () => undefined,
     (failed) => failed,
   )
-  assert.equal(error?.code, 'T7113')
+  assert.equal(error?.code, 'F7113')
   assert.match(String(error?.message), /signed/)
   assert.equal(remote.heard.length, 0)
 })
@@ -56,7 +56,7 @@ test('[24-1a] a secret of a sign-in is on the request and in no row of the log, 
     answerJson(response, 500, { error: `the key ${heard.headers.authorization} is not good` }),
   )
   const { app, dataFolder } = await servicedEngine(t, remote)
-  assert.equal(await callCodeOf(app.call('look', {}, nobody)), 'T7115')
+  assert.equal(await callCodeOf(app.call('look', {}, nobody)), 'F7115')
   assert.equal(remote.heard[0].headers.authorization, `Bearer ${remoteKey}`)
   const log = JSON.stringify(['calls', 'errors', 'lines', 'outgoing'].map((table) => logOf(dataFolder, table)))
   assert.doesNotMatch(log, new RegExp(remoteKey))
@@ -66,7 +66,7 @@ test('[24-1a] a secret of a sign-in is on the request and in no row of the log, 
   )
 })
 
-test('[24-1a] a file in a body in parts arrives as its bytes, and one that the caller may not download is T2104', async (t) => {
+test('[24-1a] a file in a body in parts arrives as its bytes, and one that the caller may not download is F2104', async (t) => {
   const remote = await remoteOf(t, (_, response) => answerJson(response, 200, {}))
   const { app } = await servicedEngine(t, remote)
   const maya = userOf('maya')
@@ -80,7 +80,7 @@ test('[24-1a] a file in a body in parts arrives as its bytes, and one that the c
   assert.ok(doc instanceof File)
   assert.equal(await doc.text(), 'the words of maya')
   assert.equal(doc.name, 'words.txt')
-  assert.equal(await callCodeOf(app.call('sendById', { id }, deniz)), 'T2104')
+  assert.equal(await callCodeOf(app.call('sendById', { id }, deniz)), 'F2104')
   assert.equal(remote.heard.length, 1)
 })
 
@@ -102,7 +102,7 @@ test('[24-2] `output: file()` keeps a loose file of the caller, whose kind is th
   assert.deepEqual(await app.call('fileOf', { id }, userOf('deniz')), { none: true })
 })
 
-test('[24-3] a post inside a step is tried again with the same once-only key, and a step does not try T7116 again', async (t) => {
+test('[24-3] a post inside a step is tried again with the same once-only key, and a step does not try F7116 again', async (t) => {
   let pays = 0
   const remote = await remoteOf(t, (heard, response) => {
     if (heard.path === '/pay') return answerJson(response, ++pays === 1 ? 503 : 200, {})
@@ -113,22 +113,22 @@ test('[24-3] a post inside a step is tried again with the same once-only key, an
   const keys = remote.heard.filter((one) => one.path === '/pay').map((one) => one.headers['idempotency-key'])
   assert.equal(keys.length, 2)
   assert.equal(keys[0], keys[1])
-  assert.equal(await callCodeOf(app.call('shaping', {}, system)), 'T7116')
+  assert.equal(await callCodeOf(app.call('shaping', {}, system)), 'F7116')
   assert.equal(remote.heard.filter((one) => one.path === '/shaped').length, 1)
 })
 
-test('[24-3] a 404 is T7115 for code with the status and the body, a secret that the body echoes is not in what is kept, and a caller is sent the code alone', async (t) => {
+test('[24-3] a 404 is F7115 for code with the status and the body, a secret that the body echoes is not in what is kept, and a caller is sent the code alone', async (t) => {
   const remote = await remoteOf(t, (heard, response) =>
     answerJson(response, 404, { error: 'missing', echo: heard.headers.authorization }),
   )
   const { app, origin } = await servicedEngine(t, remote)
   const read = await app.call('failure', {}, nobody)
   assert.deepEqual(read, {
-    code: 'T7115',
+    code: 'F7115',
     service: { status: 404, body: { error: 'missing', echo: 'Bearer [secret]' } },
   })
   const answer = await app.request(
-    new Request(`${origin}/_t/call/look`, {
+    new Request(`${origin}/_f/call/look`, {
       method: 'POST',
       headers: { 'content-type': 'application/json' },
       body: JSON.stringify({ input: {} }),
@@ -136,7 +136,7 @@ test('[24-3] a 404 is T7115 for code with the status and the body, a secret that
   )
   assert.equal(answer.status, 502)
   const wire = await answer.json()
-  assert.equal(wire.error.code, 'T7115')
+  assert.equal(wire.error.code, 'F7115')
   assert.equal(wire.error.service, undefined)
   assert.doesNotMatch(JSON.stringify(wire), /missing|REMOTE_KEY/)
 })
@@ -156,7 +156,7 @@ test('[24-3] a plain `fetch` writes a row of `outgoing` with its host as its cal
   assert.deepEqual([row.service, row.call, row.status], ['', new URL(remote.origin).host, 200])
 })
 
-test('[24-3] a plain `fetch` is T0022 for an address inside this computer that the project does not list, straight and through a redirect', async (t) => {
+test('[24-3] a plain `fetch` is F0022 for an address inside this computer that the project does not list, straight and through a redirect', async (t) => {
   const remote = await remoteOf(t, (_, response) => {
     response.writeHead(302, { location: `http://localhost:${new URL(remote.origin).port}/inside` })
     response.end()
@@ -165,24 +165,24 @@ test('[24-3] a plain `fetch` is T0022 for an address inside this computer that t
   assert.deepEqual(
     await app.call('fetched', { address: `http://localhost:${new URL(remote.origin).port}/x` }, nobody),
     {
-      code: 'T0022',
+      code: 'F0022',
     },
   )
-  assert.deepEqual(await app.call('fetched', { address: `${remote.origin}/away` }, nobody), { code: 'T0022' })
+  assert.deepEqual(await app.call('fetched', { address: `${remote.origin}/away` }, nobody), { code: 'F0022' })
   assert.deepEqual(
     remote.heard.map((one) => one.path),
     ['/away'],
   )
 })
 
-test('[24-3] a service call in a query and in a change is T0013, and an action that is read only calls what states `changes: false` and nothing else', async (t) => {
+test('[24-3] a service call in a query and in a change is F0013, and an action that is read only calls what states `changes: false` and nothing else', async (t) => {
   const remote = await remoteOf(t, (_, response) => answerJson(response, 200, { read: true }))
   const { app, origin, dataFolder } = await servicedEngine(t, remote)
-  assert.equal(await callCodeOf(Promise.resolve().then(() => app.call('inQuery', {}, nobody))), 'T0013')
-  assert.equal(await callCodeOf(Promise.resolve().then(() => app.call('inChange', {}, nobody))), 'T0013')
+  assert.equal(await callCodeOf(Promise.resolve().then(() => app.call('inQuery', {}, nobody))), 'F0013')
+  assert.equal(await callCodeOf(Promise.resolve().then(() => app.call('inChange', {}, nobody))), 'F0013')
   const read = (name: string) =>
     app.request(
-      new Request(`${origin}/_t/read/${name}`, {
+      new Request(`${origin}/_f/read/${name}`, {
         method: 'POST',
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify({ input: {} }),
@@ -191,8 +191,8 @@ test('[24-3] a service call in a query and in a change is T0013, and an action t
   const looked = await (await read('readLook')).json()
   assert.deepEqual(looked, { ok: true, value: { read: true } })
   const paid = await (await read('readPay')).json()
-  // T0013 has no status of its own, so a caller is sent T0009, and the log holds the refusal.
-  assert.equal(paid.error.code, 'T0009')
+  // F0013 has no status of its own, so a caller is sent F0009, and the log holds the refusal.
+  assert.equal(paid.error.code, 'F0009')
   assert.ok(
     logOf(dataFolder, 'errors').some((row) => /read-only/.test(String(row.message))),
     'the log holds the refusal of the call that only reads',
@@ -229,7 +229,7 @@ test('[24-17] a service call adds the secret, never logs it, respects a stated l
   const paid = app.call('countedPay', {}, nobody)
   await untilWithin('the post waits its turn', () => remote.heard.length === 2)
   moved.advance(60_000)
-  assert.equal(await callCodeOf(paid), 'T7115')
+  assert.equal(await callCodeOf(paid), 'F7115')
   assert.equal(remote.heard.length, 3)
   const log = JSON.stringify(['calls', 'errors', 'lines', 'outgoing'].map((table) => logOf(dataFolder, table)))
   assert.doesNotMatch(log, /the-counted-key/)
@@ -238,7 +238,7 @@ test('[24-17] a service call adds the secret, never logs it, respects a stated l
 test('[24-17] a post with no once-only key is not tried again', async (t) => {
   const remote = await remoteOf(t, (_, response) => answerJson(response, 503, {}))
   const { app } = await servicedEngine(t, remote)
-  assert.equal(await callCodeOf(app.call('pay', { n: 1 }, nobody)), 'T7115')
+  assert.equal(await callCodeOf(app.call('pay', { n: 1 }, nobody)), 'F7115')
   assert.equal(remote.heard.length, 1)
 })
 

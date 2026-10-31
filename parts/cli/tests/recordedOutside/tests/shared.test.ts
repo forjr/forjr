@@ -1,7 +1,7 @@
 import test, { after, before } from 'node:test'
 import assert from 'node:assert/strict'
-import type { TestApp } from 'tentjs/test'
-import { testApp } from 'tentjs/test'
+import type { TestApp } from 'forjr/test'
+import { testApp } from 'forjr/test'
 import { openOrders } from '../functions/open'
 
 // One app for the whole file: its tests share its data.

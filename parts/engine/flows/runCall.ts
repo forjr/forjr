@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { By, Runner } from '../../flows/index.ts'
 import { logCall } from '../door/failure.ts'
 import type { Opened } from '../opened.ts'
@@ -13,7 +13,7 @@ type Called = 'flow' | 'agent' | 'action'
 /**
  * Takes the runner, what a call of a flow, an agent or an action was given, its name, what it is, and who
  * calls. Answers the run that `{ run }` alone names, to wait for it again; with `{ run, stop: true }` stops that run
- * and answers `stopped`; answers nothing for a call that names no run so. Throws T0001 for a run that is not of
+ * and answers `stopped`; answers nothing for a call that names no run so. Throws F0001 for a run that is not of
  * that name, or that another caller started.
  */
 export function namedRun(
@@ -28,8 +28,8 @@ export function namedRun(
     return undefined
   const held = runner.read(named)
   if (!held || held.flow !== name || !startedBy(held.startedBy, by))
-    throw new TentError(
-      'T0001',
+    throw new ForjrError(
+      'F0001',
       `No run ${(JSON.stringify(named) ?? '').slice(0, 80)} of this ${called} can be reached.`,
       {
         fix: `Name a run that the same caller started with this ${called}.`,
@@ -55,7 +55,7 @@ export interface RunWaiting {
 
 /**
  * Takes the app, its runner, a run and how its call waits. Answers what the run answers, within the time of the
- * call: a run that outlasts it goes on, and the call is refused T0008 with the run in `fields.run`, which names how
+ * call: a run that outlasts it goes on, and the call is refused F0008 with the run in `fields.run`, which names how
  * to wait for it again or to stop it. A call of MCP is refused at once where its run waits for a person.
  */
 export async function waitedRun(o: Opened, runner: Runner, run: string, w: RunWaiting): Promise<unknown> {
@@ -64,7 +64,7 @@ export async function waitedRun(o: Opened, runner: Runner, run: string, w: RunWa
     timer = setTimeout(
       () =>
         refuse(
-          new TentError('T0008', `The run ${run} of ${w.name} outlasts ${w.limit}, and goes on.`, {
+          new ForjrError('F0008', `The run ${run} of ${w.name} outlasts ${w.limit}, and goes on.`, {
             fields: { run },
             fix: `Call the ${w.called} again with \`{ run }\` alone to wait for its run, or with \`{ run, stop: true }\` to stop it.`,
           }),

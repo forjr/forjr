@@ -1,6 +1,6 @@
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Browsed } from '../engine/index.ts'
 import { testNow } from './named.ts'
 
@@ -15,8 +15,8 @@ const folderName = (test: string): string =>
 /**
  * Takes the browser of a page whose step failed, what the page code tells of its calls, and the failure. Keeps, under
  * `results/tests/<test>/` of the folder the test runs in, a picture of the page, what it wrote to its console, what
- * a reader of the screen heard, and the trace of every call it made, which `tent logs --trace` opens. Answers the
- * failure, its words naming them: a `TentError` keeps its code.
+ * a reader of the screen heard, and the trace of every call it made, which `forjr logs --trace` opens. Answers the
+ * failure, its words naming them: a `ForjrError` keeps its code.
  */
 export async function kept(
   browsed: Browsed,
@@ -42,15 +42,15 @@ export async function kept(
     )
     writeFileSync(join(folder, 'reader.txt'), String(heard))
     const ids = Array.isArray(traces) ? traces.map(String) : []
-    writeFileSync(join(folder, 'traces.txt'), ids.map((id) => `${id}  tent logs --trace ${id}\n`).join(''))
+    writeFileSync(join(folder, 'traces.txt'), ids.map((id) => `${id}  forjr logs --trace ${id}\n`).join(''))
   } catch {
     // What could not be kept is not kept: the failure itself is what the test is told.
     return failure
   }
   const where = relative(process.cwd(), folder).replaceAll('\\', '/')
   const named = `What the page held is kept in ${where}/: picture.png, console.txt, reader.txt and traces.txt.`
-  if (failure instanceof TentError) {
-    const again = new TentError(failure.code, `${failure.message} ${named}`, {
+  if (failure instanceof ForjrError) {
+    const again = new ForjrError(failure.code, `${failure.message} ${named}`, {
       ...(failure.fix === undefined ? {} : { fix: failure.fix }),
       ...(failure.fields === undefined ? {} : { fields: failure.fields }),
     })

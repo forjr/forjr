@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 
 /** What names the data file of one tenant: the table of the tenants, and the id of the tenant. */
 export type FileName = { table: string; id: string }
@@ -23,5 +23,5 @@ export class NotReady extends Error {
 export const fileKey = (file: FileName | undefined): string => (file ? `${file.table} ${file.id}` : '')
 
 /** The error of a read or a write that does not keep to the file of one tenant. */
-export const notOneFile = (why: string, fix: string): TentError =>
-  new TentError('T2109', `A read or a write does not keep to the data file of one tenant: ${why}.`, { fix })
+export const notOneFile = (why: string, fix: string): ForjrError =>
+  new ForjrError('F2109', `A read or a write does not keep to the data file of one tenant: ${why}.`, { fix })

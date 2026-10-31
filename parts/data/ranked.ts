@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Plan } from '../core/internal.ts'
 import type { DbContext } from './context.ts'
 import type { TableModel } from './model.ts'
@@ -24,7 +24,7 @@ function textOf(model: TableModel, row: Record<string, unknown>): string {
  * Reads the rows of the plan under the caller's rule, has the model of `rank` score each by the words, and answers
  * a promise of the rows in the order of their scores, the `top` of them where it is stated: a row with the same
  * score keeps its place. A plan that ranks calls a model, so it stands where a model call may: in an action, a
- * route or a step. Throws T0013 in a query and a change, where no model is called.
+ * route or a step. Throws F0013 in a query and a change, where no model is called.
  */
 export function rankedRead(
   cx: DbContext,
@@ -35,8 +35,8 @@ export function rankedRead(
 ): Promise<unknown> {
   const rank = stored.rank
   if (!rank || cx.mode !== 'async' || !cx.o.ranker)
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `A plan of \`${model.name}\` ranks its rows with a model, where no model may be called.`,
       {
         fix: 'Rank in an action, a route or a step of a flow: a query and a change call no model.',

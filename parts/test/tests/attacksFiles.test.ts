@@ -45,12 +45,12 @@ test('[50-12.1] a caller who names a tenant they may not reach, and a row of ids
 
   // As Cy, a query and a change that name South, which Cy may not reach.
   assert.deepEqual(await app.as(cy).call('listOrders', { team: south }), [])
-  assert.equal(await codeOf(app.as(cy).call('addOrder', { team: south, title: 'into the south' })), 'T3101')
+  assert.equal(await codeOf(app.as(cy).call('addOrder', { team: south, title: 'into the south' })), 'F3101')
   assert.equal(
     await codeOf(app.write([{ change: 'orders', of: south, id: order, values: { title: 'x' } }], { as: cy })),
-    'T2103',
+    'F2103',
   )
-  assert.equal(await codeOf(app.write([{ remove: 'orders', of: south, id: order }], { as: cy })), 'T2103')
+  assert.equal(await codeOf(app.write([{ remove: 'orders', of: south, id: order }], { as: cy })), 'F2103')
   // No file of South was opened or made.
   assert.equal(hasFile(dataFolder, south), false)
   assert.equal(teamFilesIn(dataFolder).includes(south), false)
@@ -62,7 +62,7 @@ test('[50-12.1] a caller who names a tenant they may not reach, and a row of ids
     const id = madeUpId(i)
     assert.deepEqual(await app.as(cy).call('listOrders', { team: id }), [], `query ${i}`)
     if (i % 20 === 0)
-      assert.equal(await codeOf(app.as(cy).call('addOrder', { team: id, title: 'x' })), 'T3101', `add ${i}`)
+      assert.equal(await codeOf(app.as(cy).call('addOrder', { team: id, title: 'x' })), 'F3101', `add ${i}`)
   }
   assert.deepEqual(teamFilesIn(dataFolder), [north])
   assert.equal((await listed(app, dataFolder)).files.find((one) => one.id === north)?.open, true)
@@ -80,7 +80,7 @@ test('[50-12.1] [night] 10,000 ids that name no tenant in a row: no file is made
     const id = madeUpId(i)
     assert.deepEqual(await app.as(cy).call('listOrders', { team: id }), [], `query ${i}`)
     if (i % 1000 === 0)
-      assert.equal(await codeOf(app.as(cy).call('addOrder', { team: id, title: 'x' })), 'T3101', `add ${i}`)
+      assert.equal(await codeOf(app.as(cy).call('addOrder', { team: id, title: 'x' })), 'F3101', `add ${i}`)
   }
   // The app keeps answering: the member's own team is read at once, and no file was made for a made-up id.
   const own = (await app.as(cy).call('listOrders', { team: north })) as { title: string }[]
@@ -108,8 +108,8 @@ test('[50-12.5] a backup of one tenant put back over another tenant file is refu
   assert.equal(existsSync(fileOf(folder, south)), true)
   // The file of North is put over the file of South in the backup, as another user with the backup could do.
   cpSync(fileOf(folder, north), fileOf(folder, south))
-  // Putting South back from that backup is refused: the file under South names North in its own `_t_meta`.
-  assert.equal(await codeOf(command(app, dataFolder, 'data', { what: 'restore', file: folder, of: south })), 'T0009')
+  // Putting South back from that backup is refused: the file under South names North in its own `_f_meta`.
+  assert.equal(await codeOf(command(app, dataFolder, 'data', { what: 'restore', file: folder, of: south })), 'F0009')
   // South's own file is as it was: it holds the order of the south and none of the north.
   const rows = readFile(fileOf(dataFolder, south), 'SELECT "title" FROM "orders"').map((one) => String(one.title))
   assert.deepEqual(rows, ['of the south'])
@@ -126,7 +126,7 @@ function dropped(dataFolder: string, from: string, at: string): string {
   return path
 }
 
-test('[50-12.7] a file dropped into tenants/ by hand under the id of a tenant is refused where its own _t_meta names another tenant, and one under an id of nobody is removed by the upkeep', async (t) => {
+test('[50-12.7] a file dropped into tenants/ by hand under the id of a tenant is refused where its own _f_meta names another tenant, and one under an id of nobody is removed by the upkeep', async (t) => {
   const { app, dataFolder } = await deskOf(t)
   const north = await addTeam(app, 'North')
   const south = await addTeam(app, 'South')
@@ -159,14 +159,14 @@ test('[50-12.7] a file dropped into tenants/ by hand under the id of a tenant is
   assert.deepEqual(await titles(south), ['of the south'])
   assert.deepEqual(await titles(north), ['of the north'])
   assert.deepEqual(
-    readFile(fileOf(dataFolder, south), `SELECT "value" FROM "_t_meta" WHERE "key" = 'tenant'`).map((row) =>
+    readFile(fileOf(dataFolder, south), `SELECT "value" FROM "_f_meta" WHERE "key" = 'tenant'`).map((row) =>
       JSON.parse(String(row.value)),
     ),
     [south],
   )
 })
 
-test('[50-12.7] a file dropped under the id of a tenant is read and written for nobody before the upkeep has run: its own _t_meta names another tenant', async (t) => {
+test('[50-12.7] a file dropped under the id of a tenant is read and written for nobody before the upkeep has run: its own _f_meta names another tenant', async (t) => {
   const { app, dataFolder } = await deskOf(t)
   const north = await addTeam(app, 'North')
   const south = await addTeam(app, 'South')

@@ -14,7 +14,7 @@ first: date({ from: min({ of: orders, by: 'customer', column: 'placedAt' }) })
 
 ## Errors
 
-`code.T1014`: no `column` is named, or the column that keeps the number is of another kind.
+`code.F1014`: no `column` is named, or the column that keeps the number is of another kind.
 
 ## See also
 

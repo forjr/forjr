@@ -1,4 +1,4 @@
-import { boolean, change, date, fail, input, link, object, query, start, text } from 'tentjs'
+import { boolean, change, date, fail, input, link, object, query, start, text } from 'forjr'
 import { bot } from '../agents/bot'
 import { nextAfter, readSchedule, zoneOffset } from '../lib/schedule'
 import { routines } from '../tables/routines'

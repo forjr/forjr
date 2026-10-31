@@ -123,7 +123,7 @@ export interface AiEnv {
   description(version: string): Description
   fetch: GuardedFetch
   secret(name: string): string
-  // Throws T7102 when a limit of use is reached: at once, or where work on a worker asks its writer, by the promise it answers.
+  // Throws F7102 when a limit of use is reached: at once, or where work on a worker asks its writer, by the promise it answers.
   allow(o: { model: string; call: string; caller: Caller; run?: string }): Promise<void> | void
   used(o: Used): void
   // The runtime's own call, in the call context of the step it is made in.

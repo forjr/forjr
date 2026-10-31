@@ -1,6 +1,6 @@
 import { mkdirSync, rmSync, writeFileSync } from 'node:fs'
 import { dirname, join, resolve } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { SqliteFile } from '../../data/index.ts'
 import { recordedFirst } from '../branches.ts'
 import type { Change } from '../compare/change.ts'
@@ -24,11 +24,11 @@ export interface Merged {
   clashes: Clash[]
 }
 
-/** The failure for a side of a merge that is unsettled: T9101. */
-const unsettled = (point: Point): TentError =>
-  new TentError('T9101', `The point ${point.id} is a merge with clashes that are not settled, and is not merged.`, {
+/** The failure for a side of a merge that is unsettled: F9101. */
+const unsettled = (point: Point): ForjrError =>
+  new ForjrError('F9101', `The point ${point.id} is a merge with clashes that are not settled, and is not merged.`, {
     fields: { point: point.id },
-    fix: 'Settle its clashes first: `tent history merge --settle`.',
+    fix: 'Settle its clashes first: `forjr history merge --settle`.',
   })
 
 /** The newest point that two points both come from, or nothing where they share none. */
@@ -53,10 +53,10 @@ function takenChanges(file: SqliteFile, base: Point, theirs: Point, clashes: Cla
  * Takes the folder of a project, a word that names the point or the branch to merge from, and who merges. Merges
  * it into the files by the newest point the two share: what only one side changed is taken from it, plain
  * definitions merge field by field, code and other text line by line. Writes the files, theirs beside a file of
- * bytes that both changed, and `tent.clash.ts` where something clashed, and records a point of the kind `merge`
+ * bytes that both changed, and `forjr.clash.ts` where something clashed, and records a point of the kind `merge`
  * with both as its parents, marked unsettled where something clashed. Where ours is the shared point, the merge
- * is their point itself. With `dry` it answers what it would do, and changes nothing. Throws T9107 for a point
- * that is not there, T9101 for a side that is unsettled, and T0013 where it would write over a file that no point
+ * is their point itself. With `dry` it answers what it would do, and changes nothing. Throws F9107 for a point
+ * that is not there, F9101 for a side that is unsettled, and F0013 where it would write over a file that no point
  * holds.
  */
 export function merge(file: SqliteFile, project: string, from: string, by: Writer, o: { dry?: boolean } = {}): Merged {
@@ -66,7 +66,8 @@ export function merge(file: SqliteFile, project: string, from: string, by: Write
   const head = now === undefined ? undefined : readPoint(file, now)
   if (head?.unsettled) throw unsettled(head)
   const ours = o.dry ? head : recordedFirst(file, project, by)
-  if (!ours) throw new TentError('T9107', 'The history holds no point to merge into.', { fix: 'Record a point first.' })
+  if (!ours)
+    throw new ForjrError('F9107', 'The history holds no point to merge into.', { fix: 'Record a point first.' })
   const base = baseOf(file, ours.id, theirs.id)
   if (base?.id === theirs.id) return { changes: [], clashes: [] }
   const rules = rulesOf(lastBuilt(file))
@@ -100,7 +101,7 @@ export function merge(file: SqliteFile, project: string, from: string, by: Write
     }
   }
   if (planned.clashes.length)
-    writeFileSync(join(project, 'tent.clash.ts'), clashText(planned.clashes, planned.described))
+    writeFileSync(join(project, 'forjr.clash.ts'), clashText(planned.clashes, planned.described))
   const point = record(file, project, { by, kind: 'merge' }, undefined, { parents: [ours.id, theirs.id], clashes })
   return { point, changes, clashes }
 }

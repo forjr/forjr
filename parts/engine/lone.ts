@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { here } from '../data/index.ts'
 import type { Machine } from './copy/machine.ts'
 import { handed, notHanded, saysMore, withoutHanded } from './door/handed.ts'
@@ -22,7 +22,7 @@ export function loneMachine(
 ): Machine {
   const since = o.clock?.now() ?? 0
   const never = (what: string): never => {
-    throw new TentError('T0013', `This app runs on one machine: ${what}.`, {
+    throw new ForjrError('F0013', `This app runs on one machine: ${what}.`, {
       fix: 'Open the app with `own` and `readers`, or as a reader with `engine.read`.',
     })
   }
@@ -73,8 +73,8 @@ export function loneMachine(
     asked: () => undefined,
     noted: () => undefined,
     async takeOver() {
-      throw new TentError('T0030', 'This machine is the writer already: nothing is taken over.', {
-        fix: 'Run `tent take-over` on a reader, once its writer is stopped.',
+      throw new ForjrError('F0030', 'This machine is the writer already: nothing is taken over.', {
+        fix: 'Run `forjr take-over` on a reader, once its writer is stopped.',
       })
     },
     close: () => undefined,

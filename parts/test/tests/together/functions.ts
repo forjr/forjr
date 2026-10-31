@@ -1,4 +1,4 @@
-import { change, choice, fail, input, link, list, number, query, table, text } from 'tentjs'
+import { change, choice, fail, input, link, list, number, query, table, text } from 'forjr'
 
 // One row that several people work on at one time.
 export const docs = table('docs', {

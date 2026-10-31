@@ -1,4 +1,4 @@
-import { screen, useField, Form } from 'tentjs/ui'
+import { screen, useField, Form } from 'forjr/ui'
 import { addPhoto } from './functions'
 import { picturesScreen } from './pictures'
 

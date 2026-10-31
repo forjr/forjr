@@ -28,7 +28,7 @@ async function headChecked(
 }
 
 /**
- * `tent push`: the head is checked where it holds no word of it, and the points the target lacks are sent. Answers
+ * `forjr push`: the head is checked where it holds no word of it, and the points the target lacks are sent. Answers
  * how many points and blobs were sent, the target by its name, and where its branch stands now.
  */
 export async function pushed(

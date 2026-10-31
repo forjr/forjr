@@ -9,7 +9,7 @@ A component, or its name as text. The component is drawn around the screen and i
 ## Example
 
 ```tsx
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 import { AppShell } from '../components/AppShell'
 
 export const ordersScreen = screen('ordersScreen', {
@@ -22,7 +22,7 @@ export const ordersScreen = screen('ordersScreen', {
 
 ## Errors
 
-`code.T1014`: what is written there is neither a component nor a name.
+`code.F1014`: what is written there is neither a component nor a name.
 
 ## See also
 

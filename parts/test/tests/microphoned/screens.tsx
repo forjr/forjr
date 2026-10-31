@@ -1,4 +1,4 @@
-import { screen, useMicrophone } from 'tentjs/ui'
+import { screen, useMicrophone } from 'forjr/ui'
 
 // A screen that records. The screen of `home.tsx` records nothing.
 export const recordScreen = screen('recordScreen', {

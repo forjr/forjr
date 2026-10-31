@@ -1,4 +1,4 @@
-import { change, fail } from 'tentjs'
+import { change, fail } from 'forjr'
 
 export const payOrder = change('payOrder', {
   access: 'everyone',

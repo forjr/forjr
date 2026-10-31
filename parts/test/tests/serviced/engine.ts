@@ -1,4 +1,4 @@
-import type { Makers } from 'tentjs/engine'
+import type { Makers } from 'forjr/engine'
 
 // The sign-in of the builder's own: it writes the once-only key that the request carries into a line of its own.
 export default {

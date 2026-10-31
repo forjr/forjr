@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 
 /** The part `connect`, as its entry gives it. */
 type Connect = typeof import('../../connect/index.ts')
@@ -14,9 +14,9 @@ export async function loadConnect(): Promise<Connect> {
 
 /**
  * Answers `connect`, which an app that holds a service loaded when it opened: what works at once, as a member of a
- * handle does, needs it there. Throws T0009 where no app loaded it.
+ * handle does, needs it there. Throws F0009 where no app loaded it.
  */
 export function connectNow(): Connect {
-  if (!loaded) throw new TentError('T0009', 'The part of the services was not loaded when the app opened.')
+  if (!loaded) throw new ForjrError('F0009', 'The part of the services was not loaded when the app opened.')
   return loaded
 }

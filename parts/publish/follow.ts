@@ -2,7 +2,7 @@ import { mkdirSync, mkdtempSync, readFileSync, rmSync, writeFileSync } from 'nod
 import { tmpdir } from 'node:os'
 import { dirname, join } from 'node:path'
 import type { GuardedFetch } from '../connect/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import { write } from '../core/internal.ts'
 import type { App, Engine, OpenOptions } from '../engine/index.ts'
@@ -41,21 +41,21 @@ interface Live {
   files: Record<string, string>
 }
 
-/** Fetches the files of what is live into a folder of their own. Throws T9107 for a path that climbs out of it. */
+/** Fetches the files of what is live into a folder of their own. Throws F9107 for a path that climbs out of it. */
 async function fetchedBundle(o: FollowOptions, live: Live): Promise<string> {
-  const folder = mkdtempSync(join(tmpdir(), 'tent-follow-'))
+  const folder = mkdtempSync(join(tmpdir(), 'forjr-follow-'))
   const reaching = { to: o.from, fetch: o.fetch }
   const got = await blobsFetched(reaching, Object.values(live.files))
   for (const [path, print] of Object.entries(live.files)) {
     if (!isBundlePath(path))
-      throw new TentError(
-        'T9107',
+      throw new ForjrError(
+        'F9107',
         `The server that is followed names a file \`${path}\` that climbs out of a bundle.`,
         { fields: { path } },
       )
     const bytes = got.get(print)
     if (!bytes)
-      throw new TentError('T9107', `The server that is followed did not send ${path}.`, { fields: { blob: print } })
+      throw new ForjrError('F9107', `The server that is followed did not send ${path}.`, { fields: { blob: print } })
     mkdirSync(dirname(join(folder, path)), { recursive: true })
     writeFileSync(join(folder, path), bytes)
   }
@@ -65,14 +65,14 @@ async function fetchedBundle(o: FollowOptions, live: Live): Promise<string> {
 /**
  * Reads the description of a bundle that was fetched and holds it to the version it was named as, as a publish
  * does: the description must give that version id, and every module and asset the fingerprint its name gives.
- * Answers the description. Throws T9107 where it does not.
+ * Answers the description. Throws F9107 where it does not.
  */
 function heldAs(folder: string, version: string): Description {
   const description: Description = JSON.parse(readFileSync(join(folder, 'description.json'), 'utf8'))
   const other =
     write(description).versionId !== version ? 'its description gives another id' : notAsNamed(folder, description)
   if (other)
-    throw new TentError('T9107', `The files of the version ${version} give another version: ${other}.`, {
+    throw new ForjrError('F9107', `The files of the version ${version} give another version: ${other}.`, {
       fields: { version },
     })
   return description
@@ -94,7 +94,7 @@ export async function followServer(o: FollowOptions): Promise<Follower> {
   const waiting = new Map<string, Description>()
   const once = async (): Promise<void> => {
     const answer = Object(
-      await asked({ to: o.from, fetch: o.fetch }, '/_t/sync/have', { points: [], blobs: [], pointers: true }),
+      await asked({ to: o.from, fetch: o.fetch }, '/_f/sync/have', { points: [], blobs: [], pointers: true }),
     )
     const live: Live | undefined = typeof answer.live?.version === 'string' ? answer.live : undefined
     if (!live || closed) return

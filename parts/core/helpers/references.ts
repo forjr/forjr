@@ -1,4 +1,4 @@
-import { TentError } from '../errors.ts'
+import { ForjrError } from '../errors.ts'
 import { mark } from '../mark.ts'
 import { asValue, asValues } from '../written.ts'
 
@@ -61,11 +61,11 @@ export function input(name: string): unknown {
   return mark({ input: name })
 }
 
-/** Takes `'id'`, the one form it has. Answers the record that stands for the id of the caller. Throws T1014 for any other. */
+/** Takes `'id'`, the one form it has. Answers the record that stands for the id of the caller. Throws F1014 for any other. */
 export function caller<Value = string>(what: 'id'): Value
 export function caller(what: string): unknown {
   if (what !== 'id')
-    throw new TentError('T1014', `caller is handed ${JSON.stringify(what)}, and \`caller('id')\` is its only form.`, {
+    throw new ForjrError('F1014', `caller is handed ${JSON.stringify(what)}, and \`caller('id')\` is its only form.`, {
       fix: "Write `caller('id')`, and read what else the caller is in code, from `user`.",
     })
   return mark({ caller: what })

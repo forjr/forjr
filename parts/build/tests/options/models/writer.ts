@@ -1,4 +1,4 @@
-import { file, model, object, secret, text } from 'tentjs'
+import { file, model, object, secret, text } from 'forjr'
 import { hooks } from '../services/hooks'
 
 export const embedder = model('embedder', { provider: 'openai', name: 'text-embedding-3-small' })

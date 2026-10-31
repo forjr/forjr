@@ -1,4 +1,4 @@
-import { action, choice, text } from 'tentjs'
+import { action, choice, text } from 'forjr'
 import { helper, painter, sendReceipt, sendWelcome, stripe, writer } from '../app/shop.ts'
 
 export const models = action('models', {

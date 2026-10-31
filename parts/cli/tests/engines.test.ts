@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { test } from 'node:test'
 import { copied, typedApart } from './typed.ts'
 
-test('[48-1] tent test runs a test in Firefox and WebKit where they speak WebDriver BiDi, and names one as not run where its engine does not, never as passed', async (t) => {
+test('[48-1] forjr test runs a test in Firefox and WebKit where they speak WebDriver BiDi, and names one as not run where its engine does not, never as passed', async (t) => {
   const project = copied(t, 'engines', 'engines')
   const tested = typedApart(project, 'test', '--json')
   const value: Record<string, unknown> = Object(tested.answer.value)

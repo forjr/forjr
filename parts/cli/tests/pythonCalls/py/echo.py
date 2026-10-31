@@ -1,7 +1,7 @@
 import os
 
 
-def run(input, tent):
+def run(input, forjr):
     seen = {name: [type(value).__name__, value] for name, value in input.items() if name != "f"}
     path = input["f"]
     with open(path, "rb") as f:
@@ -9,6 +9,6 @@ def run(input, tent):
     seen["f"] = {
         "name": os.path.basename(path),
         "text": text,
-        "inFolder": os.path.dirname(os.path.realpath(path)) == os.path.realpath(tent.folder),
+        "inFolder": os.path.dirname(os.path.realpath(path)) == os.path.realpath(forjr.folder),
     }
     return seen

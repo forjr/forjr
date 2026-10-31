@@ -15,7 +15,7 @@ const decode = (bytes: Uint8Array | undefined): string | undefined =>
 
 /**
  * The script of the views that a screen draws, as one plain script that hands each record to the part `chat`: the
- * modules the build made for a browser, with the names of the page code read from `__tent`, and every other file
+ * modules the build made for a browser, with the names of the page code read from `__forjr`, and every other file
  * they import packed in.
  */
 async function codeOf(
@@ -37,7 +37,7 @@ async function codeOf(
   if (!modules.length) return undefined
   const entry = [
     ...modules.map((file, place) => `import view${place} from ${JSON.stringify(file)}`),
-    `const held = (globalThis.__tentViews ??= [])`,
+    `const held = (globalThis.__forjrViews ??= [])`,
     `held.push(${modules.map((_, place) => `view${place}`).join(', ')})`,
     '',
   ].join('\n')
@@ -45,7 +45,7 @@ async function codeOf(
     entry,
     small: work.options.for !== 'dev',
     read: (path) =>
-      path === `browser/${page}` ? 'export const names = globalThis.__tent.names\n' : decode(work.bundle.get(path)),
+      path === `browser/${page}` ? 'export const names = globalThis.__forjr.names\n' : decode(work.bundle.get(path)),
   })
 }
 
@@ -69,13 +69,13 @@ function stylesOf(work: Work, description: Description, views: string[]): string
 }
 
 /**
- * A style file with each address it names from where it lies written whole, under `/_t/b/`: inside the file of a
+ * A style file with each address it names from where it lies written whole, under `/_f/b/`: inside the file of a
  * screen a style stands under the app's own address, and not where the style file lay.
  */
 function wholeAddresses(text: string, file: string): string {
   return text.replace(/url\(\s*(["']?)([^"')]+)\1\s*\)/g, (written, quote: string, address: string) => {
     if (/^(?:[a-z][a-z0-9+.-]*:|\/|#)/i.test(address)) return written
-    const whole = new URL(address, `http://bundle.invalid/_t/b/${file}`).pathname
+    const whole = new URL(address, `http://bundle.invalid/_f/b/${file}`).pathname
     return `url(${quote}${whole}${quote})`
   })
 }

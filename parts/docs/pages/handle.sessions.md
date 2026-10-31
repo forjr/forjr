@@ -5,7 +5,7 @@ The sessions of the users of an app: `sessions.start` signs a browser in, and `s
 ## Example
 
 ```ts
-import { action, anyone, fail, passwords, sessions, text } from 'tentjs'
+import { action, anyone, fail, passwords, sessions, text } from 'forjr'
 
 export const signIn = action('signIn', {
   access: anyone('a sign-in is open to every visitor'),
@@ -34,7 +34,7 @@ A screen calls them as it calls any function, with `call=` or `useCall`. After t
 
 **Where they work.** `start` and `end` work where a request of a browser is being answered: in a change, an action or a route that a page called. In a change the session is part of the write, so a change that is undone leaves no session and no cookie. In an action the session stands also where the action fails afterwards. `endAll` and `list` work in any call.
 
-**The cookie.** It is named `tent_session.<the app's name>`, and over https `__Host-tent_session.<the app's name>`. The scripts of a page cannot read it, it is sent to this site alone, and it is marked `Secure` over https. The data keeps the fingerprint of its bytes and never the bytes, so a copy of the data signs nobody in. `option.project.cookies` changes two of its marks.
+**The cookie.** It is named `forjr_session.<the app's name>`, and over https `__Host-forjr_session.<the app's name>`. The scripts of a page cannot read it, it is sent to this site alone, and it is marked `Secure` over https. The data keeps the fingerprint of its bytes and never the bytes, so a copy of the data signs nobody in. `option.project.cookies` changes two of its marks.
 
 **How long a session lasts.** `limits.sessionTime` of the project from its last use, 30 days where none is stated. A user holds `limits.sessionsPerUser` sessions, 20 where none is stated: one more ends the one that was used longest ago.
 
@@ -44,11 +44,11 @@ A screen calls them as it calls any function, with `call=` or `useCall`. After t
 
 ## Errors
 
-`code.T0013` when `start` or `end` is used where no request of a browser is being answered: under `app.call`, in a step of a flow, in a call that a key made. Also when `endAll` or `list` names another user than the caller in code that states no `system`.
+`code.F0013` when `start` or `end` is used where no request of a browser is being answered: under `app.call`, in a step of a flow, in a call that a key made. Also when `endAll` or `list` names another user than the caller in code that states no `system`.
 
-`code.T2103` when `start` names a user that no row of `users` has, and `code.T0014` when the app has no `users` table.
+`code.F2103` when `start` names a user that no row of `users` has, and `code.F0014` when the app has no `users` table.
 
-`code.T0027` when `for` is no length of time.
+`code.F0027` when `for` is no length of time.
 
 ## See also
 

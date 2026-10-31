@@ -9,7 +9,7 @@ interface Names {
   columns: Record<string, string[]>
 }
 
-// Where `_t_meta` of a file keeps them.
+// Where `_f_meta` of a file keeps them.
 const key = 'names'
 
 const isLists = (value: unknown): value is Record<string, string[]> =>
@@ -38,7 +38,7 @@ function forget(names: Names, table: string, column?: string): void {
 }
 
 /**
- * Takes the write of a table change and its steps, once the store has carried them out. Keeps in `_t_meta` of the
+ * Takes the write of a table change and its steps, once the store has carried them out. Keeps in `_f_meta` of the
  * file each name that a table and a column had in it before a step gave it another. What was kept of a row stands
  * under the names of its day, and neither a step nor the layout of a file says which those were. A table and a
  * column that are made or dropped have no former name. It writes nothing where the steps change no name.

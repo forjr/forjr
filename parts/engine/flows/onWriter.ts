@@ -15,7 +15,7 @@ const textsOf = (value: unknown): string[] => (Array.isArray(value) ? value.map(
 
 /**
  * Takes an app, `stop` or `replay`, the runs it acts on and whether it only counts. Carries the work out: here, on
- * a writer, and on a reader by its writer, which it is sent to as `tent runs` sends it, so that it answers the
+ * a writer, and on a reader by its writer, which it is sent to as `forjr runs` sends it, so that it answers the
  * writer's count. On live data a reader refuses it, as every write. An app that holds no flow acts on no run.
  */
 export async function manyRuns(

@@ -6,7 +6,7 @@ import { boolean, list, object, text } from '../../core/index.ts'
 import { checkValue, readApiFile } from '../../core/internal.ts'
 import { copied, typed } from './typed.ts'
 
-/** The stored shape of what `tent api read` prints with `--json`. */
+/** The stored shape of what `forjr api read` prints with `--json`. */
 const shape = object({
   ok: boolean(),
   value: object({ out: text(), version: text() }, { optional: true }),
@@ -43,7 +43,7 @@ const older = {
   },
 }
 
-test('[24-5] [15-6@8a] `tent api read` turns a description of the version before 3.0 into 3.1, which the build reads, and prints its stored shape with --json', async (t) => {
+test('[24-5] [15-6@8a] `forjr api read` turns a description of the version before 3.0 into 3.1, which the build reads, and prints its stored shape with --json', async (t) => {
   const project = copied(t, 'api-read')
   writeFileSync(join(project, 'older.json'), JSON.stringify(older))
   const done = await typed(project, 'api', 'read', 'older.json', '--out', 'services/shop.openapi.json', '--json')
@@ -65,18 +65,18 @@ test('[24-5] [15-6@8a] `tent api read` turns a description of the version before
   assert.deepEqual(note.input, { text: { kind: 'text', optional: true } })
 })
 
-test('[24-5] `tent api read` of a file that is no description is T7013, and writes nothing', async (t) => {
+test('[24-5] `forjr api read` of a file that is no description is F7013, and writes nothing', async (t) => {
   const project = copied(t, 'api-read-broken')
   writeFileSync(join(project, 'other.json'), JSON.stringify({ openapi: '4.0.0', paths: {} }))
   const done = await typed(project, 'api', 'read', 'other.json', '--out', 'services/x.json', '--json')
   assert.equal(done.ended, 1, done.printed)
   assert.deepEqual(
     done.answer.findings?.map((one) => one.code),
-    ['T7013'],
+    ['F7013'],
   )
 })
 
-test('[24-5] `tent api read` turns a file in YAML into the JSON that the build reads', {
+test('[24-5] `forjr api read` turns a file in YAML into the JSON that the build reads', {
   todo: 'the reader of YAML is a part that the tools fetch on first use, and fetched.json pins none yet',
 }, async (t) => {
   const project = copied(t, 'api-read-yaml')

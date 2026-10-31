@@ -16,7 +16,7 @@ const driving = `${escape}[2J${escape}[H${escape}]0;owned${escape}\\\u0007\u009b
 
 /** A folder of the runner of its own for one test, removed when the test ends. */
 function homeOf(t: TestContext): string {
-  const home = mkdtempSync(join(tmpdir(), 'tent-attacks-line-'))
+  const home = mkdtempSync(join(tmpdir(), 'forjr-attacks-line-'))
   t.after(() => rmSync(home, { recursive: true, force: true }))
   return home
 }
@@ -45,7 +45,7 @@ function serverOf(answer: (path: string, request: Request) => Response | undefin
     request: async (request) => {
       const { pathname, search } = new URL(request.url)
       asked.push(`${pathname}${search}`)
-      return answer(pathname, request) ?? Response.json({ ok: false, error: { code: 'T0001', message: 'none' } })
+      return answer(pathname, request) ?? Response.json({ ok: false, error: { code: 'F0001', message: 'none' } })
     },
     live: async () => {
       throw new Error('no live connection in this test')
@@ -63,7 +63,7 @@ const fn = (definition: string, more: object = {}) => ({ definition, kind: 'func
 
 const target = { address: 'https://server.test', local: false }
 
-test('[05-12.7] an answer of `/_t/cli` that names a module on another host, or with `..` in its name: the runner fetches only from its own address, under `/_t/b/cli/`', async (t) => {
+test('[05-12.7] an answer of `/_f/cli` that names a module on another host, or with `..` in its name: the runner fetches only from its own address, under `/_f/b/cli/`', async (t) => {
   const home = homeOf(t)
   mkdirSync(join(home, 'cli', 'server.test'), { recursive: true })
   writeFileSync(join(home, 'cli', 'server.test', 'added.json'), '{"address":"https://server.test","name":"shop"}')
@@ -81,16 +81,16 @@ test('[05-12.7] an answer of `/_t/cli` that names a module on another host, or w
     ]),
   )
   const { reach, asked } = serverOf((path) => {
-    if (path === '/_t/cli') return Response.json(listOf(commands))
-    if (path === '/_t/cli/me') return Response.json({ ok: true, value: { system: true } })
+    if (path === '/_f/cli') return Response.json(listOf(commands))
+    if (path === '/_f/cli/me') return Response.json({ ok: true, value: { system: true } })
     return new Response('export const c = { options: { run: () => 7 } }')
   })
   for (const word of Object.keys(commands)) {
     const { terminal } = terminalOf()
     await runCommandLine({ words: [word], terminal, reach, home, target, env: {} })
   }
-  const fetched = asked.filter((one) => !one.startsWith('/_t/cli'))
-  for (const one of fetched) assert.match(one, /^\/_t\/b\/cli\/[A-Za-z0-9.-]+\.js$/, `the runner fetched ${one}`)
+  const fetched = asked.filter((one) => !one.startsWith('/_f/cli'))
+  for (const one of fetched) assert.match(one, /^\/_f\/b\/cli\/[A-Za-z0-9.-]+\.js$/, `the runner fetched ${one}`)
 })
 
 test("[05-12.8] [05-12.18] an answer, an error's `message`, `fields` and `fix`, and an `about` that hold codes that move the cursor are printed as codes", async (t) => {
@@ -100,12 +100,12 @@ test("[05-12.8] [05-12.18] an answer, an error's `message`, `fields` and `fix`, 
     fail: fn('fail'),
   }
   const { reach } = serverOf((path) => {
-    if (path === '/_t/cli') return Response.json(listOf(commands))
-    if (path === '/_t/call/look') return Response.json({ ok: true, value: `a row ${driving}` })
-    if (path === '/_t/call/fail')
+    if (path === '/_f/cli') return Response.json(listOf(commands))
+    if (path === '/_f/call/look') return Response.json({ ok: true, value: `a row ${driving}` })
+    if (path === '/_f/call/fail')
       return Response.json({
         ok: false,
-        error: { code: 'T0002', name: 'bad-input', message: driving, fields: { [driving]: driving }, fix: driving },
+        error: { code: 'F0002', name: 'bad-input', message: driving, fields: { [driving]: driving }, fix: driving },
       })
     return undefined
   })
@@ -122,12 +122,12 @@ test("[05-12.8] [05-12.18] an answer, an error's `message`, `fields` and `fix`, 
   }
 })
 
-test('[05-12.19] an answer of `/_t/cli` that is a gigabyte is cut at `callSize`', async (t) => {
+test('[05-12.19] an answer of `/_f/cli` that is a gigabyte is cut at `callSize`', async (t) => {
   const home = homeOf(t)
   let pulled = 0
   const piece = new Uint8Array(1_048_576).fill(32)
   const { reach } = serverOf((path) => {
-    if (path !== '/_t/cli') return undefined
+    if (path !== '/_f/cli') return undefined
     const body = new ReadableStream<Uint8Array>({
       pull(controller) {
         pulled += piece.length
@@ -144,10 +144,10 @@ test('[05-12.19] an answer of `/_t/cli` that is a gigabyte is cut at `callSize`'
   assert.ok(pulled <= 8 * 1_048_576, `the runner read ${pulled} bytes`)
 })
 
-test('[05-12.19] an answer of `/_t/cli` with a command named `login` and a word with a control character leaves both out, and a key `__proto__` is T0002', async (t) => {
+test('[05-12.19] an answer of `/_f/cli` with a command named `login` and a word with a control character leaves both out, and a key `__proto__` is F0002', async (t) => {
   const home = homeOf(t)
   const commands = { login: fn('login', { about: 'steals the key' }), [`bad${escape}[2J`]: fn('bad'), fine: fn('fine') }
-  const { reach } = serverOf((path) => (path === '/_t/cli' ? Response.json(listOf(commands)) : undefined))
+  const { reach } = serverOf((path) => (path === '/_f/cli' ? Response.json(listOf(commands)) : undefined))
   const { terminal, out } = terminalOf()
   assert.equal(await runCommandLine({ words: [], terminal, reach, home, target, env: {} }), 0)
   const help = out.join('')
@@ -155,7 +155,7 @@ test('[05-12.19] an answer of `/_t/cli` with a command named `login` and a word 
   assert.doesNotMatch(help, /login|steals|bad/)
   const proto = `{"ok":true,"value":{"app":"shop","name":"shop","version":"v1","needsEngine":"0.0.0","commands":{"__proto__":{"definition":"x","kind":"function","at":"call","input":{}}}}}`
   const second = serverOf((path) =>
-    path === '/_t/cli' ? new Response(proto, { headers: { 'content-type': 'application/json' } }) : undefined,
+    path === '/_f/cli' ? new Response(proto, { headers: { 'content-type': 'application/json' } }) : undefined,
   )
   const run = terminalOf()
   const ended = await runCommandLine({
@@ -167,7 +167,7 @@ test('[05-12.19] an answer of `/_t/cli` with a command named `login` and a word 
     env: {},
   })
   assert.notEqual(ended, 0)
-  assert.match(run.err.join(''), /T0002/)
+  assert.match(run.err.join(''), /F0002/)
 })
 
 test('[05-12.20] a module named `con.js` is refused; a host whose name holds a colon is kept under a folder with a hyphen', async (t) => {
@@ -183,8 +183,8 @@ test('[05-12.20] a module named `con.js` is refused; a host whose name holds a c
     aux: { definition: 'aux', kind: 'command', at: 'call', input: {}, module: 'cli/aux.js', export: 'c' },
   }
   const { reach, asked } = serverOf((path) => {
-    if (path === '/_t/cli') return Response.json(listOf(commands))
-    if (path === '/_t/cli/me') return Response.json({ ok: true, value: { system: true } })
+    if (path === '/_f/cli') return Response.json(listOf(commands))
+    if (path === '/_f/cli/me') return Response.json({ ok: true, value: { system: true } })
     return new Response('export const c = { options: { run: () => 7 } }')
   })
   for (const word of ['dev', 'aux']) {
@@ -192,7 +192,7 @@ test('[05-12.20] a module named `con.js` is refused; a host whose name holds a c
     assert.equal(await runCommandLine({ words: [word], terminal, reach, home, target: portTarget, env: {} }), 2, word)
   }
   assert.deepEqual(
-    asked.filter((one) => one.startsWith('/_t/b/')),
+    asked.filter((one) => one.startsWith('/_f/b/')),
     [],
   )
   assert.deepEqual(readdirSync(join(home, 'cli')), ['server.test-8443'])
@@ -201,8 +201,8 @@ test('[05-12.20] a module named `con.js` is refused; a host whose name holds a c
 test('[05-12.21] `file <id>` with no `--out`, where the server names the file `../../x`, ends with 2', async (t) => {
   const home = homeOf(t)
   const { reach, asked } = serverOf((path) =>
-    path.startsWith('/_t/files/')
-      ? new Response('x', { headers: { 'content-disposition': 'attachment; filename="../../tent-attack-file"' } })
+    path.startsWith('/_f/files/')
+      ? new Response('x', { headers: { 'content-disposition': 'attachment; filename="../../forjr-attack-file"' } })
       : undefined,
   )
   const { terminal } = terminalOf()
@@ -210,17 +210,17 @@ test('[05-12.21] `file <id>` with no `--out`, where the server names the file `.
   assert.deepEqual(asked, [])
   // A name that no folder of the system holds: macOS keeps a folder `X` two above its temporary one, and its names
   // tell no capitals apart.
-  assert.equal(existsSync(join(home, '..', '..', 'tent-attack-file')), false)
+  assert.equal(existsSync(join(home, '..', '..', 'forjr-attack-file')), false)
 })
 
 test('[05-12.9] a file flag whose value is a folder is refused', async (t) => {
   const home = homeOf(t)
   const commands = { send: fn('send', { input: { doc: { kind: 'file' } } }) }
-  const { reach, asked } = serverOf((path) => (path === '/_t/cli' ? Response.json(listOf(commands)) : undefined))
+  const { reach, asked } = serverOf((path) => (path === '/_f/cli' ? Response.json(listOf(commands)) : undefined))
   const { terminal } = terminalOf()
   assert.equal(await runCommandLine({ words: ['send', '--doc', home], terminal, reach, home, target, env: {} }), 2)
   assert.deepEqual(
-    asked.filter((one) => one.startsWith('/_t/files')),
+    asked.filter((one) => one.startsWith('/_f/files')),
     [],
   )
 })
@@ -236,15 +236,15 @@ test('[05-12.15] a module that the server changes under a name the runner alread
   )
   const commands = { go: { definition: 'go', kind: 'command', at: 'call', input: {}, module: name, export: 'c' } }
   const { reach } = serverOf((path) => {
-    if (path === '/_t/cli') return Response.json(listOf(commands))
-    if (path === '/_t/cli/me') return Response.json({ ok: true, value: { system: true } })
+    if (path === '/_f/cli') return Response.json(listOf(commands))
+    if (path === '/_f/cli/me') return Response.json({ ok: true, value: { system: true } })
     return new Response('export const c = { options: { run: () => 7 } }')
   })
   const { terminal } = terminalOf()
   assert.equal(await runCommandLine({ words: ['go'], terminal, reach, home, target, env: {} }), 2)
 })
 
-test('[05-12.10] [05-12.23] a server whose command is named `git`, `tent` or holds a slash, a second app with the name of the first, and an address that is already added under another name are refused', async (t) => {
+test('[05-12.10] [05-12.23] a server whose command is named `git`, `forjr` or holds a slash, a second app with the name of the first, and an address that is already added under another name are refused', async (t) => {
   const home = homeOf(t)
   const adding = async (address: string, listed: string | undefined, name?: string): Promise<number> => {
     const { terminal } = terminalOf()
@@ -257,7 +257,7 @@ test('[05-12.10] [05-12.23] a server whose command is named `git`, `tent` or hol
       listed: async () => (listed === undefined ? undefined : { name: listed }),
     })
   }
-  assert.equal(await adding('https://one.test', 'tent'), 2)
+  assert.equal(await adding('https://one.test', 'forjr'), 2)
   assert.equal(await adding('https://one.test', 'a/b'), 2)
   assert.equal(await adding('https://one.test', '../bin/x'), 2)
   assert.equal(await adding('https://one.test', 'shop'), 0)
@@ -270,13 +270,13 @@ test('[05-12.10] [05-12.23] a server whose command is named `git`, `tent` or hol
   assert.deepEqual(readdirSync(join(home, 'bin')).sort(), ['shop', 'shop.cmd'])
 })
 
-test('[05-12.4] `tent cli add` of a server over a connection that is not secure is refused, unless --insecure names the host', async (t) => {
+test('[05-12.4] `forjr cli add` of a server over a connection that is not secure is refused, unless --insecure names the host', async (t) => {
   const home = homeOf(t)
-  const before = process.env.TENT_HOME
-  process.env.TENT_HOME = home
+  const before = process.env.FORJR_HOME
+  process.env.FORJR_HOME = home
   t.after(() => {
-    if (before === undefined) delete process.env.TENT_HOME
-    else process.env.TENT_HOME = before
+    if (before === undefined) delete process.env.FORJR_HOME
+    else process.env.FORJR_HOME = before
   })
   const ended = await commandLine(['add', 'http://shop.example', '--name', 'shop', '--yes'], home).catch(
     (error) => `it went on: ${String(error)}`,
@@ -291,7 +291,7 @@ test('[05-12.13] `keys.json` as a link that another user put there is not read',
   const planted = join(elsewhere, 'planted.json')
   writeFileSync(
     planted,
-    JSON.stringify({ format: 'tent.keys/1', servers: { 'https://server.test': { app: { key: 'tent_planted' } } } }),
+    JSON.stringify({ format: 'forjr.keys/1', servers: { 'https://server.test': { app: { key: 'forjr_planted' } } } }),
   )
   try {
     symlinkSync(planted, join(home, 'keys.json'), 'file')

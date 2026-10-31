@@ -23,7 +23,7 @@ export interface Written {
   text: string
   line: number
   declared: Declared
-  // The words of tentjs that its file imports, by the local name it gives each: `now as clock` is `clock` to `now`.
+  // The words of forjr that its file imports, by the local name it gives each: `now as clock` is `clock` to `now`.
   words: Map<string, string>
   // The tree of its file.
   tree?: Node
@@ -39,7 +39,7 @@ export function writtenIn(source: Source): Written[] {
   for (const [path, file] of Object.entries(source).sort(([a], [b]) => (a < b ? -1 : 1))) {
     const scanned = file.tree ? scan(file.tree) : undefined
     const words = new Map(
-      (scanned?.imports ?? []).filter((one) => /^tentjs(?:\/|$)/.test(one.from)).map((one) => [one.local, one.name]),
+      (scanned?.imports ?? []).filter((one) => /^forjr(?:\/|$)/.test(one.from)).map((one) => [one.local, one.name]),
     )
     for (const declared of scanned?.declared ?? [])
       found.push({

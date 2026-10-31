@@ -1,6 +1,6 @@
 # Help desk
 
-A help desk with an AI agent, built with Tent.js. Mail to the support address becomes a ticket, and staff answer in a screen. An agent drafts answers from past tickets and from a guide of PDF files, and remembers each ticket's conversation. It may look an order up, and it asks before it refunds. Customers can also ask it out loud, and other tools read tickets through an API and through MCP.
+A help desk with an AI agent, built with Forjr. Mail to the support address becomes a ticket, and staff answer in a screen. An agent drafts answers from past tickets and from a guide of PDF files, and remembers each ticket's conversation. It may look an order up, and it asks before it refunds. Customers can also ask it out loud, and other tools read tickets through an API and through MCP.
 
 ## What it shows
 
@@ -15,15 +15,15 @@ A help desk with an AI agent, built with Tent.js. Mail to the support address be
 ## Run it
 
 ```sh
-npm install -g tentjs
-git clone https://github.com/tentislabs/tent.js
-cd tent.js/examples/help-desk
+npm install -g forjr
+git clone https://github.com/forjr/forjr
+cd forjr/examples/help-desk
 npm install
-tent secrets set ANTHROPIC_KEY
-tent secrets set OPENAI_KEY
-tent dev
+forjr secrets set ANTHROPIC_KEY
+forjr secrets set OPENAI_KEY
+forjr dev
 ```
 
-The app also names `MAIL_KEY`, `MAIL_HOOK` and `PAYMENTS_KEY`, for the mail service and the payment service; set them with `tent secrets set` where you connect those. Open `http://localhost:3000` and sign in as `sam@desk.example`, one of the staff: in development the code is not sent, and it waits in the app's mailbox at `http://localhost:3000/_t/mail`.
+The app also names `MAIL_KEY`, `MAIL_HOOK` and `PAYMENTS_KEY`, for the mail service and the payment service; set them with `forjr secrets set` where you connect those. Open `http://localhost:3000` and sign in as `sam@desk.example`, one of the staff: in development the code is not sent, and it waits in the app's mailbox at `http://localhost:3000/_f/mail`.
 
-`tent check` checks the whole app, and `tent test` runs its tests, with every model and service faked.
+`forjr check` checks the whole app, and `forjr test` runs its tests, with every model and service faked.

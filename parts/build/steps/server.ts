@@ -84,7 +84,7 @@ export const step: Step = {
         : `\`${definition}\` states no option that it stands for`
       found(
         work,
-        'T1014',
+        'F1014',
         file,
         line,
         `${definition}: the build cannot write the export \`${one.name}\`, since ${why}.`,

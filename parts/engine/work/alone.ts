@@ -11,6 +11,7 @@ export interface AloneKeeper {
   keep(kind: string, most: number | false, able: Joined[], waiting: number): Set<string>
 }
 
+/** Answers what keeps, for each kind of worker, the workers that hold work alone. */
 export function aloneKeeper(): AloneKeeper {
   const kept = new Map<string, Set<string>>()
   return {

@@ -24,7 +24,7 @@ function rateRows(dataFolder: string): number {
   const store = sqliteStore()
   store.open(dataFolder, { readOnly: true })
   try {
-    return Number(store.read({ from: '_t_rate', count: true }, system).value)
+    return Number(store.read({ from: '_f_rate', count: true }, system).value)
   } finally {
     store.close()
   }
@@ -42,7 +42,7 @@ test('[21-13] app.call and a web call of the same function give the same answer 
 
   // A call that works: the value is the same, where the wire carries it as JSON.
   const direct = await app.call('echo', input, { as: nobody })
-  const web = await send(app, `${origin}/_t/call/echo`, { input })
+  const web = await send(app, `${origin}/_f/call/echo`, { input })
   assert.equal(web.status, 200)
   assert.deepEqual(web.body, { ok: true, value: JSON.parse(JSON.stringify(direct)) })
   assert.deepEqual(told(dataFolder, 'echo'), [
@@ -51,19 +51,19 @@ test('[21-13] app.call and a web call of the same function give the same answer 
   ])
   // A moment travels as text in the standard form.
   const at = await app.call('moment', {}, { as: nobody })
-  const sent = await send(app, `${origin}/_t/call/moment`)
+  const sent = await send(app, `${origin}/_f/call/moment`)
   assert.ok(at instanceof Date)
   assert.match(String(sent.body.value), /^\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.\d{3}Z$/)
 
   // A call that the rule refuses, one that the input fails, and one that fails by its own word.
   for (const [name, given, code, status] of [
-    ['countNotes', {}, 'T0006', 401],
-    ['echo', { text: 5 }, 'T0002', 400],
+    ['countNotes', {}, 'F0006', 401],
+    ['echo', { text: 5 }, 'F0002', 400],
     ['openFail', { title: 'x' }, 'not-today', 400],
   ] as const) {
     const before = told(dataFolder, name).length
     await assert.rejects(app.call(name, given, { as: nobody }), { code })
-    const answer = await send(app, `${origin}/_t/call/${name}`, { input: given })
+    const answer = await send(app, `${origin}/_f/call/${name}`, { input: given })
     assert.deepEqual([answer.status, answer.body.ok, answer.error.code], [status, false, code], name)
     const [first, second] = told(dataFolder, name).slice(before)
     assert.deepEqual(first, second, name)
@@ -81,51 +81,51 @@ test('[21-1] each step of the door has a test that tries to skip it', async (t) 
   await addUser(app, 'Ada', ['staff'], 5000)
   const ran = () => logRows(dataFolder, 'lines').filter((row) => row.message === 'echo ran').length
 
-  // Step 1: a header that starts `x-tent-` is never read, whatever it claims.
+  // Step 1: a header that starts `x-forjr-` is never read, whatever it claims.
   const forged = {
-    'x-tent-user': 'ada',
-    'X-Tent-Caller': 'system',
-    'x-tent-admin': 'yes',
-    'x-tent-roles': 'staff',
-    'x-tent-as': JSON.stringify(system),
+    'x-forjr-user': 'ada',
+    'X-Forjr-Caller': 'system',
+    'x-forjr-admin': 'yes',
+    'x-forjr-roles': 'staff',
+    'x-forjr-as': JSON.stringify(system),
   }
-  const who = await send(app, `${origin}/_t/call/whoAmI`, { headers: forged })
+  const who = await send(app, `${origin}/_f/call/whoAmI`, { headers: forged })
   assert.deepEqual(who.body, { ok: true, value: 'no user' })
-  assert.deepEqual([(await send(app, `${origin}/_t/call/countNotes`, { headers: forged })).error.code], ['T0006'])
+  assert.deepEqual([(await send(app, `${origin}/_f/call/countNotes`, { headers: forged })).error.code], ['F0006'])
   // Nor does a field of the body name a caller: a page drawn for a user, sent by nobody, is told that it changed.
-  const asked = await send(app, `${origin}/_t/call/whoAmI`, { body: JSON.stringify({ input: {}, as: 'system' }) })
-  assert.deepEqual([asked.body.ok, asked.error.code, asked.body.caller], [false, 'T3101', 'changed'])
-  const named = await send(app, `${origin}/_t/call/whoAmI`, { body: JSON.stringify({ input: {}, caller: system }) })
-  assert.deepEqual([named.status, named.error.code], [400, 'T0002'])
+  const asked = await send(app, `${origin}/_f/call/whoAmI`, { body: JSON.stringify({ input: {}, as: 'system' }) })
+  assert.deepEqual([asked.body.ok, asked.error.code, asked.body.caller], [false, 'F3101', 'changed'])
+  const named = await send(app, `${origin}/_f/call/whoAmI`, { body: JSON.stringify({ input: {}, caller: system }) })
+  assert.deepEqual([named.status, named.error.code], [400, 'F0002'])
 
   // Step 2: a call from a page of another site is refused before the function runs.
   const before = ran()
-  const other = await send(app, `${origin}/_t/call/echo`, {
+  const other = await send(app, `${origin}/_f/call/echo`, {
     input: { text: 'x' },
     headers: { origin: 'https://evil.example' },
   })
-  assert.deepEqual([other.status, other.error.code], [403, 'T0004'])
+  assert.deepEqual([other.status, other.error.code], [403, 'F0004'])
   assert.equal(ran(), before)
 
   // Step 5: nothing but a function is reached by a name.
-  for (const name of ['nothing', 'notes', 'desk', '_t_meta', 'echo/..', 'echo.run', '..%2Fecho', '']) {
-    const answer = await send(app, `${origin}/_t/call/${name}`)
-    assert.deepEqual([answer.status, answer.error.code], [404, 'T0001'], name)
+  for (const name of ['nothing', 'notes', 'desk', '_f_meta', 'echo/..', 'echo.run', '..%2Fecho', '']) {
+    const answer = await send(app, `${origin}/_f/call/${name}`)
+    assert.deepEqual([answer.status, answer.error.code], [404, 'F0001'], name)
   }
   // Step 6: a function with no rule is open to nobody, and a rule holds for a caller who is nobody.
-  assert.equal((await send(app, `${origin}/_t/call/publicTags`)).error.code, 'T0006')
-  assert.equal((await send(app, `${origin}/_t/call/staffTags`)).error.code, 'T0006')
+  assert.equal((await send(app, `${origin}/_f/call/publicTags`)).error.code, 'F0006')
+  assert.equal((await send(app, `${origin}/_f/call/staffTags`)).error.code, 'F0006')
   // Step 7: the input is held to its types before the function runs.
-  const wrong = await send(app, `${origin}/_t/call/echo`, { input: { text: 5, more: true } })
+  const wrong = await send(app, `${origin}/_f/call/echo`, { input: { text: 5, more: true } })
   assert.deepEqual(
     [wrong.status, wrong.error.code, wrong.error.fields],
-    [400, 'T0002', { text: 'type', more: 'unknown' }],
+    [400, 'F0002', { text: 'type', more: 'unknown' }],
   )
   assert.equal(ran(), before)
   // Step 9: a `private` column does not leave, through a stated output or through a row that has no type.
-  const people = await send(app, `${origin}/_t/call/openPeople`)
+  const people = await send(app, `${origin}/_f/call/openPeople`)
   assert.deepEqual(people.body.value, [{ name: 'Ada' }])
-  const users = await send(app, `${origin}/_t/call/openUsers`)
+  const users = await send(app, `${origin}/_f/call/openUsers`)
   assert.equal(JSON.stringify(users.body).includes('5000'), false)
   assert.deepEqual(Object.keys(Object(Object(users.body.value)[0])).sort(), [
     'createdAt',
@@ -135,11 +135,11 @@ test('[21-1] each step of the door has a test that tries to skip it', async (t) 
     'updatedAt',
   ])
   // Step 10: a call that was refused is in the log like one that worked.
-  assert.deepEqual(told(dataFolder, 'staffTags'), [['desk', 'staffTags', 'query', 'nobody', null, 0, 'T0006']])
-  assert.deepEqual(told(dataFolder, 'nothing'), [['desk', 'nothing', null, 'nobody', null, 0, 'T0001']])
+  assert.deepEqual(told(dataFolder, 'staffTags'), [['desk', 'staffTags', 'query', 'nobody', null, 0, 'F0006']])
+  assert.deepEqual(told(dataFolder, 'nothing'), [['desk', 'nothing', null, 'nobody', null, 0, 'F0001']])
 })
 
-test('[21-14] [16-2] each code that has a status arrives with it, an own fail with 400, and any other error as T0009 with a ref that finds it in the log', async (t) => {
+test('[21-14] [16-2] each code that has a status arrives with it, an own fail with 400, and any other error as F0009 with a ref that finds it in the log', async (t) => {
   const { clock, advance } = testClock()
   const spinning = [
     { for: 'i', of: { fn: 'range', args: [0, 1_000_000] }, do: [{ do: { name: ['i'] } }] },
@@ -153,39 +153,39 @@ test('[21-14] [16-2] each code that has a status arrives with it, an own fail wi
         limits: { functionDepth: 6, queryTime: 60, callSize: 4096, anyonePerMinute: 30 },
       }),
   })
-  const call = (name: string, o: Parameters<typeof send>[2] = {}) => send(app, `${origin}/_t/call/${name}`, o)
+  const call = (name: string, o: Parameters<typeof send>[2] = {}) => send(app, `${origin}/_f/call/${name}`, o)
   const seen = async (work: ReturnType<typeof call>) => {
     const answer = await work
     return [answer.status, answer.error.code, answer.error.name]
   }
 
   // The codes of the door.
-  assert.deepEqual(await seen(call('nothing')), [404, 'T0001', 'not-found'])
-  assert.deepEqual(await seen(call('echo', { method: 'GET' })), [404, 'T0001', 'not-found'])
-  assert.deepEqual(await seen(call('echo', { method: 'PUT' })), [404, 'T0001', 'not-found'])
-  assert.deepEqual(await seen(call('echo', { headers: { 'content-type': 'text/plain' } })), [404, 'T0001', 'not-found'])
+  assert.deepEqual(await seen(call('nothing')), [404, 'F0001', 'not-found'])
+  assert.deepEqual(await seen(call('echo', { method: 'GET' })), [404, 'F0001', 'not-found'])
+  assert.deepEqual(await seen(call('echo', { method: 'PUT' })), [404, 'F0001', 'not-found'])
+  assert.deepEqual(await seen(call('echo', { headers: { 'content-type': 'text/plain' } })), [404, 'F0001', 'not-found'])
   assert.deepEqual(
     await seen(
       call('echo', { headers: { 'content-type': 'application/x-www-form-urlencoded' }, body: 'input=%7B%7D' }),
     ),
-    [404, 'T0001', 'not-found'],
+    [404, 'F0001', 'not-found'],
   )
-  assert.deepEqual(await seen(call('echo', { input: {} })), [400, 'T0002', 'bad-input'])
-  assert.deepEqual(await seen(call('echo', { body: '{ "input": ' })), [400, 'T0002', 'bad-input'])
-  assert.deepEqual(await seen(call('echo', { input: { text: 'x'.repeat(5000) } })), [413, 'T0003', 'too-large'])
-  assert.deepEqual(await seen(call('echo', { headers: { 'content-encoding': 'gzip' } })), [413, 'T0003', 'too-large'])
+  assert.deepEqual(await seen(call('echo', { input: {} })), [400, 'F0002', 'bad-input'])
+  assert.deepEqual(await seen(call('echo', { body: '{ "input": ' })), [400, 'F0002', 'bad-input'])
+  assert.deepEqual(await seen(call('echo', { input: { text: 'x'.repeat(5000) } })), [413, 'F0003', 'too-large'])
+  assert.deepEqual(await seen(call('echo', { headers: { 'content-encoding': 'gzip' } })), [413, 'F0003', 'too-large'])
   assert.deepEqual(await seen(call('echo', { headers: { origin: 'https://other.example' } })), [
     403,
-    'T0004',
+    'F0004',
     'wrong-origin',
   ])
-  assert.deepEqual(await seen(call('echo', { headers: { origin: 'null' } })), [403, 'T0004', 'wrong-origin'])
-  assert.deepEqual(await seen(call('countNotes')), [401, 'T0006', 'not-signed-in'])
-  assert.deepEqual(await seen(call('whoAmI', { version: 'a-version-that-never-was' })), [409, 'T0007', 'version-gone'])
-  assert.deepEqual(await seen(call('whoAmI', { version: '../../etc/passwd' })), [409, 'T0007', 'version-gone'])
-  assert.deepEqual(await seen(call('openSpin')), [500, 'T0008', 'took-too-long'])
-  assert.deepEqual(await seen(send(app, 'http://elsewhere.example/_t/call/whoAmI')), [421, 'T0017', 'wrong-name'])
-  // A call that names the running version is served by it, and T0007 names the running one.
+  assert.deepEqual(await seen(call('echo', { headers: { origin: 'null' } })), [403, 'F0004', 'wrong-origin'])
+  assert.deepEqual(await seen(call('countNotes')), [401, 'F0006', 'not-signed-in'])
+  assert.deepEqual(await seen(call('whoAmI', { version: 'a-version-that-never-was' })), [409, 'F0007', 'version-gone'])
+  assert.deepEqual(await seen(call('whoAmI', { version: '../../etc/passwd' })), [409, 'F0007', 'version-gone'])
+  assert.deepEqual(await seen(call('openSpin')), [500, 'F0008', 'took-too-long'])
+  assert.deepEqual(await seen(send(app, 'http://elsewhere.example/_f/call/whoAmI')), [421, 'F0017', 'wrong-name'])
+  // A call that names the running version is served by it, and F0007 names the running one.
   assert.deepEqual((await call('whoAmI', { version: bundle.versionId })).body, { ok: true, value: 'no user' })
   assert.equal((await call('whoAmI', { version: 'gone' })).error.running, bundle.versionId)
   // The request's own origin, and no origin at all, pass.
@@ -194,17 +194,17 @@ test('[21-14] [16-2] each code that has a status arrives with it, an own fail wi
   // The codes of the data, with the status that the door gives them.
   advance(60_000)
   const word = Object((await call('addWord', { input: { text: 'first' } })).body.value)
-  assert.deepEqual(await seen(call('addWord', { input: { text: 'first' } })), [409, 'T2101', 'not-unique'])
+  assert.deepEqual(await seen(call('addWord', { input: { text: 'first' } })), [409, 'F2101', 'not-unique'])
   const use = await call('useWord', { input: { word: word.id } })
   assert.equal(use.status, 200)
-  assert.deepEqual(await seen(call('dropWord', { input: { word: word.id } })), [409, 'T2102', 'link-in-use'])
+  assert.deepEqual(await seen(call('dropWord', { input: { word: word.id } })), [409, 'F2102', 'link-in-use'])
   assert.deepEqual(await seen(call('renameWord', { input: { word: 'no-such-row', text: 'x' } })), [
     404,
-    'T2103',
+    'F2103',
     'row-not-found',
   ])
-  assert.deepEqual(await seen(call('useWord', { input: { word: 'no-such-row' } })), [400, 'T2104', 'link-missing'])
-  assert.deepEqual(await seen(call('tagOpenly', { input: { name: 'x' } })), [403, 'T3101', 'access-denied'])
+  assert.deepEqual(await seen(call('useWord', { input: { word: 'no-such-row' } })), [400, 'F2104', 'link-missing'])
+  assert.deepEqual(await seen(call('tagOpenly', { input: { name: 'x' } })), [403, 'F3101', 'access-denied'])
 
   // An own fail arrives with the builder's code and words, and 400.
   const own = await call('openFail', { input: { title: 'late' } })
@@ -216,14 +216,14 @@ test('[21-14] [16-2] each code that has a status arrives with it, an own fail wi
     fields: { title: 'taken' },
   })
 
-  // Anything else is T0009 with a ref, which finds the error in the log: a code that has no status, and an error
+  // Anything else is F0009 with a ref, which finds the error in the log: a code that has no status, and an error
   // of the code of the app.
   for (const [name, code, words] of [
-    ['openRaw', 'T0013', /full access/],
-    ['openBreak', 'T0009', /hunter2/],
+    ['openRaw', 'F0013', /full access/],
+    ['openBreak', 'F0009', /hunter2/],
   ] as const) {
     const answer = await call(name)
-    assert.deepEqual([answer.status, answer.error.code, answer.error.name], [500, 'T0009', 'internal'], name)
+    assert.deepEqual([answer.status, answer.error.code, answer.error.name], [500, 'F0009', 'internal'], name)
     assert.match(String(answer.error.ref), /^[0-9a-z]{8}$/, name)
     const row = logRows(dataFolder, 'calls').findLast((one) => one.name === name)
     assert.deepEqual([row?.code, row?.ref], [code, answer.error.ref], name)
@@ -231,11 +231,11 @@ test('[21-14] [16-2] each code that has a status arrives with it, an own fail wi
     assert.match(String(kept?.message), words, name)
   }
 
-  // T0005: one call more in a minute than a caller who is nobody may make from one address.
+  // F0005: one call more in a minute than a caller who is nobody may make from one address.
   advance(60_000)
   for (let i = 0; i < 30; i++) assert.equal((await call('whoAmI', { from: '203.0.113.5' })).status, 200, `call ${i}`)
-  assert.deepEqual(await seen(call('whoAmI', { from: '203.0.113.5' })), [429, 'T0005', 'rate-limited'])
-  assert.deepEqual(await seen(call('nothing', { from: '203.0.113.5' })), [429, 'T0005', 'rate-limited'])
+  assert.deepEqual(await seen(call('whoAmI', { from: '203.0.113.5' })), [429, 'F0005', 'rate-limited'])
+  assert.deepEqual(await seen(call('nothing', { from: '203.0.113.5' })), [429, 'F0005', 'rate-limited'])
   // Another address has a count of its own, and so has an address of the newer kind in another network.
   assert.equal((await call('whoAmI', { from: '203.0.113.6' })).status, 200)
   for (let i = 0; i < 30; i++) assert.equal((await call('whoAmI', { from: '2001:db8:1:2::5' })).status, 200)
@@ -258,25 +258,25 @@ test('[21-16] in the mode live an error answer holds no fix and only the general
     const app = await engine.open(bundle.folder, { dataFolder, mode })
     const origin = `http://localhost:${portOf(dataFolder)}`
     answers[mode] = {
-      rule: (await send(app, `${origin}/_t/call/countNotes`)).error,
-      input: (await send(app, `${origin}/_t/call/echo`, { input: { text: 5 } })).error,
-      broke: (await send(app, `${origin}/_t/call/openBreak`)).error,
-      raw: (await send(app, `${origin}/_t/call/openRaw`)).error,
-      own: (await send(app, `${origin}/_t/call/openFail`, { input: { title: 'late' } })).error,
-      missing: (await send(app, `${origin}/_t/call/nothing`)).error,
+      rule: (await send(app, `${origin}/_f/call/countNotes`)).error,
+      input: (await send(app, `${origin}/_f/call/echo`, { input: { text: 5 } })).error,
+      broke: (await send(app, `${origin}/_f/call/openBreak`)).error,
+      raw: (await send(app, `${origin}/_f/call/openRaw`)).error,
+      own: (await send(app, `${origin}/_f/call/openFail`, { input: { title: 'late' } })).error,
+      missing: (await send(app, `${origin}/_f/call/nothing`)).error,
     }
   }
   const { live, test: onTest, development } = answers
 
   // On live data: the code, its name, and the general sentence of the code. No fix, no place, nothing of the app.
-  assert.deepEqual(live.rule, { code: 'T0006', name: 'not-signed-in', message: 'You need to sign in.' })
+  assert.deepEqual(live.rule, { code: 'F0006', name: 'not-signed-in', message: 'You need to sign in.' })
   assert.deepEqual(live.input, {
-    code: 'T0002',
+    code: 'F0002',
     name: 'bad-input',
     message: 'What was sent does not fit.',
     fields: { text: 'type' },
   })
-  assert.deepEqual(live.missing, { code: 'T0001', name: 'not-found', message: 'This was not found.' })
+  assert.deepEqual(live.missing, { code: 'F0001', name: 'not-found', message: 'This was not found.' })
   assert.deepEqual(Object.keys(live.broke).sort(), ['code', 'message', 'name', 'ref', 'trace'])
   assert.equal(live.broke.message, 'Something went wrong.')
   assert.equal(live.raw.message, 'Something went wrong.')
@@ -300,7 +300,7 @@ test('[21-16] in the mode live an error answer holds no fix and only the general
     assert.match(String(held.broke.message), /hunter2/)
     assert.match(String(held.raw.message), /full access/)
     assert.equal(typeof held.raw.fix, 'string')
-    assert.deepEqual([held.broke.code, held.raw.code], ['T0009', 'T0009'])
+    assert.deepEqual([held.broke.code, held.raw.code], ['F0009', 'F0009'])
   }
 })
 
@@ -331,7 +331,7 @@ function overTheWire(
   })
 }
 
-test('[21-18] a request that names a host the app was not given is refused with T0017, and with no address only the names of this computer are answered', async (t) => {
+test('[21-18] a request that names a host the app was not given is refused with F0017, and with no address only the names of this computer are answered', async (t) => {
   const work = workFolder(t)
   const bundle = await bundled(t, {}, work)
   const engine = engineOf(t)
@@ -344,7 +344,7 @@ test('[21-18] a request that names a host the app was not given is refused with 
   const plain = await open('plain')
   const port = portOf(join(work, 'plain'))
   const health = async (app: typeof plain, address: string) => {
-    const answer = await send(app, `${address}/_t/health`, { method: 'GET' })
+    const answer = await send(app, `${address}/_f/health`, { method: 'GET' })
     return answer.status === 200 ? answer.body : [answer.status, answer.error.code]
   }
   const ready = { ok: true, value: { app: 'desk', version: bundle.versionId } }
@@ -360,19 +360,19 @@ test('[21-18] a request that names a host the app was not given is refused with 
     `127.0.0.2:${port}`,
     'shop.example',
   ])
-    assert.deepEqual(await health(plain, `http://${name}`), [421, 'T0017'], name)
+    assert.deepEqual(await health(plain, `http://${name}`), [421, 'F0017'], name)
   // It is refused before anything else is looked at: the same answer for a call, whatever it asks for.
-  const call = await send(plain, `http://evil.example:${port}/_t/call/nothing`, {
+  const call = await send(plain, `http://evil.example:${port}/_f/call/nothing`, {
     headers: { origin: 'https://evil.example' },
   })
-  assert.deepEqual([call.status, call.error.code], [421, 'T0017'])
+  assert.deepEqual([call.status, call.error.code], [421, 'F0017'])
 
   // With names of its own an app answers on those, each with its port where it states one, and not as this computer.
   const shop = await open('shop', ['shop.example', 'www.shop.example:8443'])
   for (const name of ['shop.example', 'www.shop.example:8443', 'SHOP.example'])
     assert.deepEqual(await health(shop, `https://${name}`), ready, name)
   for (const name of [`localhost:${port}`, 'www.shop.example', 'shop.example:8443', 'shop.example.evil.example'])
-    assert.deepEqual(await health(shop, `http://${name}`), [421, 'T0017'], name)
+    assert.deepEqual(await health(shop, `http://${name}`), [421, 'F0017'], name)
   // `'*'` answers every name.
   const every = await open('every', '*')
   for (const name of ['anything.example', `localhost:${port}`, '10.1.2.3:99'])
@@ -382,17 +382,17 @@ test('[21-18] a request that names a host the app was not given is refused with 
   await every.close()
   await shop.call('addWord', { text: 'of the shop' }, { as: system })
   const post = { method: 'POST', body: '{"input":{}}', headers: { 'content-type': 'application/json' } }
-  const own = await overTheWire(port, `localhost:${port}`, '/_t/call/words', post)
-  assert.deepEqual([own.status, Object(own.body.error).code], [404, 'T0001'])
-  assert.deepEqual((await overTheWire(port, `localhost:${port}`, '/_t/health')).body, ready)
-  assert.equal((await overTheWire(port, 'shop.example', '/_t/health')).status, 200)
-  const strange = await overTheWire(port, 'nobody.example', '/_t/health')
-  assert.deepEqual([strange.status, Object(strange.body.error).code], [421, 'T0017'])
-  const calling = await overTheWire(port, 'nobody.example', '/_t/call/wordList', post)
-  assert.deepEqual([calling.status, Object(calling.body.error).code], [421, 'T0017'])
-  const listed = await overTheWire(port, 'shop.example', '/_t/call/wordList', post)
+  const own = await overTheWire(port, `localhost:${port}`, '/_f/call/words', post)
+  assert.deepEqual([own.status, Object(own.body.error).code], [404, 'F0001'])
+  assert.deepEqual((await overTheWire(port, `localhost:${port}`, '/_f/health')).body, ready)
+  assert.equal((await overTheWire(port, 'shop.example', '/_f/health')).status, 200)
+  const strange = await overTheWire(port, 'nobody.example', '/_f/health')
+  assert.deepEqual([strange.status, Object(strange.body.error).code], [421, 'F0017'])
+  const calling = await overTheWire(port, 'nobody.example', '/_f/call/wordList', post)
+  assert.deepEqual([calling.status, Object(calling.body.error).code], [421, 'F0017'])
+  const listed = await overTheWire(port, 'shop.example', '/_f/call/wordList', post)
   assert.deepEqual([listed.status, listed.body], [200, { ok: true, value: ['of the shop'] }])
-  assert.deepEqual((await overTheWire(port, `127.0.0.1:${port}`, '/_t/call/wordList', post)).body, {
+  assert.deepEqual((await overTheWire(port, `127.0.0.1:${port}`, '/_f/call/wordList', post)).body, {
     ok: true,
     value: [],
   })
@@ -409,7 +409,7 @@ test('[21-21a] behind a named proxy the address, the scheme and the host of a re
     change: (description) => Object.assign(description.project, { limits }),
   })
   const full = async (r: typeof proxied, o: Parameters<typeof send>[2]) =>
-    (await send(r.app, `${r.origin}/_t/call/whoAmI`, o)).status
+    (await send(r.app, `${r.origin}/_f/call/whoAmI`, o)).status
   // Three calls are taken from one address in a minute, and the fourth is not: so a count tells whose a request is.
   const fills = async (r: typeof proxied, o: Parameters<typeof send>[2]) => {
     const seen: number[] = []
@@ -468,7 +468,7 @@ test('[21-21a] behind a named proxy the address, the scheme and the host of a re
     open: { address: ['shop.example'] },
   })
   const asShop = (headers: Record<string, string>, from = '10.1.2.3') =>
-    send(standard.app, `http://localhost:${standard.port}/_t/call/whoAmI`, { from, headers })
+    send(standard.app, `http://localhost:${standard.port}/_f/call/whoAmI`, { from, headers })
   const line = (n: number, more = '') =>
     `for=198.51.100.9, for="203.0.113.${n}:4711";proto=https;host=shop.example${more}, for=10.9.9.9`
   const first = await asShop({ forwarded: line(50), origin: 'https://shop.example' })
@@ -490,9 +490,9 @@ test('[21-21a] behind a named proxy the address, the scheme and the host of a re
     403,
   )
   // The forwarded host is read with `host: true`, from a named proxy alone.
-  assert.equal((await asShop({ forwarded: 'for=203.0.113.55;host=other.example' })).error.code, 'T0017')
-  assert.equal((await asShop({ forwarded: 'for=203.0.113.56' })).error.code, 'T0017')
-  assert.equal((await asShop({ forwarded: line(57) }, '198.51.100.4')).error.code, 'T0017')
+  assert.equal((await asShop({ forwarded: 'for=203.0.113.55;host=other.example' })).error.code, 'F0017')
+  assert.equal((await asShop({ forwarded: 'for=203.0.113.56' })).error.code, 'F0017')
+  assert.equal((await asShop({ forwarded: line(57) }, '198.51.100.4')).error.code, 'F0017')
 
   // A query that groups by a `private` column, in a description written by hand, is refused to a limited caller,
   // and answers the system without that field.
@@ -507,7 +507,7 @@ test('[21-21a] behind a named proxy the address, the scheme and the host of a re
   const ada = await addUser(grouped.app, 'Ada', [], 5000)
   await addUser(grouped.app, 'Bob', [], 5000)
   await addUser(grouped.app, 'Cy', [], 4000)
-  await assert.rejects(grouped.app.call('byPay', {}, { as: ada }), { code: 'T0013' })
+  await assert.rejects(grouped.app.call('byPay', {}, { as: ada }), { code: 'F0013' })
   for (const caller of [system]) {
     const groups = await grouped.app.call('byPay', {}, { as: caller })
     assert.ok(Array.isArray(groups) && groups.length === 2)
@@ -554,7 +554,7 @@ test('[21-21a] a hundred and one connections through a named proxy are all taken
   let tries = 0
   for (; tries < 100 && status !== 200; tries++) {
     if (tries) await new Promise((done) => setTimeout(done, 50))
-    status = await overTheWire(direct.port, `localhost:${direct.port}`, '/_t/health').then(
+    status = await overTheWire(direct.port, `localhost:${direct.port}`, '/_f/health').then(
       (answered) => answered.status,
       () => 0,
     )
@@ -569,7 +569,7 @@ test('[21-2] malformed and oversized JSON never reaches the code of the app', as
         limits: { functionDepth: 6, callSize: 20_000, anyonePerMinute: 1_000_000 },
       }),
   })
-  const call = (body: string | Uint8Array<ArrayBuffer>) => send(app, `${origin}/_t/call/echo`, { body })
+  const call = (body: string | Uint8Array<ArrayBuffer>) => send(app, `${origin}/_f/call/echo`, { body })
   const ran = () => logRows(dataFolder, 'lines').length
   const refusedAs = async (body: string | Uint8Array<ArrayBuffer>, code: string, what: string) => {
     const before = ran()
@@ -581,29 +581,29 @@ test('[21-2] malformed and oversized JSON never reaches the code of the app', as
   // What the web side itself holds a body to.
   const nested = (depth: number) => `{"input":{"text":"x","deep":${'['.repeat(depth)}${']'.repeat(depth)}}}`
   assert.equal((await call(nested(62))).status, 200)
-  await refusedAs(nested(63), 'T0002', 'a value that nests 65 deep')
-  await refusedAs(nested(5000), 'T0002', 'a value that nests five thousand deep')
-  await refusedAs('{"input":{"text":"x","__proto__":{"n":1}}}', 'T0002', 'a key named __proto__')
-  await refusedAs('{"input":{"text":"x","deep":{"__proto__":1}}}', 'T0002', 'a key named __proto__, deeper')
-  await refusedAs('{"input":{"text":"x","text":"y"}}', 'T0002', 'two keys of one name')
-  await refusedAs('{"input":{"text":"x"},"input":{"text":"y"}}', 'T0002', 'two keys of one name at the top')
-  await refusedAs('{"input":{"text":"x","n":1e999}}', 'T0002', 'a number that is not finite once it is read')
-  await refusedAs('{"input":{"text":"x","n":-1e999}}', 'T0002', 'a number below every number')
-  await refusedAs('{"input":{"text":"\\ud83d"}}', 'T0002', 'half of a character, written out')
+  await refusedAs(nested(63), 'F0002', 'a value that nests 65 deep')
+  await refusedAs(nested(5000), 'F0002', 'a value that nests five thousand deep')
+  await refusedAs('{"input":{"text":"x","__proto__":{"n":1}}}', 'F0002', 'a key named __proto__')
+  await refusedAs('{"input":{"text":"x","deep":{"__proto__":1}}}', 'F0002', 'a key named __proto__, deeper')
+  await refusedAs('{"input":{"text":"x","text":"y"}}', 'F0002', 'two keys of one name')
+  await refusedAs('{"input":{"text":"x"},"input":{"text":"y"}}', 'F0002', 'two keys of one name at the top')
+  await refusedAs('{"input":{"text":"x","n":1e999}}', 'F0002', 'a number that is not finite once it is read')
+  await refusedAs('{"input":{"text":"x","n":-1e999}}', 'F0002', 'a number below every number')
+  await refusedAs('{"input":{"text":"\\ud83d"}}', 'F0002', 'half of a character, written out')
   await refusedAs(
     new Uint8Array([...Buffer.from('{"input":{"text":"'), 0xf0, 0x9f, ...Buffer.from('"}}')]),
-    'T0002',
+    'F0002',
     'half of a character, in bytes',
   )
-  await refusedAs('{"input":{"text":"x"}} {"input":{}}', 'T0002', 'two values')
-  await refusedAs('', 'T0002', 'no body at all')
-  await refusedAs('[]', 'T0002', 'a body that is no record')
-  await refusedAs('{"input":[]}', 'T0002', 'an input that is no record')
-  await refusedAs(`{"input":{"text":"${'x'.repeat(20_000)}"}}`, 'T0003', 'one byte over the size')
+  await refusedAs('{"input":{"text":"x"}} {"input":{}}', 'F0002', 'two values')
+  await refusedAs('', 'F0002', 'no body at all')
+  await refusedAs('[]', 'F0002', 'a body that is no record')
+  await refusedAs('{"input":[]}', 'F0002', 'an input that is no record')
+  await refusedAs(`{"input":{"text":"${'x'.repeat(20_000)}"}}`, 'F0003', 'one byte over the size')
   const most = `{"input":{"text":"${'x'.repeat(20_000 - 21)}"}}`
   assert.equal(Buffer.byteLength(most), 20_000)
   assert.equal((await call(most)).status, 200)
-  assert.equal((await call(`${most} `)).error.code, 'T0003')
+  assert.equal((await call(`${most} `)).error.code, 'F0003')
 
   // Broken JSON made from a fixed seed: each is refused, or is whole and reaches the function as it was sent.
   let seed = 20261013
@@ -664,7 +664,7 @@ test('[21-2] malformed and oversized JSON never reaches the code of the app', as
       assert.equal(ran(), before + 1, text)
     } else {
       refused++
-      assert.ok(['T0002', 'T0003'].includes(String(answer.error.code)), `${text} was answered ${answer.error.code}`)
+      assert.ok(['F0002', 'F0003'].includes(String(answer.error.code)), `${text} was answered ${answer.error.code}`)
       assert.equal(answer.status === 400 || answer.status === 413, true, text)
       assert.equal(ran(), before, text)
     }

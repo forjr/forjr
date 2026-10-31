@@ -1,7 +1,7 @@
 import { randomBytes } from 'node:crypto'
 import { existsSync, mkdirSync, readdirSync, renameSync, rmSync } from 'node:fs'
 import { dirname, join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { FileName, Store } from '../../data/index.ts'
 import { NotReady } from '../../data/index.ts'
 import type { Reached } from '../copy/reach.ts'
@@ -21,12 +21,12 @@ export type FetchFile = (file: FileName, to: string) => Promise<void>
 
 /** The address of one tenant's file among the addresses of the link. */
 export const fileAddress = (file: FileName): string =>
-  `/_t/copy/data?table=${encodeURIComponent(file.table)}&id=${encodeURIComponent(file.id)}`
+  `/_f/copy/data?table=${encodeURIComponent(file.table)}&id=${encodeURIComponent(file.id)}`
 
 /**
  * Takes what reaches the writer, its address, and the key of this reader. Answers what fetches the bytes of one
- * tenant's file into a file, piece by piece. It throws T0001 where the writer holds no file of that tenant, and
- * T0029 where the writer is not reached or the file did not arrive whole: no half file is left then.
+ * tenant's file into a file, piece by piece. It throws F0001 where the writer holds no file of that tenant, and
+ * F0029 where the writer is not reached or the file did not arrive whole: no half file is left then.
  */
 export function fetching(reached: Reached, address: string, key: string): FetchFile {
   return async (file, to) => {
@@ -37,12 +37,12 @@ export function fetching(reached: Reached, address: string, key: string): FetchF
       answer = await reached.request(new Request(`${address}${fileAddress(file)}`, { headers }))
       if (answer.status === 404) {
         await answer.body?.cancel()
-        throw new TentError('T0001', `The writer holds no data file of ${file.table} ${file.id}.`)
+        throw new ForjrError('F0001', `The writer holds no data file of ${file.table} ${file.id}.`)
       }
       arrived = await writtenTo(answer, to)
     } catch (error) {
       rmSync(to, { force: true })
-      if (error instanceof TentError) throw error
+      if (error instanceof ForjrError) throw error
       throw notReached(address, error instanceof Error ? error.message : String(error))
     }
     const length = Number(answer.headers.get('content-length') ?? Number.NaN)
@@ -104,15 +104,15 @@ export async function fetchNow(
 /**
  * Takes what the engine holds of an app, its files and one tenant's file. Answers the bytes of a snapshot of
  * that file, made under `tenants/.tmp/` and removed again. A file that is behind or unswept is made ready first.
- * Throws T0001 for a tenant with no file.
+ * Throws F0001 for a tenant with no file.
  */
 export async function tenantFileCopy(
   o: Opened,
   tenantFiles: TenantFiles,
   file: FileName,
 ): Promise<{ copy: string; remove(): void }> {
-  const none = (): TentError =>
-    new TentError('T0001', 'No data file stands under that table and that id.', {
+  const none = (): ForjrError =>
+    new ForjrError('F0001', 'No data file stands under that table and that id.', {
       fix: 'A reader asks for the files that the directory of its writer names.',
     })
   let store: Store | undefined
@@ -175,7 +175,7 @@ export async function fetchFiles(
           await fetch(file, path)
         } catch (error) {
           // A tenant that was removed meanwhile has no file any more: the change that says so follows.
-          if (error instanceof TentError && error.code === 'T0001') continue
+          if (error instanceof ForjrError && error.code === 'F0001') continue
           throw error
         }
         const store = make()

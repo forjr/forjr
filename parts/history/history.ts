@@ -7,7 +7,7 @@ import type { TurnRow } from './turns.ts'
 export interface History {
   /** Records the files of a project as they are, as one point, and moves `now` to it. */
   record(project: string, o: Recording): Point
-  /** Writes what this computer found of a point that exists: none of the three is part of its id. Throws T9107 for a point that is not there. */
+  /** Writes what this computer found of a point that exists: none of the three is part of its id. Throws F9107 for a point that is not there. */
   mark(point: string, o: Pick<Recording, 'checked' | 'description' | 'note'>): void
   /** The point of an id, and the bytes of a fingerprint. Nothing where the history holds none. */
   read(point: string): Point | undefined
@@ -16,11 +16,11 @@ export interface History {
   find(word: string): Point | undefined
   /** The points along the first parents, newest first. */
   list(o?: { pointer?: string; kinds?: Kind[]; newest?: number }): Point[]
-  /** What a pointer holds; a pointer set, which throws T9107 for a point that is not there; and every pointer. */
+  /** What a pointer holds; a pointer set, which throws F9107 for a point that is not there; and every pointer. */
   pointer(name: string): string | undefined
   move(name: string, to: string): void
   pointers(): Record<string, string>
-  /** The changes from one point to another, in the terms of the app. Throws T9107 for a point that is not there or was dropped. */
+  /** The changes from one point to another, in the terms of the app. Throws F9107 for a point that is not there or was dropped. */
   compare(a: string, b: string): Change[]
   /** What a point changed against its first parent, as it was kept when it was recorded; nothing where none is kept. */
   changesOf(point: string): Change[] | undefined
@@ -28,11 +28,11 @@ export interface History {
   changesBetween(from: string, to: string): Change[][] | undefined
   /** The newest point that changed a definition, a column or a step of that name, from the row kept for it. */
   changedBy(name: string): string | undefined
-  /** Records the present, writes the files of a point, and records a point of the kind `back`. Throws T9107 for a point that is not there or was dropped. */
+  /** Records the present, writes the files of a point, and records a point of the kind `back`. Throws F9107 for a point that is not there or was dropped. */
   back(project: string, point: string, by: Writer): Point
-  /** Makes a branch at a point, `now` where none is named. Throws T0002 for a name that cannot name one, or names one already. */
+  /** Makes a branch at a point, `now` where none is named. Throws F0002 for a name that cannot name one, or names one already. */
   branch(name: string, from?: string): void
-  /** Records the present, writes the files of a branch, and follows it. Throws T9107 for a branch that is not there. */
+  /** Records the present, writes the files of a branch, and follows it. Throws F9107 for a branch that is not there. */
   switch(project: string, name: string, by: Writer): Point
   /** Merges a point or a branch into the files of the project. With `dry` it answers what it would do, and changes nothing. */
   merge(
@@ -41,17 +41,17 @@ export interface History {
     by: Writer,
     o?: { dry?: boolean },
   ): { point?: Point; changes: Change[]; clashes: Clash[] }
-  /** Records the settled point of a merge with clashes. Throws T9102 while `tent.clash.ts` or a `.theirs` file is there. */
+  /** Records the settled point of a merge with clashes. Throws F9102 while `forjr.clash.ts` or a `.theirs` file is there. */
   settle(project: string, by: Writer): Point
   /** Which of the named points and blobs are here. */
   have(o: { points: string[]; blobs: string[] }): { points: string[]; blobs: string[] }
-  /** Stores blobs and points of another history, each fingerprint and each id checked: T9107 for one that does not fit. */
+  /** Stores blobs and points of another history, each fingerprint and each id checked: F9107 for one that does not fit. */
   take(o: { blobs?: Record<string, Uint8Array>; points?: Point[] }): void
-  /** Writes the files of a point into a folder. Throws T9107 for a point that is not there or was dropped. */
+  /** Writes the files of a point into a folder. Throws F9107 for a point that is not there or was dropped. */
   write(point: string, folder: string): void
   /** Drops the points that are older than they are kept, and the blobs that no point names any more. */
   tidy(now: number, o: { kept: number }): { points: number; blobs: number }
-  /** Writes points as commits into a folder, with the `git` program of the computer. Throws T0013 where there is none. */
+  /** Writes points as commits into a folder, with the `git` program of the computer. Throws F0013 where there is none. */
   exportGit(folder: string, o?: { kinds?: Kind[] }): { commits: number }
   /** Writes the row of a turn of an agent that builds, in the place of the one of its id. */
   turn(row: TurnRow): void

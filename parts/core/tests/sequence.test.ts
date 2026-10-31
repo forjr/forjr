@@ -220,26 +220,26 @@ test('[27-18] sequenceShape holds a read sequence and refuses what a sequence ma
 const checked = (body: object[], agentName = 'helper') =>
   checkSequence(description, agentName, body).map((one) => `${one.code} ${one.message}`)
 
-test('[27-18] checkSequence refuses what is sure to fail, each T7121 with its line and the two lines of the tool: a field the answer lacks, a missing field, a field the tool does not take, a text for a number, and a text that is no value of a choice', () => {
+test('[27-18] checkSequence refuses what is sure to fail, each F7121 with its line and the two lines of the tool: a field the answer lacks, a missing field, a field the tool does not take, a text for a number, and a text that is no value of a choice', () => {
   assert.deepEqual(checked(late), [])
   const looped = (statement: object) => [
     { const: 'open', value: called('myOrders', record()), line: 1 },
     { for: 'o', of: named('open'), do: [{ ...statement, line: 3 }], line: 2 },
   ]
   const [colour] = checked(looped({ return: named('o', 'colour') }))
-  assert.match(colour ?? '', /^T7121 .*`colour`.*line 3/)
+  assert.match(colour ?? '', /^F7121 .*`colour`.*line 3/)
   const [missing] = checked(looped({ do: called('refund', record()) }))
-  assert.match(missing ?? '', /^T7121 .*`order`.*line 3/)
+  assert.match(missing ?? '', /^F7121 .*`order`.*line 3/)
   assert.ok(missing?.includes('\nrefund(order: id of orders) -> { refund: id of refunds }\n  '), missing)
   const [more] = checked(looped({ do: called('refund', record(['order', named('o', 'id')], ['amount', 5])) }))
-  assert.match(more ?? '', /^T7121 .*`amount`/)
+  assert.match(more ?? '', /^F7121 .*`amount`/)
   const [wrongKind] = checked([{ return: called('myOrders', record(['limit', 'ten'])), line: 1 }])
-  assert.match(wrongKind ?? '', /^T7121 .*`limit`.*line 1/)
+  assert.match(wrongKind ?? '', /^F7121 .*`limit`.*line 1/)
   const [noValue] = checked([{ return: called('myOrders', record(['status', 'late'])), line: 1 }])
-  assert.match(noValue ?? '', /^T7121 .*`status`/)
+  assert.match(noValue ?? '', /^F7121 .*`status`/)
 })
 
-test('[27-18] checkSequence says nothing of a value that may be nothing, length of a list, a read into a json answer and a place of a list; a name that is none of the table is T7121, and so is fill on a model without typedAnswers', () => {
+test('[27-18] checkSequence says nothing of a value that may be nothing, length of a list, a read into a json answer and a place of a list; a name that is none of the table is F7121, and so is fill on a model without typedAnswers', () => {
   const quiet = [
     { const: 'open', value: called('myOrders', record()), line: 1 },
     { const: 'first', value: named('open', 0), line: 2 },
@@ -249,10 +249,10 @@ test('[27-18] checkSequence says nothing of a value that may be nothing, length 
   ]
   assert.deepEqual(checked(quiet), [])
   const [none] = checked([{ return: called('nothing', record()), line: 1 }])
-  assert.match(none ?? '', /^T7121 .*`nothing`/)
+  assert.match(none ?? '', /^F7121 .*`nothing`/)
   const fill = [{ return: { await: { fn: 'fill', args: [{ type: { kind: 'boolean' } }, 'Late?'] } }, line: 1 }]
   assert.deepEqual(checked(fill), [])
-  assert.match(checked(fill, 'asking')[0] ?? '', /^T7121 .*`fill`/)
+  assert.match(checked(fill, 'asking')[0] ?? '', /^F7121 .*`fill`/)
 })
 
 test('[27-18] walkSequence lists the calls whose input is known, with the names of their steps and whether they ask, passes over one whose input is not known, and says more', () => {

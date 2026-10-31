@@ -1,6 +1,6 @@
 import type { Message } from '../face.ts'
 import type { Asking } from './ask.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { toJsonSchema } from '../../core/internal.ts'
 import { valueSoFar } from './growing.ts'
 import { misfitOf, typeOfShape, valueOfAnswer, written } from './writing.ts'
@@ -78,7 +78,7 @@ export function streamed(
 /**
  * A stream with a `shape`: parts of `{ value, text }`, each the whole value so far as the text so far reads, and no
  * part but the last checked. The last is the answer, read and checked as `fill` checks one: one that does not fit
- * ends the stream with T7108, after the parts that were given, and goes to no second model.
+ * ends the stream with F7108, after the parts that were given, and goes to no second model.
  */
 function shaped(
   asking: Asking,
@@ -110,7 +110,7 @@ function shaped(
     const value = valueOfAnswer(end)
     const miss = misfitOf(type, value)
     if (miss !== undefined)
-      throw new TentError('T7108', `The answer of the model ${end.by} did not fit its shape: ${miss}`, {
+      throw new ForjrError('F7108', `The answer of the model ${end.by} did not fit its shape: ${miss}`, {
         fix: 'Write a shape that the model can fill, or ask a model that keeps to it.',
       })
     queue.put({ value, text: end.text })

@@ -27,12 +27,12 @@ test('[21-24@9d] an app that has no python loads nothing of the Python program, 
   rmSync(folder, { recursive: true, force: true })
   mkdirSync(folder, { recursive: true })
   const stand = await pythonStandIn(t, [...testPackages(), numberish])
-  const saved = { home: process.env.TENT_HOME, parts: process.env.TENT_PARTS }
-  process.env.TENT_HOME = mkdtempSync(join(folder, 'home-'))
-  process.env.TENT_PARTS = stand.parts
+  const saved = { home: process.env.FORJR_HOME, parts: process.env.FORJR_PARTS }
+  process.env.FORJR_HOME = mkdtempSync(join(folder, 'home-'))
+  process.env.FORJR_PARTS = stand.parts
   t.after(() => {
-    process.env.TENT_HOME = saved.home
-    process.env.TENT_PARTS = saved.parts
+    process.env.FORJR_HOME = saved.home
+    process.env.FORJR_PARTS = saved.parts
   })
   const engine = createEngine({ port: 0 })
   t.after(async () => {
@@ -55,10 +55,10 @@ test('[21-24@9d] an app that has no python loads nothing of the Python program, 
   const project = join(folder, 'pythonCalls')
   cpSync(join(import.meta.dirname, 'pythonCalls'), project, { recursive: true })
   // An idle Python program is ended after ten minutes here: what ends it within the test is the app's sleep.
-  const tent = join(project, 'tent.ts')
+  const forjr = join(project, 'forjr.ts')
   writeFileSync(
-    tent,
-    readFileSync(tent, 'utf8').replace("pythonStopAfter: '3 seconds'", "pythonStopAfter: '10 minutes'"),
+    forjr,
+    readFileSync(forjr, 'utf8').replace("pythonStopAfter: '3 seconds'", "pythonStopAfter: '10 minutes'"),
   )
   const locked = await typed(project, 'python', 'lock')
   assert.equal(locked.ended, 0, locked.printed)

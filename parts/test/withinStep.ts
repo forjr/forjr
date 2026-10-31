@@ -1,10 +1,10 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Browsed } from '../engine/index.ts'
 
 /**
  * Takes the browser of a page of a test and the longest a step may take, in milliseconds. Answers the same browser,
  * whose every answer is waited for that long at most: a page that holds its browser, as a question of the browser's
- * own that nobody answers does, fails the step with T0008, naming what the browser did not answer.
+ * own that nobody answers does, fails the step with F0008, naming what the browser did not answer.
  */
 export function withinStep(browsed: Browsed, step: number): Browsed {
   const bounded =
@@ -15,7 +15,7 @@ export function withinStep(browsed: Browsed, step: number): Browsed {
         timer = setTimeout(
           () =>
             failed(
-              new TentError('T0008', `The browser did not answer ${what} within ${step / 1000} seconds.`, {
+              new ForjrError('F0008', `The browser did not answer ${what} within ${step / 1000} seconds.`, {
                 fix: 'Look at what the page holds that holds its browser: a question of the browser, as `alert` asks, which nobody answers. `limits.testStep` bounds a step.',
               }),
             ),

@@ -1,4 +1,4 @@
-import { number, table, text, where } from 'tentjs'
+import { number, table, text, where } from 'forjr'
 
 // MARKER-COMMENT-OF-THE-TABLE-FILE-0123456789
 export const ledgerOfMARKERTABLE = table('ledgerOfMARKERTABLE', {

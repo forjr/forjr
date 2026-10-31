@@ -1,4 +1,4 @@
-import { anyone, boolean, link, list, number, project, role, table, text, vector } from 'tentjs'
+import { anyone, boolean, link, list, number, project, role, table, text, vector } from 'forjr'
 
 export const desk = project('desk', {
   settings: { shopName: { type: text({ default: 'The desk' }) } },

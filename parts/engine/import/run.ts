@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto'
 import { appendFileSync, existsSync, mkdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { dirname } from 'node:path'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { FileName, Tx, Writing } from '../../data/index.ts'
 import type { CallContext, Written } from '../context.ts'
 import { called } from '../door/call.ts'
@@ -73,14 +73,14 @@ interface Refusal {
 
 /** What a refusal of the engine says of a record: the first field that it names, and its words. */
 function refusalOf(error: unknown, line: string): Refusal {
-  if (!(error instanceof TentError)) throw error
+  if (!(error instanceof ForjrError)) throw error
   const fields = Object.keys(error.fields ?? {})
   return { line, field: fields[0] ?? '', why: error.message }
 }
 
 /** Reads the place of an import, or nothing for one that has not begun. */
 function placeOf(o: Opened, print: string): Place | undefined {
-  const held = o.store.read({ from: '_t_meta', one: 'get', id: placeKey(print) }, system).value
+  const held = o.store.read({ from: '_f_meta', one: 'get', id: placeKey(print) }, system).value
   const value: unknown = Reflect.get(Object(held), 'value')
   return isPlace(value) ? value : undefined
 }
@@ -88,14 +88,14 @@ function placeOf(o: Opened, print: string): Place | undefined {
 /** Writes the place of an import inside a write, or takes it away once the import has ended. */
 function setPlace(tx: Tx, print: string, place: Place | undefined): void {
   const key = placeKey(print)
-  const there = tx.read({ from: '_t_meta', one: 'get', id: key }, system) !== undefined
+  const there = tx.read({ from: '_f_meta', one: 'get', id: key }, system) !== undefined
   if (place === undefined) {
-    if (there) tx.remove('_t_meta', key, system)
-  } else if (there) tx.change('_t_meta', key, { value: place }, system)
-  else tx.add('_t_meta', { key, value: place }, system)
+    if (there) tx.remove('_f_meta', key, system)
+  } else if (there) tx.change('_f_meta', key, { value: place }, system)
+  else tx.add('_f_meta', { key, value: place }, system)
 }
 
-/** The key of `_t_meta` under which a data file keeps the last record of an import that was written into it. */
+/** The key of `_f_meta` under which a data file keeps the last record of an import that was written into it. */
 const lastKey = (print: string): string => `imported.${print}`
 
 /**
@@ -104,11 +104,11 @@ const lastKey = (print: string): string => `imported.${print}`
  * written before a stop, and the write is to be undone.
  */
 function writtenBefore(tx: Tx, print: string, at: number): boolean {
-  const held: unknown = tx.read({ from: '_t_meta', one: 'get', id: lastKey(print) }, system)
+  const held: unknown = tx.read({ from: '_f_meta', one: 'get', id: lastKey(print) }, system)
   const last: unknown = Reflect.get(Object(held), 'value')
   if (typeof last === 'number' && last >= at) return true
-  if (held === undefined) tx.add('_t_meta', { key: lastKey(print), value: at }, system)
-  else tx.change('_t_meta', lastKey(print), { value: at }, system)
+  if (held === undefined) tx.add('_f_meta', { key: lastKey(print), value: at }, system)
+  else tx.change('_f_meta', lastKey(print), { value: at }, system)
   return false
 }
 
@@ -233,7 +233,7 @@ export async function importRecords(o: Opened, job: ImportJob): Promise<Imported
         for (const record of job.records) {
           const one = recordInput(record, fields, job.reading)
           try {
-            if ('why' in one) throw new TentError('T0002', one.why, { fields: { [one.field]: 'type' } })
+            if ('why' in one) throw new ForjrError('F0002', one.why, { fields: { [one.field]: 'type' } })
             call(cx, one.input)
             place.imported++
           } catch (error) {
@@ -273,7 +273,7 @@ export async function importRecords(o: Opened, job: ImportJob): Promise<Imported
         Object.assign(place, whole)
         continue
       } catch (error) {
-        if (!(error instanceof TentError)) throw error
+        if (!(error instanceof ForjrError)) throw error
         keepRefused(job.refusedAt, job.records, place.at)
       }
     }

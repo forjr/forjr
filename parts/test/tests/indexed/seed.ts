@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 
 export default seed(({ db }) => {
   db.products.add({ slug: 'chair', name: 'The chair', summary: 'A chair to sit on' })

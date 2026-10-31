@@ -1,4 +1,4 @@
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 // A package between the screen and the backend file, which the test writes into `node_modules`.
 import { markPaid, openOrders } from 'relay-package'
 

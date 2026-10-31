@@ -4,11 +4,11 @@ import { ownWords, textOf } from './spoken.ts'
 
 /**
  * The words for one field that failed, in the language of the page: those of the check it failed, under
- * `tent.<check>` with the limits of its type as their places, or the builder's own words as they were sent.
+ * `forjr.<check>` with the limits of its type as their places, or the builder's own words as they were sent.
  */
 export function wordsFor(check: string, type: unknown, words: Words = ownWords, language = 'en'): string {
-  if (!Object.hasOwn(words, `tent.${check}`)) return check
-  return textOf(words, `tent.${check}`, isStored(type) ? type : {}, language)
+  if (!Object.hasOwn(words, `forjr.${check}`)) return check
+  return textOf(words, `forjr.${check}`, isStored(type) ? type : {}, language)
 }
 
 /** A name turned into words: `placedBy` gives "Placed by". */

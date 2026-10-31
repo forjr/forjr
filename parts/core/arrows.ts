@@ -8,7 +8,7 @@ const arrowAt: Record<string, number> = { each: 1, step: 1, 'step.all': 1, 'step
 
 /**
  * Takes a stored value, and the findings to add to. Finds each word that is handed another value in the place of
- * its arrow, anywhere in the value: T0011, by the dotted name of the place. It is the one rule of the format that
+ * its arrow, anywhere in the value: F0011, by the dotted name of the place. It is the one rule of the format that
  * the types cannot say.
  */
 export function arrowsIn(stored: unknown, found: Finding[]): void {
@@ -34,7 +34,7 @@ export function arrowsIn(stored: unknown, found: Finding[]): void {
       if (!arrows) {
         const path = way.join('.')
         found.push(
-          finding('T0011', `\`${path}\` hands the word ${node.fn} a value in the place of its arrow.`, {
+          finding('F0011', `\`${path}\` hands the word ${node.fn} a value in the place of its arrow.`, {
             fields: { [path]: 'type' },
             fix: 'A word that takes an arrow is handed one that is written in place.',
           }),

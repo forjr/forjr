@@ -7,7 +7,7 @@ import { buildSaved } from '../../build/index.ts'
 import { openHistory } from '../../history/index.ts'
 import { copied } from './typed.ts'
 
-// The point that a save of `tent dev` records takes the fingerprints the build already made of each file it read.
+// The point that a save of `forjr dev` records takes the fingerprints the build already made of each file it read.
 
 /** Every file that this program reads through the runtime's own function while `run` runs, by where it lies. */
 function readWhile<Answer>(run: () => Answer): { answer: Answer; read: string[] } {

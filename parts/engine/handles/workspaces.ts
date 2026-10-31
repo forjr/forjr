@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { underWay } from '../context.ts'
 import { handleGiven } from '../given.ts'
 import { givenHandle } from '../givenHandle.ts'
@@ -10,7 +10,7 @@ const members = ['create', 'get', 'list', 'remove', 'values', 'mail', 'publish',
 /**
  * The working object behind the handle `workspaces`: each member is carried out by what the program that made the
  * workspaces of this app gave with `engine.give('handle', 'workspaces', ...)`, handed the caller of the call. It is
- * full access: T0013 in code that has none, and in an app that no program gave workspaces.
+ * full access: F0013 in code that has none, and in an app that no program gave workspaces.
  */
 export const handle = (o: Opened): object =>
   Object.fromEntries(
@@ -20,11 +20,11 @@ export const handle = (o: Opened): object =>
         const cx = underWay()
         const given = handleGiven(o, 'workspaces')
         if (!cx || !given)
-          throw new TentError('T0013', `\`workspaces.${name}\` was used in an app that no program gave workspaces.`, {
-            fix: 'Make the workspaces of the app with `createWorkspaces` of `tentjs/workspaces`, in the program that holds it.',
+          throw new ForjrError('F0013', `\`workspaces.${name}\` was used in an app that no program gave workspaces.`, {
+            fix: 'Make the workspaces of the app with `createWorkspaces` of `forjr/workspaces`, in the program that holds it.',
           })
         const found: unknown = Reflect.get(givenHandle(given, 'workspaces', cx), name)
-        if (typeof found !== 'function') throw new TentError('T0013', `The workspaces of the app give no \`${name}\`.`)
+        if (typeof found !== 'function') throw new ForjrError('F0013', `The workspaces of the app give no \`${name}\`.`)
         return Reflect.apply(found, undefined, args)
       },
     ]),

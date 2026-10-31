@@ -1,4 +1,4 @@
-import { action, anyone, change, flow, input, number, query, table, text } from 'tentjs'
+import { action, anyone, change, flow, input, number, query, table, text } from 'forjr'
 
 const open = 'signedIn' as const
 

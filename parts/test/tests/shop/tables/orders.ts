@@ -1,4 +1,4 @@
-import { boolean, link, role, table, text } from 'tentjs'
+import { boolean, link, role, table, text } from 'forjr'
 
 export const orders = table('orders', {
   columns: { title: text(), owner: link('users'), paid: boolean({ default: false }) },

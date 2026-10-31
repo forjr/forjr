@@ -1,5 +1,5 @@
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Clock, Description } from '../core/internal.ts'
 import type { FileName, Files, IdMaker, Mode, RuleCode, Store } from '../data/index.ts'
 import type { App } from './app.ts'
@@ -190,14 +190,14 @@ export interface Opened {
   // project's, and the sites that may show every screen of it in a frame.
   identify?: Identify
   framedBy?: string[] | 'anyone'
-  // In the mode `development`, the rows past the time their table keeps them are removed, as `tent dev --keep` asks.
+  // In the mode `development`, the rows past the time their table keeps them are removed, as `forjr dev --keep` asks.
   keepRows?: true
 }
 
-/** Holds a member of an app to an app that is open. Throws T0013 for one that was closed. */
+/** Holds a member of an app to an app that is open. Throws F0013 for one that was closed. */
 export function heldOpen(o: Opened): void {
   if (o.closed)
-    throw new TentError('T0013', `The app ${o.name} was closed, and nothing opens it again.`, {
+    throw new ForjrError('F0013', `The app ${o.name} was closed, and nothing opens it again.`, {
       fix: 'Open the bundle again with `engine.open`, and use the app that it answers.',
     })
 }

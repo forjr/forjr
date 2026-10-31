@@ -1,5 +1,5 @@
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Tx } from '../data/index.ts'
 import type { Branch } from './branches.ts'
 import { branchNow, goesOn, never, newBranch } from './branches.ts'
@@ -184,14 +184,14 @@ export function workedOf(pass: Pass): number {
 }
 
 /** Ends a pass with an error that no code of the flow may go on after. */
-export function fatal(pass: Pass, error: TentError): void {
+export function fatal(pass: Pass, error: ForjrError): void {
   pass.finish({ kind: 'failed', error })
 }
 
 /** The error of a pass that worked too long between two steps. */
-const pastPass = (pass: Pass): TentError =>
-  new TentError(
-    'T5104',
+const pastPass = (pass: Pass): ForjrError =>
+  new ForjrError(
+    'F5104',
     `A run of ${pass.of.run.flow} worked for more than ${pass.of.limits.pass} ms between two steps, past \`limits.pass\`.`,
     { fix: 'Do the work inside a step, or raise `limits.pass` of the flow.' },
   )
@@ -200,7 +200,7 @@ const pastPass = (pass: Pass): TentError =>
 const isPastPass = (pass: Pass): boolean =>
   !pass.of.drives && pass.inFlight.size === 0 && performance.now() - pass.answered > pass.of.limits.pass
 
-/** What a stored body asks before every statement: it throws T5104 for a pass that worked too long between two steps. */
+/** What a stored body asks before every statement: it throws F5104 for a pass that worked too long between two steps. */
 export function tickOf(pass: Pass): () => void {
   return () => {
     if (pass.over || !isPastPass(pass)) return
@@ -222,7 +222,7 @@ export interface Reached {
 /**
  * Takes a pass and the name of a step that a step tool was called for. Answers the step with its repeat number
  * and what is saved of it, or nothing where the branch of the call does not go on: the tool then answers a
- * promise that never settles. Ends the pass with T5104 for a run that worked too long, and with T5101 for one
+ * promise that never settles. Ends the pass with F5104 for a run that worked too long, and with F5101 for one
  * step more than the flow allows.
  */
 export function reach(pass: Pass, name: string): Reached | undefined {
@@ -233,8 +233,8 @@ export function reach(pass: Pass, name: string): Reached | undefined {
   if (workedOf(pass) > limits.time)
     return void fatal(
       pass,
-      new TentError(
-        'T5104',
+      new ForjrError(
+        'F5104',
         `A run of ${run.flow} worked for more than ${limits.time} ms, past \`limits.time\`, when it came to the step ${JSON.stringify(name)}.`,
         { fix: 'Cut the work into runs of their own, or raise `limits.time` of the flow.' },
       ),
@@ -246,8 +246,8 @@ export function reach(pass: Pass, name: string): Reached | undefined {
   if (pass.reached > limits.steps)
     return void fatal(
       pass,
-      new TentError(
-        'T5101',
+      new ForjrError(
+        'F5101',
         `A run of ${run.flow} came to its step number ${pass.reached}, ${JSON.stringify(name)}, past \`limits.steps\` of ${limits.steps}.`,
         { fix: 'Start a run for each part of the work, or raise `limits.steps` of the flow.' },
       ),
@@ -284,7 +284,7 @@ export function saveStep(pass: Pass, at: StepAt, given: Given<StepRow>, tx?: Tx)
 
 /**
  * Answers the result of a saved step as its run reads it back: one that was left unread for its size is read now,
- * and a sealed one is opened. Throws T0019 for a sealed result that does not open here.
+ * and a sealed one is opened. Throws F0019 for a sealed result that does not open here.
  */
 export function resultOf(pass: Pass, row: StepRow): unknown {
   const saved = row.whole ? row.result : readStep(readIn(pass.of.held.env, row.run), row.run, row)?.result

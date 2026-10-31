@@ -1,4 +1,4 @@
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 import { refuseFault } from './itself.ts'
 import { isStored } from './record.ts'
 import { isRequired } from './required.ts'
@@ -11,8 +11,8 @@ const byName = (a: string, b: string): number => (a < b ? -1 : a > b ? 1 : 0)
 const withMembers = (members: Record<string, unknown>): Record<string, unknown> =>
   Object.fromEntries(Object.entries(members).filter(([, value]) => value !== undefined))
 
-const noType = (): TentError =>
-  new TentError('T1014', 'A schema is written of a type, and what was handed holds a value that is none.')
+const noType = (): ForjrError =>
+  new ForjrError('F1014', 'A schema is written of a type, and what was handed holds a value that is none.')
 
 /**
  * Writes a type as the schema of a place where a value stands. A value that may be left out may also be `null`,
@@ -75,7 +75,7 @@ function schemaOf(type: Type, names: Set<string>): Record<string, unknown> {
 /**
  * Takes a type. Answers it as JSON Schema 2020-12, with the fields of a record and the names of its `required` in
  * the order of their names. A value that may be left out may be `null` too. A kept shape that the type names stands
- * under `$defs`. Throws T0009 where a shape names a shape that nothing has kept, and T1014 for a type that holds
+ * under `$defs`. Throws F0009 where a shape names a shape that nothing has kept, and F1014 for a type that holds
  * itself or is nested more than 200 deep.
  */
 export function toJsonSchema(type: Type): object {

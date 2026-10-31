@@ -48,7 +48,7 @@ function wrongWith(line: unknown, scripts: readonly unknown[]): string | undefin
 /**
  * Takes the lines of `head` as they were written, and the hosts that `unlock.scripts` opens. Answers the lines as
  * they are stored. Reports each line that is none of the three, that states a name its kind does not take, or whose
- * script comes from a host that was not opened (T1014).
+ * script comes from a host that was not opened (F1014).
  */
 export function headOf(told: Told, written: unknown, scripts: unknown): unknown {
   if (written === undefined) return undefined
@@ -58,7 +58,7 @@ export function headOf(told: Told, written: unknown, scripts: unknown): unknown 
     if (wrong !== undefined)
       report(
         told,
-        'T1014',
+        'F1014',
         `line ${at + 1} of \`head\` ${wrong}.`,
         'A line is `{ meta }`, `{ link }` or `{ script }` with the names of its kind, and a script comes from an asset or from a host of `unlock.scripts`. Any other line is added by `onRequest`.',
       )

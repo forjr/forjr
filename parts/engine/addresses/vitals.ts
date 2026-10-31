@@ -9,14 +9,14 @@ import { deviceOf, measures } from '../vitals/measures.ts'
 import { countedAs } from '../web/names.ts'
 import { bodyOf } from '../web/body.ts'
 
-const path = '/_t/vitals'
+const path = '/_f/vitals'
 
 // The most bytes a page sends of its measures, and the most measures in one sending.
 const most = 16_384
 const mostMeasures = 64
 
 /**
- * `POST /_t/vitals`: the measures a page of the app took of what its visitor saw, sent once when it was hidden.
+ * `POST /_f/vitals`: the measures a page of the app took of what its visitor saw, sent once when it was hidden.
  * A request from a page of the app's own origin alone is taken, `limits.vitalsPerMinute` from one address; each
  * value is held to the range its measure can have, and to a screen and a version the app holds. What is kept is
  * the screen, the version, the measure, its value, the kind of device and of connection, and nothing that says

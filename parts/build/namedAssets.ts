@@ -17,7 +17,7 @@ export function namedAssets(work: Work): Map<string, Set<string>> {
     if (file.sort !== 'screen' || !file.tree) continue
     const asset = new Set(
       (file.seen?.imports ?? [])
-        .filter((one) => one.from === 'tentjs/ui' && one.name === 'asset')
+        .filter((one) => one.from === 'forjr/ui' && one.name === 'asset')
         .map((one) => one.local),
     )
     if (!asset.size) continue

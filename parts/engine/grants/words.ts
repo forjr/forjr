@@ -4,20 +4,20 @@ import { ownStyle } from '../pages/own.ts'
 
 /** The words of the pages that ask a person, in English, which a language file of the project may give anew. */
 const english: Record<string, string> = {
-  'tent.grant.title': '{name} wants to act for you in {app}',
-  'tent.grant.read': 'Read your data',
-  'tent.grant.write': 'Read and change your data',
-  'tent.grant.allow': 'Allow',
-  'tent.grant.refuse': 'Refuse',
-  'tent.grant.app': 'This program will act as you in the whole app.',
-  'tent.grant.named': 'This program named itself.',
-  'tent.grant.here': 'a program on this computer',
-  'tent.grant.word': 'The word your program shows: {word}',
-  'tent.ask.title': 'Run {tool}?',
-  'tent.ask.allow': 'Yes',
-  'tent.ask.refuse': 'No',
-  'tent.ask.done': 'This was answered.',
-  'tent.ask.more': 'More may be asked after these.',
+  'forjr.grant.title': '{name} wants to act for you in {app}',
+  'forjr.grant.read': 'Read your data',
+  'forjr.grant.write': 'Read and change your data',
+  'forjr.grant.allow': 'Allow',
+  'forjr.grant.refuse': 'Refuse',
+  'forjr.grant.app': 'This program will act as you in the whole app.',
+  'forjr.grant.named': 'This program named itself.',
+  'forjr.grant.here': 'a program on this computer',
+  'forjr.grant.word': 'The word your program shows: {word}',
+  'forjr.ask.title': 'Run {tool}?',
+  'forjr.ask.allow': 'Yes',
+  'forjr.ask.refuse': 'No',
+  'forjr.ask.done': 'This was answered.',
+  'forjr.ask.more': 'More may be asked after these.',
 }
 
 /** Writes a text as text in HTML: each character that means something there as its name. */

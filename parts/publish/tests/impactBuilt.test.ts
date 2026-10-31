@@ -10,7 +10,7 @@ const functions = 'functions/orders.ts'
 
 // A screen and a component that read the open orders by their data, and a screen whose form calls the refund.
 const files: Record<string, string> = {
-  'screens/open.tsx': `import { read, screen } from 'tentjs/ui'
+  'screens/open.tsx': `import { read, screen } from 'forjr/ui'
 import { openOrders } from '../functions/orders'
 
 export const openScreen = screen('openScreen', {
@@ -26,7 +26,7 @@ export const openScreen = screen('openScreen', {
   ),
 })
 `,
-  'components/OpenCount.tsx': `import { component, read } from 'tentjs/ui'
+  'components/OpenCount.tsx': `import { component, read } from 'forjr/ui'
 import { openOrders } from '../functions/orders'
 
 export const OpenCount = component('OpenCount', {
@@ -34,7 +34,7 @@ export const OpenCount = component('OpenCount', {
   view: ({ orders }) => <span>{orders.length}</span>,
 })
 `,
-  'screens/refund.tsx': `import { Form, screen } from 'tentjs/ui'
+  'screens/refund.tsx': `import { Form, screen } from 'forjr/ui'
 import { refund } from '../functions/orders'
 
 export const refundScreen = screen('refundScreen', {
@@ -72,8 +72,8 @@ test('[44-2] the impact of a change to a project as the build describes it reach
     )
   here.edit(
     functions,
-    "import { action, change, input, number, query, text } from 'tentjs'",
-    "import { action, anyone, change, input, number, query, text } from 'tentjs'",
+    "import { action, change, input, number, query, text } from 'forjr'",
+    "import { action, anyone, change, input, number, query, text } from 'forjr'",
   )
   const next = await describedNow(here.project)
 

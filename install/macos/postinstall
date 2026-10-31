@@ -1,9 +1,9 @@
 #!/bin/sh
-# After the package of Tent.js laid the release in the person's own folder, this moves it into TENT_HOME or
-# ~/.tent as an update would: keys and data stay. It needs no administrator.
+# After the package of Forjr laid the release in the person's own folder, this moves it into FORJR_HOME or
+# ~/.forjr as an update would: keys and data stay. It needs no administrator.
 set -eu
-staged="$HOME/.tent-package/@VERSION@"
-home="${TENT_HOME:-$HOME/.tent}"
+staged="$HOME/.forjr-package/@VERSION@"
+home="${FORJR_HOME:-$HOME/.forjr}"
 # The folder of the install is the person's own, as the launcher holds it: never a link, never one that another
 # user owns, and none that others can write into, by the bits of its group whatever the group.
 open_to_others() { [ -n "$(find "$1" -maxdepth 0 \( -perm -0002 -o -perm -0020 \) 2>/dev/null)" ]; }
@@ -20,22 +20,22 @@ was=""
 if [ -f "$home/current" ]; then was=$(cat "$home/current"); fi
 rm -rf "$home/versions/@VERSION@"
 mv "$staged" "$home/versions/@VERSION@"
-rmdir "$HOME/.tent-package" 2>/dev/null || true
-cp "$home/versions/@VERSION@/player/launcher/tent" "$home/bin/tent.$$"
-chmod 755 "$home/bin/tent.$$"
-mv "$home/bin/tent.$$" "$home/bin/tent"
+rmdir "$HOME/.forjr-package" 2>/dev/null || true
+cp "$home/versions/@VERSION@/player/launcher/forjr" "$home/bin/forjr.$$"
+chmod 755 "$home/bin/forjr.$$"
+mv "$home/bin/forjr.$$" "$home/bin/forjr"
 # The keys of a fresh install are those its release brings. Over an install the keys it holds stay: a newer list
-# comes by tent update, which takes it only where a key the install holds signed it.
+# comes by forjr update, which takes it only where a key the install holds signed it.
 if [ ! -e "$home/trust.json" ]; then cp "$home/versions/@VERSION@/player/trust.json" "$home/trust.json"; fi
 if [ -n "$was" ] && [ "$was" != "@VERSION@" ]; then echo "$was" > "$home/previous"; fi
 echo "@VERSION@" > "$home/current.$$"
 mv "$home/current.$$" "$home/current"
 line="export PATH=\"$home/bin:\$PATH\""
 for file in .zprofile .bash_profile; do
-  if ! grep -q '^# tent\.js$' "$HOME/$file" 2>/dev/null; then printf '# tent.js\n%s\n' "$line" >> "$HOME/$file"; fi
+  if ! grep -q '^# forjr$' "$HOME/$file" 2>/dev/null; then printf '# forjr\n%s\n' "$line" >> "$HOME/$file"; fi
 done
 if [ -d "$HOME/.config/fish" ]; then
   mkdir -p "$HOME/.config/fish/conf.d"
-  printf '# tent.js\nset -gx PATH "%s/bin" $PATH\n' "$home" > "$HOME/.config/fish/conf.d/tent.fish"
+  printf '# forjr\nset -gx PATH "%s/bin" $PATH\n' "$home" > "$HOME/.config/fish/conf.d/forjr.fish"
 fi
 exit 0

@@ -14,7 +14,7 @@ export interface Framed {
   // The path of the screen that the frame shows, and the input of its tool for an address of that screen.
   path(): string
   input(address: string): Record<string, unknown>
-  // Asks the screen's tool and answers the record of its page in the wire form, as `/_t/screen` answers.
+  // Asks the screen's tool and answers the record of its page in the wire form, as `/_f/screen` answers.
   screen(input: Record<string, unknown>): Promise<unknown>
   // A call through the chat app worked.
   worked(): void
@@ -27,11 +27,11 @@ export function wireOf(result: unknown): unknown {
   if (!isStored(result)) return undefined
   const meta = isStored(result._meta) ? result._meta : {}
   if (result.isError === true) {
-    const error = isStored(meta['tent.error']) ? meta['tent.error'] : undefined
-    return { ok: false, error: error ?? { code: 'T0009', message: 'The chat app did not answer as it should.' } }
+    const error = isStored(meta['forjr.error']) ? meta['forjr.error'] : undefined
+    return { ok: false, error: error ?? { code: 'F0009', message: 'The chat app did not answer as it should.' } }
   }
   const held = result.structuredContent
-  return { ok: true, value: meta['tent.wrapped'] === true && isStored(held) ? held.value : held }
+  return { ok: true, value: meta['forjr.wrapped'] === true && isStored(held) ? held.value : held }
 }
 
 /**
@@ -46,14 +46,14 @@ export function chatReach(o: Framed): Reach {
   const asked = async (address: string, how: RequestInit): Promise<unknown> => {
     const pass = o.pass()
     if (!o.connected || pass === undefined)
-      return { ok: false, error: { code: 'T0001', message: textOf(o.words ?? ownWords, 'tent.chat.noConnection') } }
+      return { ok: false, error: { code: 'F0001', message: textOf(o.words ?? ownWords, 'forjr.chat.noConnection') } }
     const headers = { authorization: `Bearer ${pass}`, 'content-type': 'application/json' }
     const answer = await fetch(at(address), { ...how, headers, credentials: 'omit' })
     return answer.json()
   }
   return {
     async post(address, body) {
-      const tool = /^\/_t\/(call|read)\/([^/?#]+)$/.exec(address)
+      const tool = /^\/_f\/(call|read)\/([^/?#]+)$/.exec(address)
       // A member of an agent, and `working`, is no tool: it is reached at the app with the pass, or not at all.
       const member = tool !== null && decodeURIComponent(tool[2]).includes('.')
       if (!tool || member) return asked(address, { method: 'POST', body: JSON.stringify(body) })
@@ -62,13 +62,13 @@ export function chatReach(o: Framed): Reach {
       if (tool[1] === 'call' && isStored(wire) && wire.ok === true) o.worked()
       // A call that asks a person first names the app's page where the person says yes: the chat app opens it.
       const error = isStored(wire) && isStored(wire.error) ? wire.error : undefined
-      const page = error?.code === 'T7120' && isStored(error.fields) ? error.fields.page : undefined
+      const page = error?.code === 'F7120' && isStored(error.fields) ? error.fields.page : undefined
       if (typeof page === 'string') void o.bridge.request('ui/open-link', { url: page }).catch(() => undefined)
       return wire
     },
     async get(address) {
-      if (!address.startsWith('/_t/screen?')) return o.connected ? asked(address, { method: 'GET' }) : undefined
-      const path = new URLSearchParams(address.slice('/_t/screen?'.length)).get('path') ?? ''
+      if (!address.startsWith('/_f/screen?')) return o.connected ? asked(address, { method: 'GET' }) : undefined
+      const path = new URLSearchParams(address.slice('/_f/screen?'.length)).get('path') ?? ''
       // Another screen is no screen of this frame: the page opens its address in the browser instead.
       if (path.split(/[?#]/)[0] !== o.path()) return undefined
       return o.screen(o.input(path))

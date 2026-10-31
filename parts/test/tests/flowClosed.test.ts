@@ -15,6 +15,6 @@ test('[23-3] a call that waits for a run is answered when its app is closed, wit
   const called = callCodeOf(app.call('waiting', {}, system))
   await new Promise((done) => setTimeout(done, 100))
   await app.close()
-  assert.equal(await waited, 'T0013')
-  assert.equal(await called, 'T0013')
+  assert.equal(await waited, 'F0013')
+  assert.equal(await called, 'F0013')
 })

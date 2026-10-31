@@ -67,7 +67,7 @@ function goneOn(failure: unknown): unknown {
   if (Reflect.get(Object(failure), 'endsSequence') === true) throw failure
   const code: unknown = Reflect.get(Object(failure), 'code')
   const message: unknown = Reflect.get(Object(failure), 'message')
-  return { failed: true, code: typeof code === 'string' ? code : 'T0009', message: String(message ?? '') }
+  return { failed: true, code: typeof code === 'string' ? code : 'F0009', message: String(message ?? '') }
 }
 
 /**

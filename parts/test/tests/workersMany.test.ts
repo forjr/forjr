@@ -24,7 +24,7 @@ let heard = (): void => undefined
 function seenAnew(t: TestContext, ms: number): Seen {
   const made: Seen = { ran: new Map(), now: 0, most: 0, fail: new Set(), once: new Set(), order: [], ms }
   heard()
-  heard = listened(t, 'tentjs.test.many', (told) => {
+  heard = listened(t, 'forjr.test.many', (told) => {
     const n = Number(Reflect.get(Object(told), 'n'))
     if (Reflect.get(Object(told), 'at') === 'end') {
       made.now -= 1

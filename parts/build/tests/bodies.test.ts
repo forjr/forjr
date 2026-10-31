@@ -287,11 +287,11 @@ test('[12-3a] plain: true on a definition that is code is refused on the line th
   const folder = copyOf('plain-true', 'plain-true')
   const made = await buildProject(folder, { for: 'dev' })
   const line = lineWith(readFileSync(join(folder, 'functions', 'total.ts'), 'utf8'), 'Math.round')
-  assert.deepEqual(placesOf(made.findings, 'T1010'), [`functions/total.ts:${line}`])
+  assert.deepEqual(placesOf(made.findings, 'F1010'), [`functions/total.ts:${line}`])
   assert.match(made.findings[0].message, /`plain: true`.*`Math\.round`/)
   assert.deepEqual(
     made.findings.map((one) => one.code),
-    ['T1010'],
+    ['F1010'],
   )
   assert.equal(made.bundleFolder, '')
 })
@@ -314,7 +314,7 @@ test('[12-3a] refund and bigOrder of the document of the words are plain, and a 
   const folder = copyOf('reader/taken', 'taken')
   const made = await buildProject(folder, { for: 'release' })
   assert.deepEqual(made.findings, [])
-  assert.ok(!existsSync(join(folder, '.tent', 'cache')), 'nothing is built and nothing is run')
+  assert.ok(!existsSync(join(folder, '.forjr', 'cache')), 'nothing is built and nothing is run')
   assert.equal(made.description.server, undefined, 'a project of plain definitions has no module')
   const { teamSize, addMember } = made.description.functions
   // The top-level `const` is stored where the body reads it, with its name and its value.
@@ -356,7 +356,7 @@ test('[12-3a] a reference word called in a body, what a rule may not hold, and e
   const folder = copyOf('bad-value', 'bad-value')
   const made = await buildProject(folder, { for: 'dev' })
   const text = readFileSync(join(folder, 'functions', 'notes.ts'), 'utf8')
-  assert.deepEqual(placesOf(made.findings, 'T1014'), [
+  assert.deepEqual(placesOf(made.findings, 'F1014'), [
     `functions/notes.ts:${lineWith(text, "run: () => input('n')")}`,
     `functions/notes.ts:${lineWith(text, 'addNote({ body: given.body })')}`,
     `functions/notes.ts:${lineWith(text, 'random() > 0.5')}`,
@@ -369,7 +369,7 @@ test('[12-3a] a reference word called in a body, what a rule may not hold, and e
   const each = await buildProject(copyOf('each-in-values', 'each-in-values'), { for: 'dev' })
   assert.deepEqual(
     each.findings.map((one) => [one.code, one.where?.file]),
-    [['T1014', 'functions/notes.ts']],
+    [['F1014', 'functions/notes.ts']],
   )
   assert.match(each.findings[0].message, /`each` was handed a reference/)
 })

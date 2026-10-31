@@ -126,14 +126,14 @@ async function inDevelopment(t: TestContext, keep: boolean): Promise<{ app: App;
   const engine = createEngine({ port: 0, makers: { clock: () => clock } })
   closing(t, () => engine.close())
   const app = await engine.open(built.bundleFolder, {
-    dataFolder: join(project, '.tent'),
+    dataFolder: join(project, '.forjr'),
     mode: 'development',
     ...(keep ? { keep: true } : {}),
   })
   return { app, clock: moves }
 }
 
-test('[45-4] in development nothing is removed by the time a table keeps its rows, unless `tent dev --keep` asks it', async (t) => {
+test('[45-4] in development nothing is removed by the time a table keeps its rows, unless `forjr dev --keep` asks it', async (t) => {
   const plain = await inDevelopment(t, false)
   await someRows(plain.app, Date.now())
   plain.clock.advance('2 days')

@@ -1,4 +1,4 @@
-import { choice, date, file, link, number, table, text } from 'tentjs'
+import { choice, date, file, link, number, table, text } from 'forjr'
 
 export const orders = table('orders', {
   columns: {

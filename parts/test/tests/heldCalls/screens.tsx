@@ -1,4 +1,4 @@
-import { screen, read, Link, Form } from 'tentjs/ui'
+import { screen, read, Link, Form } from 'forjr/ui'
 import { addNote, allNotes } from './functions'
 
 // Two presses that each add a note, which say whether their call is held, under way, or failed.

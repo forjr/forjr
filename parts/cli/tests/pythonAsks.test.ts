@@ -19,7 +19,7 @@ const standIn: Provider = {
   },
 }
 
-test('[25-13] under a tool call that nobody agreed to, a sending call that a python makes through tent.call makes the step wait for a yes, and runs once it is given', async (t) => {
+test('[25-13] under a tool call that nobody agreed to, a sending call that a python makes through forjr.call makes the step wait for a yes, and runs once it is given', async (t) => {
   const { app, user } = await opened(t, shared)
   app.standIn('pyThinker', standIn)
   const ada = await user()

@@ -1,4 +1,4 @@
-import { route } from 'tentjs'
+import { route } from 'forjr'
 
 // Whose project the frame of a project shows, answered to the program around the product alone: its `onRequest`
 // asks this, then shows the browser the app of the workspace.

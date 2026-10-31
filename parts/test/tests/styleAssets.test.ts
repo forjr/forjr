@@ -52,17 +52,17 @@ for (const kind of ['release', 'dev'] as const)
       [...fonts].filter(([, one]) => Buffer.from(one).equals(Buffer.from(bytes))).map(([path]) => path)
     const [tiny] = byBytes(packageFont)
     assert.ok(tiny, `the package's font is named: ${[...fonts.keys()].join(', ')}`)
-    assert.match(tiny, /^\/_t\/b\/browser\/[^/]*tiny-latin-wght-normal[^/]*\.[0-9a-f]{12}\.woff2$/)
+    assert.match(tiny, /^\/_f\/b\/browser\/[^/]*tiny-latin-wght-normal[^/]*\.[0-9a-f]{12}\.woff2$/)
     // The project's own font is the very file of its assets that `asset('own.woff2')` names, so a preload of it
     // and the face of the style file are one download.
     const asset = Object(description.assets['own.woff2']).file
-    assert.deepEqual(byBytes(ownFont), [`/_t/b/${asset}`])
+    assert.deepEqual(byBytes(ownFont), [`/_f/b/${asset}`])
 
     // The exported site holds each font at the place the style file names: an export is made of a release.
     if (kind === 'dev') return
     const site = join(dataFolder, 'site')
     await app.export(site)
-    for (const path of [tiny, `/_t/b/${asset}`])
+    for (const path of [tiny, `/_f/b/${asset}`])
       assert.equal(readFileSync(join(site, ...path.split('/').filter(Boolean))).length, fonts.get(path)?.length, path)
   })
 

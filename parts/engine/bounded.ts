@@ -2,7 +2,7 @@ import { tooLarge } from './web/body.ts'
 
 /**
  * Takes a request and the most bytes that its body may hold. Answers the request with its body as a stream that
- * fails with T0003 at the first byte past that size: so code of a builder that reads the body reads no more than
+ * fails with F0003 at the first byte past that size: so code of a builder that reads the body reads no more than
  * its address may be sent, also of a sender that states no length. A request with no body is answered as it is.
  */
 export function bounded(request: Request, size: number): Request {

@@ -1,4 +1,4 @@
-import { change, input, text } from 'tentjs'
+import { change, input, text } from 'forjr'
 import { notes } from './tables.ts'
 
 export const addNote = change('addNote', {

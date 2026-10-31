@@ -5,14 +5,14 @@ import { test } from 'node:test'
 import { npm } from '../../build/index.ts'
 import { root, typed } from './typed.ts'
 
-/** What `tent history --json` lists of a project: the kind of each point and how many files it holds, newest first. */
+/** What `forjr history --json` lists of a project: the kind of each point and how many files it holds, newest first. */
 async function listed(project: string): Promise<{ id: string; kind: string; files: number }[]> {
   const answered = await typed(project, 'history', '--json')
   assert.equal(answered.ended, 0, answered.printed)
   return Object(answered.answer.value).points
 }
 
-test('[40-14b] [15-6@7d] tent new records the first point of the project once its files are written, and tent add records one point before it installs and one after', async (t) => {
+test('[40-14b] [15-6@7d] forjr new records the first point of the project once its files are written, and forjr add records one point before it installs and one after', async (t) => {
   const folder = join(root, 'results', 'cli', 'history-commands')
   rmSync(folder, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 })
   mkdirSync(folder, { recursive: true })
@@ -26,7 +26,7 @@ test('[40-14b] [15-6@7d] tent new records the first point of the project once it
   assert.deepEqual(
     first.map((one) => [one.kind, one.files]),
     [['command', files]],
-    'one point, which holds every file that tent new wrote',
+    'one point, which holds every file that forjr new wrote',
   )
 
   // A package of the test's own, packed as a registry hands one out: installing it reaches no network.
@@ -44,13 +44,13 @@ test('[40-14b] [15-6@7d] tent new records the first point of the project once it
     points.map((one) => one.kind),
     ['command', 'command', 'command'],
   )
-  // The newest holds the package file as tent add wrote it, and the one before it the file as it stood.
+  // The newest holds the package file as forjr add wrote it, and the one before it the file as it stood.
   assert.notEqual(readFileSync(join(project, 'package.json'), 'utf8'), before)
   const compared = await typed(project, 'history', 'compare', points[1].id, points[0].id, '--json')
   assert.deepEqual(
     Object(compared.answer.value).map((one: { change: string; name: string }) => `${one.name} ${one.change}`),
     ['package-lock.json added', 'package.json changed'],
-    'what tent add changed, and nothing of node_modules',
+    'what forjr add changed, and nothing of node_modules',
   )
   assert.equal(points[1].files, files, 'the point before holds the files as they stood')
 })

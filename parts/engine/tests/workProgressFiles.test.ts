@@ -22,7 +22,7 @@ test("[25-16] [51-4] a file that the progress of a task on a worker names is kep
   const first = Object((await worker.next('work')).task)
   worker.send({ t: 'started', task: first.id })
   // What Python keeps on a worker: the value it saved, and the file each path of the folder of its call names.
-  const posted = await fetch(`${origin}/_t/work/file?task=${first.id}&kind=text/plain`, {
+  const posted = await fetch(`${origin}/_f/work/file?task=${first.id}&kind=text/plain`, {
     method: 'POST',
     headers: { ...auth, 'content-type': 'application/octet-stream' },
     body: 'half of the work',
@@ -45,13 +45,13 @@ test("[25-16] [51-4] a file that the progress of a task on a worker names is kep
     await workMoment()
   }
   const data = new DatabaseSync(join(dataFolder, 'data.db'), { readOnly: true })
-  const swept = data.prepare('SELECT removedAt FROM _t_files WHERE id = ?').get(id)
+  const swept = data.prepare('SELECT removedAt FROM _f_files WHERE id = ?').get(id)
   data.close()
   assert.ok(swept?.removedAt, 'the file the worker posted was looked for as loose, and is removed')
   worker.send({ t: 'back', tasks: [first.id], cpuMs: {} })
   const next = Object((await worker.next('work')).task)
   const kept = String(Object(Object(next.progress).value).files[path])
-  const read = await fetch(`${origin}/_t/work/file/${encodeURIComponent(kept)}?task=${next.id}`, { headers: auth })
+  const read = await fetch(`${origin}/_f/work/file/${encodeURIComponent(kept)}?task=${next.id}`, { headers: auth })
   assert.equal(read.status, 200, `the file of the progress, ${kept}, is read by the next task`)
   assert.equal(await read.text(), 'half of the work')
   worker.close()

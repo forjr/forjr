@@ -18,7 +18,7 @@ export function joinWith(tick: Tick, ...values: unknown[]): unknown {
 
 /**
  * Takes a list, and the text that stands between its entries. Answers the entries as one text, each written as
- * `concat` writes it. Handed a reference it answers its record. Throws T0027 for a value that is no list, and for a
+ * `concat` writes it. Handed a reference it answers its record. Throws F0027 for a value that is no list, and for a
  * text past the limit.
  */
 export function join(list: readonly unknown[], between: string): string

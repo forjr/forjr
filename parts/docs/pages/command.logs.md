@@ -1,11 +1,11 @@
-# `tent logs`
+# `forjr logs`
 
 Prints the newest calls, errors and slow queries of the log of the app, each in the order they were written, or one trace as its tree, or the slowest traces beside the slow queries, or the speed visitors saw of each screen. A screen whose drawing took long stands among the slow ones, under its name. It reads the log through the engine, and never opens the file itself. With `--mail` it prints the mail the app sent in development.
 
 ## Usage
 
 ```
-tent logs [--errors] [--mail] [--trace <id>] [--slow] [--vitals] [--since <time>] [--data <folder>] [--at <server>] [--insecure <host>]
+forjr logs [--errors] [--mail] [--trace <id>] [--slow] [--vitals] [--since <time>] [--data <folder>] [--at <server>] [--insecure <host>]
 ```
 
 ## Options
@@ -13,19 +13,19 @@ tent logs [--errors] [--mail] [--trace <id>] [--slow] [--vitals] [--since <time>
 | Option | Means |
 |---|---|
 | `--errors` | The errors alone, each with its message, the calls that led to it as `stack`, and its trace |
-| `--mail` | The mailbox of the app in the mode `development`, the newest first: each message it sent, who it is from and to, its subject, its text and its HTML, and the names of its files. The mailbox is the one place every reader of unsent mail reads (`handle.mail`); in development it keeps the last 100 in memory while the program runs, and nothing of them is sent. `/_t/mail` shows the same, each drawn as its receiver would see it, with its links working, to this computer alone, as a pass is, answered as `{ "mails": [{ "at", "from", "to", "subject", "text", "html", "files" }] }` |
-| `--trace <id>` | One trace as a tree: each span on a line under its parent, with its length and its outcome, the lines and errors of the log under the span they were written in - a call, a call out, a model call and a slow query are spans themselves, their own rows of the log - and the slowest path marked with `*`. The id is the `trace` of an error answer, of `tent runs show`, or of `--slow` |
+| `--mail` | The mailbox of the app in the mode `development`, the newest first: each message it sent, who it is from and to, its subject, its text and its HTML, and the names of its files. The mailbox is the one place every reader of unsent mail reads (`handle.mail`); in development it keeps the last 100 in memory while the program runs, and nothing of them is sent. `/_f/mail` shows the same, each drawn as its receiver would see it, with its links working, to this computer alone, as a pass is, answered as `{ "mails": [{ "at", "from", "to", "subject", "text", "html", "files" }] }` |
+| `--trace <id>` | One trace as a tree: each span on a line under its parent, with its length and its outcome, the lines and errors of the log under the span they were written in - a call, a call out, a model call and a slow query are spans themselves, their own rows of the log - and the slowest path marked with `*`. The id is the `trace` of an error answer, of `forjr runs show`, or of `--slow` |
 | `--slow` | The slowest traces, the slowest first, each by its first span, beside the slow queries: with `--since`, of that time |
 | `--vitals` | For each screen and version, the 75th share over a day of each measure of the speed its visitors saw, against the line of good for it, the screens furthest past their line first, and each version beside the one before (`option.project.vitals`) |
 | `--since <time>` | Only what was written within that length of time, as `'1 hour'` |
-| `--data <folder>` | The data folder of the engine to ask. Left out, it is `.tent/` of the project |
-| `--at <server>` | The app on a server, by the name or the address that `tent login` kept its key under, a key of the right `operate`. The log of a server answers no mail, and leaves out the words and calls of each error and the data of each line, in a trace's tree too, which a value could stand in: names, codes, counts, times and traces stay |
+| `--data <folder>` | The data folder of the engine to ask. Left out, it is `.forjr/` of the project |
+| `--at <server>` | The app on a server, by the name or the address that `forjr login` kept its key under, a key of the right `operate`. The log of a server answers no mail, and leaves out the words and calls of each error and the data of each line, in a trace's tree too, which a value could stand in: names, codes, counts, times and traces stay |
 | `--insecure <host>` | With `--at`: reaches that host over a plain connection |
 
 ## Example
 
 ```
-tent logs --trace 4bf92f3577b34da6a3ce929d0e0e4736
+forjr logs --trace 4bf92f3577b34da6a3ce929d0e0e4736
 ```
 
 ## Output
@@ -44,9 +44,9 @@ A call that failed with an error which is not the caller's to see holds a `ref`,
 
 ## Errors
 
-`code.T0002` for words after `--since` that are no length of time, and for a `--trace` that is no id of a trace.
+`code.F0002` for words after `--since` that are no length of time, and for a `--trace` that is no id of a trace.
 
-`code.T0001` for a trace that was not kept: `option.project.trace` says which are.
+`code.F0001` for a trace that was not kept: `option.project.trace` says which are.
 
 ## See also
 

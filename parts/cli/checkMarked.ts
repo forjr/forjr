@@ -9,7 +9,7 @@ import { openHistory } from '../history/index.ts'
  * then pushes is not refused; where they are, `now` stays where it stood, and no point is added.
  */
 export function markChecked(folder: string, description: Description, checked: boolean): void {
-  const history = openHistory(join(folder, '.tent'))
+  const history = openHistory(join(folder, '.forjr'))
   try {
     const was = history.pointer('now')
     const on = history.pointer('on')

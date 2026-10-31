@@ -18,13 +18,13 @@ async function until(what: string, holds: () => boolean, tries = 6000): Promise<
 /** The fingerprints that the list of a version names, by its path. */
 const listed = (list: string): Record<string, string> => JSON.parse(readFileSync(list, 'utf8')).files
 
-test('[21-17] tent dev runs each version from its list, and removes the list of a version that can no longer be loaded and each file of the store that no list names any more', async (t) => {
+test('[21-17] forjr dev runs each version from its list, and removes the list of a version that can no longer be loaded and each file of the store that no list names any more', async (t) => {
   let started: Dev | undefined
   t.after(() => started?.close())
   const folder = copied(t, 'devListed', 'devs')
   const dev = await startDev(folder, { port: 0, out: () => undefined })
   started = dev
-  const build = join(folder, '.tent', 'build')
+  const build = join(folder, '.forjr', 'build')
   const store = join(build, 'files')
   const first = dev.version()
   // The session writes the list of its version and the store of its files: no folder of the version.

@@ -9,7 +9,7 @@ One of `'notFound'`, `'error'`, `'grant'` and `'ask'`. The `notFound` screen is 
 ## Example
 
 ```tsx
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 export const lost = screen('lost', {
   for: 'notFound',
@@ -20,11 +20,11 @@ export const lost = screen('lost', {
 
 ## Errors
 
-`code.T1007`: `path` is stated too.
+`code.F1007`: `path` is stated too.
 
-`code.T1014`: a value that is none of the four.
+`code.F1014`: a value that is none of the four.
 
-`code.T6012`: a second screen of one kind, a `notFound` or `error` screen that is not for `'anyone'`, and a `grant` or `ask` screen that is not for `'signedIn'`.
+`code.F6012`: a second screen of one kind, a `notFound` or `error` screen that is not for `'anyone'`, and a `grant` or `ask` screen that is not for `'signedIn'`.
 
 ## See also
 

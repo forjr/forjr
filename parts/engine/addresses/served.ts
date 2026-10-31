@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { bounded } from '../bounded.ts'
 import type { Address } from '../door/address.ts'
 import { logCall } from '../door/failure.ts'
@@ -30,16 +30,16 @@ function reachable(o: Opened, about: About): boolean {
   return about.scheme === 'https' || (here && ownNames.includes(host)) || o.machine.insecure
 }
 
-/** The failure of a request whose key holds none of the rights an address asks for: T9104, which names them. */
-const noRight = (path: string, rights: string[]): TentError =>
-  new TentError('T9104', `${path} needs a key with the right ${rights.map((one) => `\`${one}\``).join(' or ')}.`, {
+/** The failure of a request whose key holds none of the rights an address asks for: F9104, which names them. */
+const noRight = (path: string, rights: string[]): ForjrError =>
+  new ForjrError('F9104', `${path} needs a key with the right ${rights.map((one) => `\`${one}\``).join(' or ')}.`, {
     fields: { right: rights.join(',') },
-    fix: 'Make a key with that right on the server, with `tent access key add <name> --right <right>`, and keep it with `tent login`.',
+    fix: 'Make a key with that right on the server, with `forjr access key add <name> --right <right>`, and keep it with `forjr login`.',
   })
 
-/** The failure of a handler that worked past the time its program stated: T0008. */
-const tooLong = (path: string, time: number): TentError =>
-  new TentError('T0008', `${path} took more than ${time} ms.`, { fix: 'Send less in one request.' })
+/** The failure of a handler that worked past the time its program stated: F0008. */
+const tooLong = (path: string, time: number): ForjrError =>
+  new ForjrError('F0008', `${path} took more than ${time} ms.`, { fix: 'Send less in one request.' })
 
 /** Carries the door's part out for a request to an address that a program serves, and has the program answer it. */
 async function answered(o: Opened, request: Request, about: About, served: Served, began: number): Promise<Response> {
@@ -58,7 +58,7 @@ async function answered(o: Opened, request: Request, about: About, served: Serve
     }
     caller = found.caller
     if (!countedFor(o, `served:${found.key.id}`, served.o.perMinute))
-      throw new TentError('T0005', `More than ${served.o.perMinute} requests in a minute came with one key.`, {
+      throw new ForjrError('F0005', `More than ${served.o.perMinute} requests in a minute came with one key.`, {
         fix: 'Send fewer requests.',
       })
     let timer: ReturnType<typeof setTimeout> | undefined
@@ -98,7 +98,7 @@ export const address: Address = {
   match(request) {
     const o = visit()?.app
     const path = new URL(request.url).pathname
-    return o !== undefined && path.startsWith('/_t/') && servedAt(o, path) !== undefined && { name: path }
+    return o !== undefined && path.startsWith('/_f/') && servedAt(o, path) !== undefined && { name: path }
   },
   steps: [1],
   async handle({ app, request, about, began }) {
@@ -108,7 +108,7 @@ export const address: Address = {
       return errorAnswer(
         app,
         'door',
-        new TentError('T0001', `Nothing answers ${request.method} ${path.slice(0, 120)}.`),
+        new ForjrError('F0001', `Nothing answers ${request.method} ${path.slice(0, 120)}.`),
       )
     return answered(app, request, about, served, began)
   },

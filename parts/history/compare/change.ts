@@ -31,7 +31,7 @@ function changed(change: Change, bare: boolean): string {
 }
 
 /**
- * Takes one change. Answers the line that `tent history compare` prints for it: the kind and the name of the
+ * Takes one change. Answers the line that `forjr history compare` prints for it: the kind and the name of the
  * definition it belongs to, and what happened to it.
  */
 export function lineOf(change: Change): string {

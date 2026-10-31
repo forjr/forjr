@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Change } from './changes.ts'
 import type { FileName } from './fileName.ts'
 import type { Files } from './files.ts'
@@ -67,7 +67,7 @@ export interface Inside {
   counting?: Counting
   // The writes are recorded: the store of each file is told when it is opened.
   keeping: boolean
-  // The changes are kept for the readers of the app, and `_t_here` says so: not for a sink that records alone.
+  // The changes are kept for the readers of the app, and `_f_here` says so: not for a sink that records alone.
   told?: true
   /** The running layout of the app. */
   layouts(): TableLayout[]
@@ -108,10 +108,10 @@ export function keepInside(files: Files, inside: Inside): void {
   insides.set(files, inside)
 }
 
-/** Answers what the files of an app give this part. Throws T0013 for files that `openFiles` did not open. */
+/** Answers what the files of an app give this part. Throws F0013 for files that `openFiles` did not open. */
 export function insideOf(files: Files): Inside {
   const inside = insides.get(files)
   if (!inside)
-    throw new TentError('T0013', 'The files of an app are those that `openFiles` answered, and these are not.')
+    throw new ForjrError('F0013', 'The files of an app are those that `openFiles` answered, and these are not.')
   return inside
 }

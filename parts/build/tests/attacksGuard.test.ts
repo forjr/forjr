@@ -36,14 +36,14 @@ const opened = (text: string): string =>
 // The screen of each try: it imports the helper that holds the value, or asks for that helper as an address.
 const screens = {
   imported:
-    "import { screen } from 'tentjs/ui'\nimport { keyed } from '../helpers/keys'\n" +
+    "import { screen } from 'forjr/ui'\nimport { keyed } from '../helpers/keys'\n" +
     "export const wayScreen = screen('wayScreen', { path: '/way', access: 'anyone', view: () => <span>{keyed('x').trim()}</span> })\n",
   'asked for as an address':
-    "import { screen } from 'tentjs/ui'\nimport at from '../helpers/keys.ts?url'\n" +
+    "import { screen } from 'forjr/ui'\nimport at from '../helpers/keys.ts?url'\n" +
     "export const wayScreen = screen('wayScreen', { path: '/way', access: 'anyone', view: () => <span>{String(at)}</span> })\n",
 }
 
-test('[05-4.27] a secret value with a backslash, a quote, a line break or </script> in it, in a helper that a screen imports, and one in a helper that is asked for as an address, is T3007 in a release build and in a development build', async () => {
+test('[05-4.27] a secret value with a backslash, a quote, a line break or </script> in it, in a helper that a screen imports, and one in a helper that is asked for as an address, is F3007 in a release build and in a development build', async () => {
   const tries: [string, string, keyof typeof screens][] = [
     ...Object.entries(values).map(([name, value]): [string, string, keyof typeof screens] => [name, value, 'imported']),
     ['plain', values.plain, 'asked for as an address'],
@@ -63,8 +63,8 @@ test('[05-4.27] a secret value with a backslash, a quote, a line break or </scri
       writeFileSync(join(folder, 'screens', 'way.tsx'), screens[how])
       const made = await buildProject(folder, { for: mode, secrets: ['another-value-of-this-computer', value] })
       const codes = [...new Set(made.findings.filter((one) => one.level === 'error').map((one) => one.code))]
-      // The guard found it: T3007 and nothing else, and no bundle.
-      if (made.bundleFolder === '' && codes.length === 1 && codes[0] === 'T3007') {
+      // The guard found it: F3007 and nothing else, and no bundle.
+      if (made.bundleFolder === '' && codes.length === 1 && codes[0] === 'F3007') {
         found++
         continue
       }

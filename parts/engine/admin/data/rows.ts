@@ -1,10 +1,10 @@
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import type { Admin } from '../../admin.ts'
 import { badWord, wordOf } from '../../admin.ts'
 
 /**
- * `tent data rows <table>`: every row of a table, with full access. Of a tenant table, `of` names the
- * tenant whose rows are read, by its id alone: T0002 where it names none, and for a word that names no table.
+ * `forjr data rows <table>`: every row of a table, with full access. Of a tenant table, `of` names the
+ * tenant whose rows are read, by its id alone: F0002 where it names none, and for a word that names no table.
  */
 export const admin: Admin = {
   name: 'data rows',
@@ -14,8 +14,8 @@ export const admin: Admin = {
     const tables = Object.keys(o.description.tables).sort()
     // A word that names no table is a word that was typed wrong: it is told with the tables there are.
     if (!tables.includes(from))
-      throw new TentError(
-        'T0002',
+      throw new ForjrError(
+        'F0002',
         `The app has no table ${JSON.stringify(from).slice(0, 60)}. Its tables are: ${tables.join(', ')}.`,
         { fields: { table: 'missing' }, fix: 'Name one of the tables of the app.' },
       )

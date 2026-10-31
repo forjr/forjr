@@ -1,4 +1,4 @@
-import { action, change, flow, input, list, number, text } from 'tentjs'
+import { action, change, flow, input, list, number, text } from 'forjr'
 import { marks, notes, users } from './tables.ts'
 
 export const addUser = change('addUser', {

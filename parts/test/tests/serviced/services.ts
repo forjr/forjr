@@ -1,4 +1,4 @@
-import { file, get, number, object, post, secret, service, text } from 'tentjs'
+import { file, get, number, object, post, secret, service, text } from 'forjr'
 
 // Each address of this file is written anew by the test, with the port of its stand-in server.
 export const remote = service('remote', {

@@ -1,6 +1,6 @@
 import { existsSync, renameSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Files, Store, TableLayout } from '../../data/index.ts'
 import { connected, here, keepChanges, sqliteStore } from '../../data/index.ts'
 import { runningElsewhere } from '../engineFile.ts'
@@ -25,7 +25,7 @@ export interface KeyReplaced {
   sealed: number
   // How many secrets were written again under the new key.
   secrets: number
-  // Where the key is given by `TENT_SECRET_KEY`: the new key, which whoever runs the engine gives it from now on.
+  // Where the key is given by `FORJR_SECRET_KEY`: the new key, which whoever runs the engine gives it from now on.
   key?: string
 }
 
@@ -40,10 +40,10 @@ function opened(dataFolder: string): { store?: Store; files?: Files; layout: Tab
   plain.open(dataFolder)
   const layout = plain.layout()
   const has = (name: string): boolean => layout.some((table) => table.name === name)
-  const kept = has('_t_here') && here(plain).kept === true
+  const kept = has('_f_here') && here(plain).kept === true
   plain.close()
-  if (!has('_t_here')) return { layout: [] }
-  if (has('_t_tenants')) {
+  if (!has('_f_here')) return { layout: [] }
+  if (has('_f_tenants')) {
     const files = tenantFilesOpened(dataFolder, layout, kept)
     return { store: files.shared, files, layout }
   }
@@ -54,7 +54,7 @@ function opened(dataFolder: string): { store?: Store; files?: Files; layout: Tab
 
 /**
  * Writes the secrets of one file again under another key, beside the old file. Answers how many it wrote, and
- * what puts the new file in the place of the old one. A value that opens under neither key stops it with T0019.
+ * what puts the new file in the place of the old one. A value that opens under neither key stops it with F0019.
  */
 function secretsAgain(
   dataFolder: string,
@@ -69,8 +69,8 @@ function secretsAgain(
     const text = String(sealed)
     const value = openText(keys.next, text, bound) ?? openText(keys.old, text, bound)
     if (value === undefined)
-      throw new TentError(
-        'T0019',
+      throw new ForjrError(
+        'F0019',
         `The secret ${name} of ${file} opens under neither the key at hand nor the new one.`,
         {
           fix: 'Give the key that the file was written under, and run the command again.',
@@ -84,7 +84,7 @@ function secretsAgain(
 }
 
 /**
- * `tent secrets key --replace`: takes a data folder whose engine is stopped, and what is asked whether a new key
+ * `forjr secrets key --replace`: takes a data folder whose engine is stopped, and what is asked whether a new key
  * that is printed was kept. On a writer it makes a new key, written first as `secret.key.next`, seals every
  * sealed value of the data again under it: the shared file in one write, which is made as the writer makes any
  * write, and each tenant's file that holds a sealed column in one write of that file, one after another. It writes both
@@ -93,9 +93,9 @@ function secretsAgain(
  * the new key is left as it is. On the folder of a reader, or of a writer that was stopped, it makes no key and
  * seals no data: it is handed the new key as the file `secret.key.next` laid into the folder, and writes the
  * secrets files of that folder again under it, once no sealed value of its data opens under the old key alone.
- * Throws T0013 for a folder whose engine runs, for the folder
+ * Throws F0013 for a folder whose engine runs, for the folder
  * of a reader with no new key laid into it or with a value that is not handed over yet, and where the new key was
- * not kept; and T0019 with no key at hand.
+ * not kept; and F0019 with no key at hand.
  */
 export async function replaceSecretKey(
   dataFolder: string,
@@ -117,7 +117,7 @@ export async function finishKeyReplaced(dataFolder: string): Promise<void> {
     await replaced(dataFolder, {}, true)
   } catch (error) {
     // What the command would refuse is left for the command: the app opens, and a value opens under either key.
-    if (!(error instanceof TentError)) throw error
+    if (!(error instanceof ForjrError)) throw error
   }
 }
 
@@ -127,11 +127,11 @@ async function replaced(
   own: boolean,
 ): Promise<KeyReplaced> {
   if (!own && (heldHere(dataFolder) || (await runningElsewhere(dataFolder)) !== undefined))
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       'The key of the secrets is replaced with the engine stopped, and one runs on this data folder.',
       {
-        fix: 'Stop the engine, run `tent secrets key --replace`, and start the engine again with the new key.',
+        fix: 'Stop the engine, run `forjr secrets key --replace`, and start the engine again with the new key.',
       },
     )
   const old = secretKeyAt(dataFolder)
@@ -143,8 +143,8 @@ async function replaced(
     const reads = role === 'reader' || role === 'stopped'
     let next = secretKeyIn(nextFile)
     if (reads && !next)
-      throw new TentError(
-        'T0013',
+      throw new ForjrError(
+        'F0013',
         'This is the data folder of a reader: it is handed the new key that the run on the writer made, and none lies in it.',
         {
           fix: 'Lay the file `secret.key.next` of the writer into this folder, and run the command again.',
@@ -156,8 +156,8 @@ async function replaced(
       writeSecretKey(nextFile, next)
       if (keyIsGiven() && (await o.kept?.(keyText(next))) !== true) {
         rmSync(nextFile, { force: true })
-        throw new TentError('T0013', 'The new key was not kept, so nothing was sealed under it.', {
-          fix: 'Keep the key that the command prints, answer `yes`, and give the engine that key as `TENT_SECRET_KEY` from then on.',
+        throw new ForjrError('F0013', 'The new key was not kept, so nothing was sealed under it.', {
+          fix: 'Keep the key that the command prints, answer `yes`, and give the engine that key as `FORJR_SECRET_KEY` from then on.',
         })
       }
     }
@@ -181,8 +181,8 @@ async function replaced(
       // The files of its tenants are held the same way, each read alone.
       behind += tenantsBehind(dataFolder, store, keys)
       if (behind)
-        throw new TentError(
-          'T0013',
+        throw new ForjrError(
+          'F0013',
           `${behind} sealed ${behind === 1 ? 'value' : 'values'} of this reader still ${behind === 1 ? 'opens' : 'open'} under the old key alone: its writer has not handed it every row that was sealed again.`,
           {
             fix: 'Let the reader join its writer, and run the command again. `secret.key.next` stays where it lies.',

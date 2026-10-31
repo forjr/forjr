@@ -72,11 +72,11 @@ test('[27-16] two passes of one step keep their values apart, again drops what w
   await untilTried('the run ended after its second try', () => partsOf(page.got, 'again', 'done').length === 1)
 })
 
-test('[27-16] a value past inFrame is T5102; a run whose flow states no follow, and one whose starter is another caller, is not found', async (t) => {
+test('[27-16] a value past inFrame is F5102; a run whose flow states no follow, and one whose starter is another caller, is not found', async (t) => {
   const h = await followedApp(t)
   const { run } = notDropped(await h.app.start('tooMuch', {}, { as: h.maya }))
   await untilTried('the run failed', () => h.app.runs.read(run)?.state === 'failed')
-  assert.equal(h.app.runs.read(run)?.error?.code, 'T5102')
+  assert.equal(h.app.runs.read(run)?.error?.code, 'F5102')
   assert.match(JSON.stringify(h.app.runs.read(run)?.error), /inFrame/)
   const closed = notDropped(await h.app.start('unfollowed', {}, { as: h.maya }))
   const go = gateOf('count')
@@ -88,7 +88,7 @@ test('[27-16] a value past inFrame is T5102; a run whose flow states no follow, 
   await untilTried('both failed', () => page.of('failed').length === 2)
   assert.deepEqual(
     page.of('failed').map((one) => Object(one.error).code),
-    ['T0001', 'T0001'],
+    ['F0001', 'F0001'],
   )
 })
 
@@ -118,7 +118,7 @@ test('[27-16] a stream with a shape whose parts a step says fills the value on t
   assert.deepEqual(ended()?.answer, ['one', 'two', 'three'])
 })
 
-test('[27-16] the run of an action that states background and follow is followed by the id of its T0008, and is sent what it says and its answer', async (t) => {
+test('[27-16] the run of an action that states background and follow is followed by the id of its F0008, and is sent what it says and its answer', async (t) => {
   const h = await followedApp(t)
   const go = gateOf('heavy')
   t.after(go)
@@ -126,7 +126,7 @@ test('[27-16] the run of an action that states background and follow is followed
     () => undefined,
     (thrown: unknown) => thrown,
   )
-  assert.equal(Reflect.get(Object(error), 'code'), 'T0008')
+  assert.equal(Reflect.get(Object(error), 'code'), 'F0008')
   const run = String(Reflect.get(Object(Reflect.get(Object(error), 'fields')), 'run'))
   const page = await liveOf(h, h.maya)
   page.send({ t: 'run-watch', id: 'r', run })
@@ -137,7 +137,7 @@ test('[27-16] the run of an action that states background and follow is followed
   assert.equal(partsOf(page.got, 'r', 'done')[0]?.answer, 'heavy done')
 })
 
-test('[27-16] a screen that reads working of a flow that states follow is sent its steps and what they say; a caller whom the rule does not let in is refused with T3101; two visitors are each sent their own runs', async (t) => {
+test('[27-16] a screen that reads working of a flow that states follow is sent its steps and what they say; a caller whom the rule does not let in is refused with F3101; two visitors are each sent their own runs', async (t) => {
   const h = await followedApp(t)
   const go = gateOf('count')
   const page = await liveOf(h, h.maya)
@@ -148,11 +148,11 @@ test('[27-16] a screen that reads working of a flow that states follow is sent i
   )
   assert.match(JSON.stringify(page.got.filter((one) => one.id === 'w')), new RegExp(run))
   const refused = await page.watch('staff', 'forStaff.working', {})
-  assert.equal(Object(refused.error).code, 'T3101', JSON.stringify(refused))
+  assert.equal(Object(refused.error).code, 'F3101', JSON.stringify(refused))
   // Two visitors, each with a run of their own, are each sent their own: a visitor is known by the cookie of its start.
   const visitor = async (who: string) => {
     const answer = await h.app.request(
-      new Request(`${h.origin}/_t/call/visiting`, {
+      new Request(`${h.origin}/_f/call/visiting`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', origin: h.origin },
         body: JSON.stringify({ input: { who } }),

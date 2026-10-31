@@ -1,10 +1,10 @@
 import type { SQLInputValue } from 'node:sqlite'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { holdsMoment, withMoments } from '../moments.ts'
 import type { ColumnType } from '../store.ts'
 
-const misfit = (table: string, column: string, needs: string): TentError =>
-  new TentError('T2107', `The value of \`${column}\` does not fit its column of \`${table}\`: it takes ${needs}.`, {
+const misfit = (table: string, column: string, needs: string): ForjrError =>
+  new ForjrError('F2107', `The value of \`${column}\` does not fit its column of \`${table}\`: it takes ${needs}.`, {
     fields: { [column]: 'type' },
   })
 
@@ -18,7 +18,7 @@ export function msOf(value: unknown): number | undefined {
  * Takes the type of a column, a value as code holds it, and the names of the table and the column. Answers the
  * value as SQLite keeps it: nothing as NULL, true and false as 1 and 0, a moment as whole milliseconds, and a list,
  * an object and a `json` as JSON text. A sealed value is the sealed text, whatever its type. A link is not turned
- * here: its row is looked up by whoever writes it. Throws T2107 for a value of another kind than the column holds.
+ * here: its row is looked up by whoever writes it. Throws F2107 for a value of another kind than the column holds.
  */
 export function toStored(type: ColumnType, value: unknown, table: string, column: string): SQLInputValue {
   if (value === undefined || value === null) return null

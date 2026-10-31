@@ -1,7 +1,7 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 
 /** The type of a body that holds blobs as they are. */
-export const blobsType = 'application/x-tent-blobs'
+export const blobsType = 'application/x-forjr-blobs'
 
 /** Blobs as one body: for each one line, `<fingerprint> <length>` and a line feed, then that many bytes. */
 export function blobsBody(blobs: [string, Uint8Array][]): Uint8Array<ArrayBuffer> {
@@ -16,11 +16,11 @@ export function blobsBody(blobs: [string, Uint8Array][]): Uint8Array<ArrayBuffer
   return all
 }
 
-/** The failure of a body of blobs that has not its form: T0002. */
-const formless = (words: string): TentError =>
-  new TentError('T0002', `The body of blobs has not its form: ${words}.`, { fields: { body: 'type' } })
+/** The failure of a body of blobs that has not its form: F0002. */
+const formless = (words: string): ForjrError =>
+  new ForjrError('F0002', `The body of blobs has not its form: ${words}.`, { fields: { body: 'type' } })
 
-/** Reads a body of blobs back into its blobs, each by its fingerprint. Throws T0002 for a body that has not its form. */
+/** Reads a body of blobs back into its blobs, each by its fingerprint. Throws F0002 for a body that has not its form. */
 export function blobsOf(body: Uint8Array): [string, Uint8Array][] {
   const blobs: [string, Uint8Array][] = []
   let at = 0

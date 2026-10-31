@@ -37,25 +37,25 @@ async function published(
   return { server, here, to, folder }
 }
 
-test('[40-15b] [16-2@8c] a point that says checked over files that fail the check is T9101, and one pushed with --unchecked is still not published', async (t) => {
+test('[40-15b] [16-2@8c] a point that says checked over files that fail the check is F9101, and one pushed with --unchecked is still not published', async (t) => {
   const { server, here, to } = await published(t)
   here.edit(functions, '.where({ paid: false })', '.where({ nothing: false })')
   const lying = here.history.record(here.project, { by: ada, kind: 'command', checked: true })
   const said = await refusal(
     publish({ project: here.project, history: here.history, to, fetch: fetched, point: lying.id }),
   )
-  assert.deepEqual([said?.code, said?.fields?.reason], ['T9101', 'check'], String(said?.message))
+  assert.deepEqual([said?.code, said?.fields?.reason], ['F9101', 'check'], String(said?.message))
   const failing = here.history.record(here.project, { by: ada, kind: 'command', checked: false })
-  assert.equal((await refusal(push({ history: here.history, to, fetch: fetched })))?.code, 'T9101')
+  assert.equal((await refusal(push({ history: here.history, to, fetch: fetched })))?.code, 'F9101')
   await push({ history: here.history, to, fetch: fetched, unchecked: true })
   assert.equal(server.history.pointer('main'), failing.id, 'it is shared')
   const refused = await refusal(
     publish({ project: here.project, history: here.history, to, fetch: fetched, point: failing.id }),
   )
-  assert.equal(refused?.code, 'T9101', 'and never published')
+  assert.equal(refused?.code, 'F9101', 'and never published')
 })
 
-test('[40-15b] a second publish at once is T9103', async (t) => {
+test('[40-15b] a second publish at once is F9103', async (t) => {
   const { here, to, server } = await published(t)
   // A second publish is sent again and again while a first one is under way. A quick computer may end a publish
   // between two of them: the publish is made again, five times at most, until one is met under way.
@@ -79,7 +79,7 @@ test('[40-15b] a second publish at once is T9103', async (t) => {
       done = true
     })
     while (!done) {
-      const answer = await sent(server, '/_t/publish', {}, to.key)
+      const answer = await sent(server, '/_f/publish', {}, to.key)
       codes.add(String(Object(answer.answer.error).code))
       if (Object(answer.answer.error).fields?.reason === 'busy') codes.add('busy')
     }
@@ -97,7 +97,7 @@ test('[40-15b] over plain http the addresses are found only from this computer, 
         {
           host: '127.0.0.1',
           port,
-          path: '/_t/sync/have',
+          path: '/_f/sync/have',
           method: 'POST',
           headers: { host: 'shop.example.com', 'content-type': 'application/json' },
         },
@@ -129,7 +129,7 @@ test('[40-15b] --back with a waiting run is refused, and --stop-runs lets it thr
   const refused = await refusal(
     publish({ project: here.project, history: here.history, to, fetch: fetched, back: true }),
   )
-  assert.deepEqual([refused?.code, refused?.fields?.reason], ['T9103', 'waiting'])
+  assert.deepEqual([refused?.code, refused?.fields?.reason], ['F9103', 'waiting'])
   const back = await publish({
     project: here.project,
     history: here.history,
@@ -158,7 +158,7 @@ test('[40-15b] an older point with another lock file is published with --install
   const stopped = await refusal(
     publish({ project: here.project, history: here.history, to, fetch: fetched, point: older }),
   )
-  assert.deepEqual([stopped?.code, stopped?.fields?.reason], ['T9101', 'lock'])
+  assert.deepEqual([stopped?.code, stopped?.fields?.reason], ['F9101', 'lock'])
   const done = await publish({
     project: here.project,
     history: here.history,
@@ -174,17 +174,17 @@ test('[40-15b] a secret set through the values of a far server is used by the ne
   const { server, here, to } = await published(t)
   makeSecretKey(server.data)
   const value = 'smtp://a-value-nobody-reads.example.com:25'
-  const set = await sent(server, '/_t/publish/values', { kind: 'secret', name: 'SMTP_URL', value }, to.key)
+  const set = await sent(server, '/_f/publish/values', { kind: 'secret', name: 'SMTP_URL', value }, to.key)
   assert.equal(set.status, 200)
-  const listed = await sent(server, '/_t/publish/values', { list: true }, to.key)
+  const listed = await sent(server, '/_f/publish/values', { list: true }, to.key)
   assert.deepEqual(Object(listed.answer.value).secrets, ['SMTP_URL'])
   assert.ok(!JSON.stringify([set.answer, listed.answer]).includes(value))
   here.edit(
-    'tent.ts',
+    'forjr.ts',
     "title: 'Shop' }",
     "title: 'Shop', mail: { from: 'shop@example.com', send: secret('SMTP_URL') } }",
   )
-  here.edit('tent.ts', "import { project } from 'tentjs'", "import { project, secret } from 'tentjs'")
+  here.edit('forjr.ts', "import { project } from 'forjr'", "import { project, secret } from 'forjr'")
   await here.save()
   const done = await publish({ project: here.project, history: here.history, to, fetch: fetched })
   assert.equal(running(server), done.version)
@@ -246,6 +246,6 @@ test('[40-15b] a server that follows takes the new version within its minute, an
   )
   // A key of `bundle` fetches what is live and nothing else.
   const source = Object.values(here.history.read(String(here.history.pointer('now')))?.files ?? {})[0]
-  const asked = await sent(server, '/_t/sync/blobs', { want: [source] }, bundle.key)
-  assert.equal(Object(asked.answer.error).code, 'T9104')
+  const asked = await sent(server, '/_f/sync/blobs', { want: [source] }, bundle.key)
+  assert.equal(Object(asked.answer.error).code, 'F9104')
 })

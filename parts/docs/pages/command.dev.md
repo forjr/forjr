@@ -1,11 +1,11 @@
-# `tent dev`
+# `forjr dev`
 
 Builds the project, runs it in the mode `development`, and watches its folder, until the program is told to end. Each save is built and switched to, and every open page follows it.
 
 ## Usage
 
 ```
-tent dev [--port <n>] [--fresh] [--mail] [--keep] [--inspect <origin>]
+forjr dev [--port <n>] [--fresh] [--mail] [--keep] [--inspect <origin>]
 ```
 
 ## Options
@@ -16,15 +16,15 @@ tent dev [--port <n>] [--fresh] [--mail] [--keep] [--inspect <origin>]
 | `--fresh` | Empties the development data first, and applies `seed.ts` again. The secrets and the settings with their key, the history, the bundles, the cache, `backups/`, `certs/`, `evals/` and `shots/` stay |
 | `--mail` | Sends mail, in place of writing each message to the log |
 | `--keep` | Removes the rows past the time their table keeps them (`option.table.lasts`), as the engine does in every other mode |
-| `--inspect <origin>` | Prints an address of the app in the inspect mode, for a visual tool whose pages come from that origin, as `http://localhost:5173`: the tool may show the page in a frame, and the page tells it which element is pointed at (`topic.inspect`). An origin is a scheme, a host and a port, and nothing else: anything more is `code.T0002`, and the command ends before it runs |
+| `--inspect <origin>` | Prints an address of the app in the inspect mode, for a visual tool whose pages come from that origin, as `http://localhost:5173`: the tool may show the page in a frame, and the page tells it which element is pointed at (`topic.inspect`). An origin is a scheme, a host and a port, and nothing else: anything more is `code.F0002`, and the command ends before it runs |
 
-It runs until Ctrl+C in its terminal, or until it is told to end: a program that started it ends it by the number of its child, as `command.start` says of `tent start`, and it closes its engine first where the system tells it so. The data folder is `.tent/` of the project. Data that is empty is seeded at the start. The app answers this computer alone, by `localhost` and its own number. A person is signed in through the app's own sign-in screen, as on a server (`topic.signIn`).
+It runs until Ctrl+C in its terminal, or until it is told to end: a program that started it ends it by the number of its child, as `command.start` says of `forjr start`, and it closes its engine first where the system tells it so. The data folder is `.forjr/` of the project. Data that is empty is seeded at the start. The app answers this computer alone, by `localhost` and its own number. A person is signed in through the app's own sign-in screen, as on a server (`topic.signIn`).
 
 ## Example
 
 ```
-tent dev --port 4000
-tent dev --inspect http://localhost:5173
+forjr dev --port 4000
+forjr dev --inspect http://localhost:5173
 ```
 
 ## Output
@@ -44,7 +44,7 @@ Each save does four things:
 
 The type checker runs beside this and holds nothing back. What it finds is printed and arrives in the overlay when it is ready.
 
-A version that no page needs any more is dropped: its list under `.tent/build/` is removed, and each file of `.tent/build/files/` that no list names any more.
+A version that no page needs any more is dropped: its list under `.forjr/build/` is removed, and each file of `.forjr/build/files/` that no list names any more.
 
 The overlay: in development a page shows what is wrong along its lower edge: each finding with its code, where it is and its fix, and each thing that the content policy of the page blocked, with the entry of `unlock` of `project` that would open it. The overlay is there in the mode `development` only.
 
@@ -60,7 +60,7 @@ The runtime cannot forget a module that it loaded, so the memory of the engine g
 
 ## Errors
 
-`code.T0013` for a second `tent dev` in one project, which names the program that runs the first. `code.T0002` for an `--inspect` that is no origin. A project that cannot be built at the start is printed with its findings, and the command waits for the save that mends it.
+`code.F0013` for a second `forjr dev` in one project, which names the program that runs the first. `code.F0002` for an `--inspect` that is no origin. A project that cannot be built at the start is printed with its findings, and the command waits for the save that mends it.
 
 ## See also
 

@@ -8,8 +8,8 @@ import { codeOf, moment } from './many.ts'
 
 /** The things that a hand lays at the place of the data file of a tenant, each of which a store cannot read. */
 const things = {
-  // A database of SQLite that is none of ours: it holds a table, and no `_t_meta`.
-  'a database with no _t_meta': (path: string): void => {
+  // A database of SQLite that is none of ours: it holds a table, and no `_f_meta`.
+  'a database with no _f_meta': (path: string): void => {
     const db = new DatabaseSync(path)
     db.exec('CREATE TABLE "notes" ("id" TEXT PRIMARY KEY, "words" TEXT)')
     db.exec(`INSERT INTO "notes" VALUES ('1', 'of somebody else')`)
@@ -73,7 +73,7 @@ test('[50-6] a folder in the place of a file that SQLite keeps beside a data fil
   const beside = `${fileOf(dataFolder, north)}-wal`
   mkdirSync(beside)
   laid(dataFolder, lastOfAll, 'a file that holds nothing', '')
-  assert.equal(await codeOf(titlesOf(app, north)), 'T0009')
+  assert.equal(await codeOf(titlesOf(app, north)), 'F0009')
   const stray = (await listed(app, dataFolder, { stray: true })).stray
   assert.ok(stray)
   assert.deepEqual([stray.refused, stray.removed], [[north], [lastOfAll]])
@@ -97,7 +97,7 @@ test('[50-6] a file that holds rows and names no tenant is no file that was just
     mkdirSync(dirname(path), { recursive: true })
     cpSync(fileOf(dataFolder, north), path)
     const db = new DatabaseSync(path)
-    db.exec(`DELETE FROM "_t_meta" WHERE "key" IN ('tenant', 'table')`)
+    db.exec(`DELETE FROM "_f_meta" WHERE "key" IN ('tenant', 'table')`)
     db.close()
     return path
   })

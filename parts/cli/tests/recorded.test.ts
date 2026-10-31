@@ -5,7 +5,7 @@ import { test } from 'node:test'
 import { recordedCopy, tested } from './recordedProject.ts'
 import { typed } from './typed.ts'
 
-/** What `.tent/tests.json` keeps of one run of one test. */
+/** What `.forjr/tests.json` keeps of one run of one test. */
 interface Kept {
   result: string
   ms: number
@@ -28,8 +28,8 @@ const filesOf: Record<string, string> = {
   [noted]: 'tests/noted.test.ts',
 }
 
-/** The record that `tent test` keeps in the project. */
-const recordOf = (project: string): TestsKept => JSON.parse(readFileSync(join(project, '.tent', 'tests.json'), 'utf8'))
+/** The record that `forjr test` keeps in the project. */
+const recordOf = (project: string): TestsKept => JSON.parse(readFileSync(join(project, '.forjr', 'tests.json'), 'utf8'))
 
 /** The kept run of one test, by its file and its name. */
 function keptOf(project: string, name: string, of = filesOf[name]): Kept {
@@ -54,7 +54,7 @@ const ordersIn = (printed: string): string[] => {
   return [added, listed, noted].map((name) => `${lines[`${filesOf[name]}: ${name}`] ?? 'missing'} ${name}`)
 }
 
-test('[53-1] a test that touched a function, a table read through app.rows, a service and an address that answered "not found" stands in .tent/tests.json with each of them', (t) => {
+test('[53-1] a test that touched a function, a table read through app.rows, a service and an address that answered "not found" stands in .forjr/tests.json with each of them', (t) => {
   const project = recordedCopy(t, 'recorded-1')
   const ran = tested(project, '--json')
   assert.equal(ran.ended, 0, ran.printed)
@@ -119,7 +119,7 @@ test('[53-4] a new flow `on` a table a test wrote, and a new screen at an addres
   mkdirSync(join(project, 'flows'))
   writeFileSync(
     join(project, 'flows', 'kept.ts'),
-    `import { flow } from 'tentjs'
+    `import { flow } from 'forjr'
 import { notes } from '../tables/notes'
 
 export const keptNote = flow('keptNote', { on: notes.added(), run: async () => 'seen' })
@@ -130,7 +130,7 @@ export const keptNote = flow('keptNote', { on: notes.added(), run: async () => '
   assert.deepEqual(ordersIn(flowed.printed), [`replayed ${added}`, `replayed ${listed}`, `passed ${noted}`])
   writeFileSync(
     join(project, 'screens', 'nowhere.tsx'),
-    `import { screen } from 'tentjs/ui'
+    `import { screen } from 'forjr/ui'
 
 export const nowhere = screen('nowhere', { path: '/nowhere', access: 'signedIn', view: () => <p>Here now</p> })
 `,
@@ -185,7 +185,7 @@ test('[53-6] --all runs every test and makes every record anew', (t) => {
   assert.ok(first)
   first.touched = {}
   record.tests['tests/gone.test.ts'] = { 'a test that is gone': [{ ...first }] }
-  writeFileSync(join(project, '.tent', 'tests.json'), JSON.stringify(record))
+  writeFileSync(join(project, '.forjr', 'tests.json'), JSON.stringify(record))
   const all = tested(project, '--all')
   assert.equal(all.ended, 0, all.printed)
   assert.deepEqual(ordersIn(all.printed), [`passed ${added}`, `passed ${listed}`, `passed ${noted}`])
@@ -208,12 +208,12 @@ test('[53-7] a note made on a query thread, by a worker in the program, and afte
   assert.deepEqual(keptOf(project, 'the next test only waits', of).touched, {})
 })
 
-test('[53-8] tent check warns, with its code, of a function and a table no test touched, and not of one a test touched; tent impact names a changed table a test read as tested', async (t) => {
+test('[53-8] forjr check warns, with its code, of a function and a table no test touched, and not of one a test touched; forjr impact names a changed table a test read as tested', async (t) => {
   const project = recordedCopy(t, 'recorded-8')
   assert.equal((await typed(project, 'history', 'save', 'first', '--json')).ended, 0)
   assert.equal(tested(project).ended, 0)
   const checked = await typed(project, 'check', '--json')
-  const untested = (checked.answer.findings ?? []).filter((one) => one.code === 'T9004')
+  const untested = (checked.answer.findings ?? []).filter((one) => one.code === 'F9004')
   const named = untested.map((one) => one.where?.definition).sort()
   assert.ok(named.includes('forgotten'), JSON.stringify(named))
   assert.ok(named.includes('archive'))
@@ -221,7 +221,7 @@ test('[53-8] tent check warns, with its code, of a function and a table no test 
     assert.ok(!named.includes(touched), touched)
   for (const one of untested) {
     assert.equal(one.level, 'warning')
-    assert.match(String(one.fix), /tent test/)
+    assert.match(String(one.fix), /forjr test/)
   }
   // A column more of a table that a test read: the impact names its tests, and holds it as tested.
   const orders = join(project, 'tables', 'orders.ts')

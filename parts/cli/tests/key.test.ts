@@ -9,7 +9,7 @@ import { copied, typed } from './typed.ts'
 
 const system = { kind: 'system' } as const
 
-/** The stored shape of a key as `tent access key list` prints it with `--json`: never the key itself. */
+/** The stored shape of a key as `forjr access key list` prints it with `--json`: never the key itself. */
 const listed = object({
   id: text(),
   name: text(),
@@ -23,19 +23,19 @@ const listed = object({
   expiresAt: text({ optional: true }),
 })
 
-test('[15-6@8a] [24-9] `tent access key add` shows a key once, `list` shows each key without it, and `remove` removes one, on an engine that runs, each with its stored shape', async (t) => {
+test('[15-6@8a] [24-9] `forjr access key add` shows a key once, `list` shows each key without it, and `remove` removes one, on an engine that runs, each with its stored shape', async (t) => {
   const project = copied(t, 'key-running')
   const built = await buildProject(project, { for: 'dev' })
   assert.deepEqual(built.findings, [])
   const engine = createEngine({ port: 0 })
   try {
-    const app = await engine.open(built.bundleFolder, { dataFolder: join(project, '.tent'), mode: 'test' })
+    const app = await engine.open(built.bundleFolder, { dataFolder: join(project, '.forjr'), mode: 'test' })
     const ada = String(Object(await app.call('addUser', { name: 'Ada', roles: [] }, { as: system })).id)
     const words = ['access', 'key', 'add', 'reports', '--scopes', 'monthlyTotals,openOrders', '--roles', 'staff']
     const added = await typed(project, ...words, '--per-minute', '120', '--for', '90 days', '--json')
     assert.equal(added.ended, 0, added.printed)
     const made = Object(added.answer.value)
-    assert.match(String(made.key), /^tent_[0-9a-z]{26}_[A-Za-z0-9_-]{43}$/)
+    assert.match(String(made.key), /^forjr_[0-9a-z]{26}_[A-Za-z0-9_-]{43}$/)
     assert.equal(String(made.key).split('_')[1], made.id)
     const mine = await typed(
       project,

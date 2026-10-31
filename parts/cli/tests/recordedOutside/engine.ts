@@ -1,4 +1,4 @@
-import type { Makers } from 'tentjs/engine'
+import type { Makers } from 'forjr/engine'
 
 // A provider of this computer: a model of it is no model of an outside server, and still none that a test faked.
 export default {

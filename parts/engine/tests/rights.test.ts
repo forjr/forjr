@@ -14,18 +14,18 @@ test('[11-2] a function that is called from code runs as the same caller and pas
   assert.equal(await app.call('whoAmI', {}, { as: nobody }), 'no user')
   assert.equal(await app.call('whoAmI', {}, { as: system }), 'no user')
   // A call that names no caller runs as nobody.
-  assert.equal(await codeOf(Reflect.apply(app.call, app, ['countNotes', {}])), 'T0006')
+  assert.equal(await codeOf(Reflect.apply(app.call, app, ['countNotes', {}])), 'F0006')
 
   // Code: a function that another function calls runs as the caller of the first.
   assert.equal(await app.call('outerWho', {}, { as: ada }), ada.user?.id)
   assert.equal(await app.call('outerWho', {}, { as: bob }), bob.user?.id)
   // Its own rule holds however it is reached: the outer function is open to anyone, the inner one to nobody.
-  assert.equal(await codeOf(app.call('callsClosed', {}, { as: nobody })), 'T0006')
-  assert.equal(await codeOf(app.call('callsClosed', {}, { as: ada })), 'T3101')
+  assert.equal(await codeOf(app.call('callsClosed', {}, { as: nobody })), 'F0006')
+  assert.equal(await codeOf(app.call('callsClosed', {}, { as: ada })), 'F3101')
   // A caller that is the system passes every rule, in the function it calls too.
   assert.equal(await app.call('callsClosed', {}, { as: system }), 1)
   // Its input types hold too.
-  assert.equal(await codeOf(app.call('deep', { n: 'three' }, { as: ada })), 'T0002')
+  assert.equal(await codeOf(app.call('deep', { n: 'three' }, { as: ada })), 'F0002')
 
   // `call`, which a function that states `system` is handed, calls as the system: the rule lets it in, and the
   // function it reaches runs with no user.
@@ -47,8 +47,8 @@ test('[11-2] a function that is called from code runs as the same caller and pas
   assert.equal(await app.call('countNotes', {}, { as: system }), 3)
   assert.equal(await app.call('everyNote', {}, { as: ada }), 3)
   assert.equal(await app.call('rawNotes', {}, { as: bob }), 3)
-  assert.equal(await codeOf(app.call('noSystem', {}, { as: ada })), 'T0013')
-  assert.equal(await codeOf(app.call('rawNoSystem', {}, { as: bob })), 'T0013')
+  assert.equal(await codeOf(app.call('noSystem', {}, { as: ada })), 'F0013')
+  assert.equal(await codeOf(app.call('rawNoSystem', {}, { as: bob })), 'F0013')
   // The table rules hold for a write as the caller: the owner of a new row is its caller.
   const mine = await app.call('notesBy', { done: false }, { as: bob })
   assert.ok(Array.isArray(mine) && mine.length === 2 && mine.every((row) => row.owner === bob.user?.id))
@@ -95,8 +95,8 @@ test('[16-4@4] the tables of the log hold exactly their columns, and the handles
       ['desk', 'addNote', 'change', 'user', ada.user?.id, 1, null],
       ['desk', 'countNotes', 'query', 'user', ada.user?.id, 1, null],
       ['desk', 'remind', 'action', 'user', ada.user?.id, 1, null],
-      ['desk', 'staffTags', 'query', 'user', ada.user?.id, 0, 'T3101'],
-      ['desk', 'addNote', 'change', 'user', ada.user?.id, 0, 'T0002'],
+      ['desk', 'staffTags', 'query', 'user', ada.user?.id, 0, 'F3101'],
+      ['desk', 'addNote', 'change', 'user', ada.user?.id, 0, 'F0002'],
     ],
   )
   for (const row of calls) {
@@ -143,8 +143,8 @@ test('[11-2] a run that was read is carried out by the engine as the same caller
   await app.call('addNote', { title: 'of Bob too' }, { as: bob })
   assert.equal(await app.call('bodied', { n: 10 }, { as: ada }), 12)
   assert.equal(await app.call('bodied', { n: 10 }, { as: bob }), 14)
-  assert.equal(await codeOf(app.call('bodied', { n: 10 }, { as: nobody })), 'T0006')
-  assert.equal(await codeOf(app.call('bodied', { n: 'ten' }, { as: ada })), 'T0002')
+  assert.equal(await codeOf(app.call('bodied', { n: 10 }, { as: nobody })), 'F0006')
+  assert.equal(await codeOf(app.call('bodied', { n: 'ten' }, { as: ada })), 'F0002')
   // The call inside the body is a call like any other: it has its own row in the log, as the same caller.
   const rows = logRows(dataFolder, 'calls').slice(-4)
   assert.deepEqual(
@@ -152,8 +152,8 @@ test('[11-2] a run that was read is carried out by the engine as the same caller
     [
       ['countNotes', bob.user?.id, 1, null],
       ['bodied', bob.user?.id, 1, null],
-      ['bodied', null, 0, 'T0006'],
-      ['bodied', ada.user?.id, 0, 'T0002'],
+      ['bodied', null, 0, 'F0006'],
+      ['bodied', ada.user?.id, 0, 'F0002'],
     ],
   )
 })

@@ -4,7 +4,7 @@ The type of the data of the event, which declares it: `emit` of it holds its dat
 
 ## Value
 
-A type, as `object({ order: text() })`. A backend file exports the declaration, and the build lists it in `tent.d.ts` by its name. Left out, the event is not declared, and its data is what each `emit` hands it.
+A type, as `object({ order: text() })`. A backend file exports the declaration, and the build lists it in `forjr.d.ts` by its name. Left out, the event is not declared, and its data is what each `emit` hands it.
 
 ## Example
 
@@ -14,7 +14,7 @@ export const orderShipped = event('order.shipped', { data: object({ order: text(
 
 ## Errors
 
-`code.T5111`, a warning: an event that no file declares is emitted with data of two shapes.
+`code.F5111`, a warning: an event that no file declares is emitted with data of two shapes.
 
 ## See also
 

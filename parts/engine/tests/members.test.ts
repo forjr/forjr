@@ -45,25 +45,25 @@ async function under(app: App, top: string, flow: string): Promise<string> {
   return found
 }
 
-test('[27-6] a run the caller did not start, a run of another agent, and a run of an ordinary flow are T0001', async (t) => {
+test('[27-6] a run the caller did not start, a run of another agent, and a run of an ordinary flow are F0001', async (t) => {
   const h = await helped(t)
   h.say(oneTool('refund', { order: 'o1' }))
   const { run } = await started(h, h.maya)
   await until(() => stepsOf(h.app, run).some((one) => one.state === 'waiting'))
   const ask = { run, step: 'ask 1.1', repeat: 1, n: 1 }
-  assert.equal(await codeOf(h.app.call('helper.approve', ask, { as: h.leo })), 'T0001')
-  assert.equal(await codeOf(h.app.call('helper.refuse', ask, { as: h.leo })), 'T0001')
-  assert.equal(await codeOf(h.app.call('helper.stop', { run }, { as: h.leo })), 'T0001')
+  assert.equal(await codeOf(h.app.call('helper.approve', ask, { as: h.leo })), 'F0001')
+  assert.equal(await codeOf(h.app.call('helper.refuse', ask, { as: h.leo })), 'F0001')
+  assert.equal(await codeOf(h.app.call('helper.stop', { run }, { as: h.leo })), 'F0001')
   // A run of another agent is not found.
   const theirs = notDropped(await h.app.start('other', { message: 'Go.' }, { as: h.maya }))
   await until(() => stepsOf(h.app, theirs.run).some((one) => one.state === 'waiting'))
-  assert.equal(await codeOf(h.app.call('helper.approve', { ...ask, run: theirs.run }, { as: h.maya })), 'T0001')
+  assert.equal(await codeOf(h.app.call('helper.approve', { ...ask, run: theirs.run }, { as: h.maya })), 'F0001')
   const flow = notDropped(await h.app.start('plain', {}, { as: h.maya }))
-  assert.equal(await codeOf(h.app.call('helper.stop', { run: flow.run }, { as: h.maya })), 'T0001')
+  assert.equal(await codeOf(h.app.call('helper.stop', { run: flow.run }, { as: h.maya })), 'F0001')
   assert.equal(await codeOf(h.app.call('helper.approve', ask, { as: h.maya })), 'ok')
 })
 
-test('[27-6] a step that is not a waiting ask, an n that is not the ask that waits, and a repeat that is not the pass that waits, are T0002', async (t) => {
+test('[27-6] a step that is not a waiting ask, an n that is not the ask that waits, and a repeat that is not the pass that waits, are F0002', async (t) => {
   const h = await helped(t)
   h.say(oneTool('tidy'))
   const { run } = await started(h, h.maya)
@@ -71,11 +71,11 @@ test('[27-6] a step that is not a waiting ask, an n that is not the ask that wai
   await until(() => stepsOf(h.app, tidy).some((one) => one.state === 'waiting'))
   assert.equal(
     await codeOf(h.app.call('helper.approve', { run, step: 'model 1', repeat: 1, n: 1 }, { as: h.maya })),
-    'T0002',
+    'F0002',
   )
   const ask = { run: tidy, step: 'mail', repeat: 1, n: 1 }
-  assert.equal(await codeOf(h.app.call('helper.approve', { ...ask, n: 2 }, { as: h.maya })), 'T0002')
-  assert.equal(await codeOf(h.app.call('helper.approve', { ...ask, repeat: 2 }, { as: h.maya })), 'T0002')
+  assert.equal(await codeOf(h.app.call('helper.approve', { ...ask, n: 2 }, { as: h.maya })), 'F0002')
+  assert.equal(await codeOf(h.app.call('helper.approve', { ...ask, repeat: 2 }, { as: h.maya })), 'F0002')
   // The starter of the top run answers an ask on demand of a flow that is a tool.
   assert.equal(await codeOf(h.app.call('helper.approve', ask, { as: h.maya })), 'ok')
   await until(() => stepsOf(h.app, tidy).some((one) => one.state === 'waiting' && one.repeat === 2))
@@ -106,14 +106,14 @@ test('[27-6] an ask of a called run is approved by the starter of the top run, a
   assert.deepEqual(entry.under, [{ run: inner, tool: 'inner', state: 'waiting' }])
   assert.equal(
     await codeOf(h.app.call('helper.approve', { run: inner, step: 'ask 1.1', repeat: 1, n: 1 }, { as: h.leo })),
-    'T0001',
+    'F0001',
   )
   // The agent that is called as a tool runs its own asking tool once the person agreed.
   await h.app.call('helper.approve', { run: inner, step: 'ask 1.1', repeat: 1, n: 1 }, { as: h.maya })
   assert.deepEqual(await h.app.runs.wait(run), { text: '{"text":"refunded o2"}' })
 })
 
-test('[27-6] a wait-for that a flow tool made for itself is T0002', async (t) => {
+test('[27-6] a wait-for that a flow tool made for itself is F0002', async (t) => {
   const h = await helped(t)
   h.say(oneTool('selfWait'))
   const { run } = await started(h, h.maya)
@@ -121,7 +121,7 @@ test('[27-6] a wait-for that a flow tool made for itself is T0002', async (t) =>
   await until(() => stepsOf(h.app, waits).some((one) => one.state === 'waiting'))
   assert.equal(
     await codeOf(h.app.call('helper.approve', { run: waits, step: 'go on', repeat: 1, n: 1 }, { as: h.maya })),
-    'T0002',
+    'F0002',
   )
 })
 
@@ -131,14 +131,14 @@ test('[27-6] a run that holds a conversation is stopped by another caller who ma
   const { run, chat } = await started(h, h.maya)
   await until(() => stepsOf(h.app, run).some((one) => one.state === 'waiting'))
   assert.equal(await codeOf(h.app.call('helper.stop', { thread: chat }, { as: h.leo })), 'ok')
-  assert.equal(await codeOf(h.app.runs.wait(run)), 'T5106')
+  assert.equal(await codeOf(h.app.runs.wait(run)), 'F5106')
 })
 
-test('[27-6] [05-2.4] [05-2.4@9a] a member of an agent that states no access is T0001, with the same answer as a name that is no function', async (t) => {
+test('[27-6] [05-2.4] [05-2.4@9a] a member of an agent that states no access is F0001, with the same answer as a name that is no function', async (t) => {
   const h = await helped(t)
   const named = await codeOf(h.app.call('nothing.working', {}, { as: h.maya }))
   assert.equal(await codeOf(h.app.call('closed.working', {}, { as: h.maya })), named)
-  assert.equal(await codeOf(h.app.call('closed.stop', { run: 'x' }, { as: h.maya })), 'T0001')
+  assert.equal(await codeOf(h.app.call('closed.stop', { run: 'x' }, { as: h.maya })), 'F0001')
 })
 
 test("[27-6] a visitor follows and approves their own run, and is refused another visitor's", async (t) => {
@@ -146,7 +146,7 @@ test("[27-6] a visitor follows and approves their own run, and is refused anothe
   h.say(oneTool('refund', { order: 'o9' }))
   const call = async (name: string, input: object, cookie?: string) => {
     const answer = await h.app.request(
-      new Request(`${h.origin}/_t/call/${name}`, {
+      new Request(`${h.origin}/_f/call/${name}`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', origin: h.origin, ...(cookie ? { cookie } : {}) },
         body: JSON.stringify({ input }),
@@ -161,7 +161,7 @@ test("[27-6] a visitor follows and approves their own run, and is refused anothe
   const ask = { run, step: 'ask 1.1', repeat: 1, n: 1 }
   const stranger = await call('helper', { message: 'Hi.' })
   const refused = await call('helper.approve', ask, stranger.cookie)
-  assert.equal(Object(refused.body.error).code, 'T0001')
+  assert.equal(Object(refused.body.error).code, 'F0001')
   const working = await call('helper.working', { run }, started.cookie)
   assert.equal(Object(working.body.value)[0]?.run, run)
   const approved = await call('helper.approve', ask, started.cookie)

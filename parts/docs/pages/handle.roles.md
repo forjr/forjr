@@ -5,7 +5,7 @@ Gives a user a role and takes one away. The roles of a user are the list in the 
 ## Example
 
 ```ts
-import { change, role, roles, text } from 'tentjs'
+import { change, role, roles, text } from 'forjr'
 
 export const makeStaff = change('makeStaff', {
   access: role('admin'),
@@ -29,15 +29,15 @@ The next request of that user has the role: the engine reads the row of the call
 
 **Full access.** The handle works in a function that states `system: 'why'`, which then carries its own rule in `access`, and in code that the system called, as a seed.
 
-**Why a handle.** A role says what a caller may do, so no caller may write their own. A write of `roles` through a `db` that is limited to its caller is refused with `code.T3101`, whatever the rule of the table says: a `change` that names `roles`, also with the value the row has, and an `add` that gives a role. An `add` that gives none passes, and the row starts with no role, so a sign-up needs no `system`. `db.system` writes the column freely, as the handle does.
+**Why a handle.** A role says what a caller may do, so no caller may write their own. A write of `roles` through a `db` that is limited to its caller is refused with `code.F3101`, whatever the rule of the table says: a `change` that names `roles`, also with the value the row has, and an `add` that gives a role. An `add` that gives none passes, and the row starts with no role, so a sign-up needs no `system`. `db.system` writes the column freely, as the handle does.
 
-From the command line, `tent access role add <user id> <role>` and `tent access role remove <user id> <role>` do the same: see `command.access`.
+From the command line, `forjr access role add <user id> <role>` and `forjr access role remove <user id> <role>` do the same: see `command.access`.
 
 ## Errors
 
-`code.T0013` when it is used in a function that states no `system`, and in a query.
+`code.F0013` when it is used in a function that states no `system`, and in a query.
 
-`code.T2103` when `user` names no row of `users`, and `code.T0014` when the app has no `users` table.
+`code.F2103` when `user` names no row of `users`, and `code.F0014` when the app has no `users` table.
 
 ## See also
 

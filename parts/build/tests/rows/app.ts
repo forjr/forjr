@@ -1,4 +1,4 @@
-import { agent, change, flow, link, list, model, number, object, post, project, query, secret, service, table, text } from 'tentjs'
+import { agent, change, flow, link, list, model, number, object, post, project, query, secret, service, table, text } from 'forjr'
 
 export const shop = project('shop', {
   title: 'Shop',

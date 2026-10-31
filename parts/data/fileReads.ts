@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Plan } from '../core/internal.ts'
 import { matches } from '../core/internal.ts'
 import type { DbContext } from './context.ts'
@@ -15,8 +15,8 @@ import { isPlan } from '../core/internal.ts'
 const liveRows = 10_000
 
 /** The error of a read that gave more rows than may stand in a filter as a list. */
-const tooMany = (table: string, bound: number): TentError =>
-  new TentError('T2108', `A read of \`${table}\` that another file waits for answered more than ${bound} rows.`, {
+const tooMany = (table: string, bound: number): ForjrError =>
+  new ForjrError('F2108', `A read of \`${table}\` that another file waits for answered more than ${bound} rows.`, {
     fix: 'Narrow the filter, or keep a copy of the value in the row that is filtered by it.',
   })
 
@@ -24,7 +24,7 @@ const tooMany = (table: string, bound: number): TentError =>
  * Takes the context of a `db`, a table, the tenant that a chain or a write names with `of`, and whether the
  * plan stands inside a rule. Answers the file the rows live in: nothing for a table of the shared file, the file
  * of the tenant, or `'none'` for what names no tenant. A plan inside the rule of a tenant table whose
- * tenants are of the same table names none, and is read in the file the rule is applied in. Throws T2109 for any other chain on
+ * tenants are of the same table names none, and is read in the file the rule is applied in. Throws F2109 for any other chain on
  * a tenant table that names no tenant.
  */
 export function fileOf(cx: DbContext, model: TableModel, of: unknown, inRule: boolean): FileName | 'none' | undefined {

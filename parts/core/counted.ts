@@ -1,4 +1,4 @@
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 import type { Filter } from './filter.ts'
 import { filterOf } from './filter.ts'
 import { isMarked, mark } from './mark.ts'
@@ -45,13 +45,13 @@ export const isCounted = (value: unknown): value is Counted =>
 
 /**
  * Takes how a column is kept and what it reads. Answers the value word that a `from` takes for it: the engine
- * moves the number inside each write of a linked row. Throws T1014 for a sum, a least or a most that names no
+ * moves the number inside each write of a linked row. Throws F1014 for a sum, a least or a most that names no
  * column.
  */
 export function countedWord(how: Keeping, o: Counted): KeptWord {
   const of = typeof o.of === 'string' ? o.of : o.of.definition
   if (how !== 'count' && typeof o.column !== 'string')
-    throw new TentError('T1014', `A kept \`${how}\` of \`${of}\` names no \`column\` to read.`, {
+    throw new ForjrError('F1014', `A kept \`${how}\` of \`${of}\` names no \`column\` to read.`, {
       fix: `Write ${how}({ of: ${of}, by: '<its link column>', column: '<the column>' }).`,
     })
   const keeps: Keeps = {

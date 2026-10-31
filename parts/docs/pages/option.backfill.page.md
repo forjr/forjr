@@ -14,7 +14,7 @@ export const splitNames = backfill('splitNames', { table: users, page: 200, run:
 
 ## Errors
 
-`code.T1014`: a value that is no whole number over 0.
+`code.F1014`: a value that is no whole number over 0.
 
 ## See also
 

@@ -1,5 +1,5 @@
 import { existsSync, readFileSync, statSync } from 'node:fs'
-import { number, TentError, text } from '../../core/index.ts'
+import { number, ForjrError, text } from '../../core/index.ts'
 import { pathIn, pathOf } from '../paths.ts'
 import type { ProjectTool } from './face.ts'
 import { notShown, shownFile } from './shown.ts'
@@ -29,7 +29,7 @@ export const readTool: ProjectTool = {
     const from = Number(input.from ?? 1)
     const to = Number(input.to ?? lines.length)
     if (to < from)
-      throw new TentError('T0002', 'A read of lines names a `to` that is not below its `from`.', {
+      throw new ForjrError('F0002', 'A read of lines names a `to` that is not below its `from`.', {
         fields: { to: 'min' },
       })
     return { path, from, to, text: lines.slice(from - 1, to).join('\n') }

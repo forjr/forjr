@@ -1,5 +1,5 @@
 /**
- * What a page is named by: an exported page lies under the base that `tent export` was given, any other at the root.
+ * What a page is named by: an exported page lies under the base that `forjr export` was given, any other at the root.
  * A screen in a frame of a chat app lies under the app's address, and carries the pass of its frame.
  */
 interface Based {
@@ -7,11 +7,11 @@ interface Based {
   pass?: string
 }
 
-/** Where the files of the bundle lie for a page: under `/_t/b/`, and in an exported page under its base. */
-export const filesAt = (page: Based): string => `${page.base ?? ''}/_t/b/`
+/** Where the files of the bundle lie for a page: under `/_f/b/`, and in an exported page under its base. */
+export const filesAt = (page: Based): string => `${page.base ?? ''}/_f/b/`
 
 // The addresses where a browser sets no header of its own: a file, and a picture of a file.
-const passedAt = /^\/_t\/(files\/[^/?]+|img\/(?!a\/))/
+const passedAt = /^\/_f\/(files\/[^/?]+|img\/(?!a\/))/
 
 /**
  * An address of the app as a page names it: a path of the app under the base of the page, and any other as it is.

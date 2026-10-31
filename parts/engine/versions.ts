@@ -1,7 +1,7 @@
 import { searchedForSecrets } from './browserSearched.ts'
 import { cpSync, existsSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import type { TableLayout, TableStep } from '../data/index.ts'
 import { applySteps, filledBy, isChecked, layoutOf, setRunningVersion, waitsForBackfill } from '../data/index.ts'
@@ -79,20 +79,20 @@ const hardSteps = [
 ]
 
 /** The error of a version that cannot be loaded, which names the one that runs. */
-export const versionGone = (version: unknown): TentError =>
-  new TentError(
-    'T0007',
+export const versionGone = (version: unknown): ForjrError =>
+  new ForjrError(
+    'F0007',
     `The version ${(JSON.stringify(version) ?? 'nothing').slice(0, 60)} can no longer be loaded.`,
     {
       fix: 'Load the page again: it then follows the running version.',
     },
   )
 
-/** Throws T0030 on a reader: the versions of an app are its writer's, and a reader follows what the writer tells. */
+/** Throws F0030 on a reader: the versions of an app are its writer's, and a reader follows what the writer tells. */
 export function writersOwn(o: Opened, what: string): void {
   const { reader } = o.machine
   if (reader)
-    throw new TentError('T0030', `This machine is a reader, and ${what} is the writer's.`, {
+    throw new ForjrError('F0030', `This machine is a reader, and ${what} is the writer's.`, {
       fix: `Do it on the writer, at ${reader.writer()}: its readers follow.`,
     })
 }
@@ -147,7 +147,7 @@ export const versionsOf = (o: Opened): string => join(o.dataFolder, 'versions')
 
 /**
  * Takes away what `versions/` keeps of a version: its copy, or its list. The files of a list stay in their store,
- * which `tent dev` keeps tidy of the files that no list names.
+ * which `forjr dev` keeps tidy of the files that no list names.
  */
 function forget(o: Opened, one: Loadable): void {
   // The room lets the code of the version go: it is loaded no more.
@@ -163,7 +163,7 @@ function forget(o: Opened, one: Loadable): void {
  * Takes an app and a bundle: its folder, or the list that a build of development wrote. Makes one more version
  * loadable: reads its description, copies the bundle into the folder of versions, loads every module of it, and
  * answers its id. A bundle that lies there already is run where it lies. In the mode `development` it makes no
- * copy: the version is the list of its files, kept in `versions/`. Throws T0011 for a bundle whose description
+ * copy: the version is the list of its files, kept in `versions/`. Throws F0011 for a bundle whose description
  * does not pass or whose code cannot be loaded: nothing is kept of it then.
  */
 export async function addVersion(o: Opened, bundle: string): Promise<string> {
@@ -185,7 +185,7 @@ export async function addVersion(o: Opened, bundle: string): Promise<string> {
   }
   try {
     await loadCode(one.served)
-    // The build of `tent dev` searched the same text for the same values: only a copied bundle is searched here.
+    // The build of `forjr dev` searched the same text for the same values: only a copied bundle is searched here.
     if (copied) searchedForSecrets(o, folder)
   } catch (error) {
     forget(o, one)
@@ -199,7 +199,7 @@ export async function addVersion(o: Opened, bundle: string): Promise<string> {
 
 /**
  * Takes an app and the id of a version whose files lie in its folder of versions, as a reader keeps what
- * its writer told it. Makes the version loadable there, as `addVersion` does with a bundle. Throws T0011 for a
+ * its writer told it. Makes the version loadable there, as `addVersion` does with a bundle. Throws F0011 for a
  * description that does not pass, and for code that cannot be loaded.
  */
 export async function holdVersion(o: Opened, version: string): Promise<void> {
@@ -345,13 +345,13 @@ export async function applyReleased(o: Opened, version: string): Promise<void> {
 /**
  * Takes an app and the id of a loadable version. Makes it the running one: its table changes are applied inside
  * one write, which names the version too, and from then on a call that names no version is served by it. Where a
- * step is refused nothing is changed, and it throws the finding: T2001 to T2004. On an app with readers the write
+ * step is refused nothing is changed, and it throws the finding: F2001 to F2004. On an app with readers the write
  * waits until each reader holds the version, for `versionWait` at most. On an app that keeps a data file for each
  * tenant the files are checked first, and brought up by a pass after: a switch that changes a tenant table
  * while a file is still behind answers `refused: 'behind'` with the count, and changes nothing. A hard switch
  * drops the older versions at once, and their pages are told to reload. In the mode `development` every open page
  * is told the version that runs now. With `dry` everything is checked and nothing is changed. Answers whether it
- * was hard, and the steps it applied. Throws T0007 for a version that cannot be loaded.
+ * was hard, and the steps it applied. Throws F0007 for a version that cannot be loaded.
  */
 export async function switchVersion(
   o: Opened,

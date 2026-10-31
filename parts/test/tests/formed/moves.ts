@@ -1,4 +1,4 @@
-import { change, input, object, query, table, text } from 'tentjs'
+import { change, input, object, query, table, text } from 'forjr'
 
 export const homes = table('homes', {
   columns: { owner: text(), address: object({ city: text(), street: text() }), tag: text({ optional: true }) },

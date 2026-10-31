@@ -15,11 +15,11 @@ export function inputLines(fields: unknown, input: unknown): string[] {
 
 /**
  * The question that a client puts to its person before a function that asks: the title of the tool, in the
- * words `tent.ask.title` of the project's texts, and its input, with a field marked `secret` as `[secret]`.
+ * words `forjr.ask.title` of the project's texts, and its input, with a field marked `secret` as `[secret]`.
  */
 export function questionOf(env: McpEnv, one: Offered, input: unknown, listed?: Record<string, string>): string {
   const title = titleOf(one.tool)
-  const asked = env.word?.('tent.ask.title', { tool: title }) ?? `Run ${title}?`
+  const asked = env.word?.('forjr.ask.title', { tool: title }) ?? `Run ${title}?`
   return [asked, ...inputLines(one.record.input, input), ...listedLines(env, listed)].join('\n')
 }
 
@@ -41,7 +41,7 @@ function listedLines(env: McpEnv, listed: Record<string, string> | undefined): s
     return `- ${titleOf(tool.split('.').at(-1) ?? tool)}${input ? `: ${input}` : ''}`
   })
   const more = listed?.more === 'true'
-  return [...lines, ...(more ? [env.word?.('tent.ask.more', {}) ?? 'More may be asked after these.'] : [])]
+  return [...lines, ...(more ? [env.word?.('forjr.ask.more', {}) ?? 'More may be asked after these.'] : [])]
 }
 
 /** The standard's question with yes and no, as a request to a client. */

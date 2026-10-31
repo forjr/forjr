@@ -1,4 +1,4 @@
-import { action, change, flow, input, json, list, number, query, start, text } from 'tentjs'
+import { action, change, flow, input, json, list, number, query, start, text } from 'forjr'
 import { batchedRows, droppedRows, marks, rankedRows, throttledRows } from './tables.ts'
 
 export const addMark = change('addMark', {

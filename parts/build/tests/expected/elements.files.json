@@ -5,9 +5,9 @@
   "browser/screens.orders.listScreen.<fp>.js": "8d9e5becba00",
   "browser/screens.orders.missingScreen.<fp>.js": "b4f551b46637",
   "browser/screens.orders.wordsScreen.<fp>.js": "a36a39e1c37c",
-  "browser/shared.Card.<fp>.js": "2128bc6de65c",
-  "browser/shared.orders.<fp>.js": "3156eed2a57d",
-  "description.json": "baa79ebe55ea",
+  "browser/shared.Card.<fp>.js": "8bf0e0e91dc2",
+  "browser/shared.orders.<fp>.js": "9869e1ab7d5b",
+  "description.json": "2b93671a7c73",
   "description.schema.json": "586110a7b15b",
   "server/components.Card.<fp>.js": "d186149aca36",
   "server/screens.orders.guardedScreen.<fp>.js": "3cbb36e3fe2c",
@@ -15,6 +15,6 @@
   "server/screens.orders.listScreen.<fp>.js": "8d9e5becba00",
   "server/screens.orders.missingScreen.<fp>.js": "b4f551b46637",
   "server/screens.orders.wordsScreen.<fp>.js": "a36a39e1c37c",
-  "server/shared.Card.<fp>.js": "3c6cf3225db5",
-  "server/shared.orders.<fp>.js": "a51be826f04c"
+  "server/shared.Card.<fp>.js": "bd9ef780c8b0",
+  "server/shared.orders.<fp>.js": "0fb51a737157"
 }

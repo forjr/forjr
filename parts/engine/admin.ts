@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Opened } from './opened.ts'
 
 /**
@@ -11,10 +11,10 @@ export interface Admin {
 }
 
 /** The error of a word of a command that is missing or of another kind than the command takes. */
-export const badWord = (name: string, takes: string): TentError =>
-  new TentError('T0002', `The command takes ${takes} as \`${name}\`.`, { fields: { [name]: 'type' } })
+export const badWord = (name: string, takes: string): ForjrError =>
+  new ForjrError('F0002', `The command takes ${takes} as \`${name}\`.`, { fields: { [name]: 'type' } })
 
-/** Answers a word of a command that must be a text which holds something. Throws T0002 where it is not. */
+/** Answers a word of a command that must be a text which holds something. Throws F0002 where it is not. */
 export function wordOf(args: object, name: string, takes: string): string {
   const word: unknown = Reflect.get(args, name)
   if (typeof word !== 'string' || word === '') throw badWord(name, takes)

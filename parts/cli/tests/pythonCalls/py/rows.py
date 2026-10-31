@@ -1,5 +1,5 @@
-def run(input, tent):
-    db = tent.db()
+def run(input, forjr):
+    db = forjr.db()
     names = [row[0] for row in db.execute("select name from sqlite_master where type = 'table' order by name")]
     tables = {}
     for name in names:

@@ -1,4 +1,4 @@
-import { anyone, boolean, change, input, query, text } from 'tentjs'
+import { anyone, boolean, change, input, query, text } from 'forjr'
 import { presence } from '../tables/tables'
 
 const open = anyone('a test calls it')

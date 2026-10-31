@@ -5,7 +5,7 @@ Calls a change, an action, a flow that is offered, an agent or a member of one f
 ## Example
 
 ```tsx
-import { screen, useCall } from 'tentjs/ui'
+import { screen, useCall } from 'forjr/ui'
 import { markPaid } from '../functions/orders'
 
 export const payScreen = screen('payScreen', {
@@ -47,7 +47,7 @@ The optimistic result is shown the moment `call` is made, for every use of that 
 
 ## Returns
 
-`{ call, busy, held, error, value }`. `call(input)` sends the call through the door and answers a promise of the answer, typed by the function's own input and answer. `busy` is true while a call is under way. `held` is true while the page holds the call for want of a connection, and it goes when the connection is back; a held call is busy too (`code.T0036`). A failure refuses the promise with the error as a caller sees it, `{ code, name, message, fields, ref }`, which is in `error` too, and `error` is nothing again while the next call is under way. `value` is the answer of the last call that worked. A second call while one is busy is the view's to refuse, by `disabled={busy}` on its button.
+`{ call, busy, held, error, value }`. `call(input)` sends the call through the door and answers a promise of the answer, typed by the function's own input and answer. `busy` is true while a call is under way. `held` is true while the page holds the call for want of a connection, and it goes when the connection is back; a held call is busy too (`code.F0036`). A failure refuses the promise with the error as a caller sees it, `{ code, name, message, fields, ref }`, which is in `error` too, and `error` is nothing again while the next call is under way. `value` is the answer of the last call that worked. A second call while one is busy is the view's to refuse, by `disabled={busy}` on its button.
 
 After a call that worked, the page asks again every query it shows that is not live. A live query needs nothing: the engine sends the page what the call changed (`topic.live`).
 

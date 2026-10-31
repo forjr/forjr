@@ -1,5 +1,5 @@
 import { isAbsolute } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { FileName, Files, Store, TableLayout } from '../../data/index.ts'
 import { NotReady, openFiles, sqliteStore } from '../../data/index.ts'
 import { metaOf } from '../held.ts'
@@ -51,13 +51,13 @@ export function threadFiles(
         files,
         tx(file) {
           if (file) throw lacksTables(file)
-          throw new TentError('T0012', 'A write was tried on a query thread, which only reads.')
+          throw new ForjrError('F0012', 'A write was tried on a query thread, which only reads.')
         },
       })
-      throw new TentError('T0012', 'A write was tried on a query thread, which only reads.')
+      throw new ForjrError('F0012', 'A write was tried on a query thread, which only reads.')
     },
     number(): number {
-      throw new TentError('T0013', 'A query thread writes nothing, and takes no number of a write.')
+      throw new ForjrError('F0013', 'A query thread writes nothing, and takes no number of a write.')
     },
   })
 }

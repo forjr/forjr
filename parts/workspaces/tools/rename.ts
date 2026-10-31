@@ -1,10 +1,10 @@
 import { readFileSync } from 'node:fs'
 import { basename, join } from 'node:path'
 import { treeOfText } from '../../build/index.ts'
-import { TentError, text } from '../../core/index.ts'
+import { ForjrError, text } from '../../core/index.ts'
 import { pathOf } from '../paths.ts'
 import { projectFiles } from '../projectFiles.ts'
-import { definitionsOf } from '../policy.ts'
+import { definitionsOf } from '../../core/internal.ts'
 import type { Writing } from '../written.ts'
 import { describedNow, writeHeld } from '../written.ts'
 import type { ProjectTool } from './face.ts'
@@ -13,11 +13,11 @@ import { asPattern, closingOf, codeRanges, keyEdits, renamedPlain, wordEdits } f
 
 /** Every `.ts` and `.tsx` file of a project, by its place, but the types that the framework writes. */
 const sourcesOf = (folder: string): string[] =>
-  projectFiles(folder).filter((place) => /\.tsx?$/.test(place) && basename(place) !== 'tent.d.ts')
+  projectFiles(folder).filter((place) => /\.tsx?$/.test(place) && basename(place) !== 'forjr.d.ts')
 
 /** The error of a name that names no definition or column that a rename can reach. */
-const noName = (name: string): TentError =>
-  new TentError('T0001', `No definition or column ${JSON.stringify(name).slice(0, 80)} is in the project.`, {
+const noName = (name: string): ForjrError =>
+  new ForjrError('F0001', `No definition or column ${JSON.stringify(name).slice(0, 80)} is in the project.`, {
     fix: 'Name a definition by its name, and a column as `orders.buyer`.',
   })
 

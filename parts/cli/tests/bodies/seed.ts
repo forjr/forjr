@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 
 export default seed(({ db, now }) => {
   const core = db.teams.add({ name: 'Core' })

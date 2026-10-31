@@ -35,7 +35,7 @@ function tagsOnDisk(folder: string): string[] {
   }
 }
 
-test('[29-11.5] an old writer that comes back and is sent writes: T0030 for each, and its readers take nothing from it', {
+test('[29-11.5] an old writer that comes back and is sent writes: F0030 for each, and its readers take nothing from it', {
   timeout: 120_000,
 }, async (t) => {
   const world = worldOf(t)
@@ -89,31 +89,31 @@ test('[29-11.5] an old writer that comes back and is sent writes: T0030 for each
     return within(what, work, 2000)
   }
   const asked = (name: string, input: object = {}) =>
-    beating(`the old writer answered ${name}`, send(back, `https://writer.test/_t/call/${name}`, { input }))
+    beating(`the old writer answered ${name}`, send(back, `https://writer.test/_f/call/${name}`, { input }))
   let stopped = false
   for (let i = 0; i < 40 && !stopped; i++) {
     await world.beat()
-    stopped = (await asked('addWord', { text: `sent to the old writer ${i}` })).error.code === 'T0030'
+    stopped = (await asked('addWord', { text: `sent to the old writer ${i}` })).error.code === 'F0030'
   }
   assert.equal(stopped, true, 'the old writer was told that a machine took over, and stopped')
-  // From then on each write that it is sent is T0030, whoever sends it and however.
+  // From then on each write that it is sent is F0030, whoever sends it and however.
   for (let i = 0; i < 5; i++) {
     const answer = await asked('addWord', { text: `refused ${i}` })
-    assert.deepEqual([answer.status, answer.error.code], [409, 'T0030'], `write ${i}`)
+    assert.deepEqual([answer.status, answer.error.code], [409, 'F0030'], `write ${i}`)
   }
   const code = async (work: Promise<unknown>): Promise<unknown> =>
     beating('a member of the old writer answered', work).then(
       () => undefined,
       (error: unknown) => Object(error).code,
     )
-  assert.equal(await code(addNote(back, 'by the program that holds it')), 'T0030')
-  assert.equal(await code(back.call('addWord', { text: 'by a call in code' }, { as: system })), 'T0030')
+  assert.equal(await code(addNote(back, 'by the program that holds it')), 'F0030')
+  assert.equal(await code(back.call('addWord', { text: 'by a call in code' }, { as: system })), 'F0030')
   // Its folder does not open as a writer again.
   await within('the old writer closed again', backEngine.close())
   world.apps[machineAddress.writer] = undefined
   const again = world.engine()
   const opened = again.open(bundle.folder, { dataFolder: join(world.work, 'writer'), mode: 'test', readers })
-  assert.equal(await code(opened), 'T0030')
+  assert.equal(await code(opened), 'F0030')
 
   // Its readers took nothing from it: both follow the new writer, and hold what it wrote and no word of the old one.
   for (let i = 0; i < 60 && (far.at().n !== near.at().n || !far.at().current); i++) await world.beat()

@@ -1,4 +1,4 @@
-import { agent, boolean, event, every, flow, link, object, text } from 'tentjs'
+import { agent, boolean, event, every, flow, link, object, text } from 'forjr'
 import { countNotes } from '../functions/notes'
 import { embedder } from '../models/writer'
 import { notes } from '../tables/notes'

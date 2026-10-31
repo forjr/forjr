@@ -16,7 +16,7 @@ export const releaseKeys = (c) => (c.settings.releaseKeys ?? []).map((file) => k
  */
 export function trust(c) {
   const keys = c.settings.trust ?? releaseKeys(c).map((one) => one.public)
-  json(join(c.out, 'trust.json'), { format: 'tent.trust/1', made: c.made, keys })
+  json(join(c.out, 'trust.json'), { format: 'forjr.trust/1', made: c.made, keys })
   if (!keys.length) c.say('trust: the settings name no release key: trust.json holds none, and nothing is signed')
 }
 
@@ -31,7 +31,7 @@ export function lists(c) {
   const archives = existsSync(archivesFile) ? JSON.parse(readFileSync(archivesFile, 'utf8')) : {}
   const line = (one) => ({ file: one.file, size: one.size, fingerprint: one.fingerprint })
   json(join(c.out, 'release.json'), {
-    format: 'tent.release/1',
+    format: 'forjr.release/1',
     version: c.version,
     day: c.day,
     fix: c.fix,
@@ -42,7 +42,7 @@ export function lists(c) {
     archives,
   })
   json(join(c.out, 'systems.json'), {
-    format: 'tent.systems/1',
+    format: 'forjr.systems/1',
     version: c.version,
     made: c.made,
     systems: Object.fromEntries(Object.entries(layers).map(([system, one]) => [system, line(one.system)])),
@@ -52,7 +52,7 @@ export function lists(c) {
   const versions = [{ version: c.version, day: c.day, fix: c.fix }, ...before.versions.filter((one) => one.version !== c.version)].sort(
     (a, b) => b.version.localeCompare(a.version, 'en', { numeric: true }),
   )
-  json(join(c.top, 'releases.json'), { format: 'tent.releases/1', made: c.made, versions })
+  json(join(c.top, 'releases.json'), { format: 'forjr.releases/1', made: c.made, versions })
 }
 
 /** The step `sign`: each list of the release signed with every release key, or left unsigned where the settings name none. */

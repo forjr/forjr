@@ -112,7 +112,7 @@ const room = insideOf({
 })
 await room.load({ id: 'v1', modules: [{ path: 'counted.js', kinds: ['query'] }] })
 const entry = room.entry('v1', { kind: 'query', module: 'counted.js', path: ['counted', 'options', 'run'] })
-const db = { '\u0000tent': 'db', n: 1, tables: ['notes'], mode: 'read', full: false }
+const db = { '\u0000forjr': 'db', n: 1, tables: ['notes'], mode: 'read', full: false }
 const answer = room.call(entry, 7, [{ db, input: { more: 1 } }], {
   pure: true,
   bounds: { depth: 64, size: 1000 },

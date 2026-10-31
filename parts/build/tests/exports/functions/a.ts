@@ -1,4 +1,4 @@
-import { allow, query } from 'tentjs'
+import { allow, query } from 'forjr'
 import { notes } from '../tables/orders'
 import { bList } from './b'
 

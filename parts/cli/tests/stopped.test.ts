@@ -11,7 +11,7 @@ import { fingerprintOf } from '../../core/internal.ts'
 
 /** A folder of the runner of its own for one test, removed when the test ends. */
 function homeOf(t: TestContext): string {
-  const home = mkdtempSync(join(tmpdir(), 'tent-stopped-'))
+  const home = mkdtempSync(join(tmpdir(), 'forjr-stopped-'))
   t.after(() => rmSync(home, { recursive: true, force: true }))
   return home
 }
@@ -45,7 +45,7 @@ function appOf(answer: (path: string, body: unknown, request: Request) => Promis
       const text = request.body ? await request.text() : ''
       const body: unknown = text ? JSON.parse(text) : undefined
       asked.push({ path: pathname, body })
-      return (await answer(pathname, body, request)) ?? Response.json({ ok: false, error: { code: 'T0001' } })
+      return (await answer(pathname, body, request)) ?? Response.json({ ok: false, error: { code: 'F0001' } })
     },
     live: async () => {
       throw new Error('no live connection in this test')
@@ -67,7 +67,7 @@ test('[24-13] stopping the command while a run outlasts its call sends `{ run, s
   const home = homeOf(t)
   const stop = new AbortController()
   const { reach, asked } = appOf((path, body, request) => {
-    if (path === '/_t/cli') return listOf({ ship: { definition: 'ship', kind: 'flow', at: 'call', input: {} } })
+    if (path === '/_f/cli') return listOf({ ship: { definition: 'ship', kind: 'flow', at: 'call', input: {} } })
     const input: unknown = Reflect.get(Object(body), 'input')
     if (Reflect.get(Object(input), 'stop') === true) return Response.json({ ok: true, value: 'stopped' })
     if (typeof Reflect.get(Object(input), 'run') === 'string') {
@@ -76,7 +76,7 @@ test('[24-13] stopping the command while a run outlasts its call sends `{ run, s
     }
     return Response.json({
       ok: false,
-      error: { code: 'T0008', name: 'too-slow', message: 'later', fields: { run: 'r1' } },
+      error: { code: 'F0008', name: 'too-slow', message: 'later', fields: { run: 'r1' } },
     })
   })
   const { terminal } = terminalOf()
@@ -89,7 +89,7 @@ test('[24-13] stopping the command while a run outlasts its call sends `{ run, s
     env: {},
     signal: stop.signal,
   })
-  assert.deepEqual(asked.at(-1), { path: '/_t/call/ship', body: { input: { run: 'r1', stop: true } } })
+  assert.deepEqual(asked.at(-1), { path: '/_f/call/ship', body: { input: { run: 'r1', stop: true } } })
   assert.equal(ended, 1)
 })
 
@@ -100,10 +100,10 @@ test('[24-14] the `signal` of a command ends when the person stops the command',
     'export const c = { options: { run: ({ signal }) => new Promise((done) => signal.addEventListener("abort", () => done(5))) } }'
   const module = `cli/waits.${fingerprintOf(new TextEncoder().encode(code)).slice(0, 12)}.js`
   const { reach } = appOf((path) => {
-    if (path === '/_t/cli')
+    if (path === '/_f/cli')
       return listOf({ waits: { definition: 'waits', kind: 'command', at: 'call', input: {}, module, export: 'c' } })
-    if (path === '/_t/cli/me') return Response.json({ ok: true, value: { system: true } })
-    if (path.startsWith('/_t/b/cli/')) {
+    if (path === '/_f/cli/me') return Response.json({ ok: true, value: { system: true } })
+    if (path.startsWith('/_f/b/cli/')) {
       setTimeout(() => stop.abort(), 50)
       return new Response(code)
     }
@@ -125,7 +125,7 @@ test('[24-14] the `signal` of a command ends when the person stops the command',
 test('[24-13] a command written in code of an app that needs a newer engine than the runner is refused with its fix, and nothing is called', async (t) => {
   const home = homeOf(t)
   const { reach, asked } = appOf((path) => {
-    if (path === '/_t/cli')
+    if (path === '/_f/cli')
       return listOf(
         {
           look: {
@@ -148,6 +148,6 @@ test('[24-13] a command written in code of an app that needs a newer engine than
   assert.equal(out.join(''), '')
   assert.deepEqual(
     asked.map((one) => one.path),
-    ['/_t/cli'],
+    ['/_f/cli'],
   )
 })

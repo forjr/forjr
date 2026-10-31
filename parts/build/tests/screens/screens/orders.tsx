@@ -1,4 +1,4 @@
-import { screen, component, read, choice, number, text, Link, Form, Image, useTranslations } from 'tentjs/ui'
+import { screen, component, read, choice, number, text, Link, Form, Image, useTranslations } from 'forjr/ui'
 import { ordersByStatus, addNote } from '../functions/orders'      // backend definitions arrive as stubs
 import { orderScreen } from './order'
 import styles from './orders.module.css'

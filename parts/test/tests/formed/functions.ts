@@ -1,4 +1,4 @@
-import { boolean, change, choice, date, day, input, list, number, query, table, text } from 'tentjs'
+import { boolean, change, choice, date, day, input, list, number, query, table, text } from 'forjr'
 
 export const stays = table('stays', {
   columns: {

@@ -36,7 +36,7 @@ export function prefetchOf(reach: Reach, shown: () => Page, came: (answer: unkno
       if (!reach.get || going >= (shown().prefetchAtOnce ?? atOnce) || reach.saving?.() === true) return
       going += 1
       const answer = reach
-        .get(`/_t/screen?path=${encodeURIComponent(path)}&version=${encodeURIComponent(version)}&prefetch=1`)
+        .get(`/_f/screen?path=${encodeURIComponent(path)}&version=${encodeURIComponent(version)}&prefetch=1`)
         .catch(() => undefined)
         .finally(() => {
           going -= 1

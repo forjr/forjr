@@ -17,8 +17,8 @@ test('[20-7@8a] the removal of a person removes the keys that were made for them
     [],
   )
   // The tokens of a connection are sealed with the key of the secrets.
-  makeSecretKey(join(project, '.tent'))
-  const app = await engine.open(built.bundleFolder, { dataFolder: join(project, '.tent'), mode: 'test' })
+  makeSecretKey(join(project, '.forjr'))
+  const app = await engine.open(built.bundleFolder, { dataFolder: join(project, '.forjr'), mode: 'test' })
   for (const name of ['Ada', 'Bo']) await app.call('addUser', { name, roles: [] }, { as: system })
   const rows = await app.read({ from: 'users' }, { as: system })
   const idOf = (name: string): string =>

@@ -1,4 +1,4 @@
-import { project, table, text } from 'tentjs'
+import { project, table, text } from 'forjr'
 import { summarize } from './functions.ts'
 
 export const filling = project('filling', {})

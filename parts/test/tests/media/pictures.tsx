@@ -1,4 +1,4 @@
-import { screen, asset, read, text, Image } from 'tentjs/ui'
+import { screen, asset, read, text, Image } from 'forjr/ui'
 import { allPhotos } from './functions'
 
 // Pictures: an asset sized by its file, assets named by values of the state, a picture on the listed site and one

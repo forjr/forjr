@@ -1,4 +1,4 @@
-import { choice, link, list, table, text } from 'tentjs'
+import { choice, link, list, table, text } from 'forjr'
 import { botColours, botShapes } from '../lib/looks'
 
 // The chief is a row too, so the sidebar draws it as the first tile and its talk stands at /bots/:id.

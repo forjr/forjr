@@ -184,12 +184,12 @@ async function archivedWithTeams(t: TestContext): Promise<{ held: Held; teams: s
 
 const momentOf = (at: number): string => new Date(at).toISOString()
 
-/** A restore to a moment either reaches exactly the rows of that moment, or is refused with T0009, naming a gap. */
+/** A restore to a moment either reaches exactly the rows of that moment, or is refused with F0009, naming a gap. */
 async function reachedOrRefused(held: Held, at: number, print: string): Promise<void> {
   try {
     await command(held.app, held.dataFolder, 'data', { what: 'restore', at: momentOf(at) })
   } catch (error) {
-    assert.equal(Reflect.get(Object(error), 'code'), 'T0009', String(error))
+    assert.equal(Reflect.get(Object(error), 'code'), 'F0009', String(error))
     assert.match(String(Reflect.get(Object(error), 'message')), /gap/)
     return
   }
@@ -399,14 +399,14 @@ test('[45-1] an app with an archive and no reader keeps no change and no running
           .prepare("SELECT name FROM sqlite_master WHERE type = 'table'")
           .all()
           .map((one) => String(one.name))
-        if (names.includes('_t_changes'))
+        if (names.includes('_f_changes'))
           assert.equal(
-            Number(db.prepare('SELECT count(*) AS n FROM _t_changes').get()?.n),
+            Number(db.prepare('SELECT count(*) AS n FROM _f_changes').get()?.n),
             0,
             `${path} keeps no change`,
           )
-        if (names.includes('_t_here'))
-          assert.equal(db.prepare("SELECT 1 FROM _t_here WHERE key = 'sum'").get(), undefined, `${path} has no sum`)
+        if (names.includes('_f_here'))
+          assert.equal(db.prepare("SELECT 1 FROM _f_here WHERE key = 'sum'").get(), undefined, `${path} has no sum`)
       } finally {
         db.close()
       }
@@ -455,7 +455,7 @@ test('[45-1] a writer with a near reader keeps its changes for the reader beside
   assert.equal(await rowsOf(reader.app), await rowsOf(writer.app))
   const db = new DatabaseSync(join(writer.dataFolder, 'data.db'), { readOnly: true })
   try {
-    const kept = Number(db.prepare('SELECT count(*) AS n FROM _t_changes').get()?.n)
+    const kept = Number(db.prepare('SELECT count(*) AS n FROM _f_changes').get()?.n)
     assert.ok(kept > 0, 'the writer keeps its changes for its reader')
   } finally {
     db.close()
@@ -512,7 +512,7 @@ test('[45-1] after the file of one tenant was put back from a backup, a restore 
   try {
     await command(held.app, held.dataFolder, 'data', { what: 'restore', at: momentOf(end) })
   } catch (error) {
-    assert.equal(Reflect.get(Object(error), 'code'), 'T0009', String(error))
+    assert.equal(Reflect.get(Object(error), 'code'), 'F0009', String(error))
     return
   }
   assert.equal(await printOf(held.app), print, 'the rows of that moment, the file that was put back among them')

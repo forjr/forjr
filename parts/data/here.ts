@@ -1,7 +1,7 @@
 import { fingerprintOf } from '../core/internal.ts'
 import { heldIn } from './held.ts'
 import { rowIds } from './ids.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { isToDisk } from './place.ts'
 import type { Row, Store, Tx } from './store.ts'
 import { hereTable, metaTable } from './tables.ts'
@@ -11,7 +11,7 @@ const system = { kind: 'system' } as const
 /** The mode an engine runs an app in. */
 export type Mode = 'development' | 'test' | 'live'
 
-/** What `_t_here` holds: what this machine alone knows of itself, which no record of a commit covers. */
+/** What `_f_here` holds: what this machine alone knows of itself, which no record of a commit covers. */
 export interface Here {
   id: string
   sum: string
@@ -46,17 +46,17 @@ export function nextSum(sum: string, record: Uint8Array): string {
   return fingerprintOf(bytes)
 }
 
-/** What a read of `_t_here` answers, as one record. */
+/** What a read of `_f_here` answers, as one record. */
 function heldBy(read: (plan: { from: string }) => unknown): Record<string, unknown> {
   const rows = read({ from: hereTable.name })
   return Object.fromEntries((Array.isArray(rows) ? rows : []).map((row: Row) => [String(row.key), row.value]))
 }
 
-/** What a write holds of `_t_here` so far: for whoever works inside that write. */
+/** What a write holds of `_f_here` so far: for whoever works inside that write. */
 export const hereIn = (tx: Tx): Record<string, unknown> => heldBy((plan) => tx.read(plan, system))
 
 /**
- * Takes a store. Answers what its `_t_here` holds. A data folder that is read for the first time is given its
+ * Takes a store. Answers what its `_f_here` holds. A data folder that is read for the first time is given its
  * machine id here, 26 characters made as the id of a row is, which it keeps for as long as it keeps its folder.
  * It answers nothing for `role` and for `mode` before they were written, and the running fingerprint of a new
  * file is that of no bytes.
@@ -73,7 +73,7 @@ export function here(store: Store): Here {
 /**
  * Takes a store, or the write to work in, and the fields to set: one that is given as nothing is taken away. With
  * a store it is one write of its own, which takes no number. With `toDisk` that write has reached the disk when
- * the call answers: on a store it is begun so, and the write that is handed in was begun so. Throws T0013 for
+ * the call answers: on a store it is begun so, and the write that is handed in was begun so. Throws F0013 for
  * `toDisk` inside a write that was not.
  */
 export function setHere(on: Store | Tx, fields: Partial<Here>, o: { toDisk?: true } = {}): void {
@@ -91,8 +91,8 @@ export function setHere(on: Store | Tx, fields: Partial<Here>, o: { toDisk?: tru
     return
   }
   if (o.toDisk && !isToDisk(on))
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       'What this machine holds of itself is to reach the disk, in a write that was not begun so.',
       {
         fix: 'Begin the write with `toDisk`.',
@@ -101,7 +101,7 @@ export function setHere(on: Store | Tx, fields: Partial<Here>, o: { toDisk?: tru
   set(on)
 }
 
-/** The number and the writer of the epoch that a data file stands in, by what reads its `_t_meta`. */
+/** The number and the writer of the epoch that a data file stands in, by what reads its `_f_meta`. */
 function epochBy(read: (key: string) => unknown): { number: number; writer?: string } {
   const [number, writer] = [read('epoch'), read('writer')]
   return { number: typeof number === 'number' ? number : 1, ...(typeof writer === 'string' ? { writer } : {}) }
@@ -110,7 +110,7 @@ function epochBy(read: (key: string) => unknown): { number: number; writer?: str
 const metaIn = (tx: Tx) => (key: string) =>
   heldIn(tx.read({ from: metaTable.name, one: 'get', id: key }, system), 'value')
 
-/** Writes one value of `_t_meta` inside a write, or takes its key away where the value is nothing. */
+/** Writes one value of `_f_meta` inside a write, or takes its key away where the value is nothing. */
 export function setMeta(tx: Tx, key: string, value: unknown): void {
   const there = tx.read({ from: metaTable.name, one: 'get', id: key }, system) !== undefined
   if (value === undefined) {

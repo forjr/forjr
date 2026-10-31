@@ -19,7 +19,7 @@ async function builtFor(runsFor: string): Promise<string> {
 }
 
 test('[31-14@6] the page code is built to the same bytes whatever the program built before it: after a development build in the same program its tags are still made by the plain runtime', async () => {
-  // A development build leaves the program marked for development, as `tent dev` does before it needs the page code.
+  // A development build leaves the program marked for development, as `forjr dev` does before it needs the page code.
   const [after, plain] = [await builtFor('development'), await builtFor('production')]
   assert.equal(after === plain, true, 'the page code differs after a development build in the same program')
 })

@@ -67,9 +67,9 @@ export function held(name: string, value: number, unit: Unit): number {
   )
   if (line && value > line.bar) {
     const said = `the measure ${name} is ${value} ${unit}, above its bar of ${line.bar}`
-    // A run on shared machines, whose speed moves with the work of others, reports a bar (`TENT_BARS=report`): it is
+    // A run on shared machines, whose speed moves with the work of others, reports a bar (`FORJR_BARS=report`): it is
     // held on a computer that does nothing else.
-    const reported = process.env.TENT_BARS === 'report'
+    const reported = process.env.FORJR_BARS === 'report'
     if (line.owed === undefined && !reported) throw new Error(said)
     const why = line.owed === undefined ? 'which this run reports and does not hold' : `which is owed: ${line.owed}`
     // The automatic runs show a line of this form among the warnings of the run, where it is read without the log.

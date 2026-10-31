@@ -12,7 +12,7 @@ test('[05-16.11] a thousand workspaces made by one user in a minute: workspaces.
   const folder = folderOf(t)
   const project = join(folder, 'builder')
   cpSync(join(import.meta.dirname, 'builder'), project, { recursive: true })
-  const file = join(project, 'tent.ts')
+  const file = join(project, 'forjr.ts')
   const written = readFileSync(file, 'utf8')
   const from = "{ title: 'The small builder' }"
   assert.ok(written.includes(from))
@@ -37,7 +37,7 @@ test('[05-16.11] a thousand workspaces made by one user in a minute: workspaces.
   const cookie = app.session(ada)
   const made = async (): Promise<string> => {
     const answer = await app.request(
-      new Request(`${origin}/_t/call/newProject`, {
+      new Request(`${origin}/_f/call/newProject`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', origin, cookie },
         body: JSON.stringify({ input: { from: 'notes' }, as: ada }),
@@ -48,7 +48,7 @@ test('[05-16.11] a thousand workspaces made by one user in a minute: workspaces.
   }
   const answers: string[] = []
   for (let n = 0; n < 8; n++) answers.push(await made())
-  assert.deepEqual(answers, ['ok', 'ok', 'ok', 'ok', 'ok', 'T0005', 'T0005', 'T0005'])
+  assert.deepEqual(answers, ['ok', 'ok', 'ok', 'ok', 'ok', 'F0005', 'F0005', 'F0005'])
   // Only the calls that the door let through made a workspace.
   const workspaces = readdirSync(at.root).filter((one) => !one.startsWith('.'))
   assert.equal(workspaces.length, 5, workspaces.join(', '))

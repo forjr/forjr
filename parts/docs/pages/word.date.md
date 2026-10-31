@@ -18,7 +18,7 @@ In code a value of it is: `Date` in backend code. On the wire, in a saved step r
 
 ## Errors
 
-`code.T0002`: a value of an input that does not fit the type.
+`code.F0002`: a value of an input that does not fit the type.
 
 ## See also
 

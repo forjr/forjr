@@ -1,5 +1,5 @@
 import type { Caller, Db } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { needsUsers, userCaller } from '../core/internal.ts'
 import { createDb } from '../data/index.ts'
 import type { CallContext } from './context.ts'
@@ -26,7 +26,7 @@ const system: Caller = { kind: 'system' }
 /**
  * Takes an app, and whom a command of this computer named as the caller, in a word: `system`, `nobody`, or the id
  * of a user. Answers the caller: for an id, the user of that row of `users`, with the roles the row holds. Throws
- * T0014 where an id is named and the app has no `users` table, and T2103 for an id that names no row.
+ * F0014 where an id is named and the app has no `users` table, and F2103 for an id that names no row.
  */
 export function callerWritten(o: Opened, who: string): Caller {
   if (who === 'system' || who === 'nobody') return { kind: who }
@@ -35,8 +35,8 @@ export function callerWritten(o: Opened, who: string): Caller {
 }
 
 /** The error of a member of an app that was handed something of another kind than it takes. */
-export const notTaken = (member: string, takes: string): TentError =>
-  new TentError('T0013', `\`app.${member}\` takes ${takes}.`, {
+export const notTaken = (member: string, takes: string): ForjrError =>
+  new ForjrError('F0013', `\`app.${member}\` takes ${takes}.`, {
     fix: 'Hand it what a table gives: `orders.where({ ... })` for a plan, and `[orders.add({ ... })]` for writes.',
   })
 

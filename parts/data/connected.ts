@@ -48,7 +48,7 @@ export interface Connections {
   // How long a sink that failed is left alone before it is handed the same write again.
   wait?: number
   clock?: Clock
-  // The changes are kept in `_t_changes` from now on, and the store is told to record every write.
+  // The changes are kept in `_f_changes` from now on, and the store is told to record every write.
   keep?: boolean
   // Is handed each committed write as a change, for the readers of an app on many machines.
   copy?: (change: Change) => void
@@ -67,7 +67,7 @@ export interface Connections {
 /**
  * Takes a store, the layout of its tables, and what is connected to it. Answers the same store, which keeps the
  * number of each write: a write that wrote a row of a table a record covers, that held table steps, or that held a
- * raw SQL text, takes the next number, which is written into `_t_meta` in the same write. After each committed
+ * raw SQL text, takes the next number, which is written into `_f_meta` in the same write. After each committed
  * write it tells the searcher the texts of the rows that were written, and hands the sink what was written, with
  * that number, each sink by a handing of its own. A write that was undone leaves nothing with either. When it is
  * made, and each time the store is opened again, the searcher is asked which tables it holds and is handed every
@@ -75,7 +75,7 @@ export interface Connections {
  * no row, and tells a searcher nothing. Where a sink records, the store is told to record every write, and the
  * sink is handed the record of each with what each changed row held before, and the data keeps nothing of it.
  * Where the changes are kept, with `keep` or after `keepChanges`, it asks the store for the record of each write
- * that took a number, once, works the running fingerprint out, keeps the change in `_t_changes` in the same write,
+ * that took a number, once, works the running fingerprint out, keeps the change in `_f_changes` in the same write,
  * and hands it to `copy` once the write is committed. Handed the files of an app that keeps a file for each
  * tenant, it answers those files, with one count of writes for every file: the count starts above `above`, and
  * `number()` answers the app's next number, for the one write of a file thread.
@@ -235,7 +235,7 @@ export function connected(on: Store | Files, layout: TableLayout[], o: Connectio
 
   /**
    * The change of a write whose number was just written, made inside that write: the record is asked of the
-   * store once, the running fingerprint is worked out and written into `_t_here`, and the change is kept. Nothing
+   * store once, the running fingerprint is worked out and written into `_f_here`, and the change is kept. Nothing
    * for a write of a file whose machine has no id yet.
    */
   const keptChange = (tx: Tx, n: number, noted: WriteNotes): Change | undefined => {

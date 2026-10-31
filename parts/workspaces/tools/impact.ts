@@ -7,7 +7,7 @@ import { describedNow } from '../written.ts'
 import type { ProjectTool } from './face.ts'
 
 /**
- * `impact`: what a change will reach before it lands, as `tent impact` answers it with `--json`: the project as it
+ * `impact`: what a change will reach before it lands, as `forjr impact` answers it with `--json`: the project as it
  * stands against the version that runs, or against a point that `against` names.
  */
 export const impactTool: ProjectTool = {

@@ -1,18 +1,18 @@
 import { createInterface } from 'node:readline'
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import type { Command } from '../../command.ts'
 import { localTools } from '../../localTools.ts'
 import { dataFolderOf, engineAt } from '../../reach.ts'
 
-// What `tent mcp` says when it starts beside an engine on live data: what its tools do there is done to that data.
+// What `forjr mcp` says when it starts beside an engine on live data: what its tools do there is done to that data.
 const onLive =
-  'An engine runs on live data beside this project: tent_run acts there, as the caller its `as` names, and as the system where none is named.'
+  'An engine runs on live data beside this project: forjr_run acts there, as the caller its `as` names, and as the system where none is named.'
 
 /** The answer to a line that is no JSON, as the message format of the standard writes one. */
 const unread = { jsonrpc: '2.0', id: null, error: { code: -32700, message: 'The line is no JSON.' } }
 
 /**
- * `tent mcp`: a server of MCP on this computer, in the standard's form for a program that its client starts. It
+ * `forjr mcp`: a server of MCP on this computer, in the standard's form for a program that its client starts. It
  * reads one message from each line of its input and writes each answer as a line of its output, through
  * `message` of the layer, and needs no sign-in. It offers the commands of the project as tools, and ends with 0
  * when its input ends.
@@ -37,10 +37,10 @@ export const command: Command = {
     // The layer is handed no function of the app: the commands of the project are its tools.
     const server = mcpServer({
       description: () => description,
-      call: () => Promise.reject(new TentError('T0001', 'tent mcp offers no function of the app as a tool.')),
+      call: () => Promise.reject(new ForjrError('F0001', 'forjr mcp offers no function of the app as a tool.')),
       wire: (error) => ({
         status: 500,
-        error: { code: 'T0009', name: 'internal', message: error instanceof Error ? error.message : String(error) },
+        error: { code: 'F0009', name: 'internal', message: error instanceof Error ? error.message : String(error) },
       }),
       limit: () => 0,
     })

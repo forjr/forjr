@@ -20,7 +20,7 @@ A guard to stand in `guards.in` or `guards.out` of an agent. It finds every id o
 
 ## Errors
 
-`code.T7131`: the answer named a row of another person.
+`code.F7131`: the answer named a row of another person.
 
 ## See also
 

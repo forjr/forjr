@@ -1,4 +1,4 @@
-import { change, input, query, table, text } from 'tentjs'
+import { change, input, query, table, text } from 'forjr'
 
 // What the work of a step leaves behind, so that a test sees what was done.
 export const marks = table('marks', {

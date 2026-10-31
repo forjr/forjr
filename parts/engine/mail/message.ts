@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Who } from '../makers.ts'
 import { isStored } from '../../core/internal.ts'
 
@@ -21,8 +21,8 @@ const members = ['to', 'subject', 'text', 'html', 'from', 'replyTo', 'cc', 'bcc'
 // The lines of the head that have a field of their own, and that `headers` may not name, whatever its capitals.
 const own = ['to', 'cc', 'bcc', 'from', 'reply-to', 'subject']
 
-const bad = (field: string, check: string, words: string): TentError =>
-  new TentError('T0002', `The message does not fit: ${words}`, {
+const bad = (field: string, check: string, words: string): ForjrError =>
+  new ForjrError('F0002', `The message does not fit: ${words}`, {
     fields: { [field]: check },
     fix: 'Hand `mail.send` one address in each address, and no line break in the head of the message.',
   })
@@ -34,7 +34,7 @@ const hasControl = (text: string): boolean =>
 /**
  * Reads one address: a text, or `{ name, address }`. An address is exactly one address: one `@` with something on
  * each side, and no comma, semicolon, angle bracket, space or control character. A name holds no control
- * character, no quote and no angle bracket. Throws T0002.
+ * character, no quote and no angle bracket. Throws F0002.
  */
 function whoOf(field: string, given: unknown): Who {
   const [address, name]: unknown[] = isStored(given) ? [given.address, given.name] : [given, undefined]
@@ -60,7 +60,7 @@ const listOf = (field: string, given: unknown): Who[] =>
  * Takes what `mail.send` was handed. Answers the message as it is read: every address as `{ address, name }`,
  * every list as a list. Nothing that a person typed can add a receiver or a line to the head: an address that is
  * not exactly one address, a subject or a header with a line break, a header that names a line which has a field
- * of its own, and a member that no message has are all T0002.
+ * of its own, and a member that no message has are all F0002.
  */
 export function readMessage(given: unknown): Read {
   if (!isStored(given)) throw bad('message', 'type', '`mail.send` takes a record.')

@@ -29,7 +29,7 @@ const bundle = readFileSync(named, 'utf8')
 /** The query of the notes that the turn writes, as a plain file. */
 const queryOf = (n: number): string =>
   [
-    "import { anyone, query } from 'tentjs'",
+    "import { anyone, query } from 'forjr'",
     "import { notes } from '../tables/users'",
     '',
     `export const counted${n} = query('counted${n}', {`,

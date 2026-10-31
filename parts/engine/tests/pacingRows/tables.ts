@@ -1,4 +1,4 @@
-import { number, project, table, text } from 'tentjs'
+import { number, project, table, text } from 'forjr'
 
 export const pacingRows = project('pacingRows', {})
 

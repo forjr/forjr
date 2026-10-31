@@ -5,12 +5,12 @@ import type { FillGroup } from './columns.ts'
 import { fillGroups, readsOf } from './columns.ts'
 
 const system = { kind: 'system' } as const
-export const filledTable = '_t_filled'
+export const filledTable = '_f_filled'
 
 const listOf = (found: unknown): Record<string, unknown>[] =>
   Array.isArray(found) ? found.map((one) => Object(one)) : []
 
-/** The row of `_t_filled` of one value, inside a write, or nothing. */
+/** The row of `_f_filled` of one value, inside a write, or nothing. */
 export function filledRow(tx: Tx, table: string, id: string, column: string): Record<string, unknown> | undefined {
   const [row] = listOf(
     tx.read(
@@ -31,7 +31,7 @@ export function filledRow(tx: Tx, table: string, id: string, column: string): Re
   return row
 }
 
-/** Writes the row of `_t_filled` of one value with these fields, adding it where there is none. */
+/** Writes the row of `_f_filled` of one value with these fields, adding it where there is none. */
 export function setFilled(tx: Tx, table: string, id: string, column: string, values: Row): void {
   const key = { tableName: table, rowId: id, columnName: column }
   if (filledRow(tx, table, id, column)) tx.change(filledTable, key, values, system)
@@ -64,7 +64,7 @@ const readThrough = (
  * Takes an app and a write of one of its files. Answers the write with each row it adds, changes and removes of
  * a table that has filled columns marked inside it: an added row is due, a change of a column that a work reads
  * makes its values due, a row whose columns are read through a link is marked under `*` for the pass to walk the
- * rows that read it, and a removed row takes its rows of `_t_filled` with it. A raw text sets no mark.
+ * rows that read it, and a removed row takes its rows of `_f_filled` with it. A raw text sets no mark.
  */
 export function fillTx(o: Opened, tx: Tx): Tx {
   const groups = fillGroups(o.description)
@@ -73,13 +73,13 @@ export function fillTx(o: Opened, tx: Tx): Tx {
     ...tx,
     add(table, values, caller) {
       const row = tx.add(table, values, caller)
-      if (!table.startsWith('_t_'))
+      if (!table.startsWith('_f_'))
         for (const group of groups) if (group.table === table) markDue(o, tx, group, String(row.id))
       return row
     },
     change(table, id, values, caller) {
       const row = tx.change(table, id, values, caller)
-      if (table.startsWith('_t_')) return row
+      if (table.startsWith('_f_')) return row
       const changed = Object.keys(values)
       for (const group of groups)
         if (group.table === table && readsOf(group).own.some((column) => changed.includes(column)))
@@ -91,7 +91,7 @@ export function fillTx(o: Opened, tx: Tx): Tx {
     },
     remove(table, id, caller) {
       tx.remove(table, id, caller)
-      if (table.startsWith('_t_')) return
+      if (table.startsWith('_f_')) return
       for (const one of listOf(
         tx.read(
           {

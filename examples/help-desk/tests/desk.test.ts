@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict'
 import { mkdir, writeFile } from 'node:fs/promises'
 import test from 'node:test'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 import { type App, fakeAll, GUIDE, HOOK_SECRET, mailCall, settle, userOf } from '../fakes/fakes'
 
 async function open() {
@@ -50,7 +50,7 @@ test('a call of the hook that holds no mail opens no ticket', async () => {
 
 test('a customer reads their own tickets and no other, and no list of the staff', async () => {
   const { app, ada } = await open()
-  await assert.rejects(app.as(ada).call('ticketList', {}), { code: 'T3101' })
+  await assert.rejects(app.as(ada).call('ticketList', {}), { code: 'F3101' })
   const mine = await app.as(ada).call('myTickets', {})
   const subjects = mine.map((row) => row.subject).sort()
   assert.deepEqual(subjects, ['My parcel is late', 'The wrong size came'])
@@ -94,7 +94,7 @@ test('staff alone upload a guide', async () => {
   const uploaded = await browser.upload(GUIDE, { name: 'guide.pdf', kind: 'application/pdf' })
   const added = await browser.call('addGuide', { title: 'Mine', file: String(Object(Object(uploaded).value).id) })
   assert.equal(Object(added).ok, false)
-  assert.equal(Object(Object(added).error).code, 'T3101')
+  assert.equal(Object(Object(added).error).code, 'F3101')
   await app.close()
 })
 
@@ -102,14 +102,14 @@ test('a program with a key may not refund an order with nobody to say yes', asyn
   const { app, fakes } = await open()
   const { key } = await app.key({ scopes: ['refundOrder'], roles: ['staff'] })
   const answer = await app.request(
-    new Request('http://localhost/_t/call/refundOrder', {
+    new Request('http://localhost/_f/call/refundOrder', {
       method: 'POST',
       headers: { authorization: `Bearer ${key}`, 'content-type': 'application/json' },
       body: JSON.stringify({ input: { order: 'ord_1077' } }),
     }),
   )
   assert.equal(answer.status, 403)
-  assert.match(await answer.text(), /T7120/)
+  assert.match(await answer.text(), /F7120/)
   assert.equal(fakes.payments.sent.length, 0)
   await app.close()
 })

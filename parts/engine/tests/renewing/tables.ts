@@ -1,4 +1,4 @@
-import { list, project, table, text } from 'tentjs'
+import { list, project, table, text } from 'forjr'
 
 export const renewing = project('renewing', {})
 

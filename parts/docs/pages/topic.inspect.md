@@ -8,10 +8,10 @@ The program that holds the app asks for a token, and the tool opens the address 
 
 ```ts
 const token = app.inspect({ framedBy: 'http://localhost:5173' })
-// the tool shows http://localhost:3000/orders?t-inspect=<token> in a frame
+// the tool shows http://localhost:3000/orders?f-inspect=<token> in a frame
 ```
 
-`framedBy` is the origin of the pages of the tool: a scheme, a host and a port, and nothing else - a semicolon, a star, a quote, a comma, a space or a path is `code.T0002`. A tool that opens the page in a window of its own names its origin as `{ opener: 'http://localhost:5173' }`: the page is framed by nobody, posts to that origin alone, and reads a message only from the window that opened it while that window stands on that origin, so a window of the tool that goes to another site is told nothing more. The token holds for an hour, or for `for`: `app.inspect({ framedBy, for: '30 minutes' })`. On a computer of your own, `tent dev --inspect http://localhost:5173` prints such an address (`command.dev`). A token is kept in the memory of the engine: it opens nothing on another app, and is gone when the app is closed.
+`framedBy` is the origin of the pages of the tool: a scheme, a host and a port, and nothing else - a semicolon, a star, a quote, a comma, a space or a path is `code.F0002`. A tool that opens the page in a window of its own names its origin as `{ opener: 'http://localhost:5173' }`: the page is framed by nobody, posts to that origin alone, and reads a message only from the window that opened it while that window stands on that origin, so a window of the tool that goes to another site is told nothing more. The token holds for an hour, or for `for`: `app.inspect({ framedBy, for: '30 minutes' })`. On a computer of your own, `forjr dev --inspect http://localhost:5173` prints such an address (`command.dev`). A token is kept in the memory of the engine: it opens nothing on another app, and is gone when the app is closed.
 
 Where the token holds, the engine lets that origin show this one answer in a frame, writes `inspect: { origin }` into the record of the page, and the page loads the part of the page code that speaks to the tool. Such a page is drawn afresh and kept by no cache. The page takes the token out of its address at once, keeps the mode through every move, and puts the token back on an address of the app that it loads whole, as after a save that asks for a reload, or a move to a screen that another `framedBy` frames. A form that is sent with no script carries it too. A way to the sign-in screen carries it as a name of its own, never inside `back`. A page with no good token loads no such part and answers no message, and may be shown in no frame of the tool. The screens where a person lets a program in, `grant` and `ask`, are opened by no token.
 
@@ -23,14 +23,14 @@ They go by the browser's own messaging between the page and the window that hold
 
 | From | Message | Meaning |
 |---|---|---|
-| Page | `{ t: 'tent.ready', screen, path, version }` | The page has come alive, or shows another screen |
-| Page | `{ t: 'tent.over', element }` | The pointer is over another element. With no `element`: over none |
-| Page | `{ t: 'tent.picked', element }` | An element was pressed while picking is on |
-| Page | `{ t: 'tent.tree', elements }` | The answer to `tent.tree`: every element that is drawn, each with the elements inside it |
-| Tool | `{ t: 'tent.pick', on }` | Picking on or off. While it is on, a press picks and does nothing else: no call and no move |
-| Tool | `{ t: 'tent.highlight', place, uses, color }` | Draws a frame around the element of that place, in the color. With no `place`, the frame is taken away |
-| Tool | `{ t: 'tent.tree' }` | Asks for the tree |
-| Tool | `{ t: 'tent.goTo', path }` | Moves the page to a path of the app. A path that ends in `#<id>` scrolls that element into view, and a state in the address shows the page as that state has it |
+| Page | `{ t: 'forjr.ready', screen, path, version }` | The page has come alive, or shows another screen |
+| Page | `{ t: 'forjr.over', element }` | The pointer is over another element. With no `element`: over none |
+| Page | `{ t: 'forjr.picked', element }` | An element was pressed while picking is on |
+| Page | `{ t: 'forjr.tree', elements }` | The answer to `forjr.tree`: every element that is drawn, each with the elements inside it |
+| Tool | `{ t: 'forjr.pick', on }` | Picking on or off. While it is on, a press picks and does nothing else: no call and no move |
+| Tool | `{ t: 'forjr.highlight', place, uses, color }` | Draws a frame around the element of that place, in the color. With no `place`, the frame is taken away |
+| Tool | `{ t: 'forjr.tree' }` | Asks for the tree |
+| Tool | `{ t: 'forjr.goTo', path }` | Moves the page to a path of the app. A path that ends in `#<id>` scrolls that element into view, and a state in the address shows the page as that state has it |
 
 What comes from the tool is held to its form before it finds an element: a `place` to the form below, and a `color` to the form of a color of CSS - `#` and 3, 4, 6 or 8 hex digits; one of `rgb()`, `hsl()`, `hwb()`, `lab()`, `lch()`, `oklab()`, `oklch()` and `color()`, holding only letters, digits, spaces, `.`, `,`, `%`, `/`, `+` and `-`; or one of the color names of CSS - and a `path` to a path of the app. A message of another form finds nothing and sets nothing.
 

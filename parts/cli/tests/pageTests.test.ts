@@ -6,7 +6,7 @@ import { typedApart } from './typed.ts'
 import { copied, root } from './typed.ts'
 
 // The app that the examples of the page are of: `teams`, and `tasks` a tenant table by its column `team`, with one team and one task.
-const tables = `import { anyone, link, table, text } from 'tentjs'
+const tables = `import { anyone, link, table, text } from 'forjr'
 
 const open = anyone('the examples of a page read and write it')
 
@@ -19,7 +19,7 @@ export const tasks = table('tasks', {
 })
 `
 
-const seed = `import { seed } from 'tentjs'
+const seed = `import { seed } from 'forjr'
 
 export default seed(({ db }) => {
   const north = db.teams.add({ name: 'North' })
@@ -29,7 +29,7 @@ export default seed(({ db }) => {
 
 const head = `import test from 'node:test'
 import assert from 'node:assert/strict'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 
 `
 

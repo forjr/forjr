@@ -1,4 +1,4 @@
-import { anyone, change, input, query, text } from 'tentjs'
+import { anyone, change, input, query, text } from 'forjr'
 import { items } from './tables'
 
 export const allItems = query('allItems', { access: 'anyone', rows: items.oldest('createdAt').limit(100) })

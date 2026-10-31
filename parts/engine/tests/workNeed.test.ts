@@ -111,7 +111,7 @@ test('[51-8] a worker that was released is handed nothing more, also after it jo
   again.close()
 })
 
-test('[51-8] a worker whose messages pass workPerMinute is refused with T0005, and a done that was refused is taken when sent again in the next minute', async (t) => {
+test('[51-8] a worker whose messages pass workPerMinute is refused with F0005, and a done that was refused is taken when sent again in the next minute', async (t) => {
   const { app, advance } = await writerOf(t, {
     change: (description) => {
       description.project.limits = { ...Object(description.project.limits), workPerMinute: 2 }
@@ -127,7 +127,7 @@ test('[51-8] a worker whose messages pass workPerMinute is refused with T0005, a
   await worker.next('saved')
   worker.send({ t: 'done', task, result: 5, cpuMs: 1 })
   const refused = await worker.next('refused')
-  assert.deepEqual([refused.what, refused.code], ['done', 'T0005'])
+  assert.deepEqual([refused.what, refused.code], ['done', 'F0005'])
   // A minute later, the worker alive all along, the done is taken.
   for (let i = 0; i < 61; i++) {
     advance(1000)
@@ -141,7 +141,7 @@ test('[51-8] a worker whose messages pass workPerMinute is refused with T0005, a
 })
 
 test('[51-8] fetched/ is held to its size, and no file that a task at work names is removed', () => {
-  const folder = mkdtempSync(join(tmpdir(), 'tent-fetched-'))
+  const folder = mkdtempSync(join(tmpdir(), 'forjr-fetched-'))
   try {
     const named = new Set(['a'])
     const fetched = fetchedIn(folder, 100, () => named)

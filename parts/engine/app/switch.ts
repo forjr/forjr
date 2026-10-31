@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { App } from '../app.ts'
 import type { Gradual } from '../gradual/release.ts'
 import { backRelease, beginRelease, endRelease, releaseOf, watchOf, widenRelease } from '../gradual/release.ts'
@@ -16,7 +16,7 @@ const every = 600_000
 
 /**
  * Begins a gradual release of a loadable version, by what it is asked with and else by `release` of the version's
- * project. A version whose table change is hard cannot go gradually, since both versions run on one data: T9108,
+ * project. A version whose table change is hard cannot go gradually, since both versions run on one data: F9108,
  * which names the change.
  */
 async function released(
@@ -27,14 +27,14 @@ async function released(
 ): Promise<Awaited<ReturnType<App['switch']>>> {
   const to = servedBy(o, version)
   if (!to || to === o)
-    throw new TentError(
-      'T0007',
+    throw new ForjrError(
+      'F0007',
       `The version ${version.slice(0, 40)} cannot be loaded here, and is released to nobody.`,
     )
   const dry = await switchVersion(o, version, { dry: true })
   if (dry.hard)
-    throw new TentError(
-      'T9108',
+    throw new ForjrError(
+      'F9108',
       `The version cannot go gradually: its table change is hard, and both versions run on one data: ${dry.steps.map((step) => `${step.do} ${String(Reflect.get(step, 'table') ?? '')}${Reflect.get(step, 'column') ? `.${String(Reflect.get(step, 'column'))}` : ''}`).join(', ')}.`,
       {
         fields: { reason: 'hard', steps: dry.steps.map((step) => step.do).join(' ') },

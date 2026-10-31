@@ -61,14 +61,14 @@ const asked = (
 test('[48-7.2] the admin channel asked from another computer with no key, a key without the right operate, or that key for another command, a function or a row, is refused', async (t) => {
   const { app, host, keys } = await served(t)
   // The one way in that stands: the run commands and the log, with a key of the right `operate`.
-  assert.equal((await asked(app, host, '/_t/admin/runs', keys.operate)).status, 200)
-  assert.equal((await asked(app, host, '/_t/admin/logs', keys.operate)).status, 200)
+  assert.equal((await asked(app, host, '/_f/admin/runs', keys.operate)).status, 200)
+  assert.equal((await asked(app, host, '/_f/admin/logs', keys.operate)).status, 200)
   for (const [path, key, why] of [
-    ['/_t/admin/runs', undefined, 'no key'],
-    ['/_t/admin/logs', undefined, 'no key'],
-    ['/_t/admin/runs', keys.publish, 'a key of the right publish'],
-    ['/_t/admin/logs', keys.plain, 'a key of no right'],
-    ['/_t/admin/runs', `${keys.operate.slice(0, -1)}${keys.operate.endsWith('A') ? 'B' : 'A'}`, 'a key one letter off'],
+    ['/_f/admin/runs', undefined, 'no key'],
+    ['/_f/admin/logs', undefined, 'no key'],
+    ['/_f/admin/runs', keys.publish, 'a key of the right publish'],
+    ['/_f/admin/logs', keys.plain, 'a key of no right'],
+    ['/_f/admin/runs', `${keys.operate.slice(0, -1)}${keys.operate.endsWith('A') ? 'B' : 'A'}`, 'a key one letter off'],
   ] as const) {
     const refused = await asked(app, host, path, key)
     assert.equal(refused.status, 401, `${path} with ${why}`)
@@ -93,16 +93,16 @@ test('[48-7.2] the admin channel asked from another computer with no key, a key 
     'logs/',
     'Runs',
   ]) {
-    const refused = await asked(app, host, `/_t/admin/${command}`, keys.operate, { args: { from: 'people' } })
+    const refused = await asked(app, host, `/_f/admin/${command}`, keys.operate, { args: { from: 'people' } })
     assert.notEqual(refused.status, 200, command)
     assert.doesNotMatch(await refused.text(), new RegExp(`${ssn}|${pin}|Ada`), command)
   }
   // That key for a function and for a row: the change adds nothing, and the query is refused.
   const before = await app.read({ from: 'people' }, { as: { kind: 'system' } })
   for (const [path, input] of [
-    ['/_t/call/addPerson', { name: 'Bo', ssn: 'x', pin: 'y' }],
-    ['/_t/call/everyone', {}],
-    ['/_t/read/everyone', {}],
+    ['/_f/call/addPerson', { name: 'Bo', ssn: 'x', pin: 'y' }],
+    ['/_f/call/everyone', {}],
+    ['/_f/read/everyone', {}],
   ] as const) {
     const refused = await asked(app, host, path, keys.operate, { input })
     assert.notEqual(refused.status, 200, path)
@@ -113,7 +113,7 @@ test('[48-7.2] the admin channel asked from another computer with no key, a key 
 
 test('[48-7.2] a key of the right operate opens no live connection that watches a row', async (t) => {
   const { app, host, keys } = await served(t)
-  const end = app.live(new Request(`http://${host}/_t/live`, { headers: { authorization: `Bearer ${keys.operate}` } }))
+  const end = app.live(new Request(`http://${host}/_f/live`, { headers: { authorization: `Bearer ${keys.operate}` } }))
   const got: Record<string, unknown>[] = []
   end.each((message) => void got.push(Object(message)))
   end.send({ t: 'watch', id: 'w', query: 'everyone', input: {} })
@@ -124,24 +124,24 @@ test('[48-7.2] a key of the right operate opens no live connection that watches 
   assert.ok(!got.some((one) => one.t === 'result'), JSON.stringify(got))
 })
 
-test('[48-7.3] tent logs asked by a key on a server never shows a private or sealed value: not in the calls, the errors, the slow queries nor the tree of a trace', async (t) => {
+test('[48-7.3] forjr logs asked by a key on a server never shows a private or sealed value: not in the calls, the errors, the slow queries nor the tree of a trace', async (t) => {
   const { app, host, keys, id } = await served(t)
   // The builder's own code writes both values into a line of the log and into the words of an error.
   await assert.rejects(app.call('checkPerson', { id }, { as: { kind: 'system' } }))
-  const logged = await asked(app, host, '/_t/admin/logs', keys.operate, { args: {} })
+  const logged = await asked(app, host, '/_f/admin/logs', keys.operate, { args: {} })
   assert.equal(logged.status, 200)
   const told = String(await logged.text())
   assert.doesNotMatch(told, new RegExp(`${ssn}|${pin}`), 'the log')
-  // Every trace that the log names is asked for as its tree, as `tent logs --trace` asks.
+  // Every trace that the log names is asked for as its tree, as `forjr logs --trace` asks.
   const traces = new Set(told.match(/[0-9a-f]{32}/g) ?? [])
   assert.ok(traces.size > 0, 'the log names the trace of the call that failed')
   for (const trace of traces) {
-    const tree = await asked(app, host, '/_t/admin/logs', keys.operate, { args: { trace } })
+    const tree = await asked(app, host, '/_f/admin/logs', keys.operate, { args: { trace } })
     if (tree.status !== 200) continue
     assert.doesNotMatch(await tree.text(), new RegExp(`${ssn}|${pin}`), `the tree of ${trace}`)
   }
   for (const args of [{ errors: true }, { slow: true }, { callers: true }, { vitals: true }]) {
-    const one = await asked(app, host, '/_t/admin/logs', keys.operate, { args })
+    const one = await asked(app, host, '/_f/admin/logs', keys.operate, { args })
     assert.doesNotMatch(await one.text(), new RegExp(`${ssn}|${pin}`), JSON.stringify(args))
   }
 })
@@ -158,7 +158,7 @@ test('[48-7.3] a run shown to a key on a server never shows a private value that
     await new Promise<void>((resolve) => setTimeout(resolve, 2))
   }
   for (const what of ['list', 'show']) {
-    const shown = await asked(app, host, '/_t/admin/runs', keys.operate, { args: { what, id: run } })
+    const shown = await asked(app, host, '/_f/admin/runs', keys.operate, { args: { what, id: run } })
     assert.equal(shown.status, 200, what)
     assert.doesNotMatch(await shown.text(), new RegExp(`${ssn}|${pin}`), what)
   }

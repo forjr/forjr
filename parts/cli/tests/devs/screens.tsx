@@ -1,5 +1,5 @@
 import { useEffect } from 'react'
-import { screen, read, text, Form } from 'tentjs/ui'
+import { screen, read, text, Form } from 'forjr/ui'
 import { addItem, allItems, stamp } from './functions'
 
 // A screen, with a state that its address keeps.

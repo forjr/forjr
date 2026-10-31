@@ -1,4 +1,4 @@
-import { number, query } from 'tentjs'
+import { number, query } from 'forjr'
 import { notes } from '../tables/notes'
 
 const hidden = query('hidden', { access: 'signedIn', rows: notes.limit(5) })

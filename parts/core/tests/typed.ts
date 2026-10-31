@@ -9,7 +9,7 @@ const root = join(import.meta.dirname, '..', '..', '..')
 export type Reported = { file: string; line: number; words: string }
 
 /**
- * Takes a name and the files of a small project, each a text by its path, in which `tentjs` is imported by that
+ * Takes a name and the files of a small project, each a text by its path, in which `forjr` is imported by that
  * name. Writes them to a folder of their own under `results/`, carries the type checker out on them with the
  * settings of the root, and answers what it reported. Throws where the type checker could not be started.
  */
@@ -19,7 +19,7 @@ export function typeCheck(name: string, files: Record<string, string>): Reported
   const { compilerOptions } = JSON.parse(readFileSync(join(root, 'tsconfig.json'), 'utf8'))
   const entry = join(root, 'parts', 'core', 'index.ts').replaceAll('\\', '/')
   const settings = {
-    compilerOptions: { ...compilerOptions, declaration: false, paths: { tentjs: [entry] } },
+    compilerOptions: { ...compilerOptions, declaration: false, paths: { forjr: [entry] } },
     include: ['**/*.ts'],
   }
   for (const [path, text] of Object.entries({ ...files, 'tsconfig.json': JSON.stringify(settings) })) {

@@ -58,11 +58,11 @@ test('[50-3] a rule that reads members of the shared file lets a member read the
   const asAda = writingFiles(files, desk, person(s.ada))
   assert.equal(
     codeOf(() => asBob((db) => at(db, 'orders').of(s.east).add({ total: 1 }))),
-    'T3101',
+    'F3101',
   )
   assert.equal(
     codeOf(() => asBob((db) => at(db, 'orders').of(s.north).add({ total: 1 }))),
-    'T3101',
+    'F3101',
   )
   assert.equal(files.has(east), false)
   assert.deepEqual(marked, [])
@@ -70,22 +70,22 @@ test('[50-3] a rule that reads members of the shared file lets a member read the
   opened.length = 0
   assert.equal(
     codeOf(() => asBob((db) => at(db, 'orders').of(s.north).change(String(mine.id), { total: 0 }))),
-    'T2103',
+    'F2103',
   )
   assert.equal(
     codeOf(() => asBob((db) => at(db, 'orders').of(s.north).remove(String(mine.id)))),
-    'T2103',
+    'F2103',
   )
   assert.deepEqual(opened, [])
   // A caller who guesses ids of tenants learns nothing from the code, and makes nothing.
   const guessed = `${s.north.slice(0, 25)}${s.north.endsWith('0') ? '1' : '0'}`
   assert.equal(
     codeOf(() => asBob((db) => at(db, 'orders').of(guessed).add({ total: 1 }))),
-    'T3101',
+    'F3101',
   )
   assert.equal(
     codeOf(() => asBob((db) => at(db, 'orders').of('../x').add({ total: 1 }))),
-    'T3101',
+    'F3101',
   )
   assert.deepEqual(files.open(), [])
 
@@ -222,7 +222,7 @@ test('[50-3] the rule of an add is asked of the row before the file of its tenan
     noted.length = 0
     assert.equal(
       codeOf(() => write((db) => at(db, name).of(tenant).add(refused))),
-      'T3101',
+      'F3101',
       name,
     )
     assert.equal(files.has(file), false, name)
@@ -236,7 +236,7 @@ test('[50-3] the rule of an add is asked of the row before the file of its tenan
     // In the file that now stands the rule refuses the same row, and nothing of it stays.
     assert.equal(
       codeOf(() => write((db) => at(db, name).of(tenant).add(refused))),
-      'T3101',
+      'F3101',
       name,
     )
     assert.equal(at(readingFiles(files, yard), name).of(tenant).count(), 1, name)
@@ -245,7 +245,7 @@ test('[50-3] the rule of an add is asked of the row before the file of its tenan
   const south = String(writingFiles(files, yard)((db) => at(db, 'teams').add({ name: 'South' })).id)
   assert.equal(
     codeOf(() => writingFiles(files, yard, person(s.bob))((db) => at(db, 'notes').of(south).add({ author: s.bob }))),
-    'T3101',
+    'F3101',
   )
   assert.equal(files.has(teamFile(south)), false)
   assert.deepEqual(marked, [])

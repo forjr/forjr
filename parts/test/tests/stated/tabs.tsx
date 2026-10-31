@@ -1,4 +1,4 @@
-import { screen, choice, Link } from 'tentjs/ui'
+import { screen, choice, Link } from 'forjr/ui'
 
 export const tabsScreen = screen('tabsScreen', {
   path: '/tabs',

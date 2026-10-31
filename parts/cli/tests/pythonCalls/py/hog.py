@@ -1,7 +1,7 @@
 import time
 
 
-def run(input, tent):
+def run(input, forjr):
     held = []
     for _ in range(int(input["mb"])):
         held.append(bytearray(1024 * 1024))

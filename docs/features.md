@@ -1,4 +1,4 @@
-# What Tent.js does
+# What Forjr does
 
 Every feature of the framework, in one or two sentences each, as the website says them. Each line rests on the build documents and the shipped docs.
 
@@ -87,4 +87,4 @@ In the order the website tells them: it is built for AI, it is safe, it does not
 
 ## Measured against Next.js 16.4
 
-Kept for reference, not for the website: on the same app, on the owner's Windows computer, Tent.js sent a third less script (91 kB against 139 kB), answered its first page in about 0.6 s against about 0.94 s for `next start`, and showed a save in the page in about 0.11 s against 0.12 s for `next dev`. The press of a form was slower in that early race (about 64 to 72 ms against 48 ms), and the race was not run again before the release.
+Kept for reference, not for the website: on the same app, on the owner's Windows computer, Forjr sent a third less script (91 kB against 139 kB), answered its first page in about 0.6 s against about 0.94 s for `next start`, and showed a save in the page in about 0.11 s against 0.12 s for `next dev`. The press of a form was slower in that early race (about 64 to 72 ms against 48 ms), and the race was not run again before the release.

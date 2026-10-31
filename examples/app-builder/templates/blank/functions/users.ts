@@ -1,4 +1,4 @@
-import { change, link, object, text } from 'tentjs'
+import { change, link, object, text } from 'forjr'
 
 export const addUser = change('addUser', {
   about: 'Finds the row of a person of the product, and adds it the first time they open this app',

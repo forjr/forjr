@@ -24,7 +24,7 @@ export function copyOf(name: string, as: string): string {
 }
 
 /**
- * Takes the name of a rule of the list, as `T2013/column`, and the facts of a running app where it reads them.
+ * Takes the name of a rule of the list, as `F2013/column`, and the facts of a running app where it reads them.
  * Holds the rule to its two projects: it is built, its passing project gives nothing, and its failing project gives
  * findings of its code and of no other. Answers the findings of the failing project and the folder of its copy.
  */

@@ -1,5 +1,5 @@
 import { isDeepStrictEqual } from 'node:util'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Misfit, TableLayout, TableStep } from '../../data/index.ts'
 import {
   applySteps,
@@ -59,11 +59,11 @@ const cameFrom = new WeakMap<TenantFiles, { layout: unknown; steps: TableStep[] 
 const turning = new WeakSet<TenantFiles>()
 
 /** The finding of the rows of one file that do not fit a step, with the tenant and the count. */
-function refusal({ table, column, rows, file }: Misfit): TentError {
+function refusal({ table, column, rows, file }: Misfit): ForjrError {
   const count = rows === 1 ? '1 row' : `${rows} rows`
   const where = file ? `, in the data file of ${file.table} ${file.id}` : ''
-  return new TentError(
-    'T2001',
+  return new ForjrError(
+    'F2001',
     `${count} of \`${table}\` ${rows === 1 ? 'does' : 'do'} not fit what \`${table}.${column}\` becomes${where}.`,
     { fix: 'Change those rows so that they fit, or add a new column, fill it with a change, then remove the old one.' },
   )
@@ -91,7 +91,7 @@ const beside = (o: Opened, tenantFiles: TenantFiles, work: () => Promise<unknown
  *
  * Then the shared file names the check that stands, and every file that holds a table of the steps is held
  * against them on a file thread: a file that fits is held to the steps from then on, by every version. One file
- * that does not fit takes the check away, with its holds, and throws T2001, naming the tenant and the count.
+ * that does not fit takes the check away, with its holds, and throws F2001, naming the tenant and the count.
  * Then the shared file takes its steps, the running layout of the files and the version in one write, which
  * takes the check away and ends the move, and the pass that brings every file up is started. With `dry` the
  * misfits are counted to read alone, nothing is held, and nothing is changed.
@@ -144,7 +144,7 @@ export async function switchTenantFiles(
     const ofFiles =
       changes && !back && isLayouts(named) ? planTableChanges(named, tenantTablesNow, { removed }) : undefined
     const [found] = ofFiles?.findings ?? []
-    if (found) throw new TentError(found.code, found.message, found.fix === undefined ? {} : { fix: found.fix })
+    if (found) throw new ForjrError(found.code, found.message, found.fix === undefined ? {} : { fix: found.fix })
     const steps = ofFiles?.steps ?? []
     // A file is held to a column that a backfill fills once the backfill ran in it, as it is brought up.
     const checked = steps.filter((step) => !waitsForBackfill(step, fills))

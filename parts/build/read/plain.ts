@@ -83,7 +83,7 @@ export function readPlain(tree: Node, seen: Scan, around: Around): PlainFile {
 
   for (const one of seen.imports) {
     const text = around.textFile(one.from)
-    if (one.from === 'tentjs') {
+    if (one.from === 'forjr') {
       if (Object.hasOwn(exported, one.name)) names.set(one.local, own(exported[one.name]))
     } else if (text !== undefined && one.name === 'default') names.set(one.local, text)
     else if (one.from.startsWith('.')) {

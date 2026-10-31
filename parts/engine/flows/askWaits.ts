@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Runner, RunView } from '../../flows/index.ts'
 import { madeText, readText } from '../mcp/texts.ts'
 import { whoOf } from '../mcp/streams.ts'
@@ -25,7 +25,7 @@ export interface RunAsk {
 
 /**
  * Takes an app, its runner, a run that a call of MCP waits for and the caller. Answers a promise that is refused
- * once the run waits for a person, with T7120 that carries the run and a text of the engine's own that names the
+ * once the run waits for a person, with F7120 that carries the run and a text of the engine's own that names the
  * ask, for that caller: so the client may ask its person, or be pointed to the page. And what ends the looking.
  */
 export function askWaited(
@@ -49,7 +49,7 @@ export function askWaited(
         ? { sequence: JSON.stringify(listed), more: String(more === true) }
         : {}
       refuse(
-        new TentError('T7120', `The run ${run} waits for the person's answer to ${step.name}.`, {
+        new ForjrError('F7120', `The run ${run} waits for the person's answer to ${step.name}.`, {
           fields: { ask: madeText(o, kind, { ...ask }), run, ...sequence },
           fix: 'Ask the person, and call the tool again with the answer; or call it with `{ run }` once they answered.',
         }),
@@ -64,11 +64,11 @@ export function askWaited(
 
 /**
  * Tells a run the answer to its ask that a text named, for the caller it was made for: a yes or a no, where the
- * ask still waits. Answers the run, which the call then waits for again. Throws T7120 for another caller.
+ * ask still waits. Answers the run, which the call then waits for again. Throws F7120 for another caller.
  */
 export function answeredRun(o: Opened, ask: RunAsk, caller: Caller, refused: boolean): string {
   if (ask.who !== whoOf(caller))
-    throw new TentError('T7120', 'The ask of this run was made for another caller.', {
+    throw new ForjrError('F7120', 'The ask of this run was made for another caller.', {
       fix: 'Answer the ask with the client of the person who started the run.',
     })
   answerAsk(o, ask, refused)

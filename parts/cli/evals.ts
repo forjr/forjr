@@ -1,7 +1,7 @@
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { Finding } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { finding, isStored } from '../core/internal.ts'
 
 /** What one case of a result of `evals` holds, as an evaluation keeps it. */
@@ -18,7 +18,7 @@ interface KeptResult {
   each: KeptCase[]
 }
 
-/** What `tent test --ai` keeps of one evaluation, in `evals/`. */
+/** What `forjr test --ai` keeps of one evaluation, in `evals/`. */
 interface Evaluation {
   version: string
   at: string
@@ -27,7 +27,7 @@ interface Evaluation {
 
 /**
  * Reads `--budget`: each `<unit>=<most>` is one bound, and `none` is no budget. Left out it is
- * `tokensOut=500000`. Throws T0002 for a word of another form.
+ * `tokensOut=500000`. Throws F0002 for a word of another form.
  */
 export function budgetOf(words: string[] | undefined): Record<string, number> | 'none' {
   if (!words?.length) return { tokensOut: 500_000 }
@@ -37,7 +37,7 @@ export function budgetOf(words: string[] | undefined): Record<string, number> | 
     const [unit, most] = word.split('=')
     const amount = Number(most)
     if (!unit || !/^[a-zA-Z]+$/.test(unit) || !Number.isFinite(amount) || amount < 0)
-      throw new TentError('T0002', `--budget takes <unit>=<most>, or none, and was given ${word.slice(0, 40)}.`, {
+      throw new ForjrError('F0002', `--budget takes <unit>=<most>, or none, and was given ${word.slice(0, 40)}.`, {
         fix: 'Write it as --budget tokensOut=200000, once for each unit it bounds.',
       })
     budget[unit] = amount
@@ -70,7 +70,7 @@ export function resultsIn(file: string): KeptResult[] {
 }
 
 /** The folder of the evaluations: `evals/` of the engine's own folder, which no file of the project holds. */
-const evalsOf = (folder: string): string => join(folder, '.tent', 'evals')
+const evalsOf = (folder: string): string => join(folder, '.forjr', 'evals')
 
 /**
  * Keeps an evaluation in `evals/` of the engine's own folder of the project, in a file named by its time and its
@@ -117,7 +117,7 @@ export function compared(folder: string, file: string, now: Evaluation): Finding
       if ((then.pass && !one.pass) || then.score - one.score > 0.1)
         found.push(
           finding(
-            'T0009',
+            'F0009',
             `${result.name}: the case "${one.name}" ${then.pass && !one.pass ? 'passed before and fails now' : 'scores lower than before'}: ${then.score.toFixed(2)} then, ${one.score.toFixed(2)} now.`,
             {
               fix: 'Look at what changed in the prompt, the tools or the model since the evaluation it is set against.',

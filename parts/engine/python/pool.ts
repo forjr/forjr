@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { PythonProgram } from './program.ts'
 
 /** What a Python program belongs to: one version of the app, one lock, and one value of `gpu`. */
@@ -20,7 +20,7 @@ export interface Pool {
    * Answers a place for a call of the file of a definition, in a program of its kind: one that holds calls of
    * that file alone and fewer than `atOnce` of them, or one that holds none. Where none is free and fewer than
    * `count` stand, a new one is started; a call made from inside a Python program is handed one beyond the count.
-   * Otherwise the call waits for a place, up to the moment `until`, past which it is T0008. `starting` carries the
+   * Otherwise the call waits for a place, up to the moment `until`, past which it is F0008. `starting` carries the
    * start of a new program, which the call may hold out of its time.
    */
   place(o: {
@@ -120,7 +120,7 @@ export function pythonPool(o: {
       // A program that came up after the pool was closed is ended at once.
       if (closed) {
         program.end()
-        throw new TentError('T0013', 'The app was closed while a Python program of it was started.')
+        throw new ForjrError('F0013', 'The app was closed while a Python program of it was started.')
       }
       // The new program is the call's before any other that waits is woken: its place is claimed as it stands.
       const one: Held = { kind, key, program, files: [file], beyond }
@@ -147,11 +147,11 @@ export function pythonPool(o: {
       retire(asked.kind)
       for (;;) {
         if (closed)
-          throw new TentError('T0013', 'The app was closed while a call of a `python` waited for its program.')
-        // A call whose time ran out meanwhile was answered T0008 already: it takes no place, free or not.
+          throw new ForjrError('F0013', 'The app was closed while a call of a `python` waited for its program.')
+        // A call whose time ran out meanwhile was answered F0008 already: it takes no place, free or not.
         const left = asked.until - performance.now()
         if (left <= 0)
-          throw new TentError('T0008', `${asked.name} waited past its time for a free place in a Python program.`, {
+          throw new ForjrError('F0008', `${asked.name} waited past its time for a free place in a Python program.`, {
             fix: 'Raise `limits.pythonPrograms` of the project, or `atOnce` of the definition.',
           })
         const found = held.find((one) => one.key === key && free(one, asked.file, asked.atOnce))

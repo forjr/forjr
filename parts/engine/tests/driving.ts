@@ -4,7 +4,7 @@ import type { TestContext } from 'node:test'
 import type { AiEnv, Provider, Used } from '../../ai/index.ts'
 import { agentDriver } from '../../ai/index.ts'
 import { guardedFetch } from '../../connect/index.ts'
-import { project, TentError } from '../../core/index.ts'
+import { project, ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { describe } from '../../core/internal.ts'
 import { sqliteStore } from '../../data/index.ts'
@@ -56,16 +56,16 @@ export function driving(t: TestContext, definitions: object[], o: DrivingOptions
     used: (one) => void used.push(one),
     call(name, args) {
       const call = o.calls?.[name]
-      if (!call) throw new TentError('T0001', `The test answers no call ${name}.`)
+      if (!call) throw new ForjrError('F0001', `The test answers no call ${name}.`)
       return call(args[0])
     },
     tell: (run, part) => void told.push({ run, ...part }),
     files: {
-      text: () => Promise.reject(new TentError('T2104', 'No file.')),
-      bytes: () => Promise.reject(new TentError('T2104', 'No file.')),
-      put: () => Promise.reject(new TentError('T0013', 'No file is kept.')),
+      text: () => Promise.reject(new ForjrError('F2104', 'No file.')),
+      bytes: () => Promise.reject(new ForjrError('F2104', 'No file.')),
+      put: () => Promise.reject(new ForjrError('F0013', 'No file is kept.')),
       info: () => {
-        throw new TentError('T2104', 'No file.')
+        throw new ForjrError('F2104', 'No file.')
       },
     },
     providers: o.providers ?? {},

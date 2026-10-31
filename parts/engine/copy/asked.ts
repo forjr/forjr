@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import type { Change } from '../../data/index.ts'
 
@@ -44,12 +44,12 @@ const needing = new WeakSet<object>()
 
 /**
  * Answers the error of a reader that met what only the writer can do, and notes it for the request under way, so
- * that the door hands the whole request to the writer. Where no door stands behind it, the error is T0030.
+ * that the door hands the whole request to the writer. Where no door stands behind it, the error is F0030.
  */
-export function needsWriter(what: string, writer?: string): TentError {
+export function needsWriter(what: string, writer?: string): ForjrError {
   const asked = asking.getStore()
   if (asked) asked.needs = true
-  const error = new TentError('T0030', `This machine is a reader, and ${what} is the writer's.`, {
+  const error = new ForjrError('F0030', `This machine is a reader, and ${what} is the writer's.`, {
     fix: `Send it as a request, with \`app.request\`, or run it where the writer is${writer ? `: ${writer}` : ''}.`,
   })
   needing.add(error)
@@ -61,7 +61,7 @@ export const isNeedsWriter = (error: unknown): boolean =>
   typeof error === 'object' && error !== null && needing.has(error)
 
 // The tables whose rows say who a caller is and what they may do.
-const guards = ['_t_sessions', '_t_api_keys', '_t_oauth']
+const guards = ['_f_sessions', '_f_api_keys', '_f_oauth']
 
 // The columns of such a row that say what its caller may do.
 const rights = ['scopes', 'roles', 'rights', 'expiresAt', 'endsAt', 'end']

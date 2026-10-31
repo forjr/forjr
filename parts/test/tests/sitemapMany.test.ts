@@ -6,12 +6,12 @@ import { served } from './served.ts'
 
 /** A query of every slug that is never live, which may answer more rows than a live one, and a screen it lists. */
 const many = {
-  'many.ts': `import { query } from 'tentjs'
+  'many.ts': `import { query } from 'forjr'
 import { products } from './functions'
 
 export const everySlug = query('everySlug', { access: 'anyone', live: false, rows: products.oldest('slug') })
 `,
-  'many.tsx': `import { screen, read } from 'tentjs/ui'
+  'many.tsx': `import { screen, read } from 'forjr/ui'
 import { everySlug } from './many'
 
 export const manyScreen = screen('manyScreen', {

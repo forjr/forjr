@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { DbContext } from './context.ts'
 import { noKey } from './context.ts'
 import type { TableModel } from './model.ts'
@@ -10,7 +10,7 @@ export const foundColumn = (column: string): string => `${column}__found`
 /** What a fingerprint is bound to: the table and the column, so the same value in two columns does not match. */
 const boundOf = (table: string, column: string): string => `${table}.${column}`
 
-/** The keyed fingerprint of one value of a findable column. Throws T0019 with no key at hand. */
+/** The keyed fingerprint of one value of a findable column. Throws F0019 with no key at hand. */
 export function fingerprintOf(cx: DbContext, model: TableModel, column: string, value: unknown): string {
   if (!cx.o.seal?.find) throw noKey(model.name, column)
   return cx.o.seal.find(value, boundOf(model.name, column))
@@ -21,7 +21,7 @@ const equal = ['is', 'in', 'not']
 
 /**
  * Takes the context of a `db`, a table, and the filter of a plan of it. Answers the filter with each entry on a
- * findable sealed column of the table held to its fingerprint in place of its value. Throws T2026 for an entry
+ * findable sealed column of the table held to its fingerprint in place of its value. Throws F2026 for an entry
  * that asks anything but an equal value, which a fingerprint cannot answer.
  */
 export function foundFilter(cx: DbContext, model: TableModel, filter: Filter): Filter {
@@ -49,9 +49,9 @@ export function foundFilter(cx: DbContext, model: TableModel, filter: Filter): F
 }
 
 /** The error of a sort or a range on a findable sealed column. */
-export const misused = (model: TableModel, column: string, what: string): TentError =>
-  new TentError(
-    'T2026',
+export const misused = (model: TableModel, column: string, what: string): ForjrError =>
+  new ForjrError(
+    'F2026',
     `\`${column}\` of \`${model.name}\` is sealed and found by its fingerprint, which answers an equal value alone: ${what} cannot be asked of it.`,
     { fix: 'Find the row by an equal value, and sort or compare by a column that is not sealed.' },
   )

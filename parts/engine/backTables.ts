@@ -40,7 +40,7 @@ export function backOf(store: Store, to: Description, from: Description): Descri
   const tables = new Set<string>(Array.isArray(back.project.removed) ? back.project.removed.map(String) : [])
   const wanted = layoutOf(back)
   for (const held of store.layout()) {
-    if (held.name.startsWith('_t_') || held.retired) continue
+    if (held.name.startsWith('_f_') || held.retired) continue
     const layout = wanted.find((one) => one.name === held.name || wasOf(one).includes(held.name))
     const table = layout && Object.hasOwn(back.tables, layout.name) ? back.tables[layout.name] : undefined
     if (!table || !layout) {

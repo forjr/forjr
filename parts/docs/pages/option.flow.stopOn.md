@@ -29,11 +29,11 @@ export const cancelOrder = change('cancelOrder', {
 })
 ```
 
-A caller that waits for a stopped run gets `code.T5106`.
+A caller that waits for a stopped run gets `code.F5106`.
 
 ## Errors
 
-`code.T1014`: `stopOn` holds what is no event with a key.
+`code.F1014`: `stopOn` holds what is no event with a key.
 
 ## See also
 

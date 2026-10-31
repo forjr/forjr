@@ -41,13 +41,13 @@ test('[50-6] a heavy query that reads a file by raw SQL with of, where the file 
   const tables = (): string[] =>
     readFile(fileOf(dataFolder, north), `SELECT "name" FROM "sqlite_master" WHERE "type" = 'table'`)
       .map((row) => String(row.name))
-      .filter((name) => !name.startsWith('_t_') && !name.startsWith('sqlite_'))
+      .filter((name) => !name.startsWith('_f_') && !name.startsWith('sqlite_'))
       .sort()
   const counted = (table: string): Promise<unknown> => app.call('heavyCount', { team: north, table }, system)
   assert.equal(await counted('orders'), 1)
   assert.equal(await counted('lines'), 0)
   assert.equal(tables().includes('lines'), true, 'the table that the file lacked was made')
   // A raw text that writes is a write of a query: refused, on a thread as anywhere, and the row is there.
-  assert.equal(await codeOf(app.call('heavyWrite', { team: north }, system)), 'T0012')
+  assert.equal(await codeOf(app.call('heavyWrite', { team: north }, system)), 'F0012')
   assert.equal(await counted('orders'), 1)
 })

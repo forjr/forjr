@@ -1,4 +1,4 @@
-import { flow, text, token, concat } from 'tentjs'
+import { flow, text, token, concat } from 'forjr'
 
 // Each of the two steps draws a token, so a test sees which of them a new run carried out and which it read.
 export const bigOrder = flow('bigOrder', {

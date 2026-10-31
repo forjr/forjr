@@ -20,7 +20,7 @@ const ofDefinitions = [
 ]
 
 /**
- * Takes the record of the tests of a project, as `tent test` keeps it in `.tent/tests.json`: each test by its file
+ * Takes the record of the tests of a project, as `forjr test` keeps it in `.forjr/tests.json`: each test by its file
  * and its name, with each of its runs in the order the runner ran them. Answers what each test touched, every run of
  * one name taken together, in the order of the names. A record of another form holds no test.
  */
@@ -42,6 +42,25 @@ export function touchedOf(record: unknown): TestsTouched {
   return Object.fromEntries(Object.entries(touched).sort(([a], [b]) => (a < b ? -1 : 1)))
 }
 
+// The kinds of definition that the record of a test names, as the graph names them: a function of each kind, a flow,
+// an agent, a screen, a component, a route, a command, an incoming call, a table, a service and a model.
+export const testedKinds: ReadonlySet<string> = new Set([
+  'query',
+  'change',
+  'action',
+  'python',
+  'flow',
+  'agent',
+  'screen',
+  'component',
+  'route',
+  'command',
+  'incoming',
+  'table',
+  'service',
+  'model',
+])
+
 /** The tests that touched a definition in their last run, in the order of their names. */
 export const testsTouching = (touched: TestsTouched, name: string): string[] =>
   Object.entries(touched)
@@ -60,8 +79,8 @@ const held = [
 
 /**
  * Takes a description and what each test touched. Answers each function, flow, agent among them, screen, table and
- * route that no test touched, by its name and its kind, in the order of the names: what `tent check` warns of, and
- * what `tent impact` names untested.
+ * route that no test touched, by its name and its kind, in the order of the names: what `forjr check` warns of, and
+ * what `forjr impact` names untested.
  */
 export function untestedOf(
   description: Description,

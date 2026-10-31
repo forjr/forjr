@@ -1,0 +1,10 @@
+import { boolean, date, number, query, table, text } from 'forjr'
+
+export const notes = table('notes', { columns: { body: text(), n: number() }, access: { read: 'signedIn' } })
+
+export const isNow = query('isNow', {
+  access: 'signedIn',
+  input: { at: date() },
+  output: boolean(),
+  run: ({ input, now }) => input.at == now,
+})

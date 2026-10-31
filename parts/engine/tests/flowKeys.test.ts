@@ -39,7 +39,7 @@ test('[46-1] a join answers the run to its starter and to code with full access,
   assert.equal(await started(app, 'ship', { order: 'o1' }, ada), theirs, 'the starter is answered its run')
   assert.equal(await started(app, 'ship', { order: 'o1' }), theirs, 'the system is answered it')
   const refused = await refusal(app.start('ship', { order: 'o1' }, { as: bob }))
-  assert.equal(refused.code, 'T7103')
+  assert.equal(refused.code, 'F7103')
   assert.doesNotMatch(refused.message, new RegExp(theirs), 'the refusal names nothing of the run')
   assert.equal(app.runs.find({ flow: 'ship' }).length, 1, 'nothing was started for the other caller')
 })
@@ -59,7 +59,7 @@ test('[46-1] `stopOn` stops the runs of the key in the write that emits, and no 
   await app.call('cancel', { order: 'o1' }, { as: system })
   assert.equal(app.runs.read(one)?.state, 'stopped', 'the run is stopped once the write that emitted has ended')
   assert.equal(app.runs.read(two)?.state, 'waiting', 'the run of another key goes on')
-  assert.equal((await refusal(app.runs.wait(one))).code, 'T5106')
+  assert.equal((await refusal(app.runs.wait(one))).code, 'F5106')
   // A start of the key after the stop starts a new run.
   assert.notEqual(await started(app, 'ship', { order: 'o1' }), one)
 })
@@ -118,7 +118,7 @@ test('[46-1] a shared limit of five over two flows holds five runs for one team,
   assert.equal(await app.runs.wait(sixth), 'a6')
 })
 
-/** `_t_runs` as a data file of the first build of flows holds it: with no `key`, no `from` and one index. */
+/** `_f_runs` as a data file of the first build of flows holds it: with no `key`, no `from` and one index. */
 function runsBefore(): TableLayout {
   const text: ColumnType = { kind: 'text' }
   const maybe: ColumnType = { kind: 'text', optional: true }
@@ -131,10 +131,10 @@ function runsBefore(): TableLayout {
     columns[name] = data
   for (const name of ['wakeAt', 'createdAt', 'endedAt']) columns[name] = moment
   columns.workedMs = { kind: 'number', whole: true, optional: true }
-  return { name: '_t_runs', columns, key: ['id'], indexes: [['state', 'wakeAt']], unique: [], search: [] }
+  return { name: '_f_runs', columns, key: ['id'], indexes: [['state', 'wakeAt']], unique: [], search: [] }
 }
 
-test('[46-1] a data file whose `_t_runs` has the layout of before gains `key` and `from` with the index over `flow` and `key`, and keeps its runs', async (t) => {
+test('[46-1] a data file whose `_f_runs` has the layout of before gains `key` and `from` with the index over `flow` and `key`, and keeps its runs', async (t) => {
   const work = workFolder(t)
   const dataFolder = join(work, 'data')
   const store = sqliteStore()
@@ -142,9 +142,9 @@ test('[46-1] a data file whose `_t_runs` has the layout of before gains `key` an
   const endedAt = new Date()
   store.write(
     (tx) => {
-      applySteps(tx, store, [{ do: 'addTable', table: '_t_runs', layout: runsBefore() }])
+      applySteps(tx, store, [{ do: 'addTable', table: '_f_runs', layout: runsBefore() }])
       tx.add(
-        '_t_runs',
+        '_f_runs',
         {
           id: 'run-of-before',
           flow: 'ship',
@@ -180,7 +180,7 @@ test('[46-1] a data file whose `_t_runs` has the layout of before gains `key` an
   const reopened = sqliteStore()
   reopened.open(dataFolder)
   try {
-    const layout = reopened.layout().find((one) => one.name === '_t_runs')
+    const layout = reopened.layout().find((one) => one.name === '_f_runs')
     assert.ok(layout?.columns.key, 'the column `key`')
     assert.ok(layout?.columns.from, 'the column `from`')
     assert.deepEqual(layout?.indexes, [

@@ -155,11 +155,11 @@ test('[50-1] a table with tenant, and a plan and a write with of, are stored as 
     assert.equal(codes.length, 1, `${what}: ${JSON.stringify(codes)}`)
     assert.match(
       codes[0],
-      /^T2013 \w+: a chain on `(orders|lines)`, which is a tenant table, does not begin with `of`\.$/,
+      /^F2013 \w+: a chain on `(orders|lines)`, which is a tenant table, does not begin with `of`\.$/,
       what,
     )
   }
   // No other table has `of`.
   const other = described([query('q', { access, rows: teams.of('t1').where({ name: 'a' }) })]).found
-  assert.deepEqual(other, ['T2013 q: a chain on `teams` begins with `of`, and the table is no tenant table.'])
+  assert.deepEqual(other, ['F2013 q: a chain on `teams` begins with `of`, and the table is no tenant table.'])
 })

@@ -383,7 +383,7 @@ async function previewDrawn(
 
 /**
  * Draws one component alone, with the properties that a page gave it: one that is drawn on the server alone, for
- * `/_t/part/`, and a personal part of a kept screen, for its visitor. Answers its HTML, every asking it met, and
+ * `/_f/part/`, and a personal part of a kept screen, for its visitor. Answers its HTML, every asking it met, and
  * the mark of the draw.
  */
 async function partDrawn(o: DrawInput, store: PageStore, answers: Map<string, Answered>): Promise<Drawn> {

@@ -1,5 +1,5 @@
 import test from 'node:test'
-import { evals, judge, testApp } from 'tentjs/test'
+import { evals, judge, testApp } from 'forjr/test'
 import { grader, helper } from '../functions'
 
 // The model answers by its instructions: a good prompt counts the orders, a worse one says nothing of use.
@@ -12,7 +12,7 @@ test('the helper', async () => {
     if (!String(request.instructions).includes('in full')) return { text: 'No.', units }
     if (last?.who === 'user') {
       if (asked.includes('Refund')) return { calls: [{ tool: 'refund', with: {} }], units }
-      if (asked.includes('Add')) return { calls: [{ tool: 'addOrder', with: { item: 'tent' } }], units }
+      if (asked.includes('Add')) return { calls: [{ tool: 'addOrder', with: { item: 'forjr' } }], units }
       return { calls: [{ tool: 'myOrders', with: {} }], units }
     }
     const answers = request.messages.filter((one) => one.who === 'tool')

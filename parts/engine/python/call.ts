@@ -2,7 +2,7 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import { randomBytes } from 'node:crypto'
 import { mkdirSync, rmSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored, locksOf } from '../../core/internal.ts'
 import type { CallContext } from '../context.ts'
 import { underWay } from '../context.ts'
@@ -26,7 +26,7 @@ import { holdsFile, textAt } from '../files.ts'
 import { placedFolder } from '../placedFolders.ts'
 import { noteOutside } from '../touched.ts'
 
-// How deep a call stands inside calls of a `python` that called it through `tent.call`.
+// How deep a call stands inside calls of a `python` that called it through `forjr.call`.
 const depth = new AsyncLocalStorage<number>()
 
 /** The number of a stored limit of a definition, or what holds where it states none. */
@@ -48,8 +48,8 @@ async function outOfTime<T>(cx: CallContext, most: number, work: () => Promise<T
 
 /**
  * Takes the app of a version and the record of a `python`. Answers the name of its lock, with the environment of
- * the lock made where it is not there yet, from the lock that the bundle holds. Throws T7020 for a bundle that
- * holds no lock of it, and T0016.
+ * the lock made where it is not there yet, from the lock that the bundle holds. Throws F7020 for a bundle that
+ * holds no lock of it, and F0016.
  */
 export async function environmentFor(o: Opened, record: Record<string, unknown>): Promise<string> {
   const lock = String(Reflect.get(Object(record.python), 'lock') ?? '')
@@ -58,8 +58,8 @@ export async function environmentFor(o: Opened, record: Record<string, unknown>)
     holdsFile(o.bundle, `python/${file}`) ? textAt(o.bundle, `python/${file}`) : undefined
   const text = of ? lockText(o.description, of, read) : undefined
   if (text === undefined)
-    throw new TentError('T7020', `The bundle holds no ${of?.file ?? 'lock'} of this python.`, {
-      fix: 'Run `tent python lock`, and build the project again.',
+    throw new ForjrError('F7020', `The bundle holds no ${of?.file ?? 'lock'} of this python.`, {
+      fix: 'Run `forjr python lock`, and build the project again.',
     })
   const env = await environmentOf({
     lock: text,
@@ -107,7 +107,7 @@ async function laidOf(
   return { input, folder, rows }
 }
 
-/** Loads the file of a definition into a program, held to the time of the loading. Throws T7119 and T0008. */
+/** Loads the file of a definition into a program, held to the time of the loading. Throws F7119 and F0008. */
 export function loaded(program: PythonProgram, name: string, file: string, root: string, time: number): Promise<void> {
   const id = `load:${file}`
   return new Promise((done, failed) => {
@@ -115,7 +115,7 @@ export function loaded(program: PythonProgram, name: string, file: string, root:
       program.off(id)
       program.end()
       failed(
-        new TentError('T0008', `${name} took longer to load than its \`limits.load\` of ${time} ms.`, {
+        new ForjrError('F0008', `${name} took longer to load than its \`limits.load\` of ${time} ms.`, {
           fix: 'Give the definition a larger `limits.load`, or `limits.pythonLoad` of the project.',
         }),
       )
@@ -140,8 +140,8 @@ export function loaded(program: PythonProgram, name: string, file: string, root:
  * in a program, loads the file of the definition once, lays the files of the input and the rows file in the folder
  * of the call, hands the call over, answers what Python asks for it, and turns what Python answered into the
  * output. Neither the wait for the environment, nor the start of a program, nor the loading counts on the time of
- * the call, which is `limits.time` of the definition: past it the Python program is ended, and the call is T0008.
- * Throws T7119, the app's own failure, T0013, T5105, T0008, T0016, T7020, and whatever a call that Python made let
+ * the call, which is `limits.time` of the definition: past it the Python program is ended, and the call is F0008.
+ * Throws F7119, the app's own failure, F0013, F5105, F0008, F0016, F7020, and whatever a call that Python made let
  * out.
  */
 export async function carriedPython(
@@ -151,14 +151,14 @@ export async function carriedPython(
   handed: Record<string, unknown>,
 ): Promise<unknown> {
   const cx = underWay()
-  if (!cx) throw new TentError('T0013', `${name} is a python, which is carried out inside a call.`)
-  // Under `tent test`, a Python program stands outside the record and the held clock of a test: it is never replayed.
+  if (!cx) throw new ForjrError('F0013', `${name} is a python, which is carried out inside a call.`)
+  // Under `forjr test`, a Python program stands outside the record and the held clock of a test: it is never replayed.
   noteOutside(`python ${name}`)
   const deep = depth.getStore() ?? 0
   const deepest = storedLimit(o.description, 'callDepth')
   if (deep >= deepest)
-    throw new TentError(
-      'T5105',
+    throw new ForjrError(
+      'F5105',
       `${name} was called by Python ${deep} deep, past \`limits.callDepth\` of ${deepest}.`,
       {
         fix: 'Python code that calls back must come to an end. Where it does, raise `callDepth` in `project.limits`.',
@@ -170,7 +170,7 @@ export async function carriedPython(
   // The end of the call moves while it waits for its environment and its loading: the timer follows it.
   const { timeUp, cancel } = endsAt(cx.work, () => {
     held.program?.end()
-    return new TentError('T0008', `${name} took longer than its \`limits.time\` of ${time} ms.`, {
+    return new ForjrError('F0008', `${name} took longer than its \`limits.time\` of ${time} ms.`, {
       fix: 'Give the definition a larger `limits.time`, or let it do less in one call.',
     })
   })

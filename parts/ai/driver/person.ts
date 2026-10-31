@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored, toJsonSchema, wordsOf } from '../../core/internal.ts'
 import type { Message, ToolCall } from '../face.ts'
 import type { AgentOf } from './agentOf.ts'
@@ -43,9 +43,9 @@ function doorFinds(r: Running, to: string): boolean {
 }
 
 /**
- * Takes a run, the numbers of the call, and a call of `handOver`. Holds it to the agents of `handsOver` (T0002)
+ * Takes a run, the numbers of the call, and a call of `handOver`. Holds it to the agents of `handsOver` (F0002)
  * and to the door of the one it names: an agent that states no `access` is found by no person, and one whose
- * rule the starter does not pass is not theirs (T3101). Saves it as the step `tool N.M handOver`, whose answer is
+ * rule the starter does not pass is not theirs (F3101). Saves it as the step `tool N.M handOver`, whose answer is
  * `{ to, why }`. Answers the message the model is handed.
  */
 export async function handedOver(r: Running, n: number, m: number, call: ToolCall): Promise<Message> {
@@ -57,10 +57,10 @@ export async function handedOver(r: Running, n: number, m: number, call: ToolCal
     return {
       who: 'tool',
       id: call.id,
-      error: errorText(new TentError('T0002', `to: one of ${r.agent.handsOver.join(', ')}`), words),
+      error: errorText(new ForjrError('F0002', `to: one of ${r.agent.handsOver.join(', ')}`), words),
     }
   // Asked for the starter at the hand-over, so no text steers past it.
-  if (!doorFinds(r, to)) return { who: 'tool', id: call.id, error: errorText({ code: 'T3101' }, words) }
+  if (!doorFinds(r, to)) return { who: 'tool', id: call.id, error: errorText({ code: 'F3101' }, words) }
   const result = await r.step(`tool ${n}.${m} ${handOverTool}`, () => ({ to, why }), { tries: 1 })
   return { who: 'tool', id: call.id, result }
 }
@@ -87,7 +87,7 @@ export async function questionAsked(r: Running, n: number, m: number, call: Tool
   const input: Record<string, unknown> = isStored(call.input) ? call.input : {}
   const { words } = r.agent
   if (typeof input.question !== 'string')
-    return { who: 'tool', id: call.id, error: errorText(new TentError('T0002', 'question: required'), words) }
+    return { who: 'tool', id: call.id, error: errorText(new ForjrError('F0002', 'question: required'), words) }
   const asked = {
     question: input.question,
     ...(Array.isArray(input.choices) ? { choices: input.choices } : {}),
@@ -95,12 +95,12 @@ export async function questionAsked(r: Running, n: number, m: number, call: Tool
   }
   const told = [input.question, ...(Array.isArray(input.choices) ? [JSON.stringify(input.choices)] : [])].join('\n')
   if (!(await passedOut(r, `${n}.${m}`, told)))
-    return { who: 'tool', id: call.id, error: `Error T7131: ${wordsOf(words, 'guarded')}` }
+    return { who: 'tool', id: call.id, error: `Error F7131: ${wordsOf(words, 'guarded')}` }
   const said = await r.step.waitFor(`${questionTool} ${n}.${m}`, {
     timeout: askTimeOf(r.agent),
     show: { tool: questionTool, input: asked },
   })
   if (!('approved' in said) || said.approved !== true)
-    return { who: 'tool', id: call.id, error: errorText({ code: 'T7111' }, words) }
+    return { who: 'tool', id: call.id, error: errorText({ code: 'F7111' }, words) }
   return { who: 'tool', id: call.id, result: said.data ?? null }
 }

@@ -30,7 +30,7 @@ const innerNames = /\.(local|internal)$/
 /**
  * Takes what is asked for, what it is held to, and what looks a name up. Looks the name up once, and answers the
  * addresses that a connection may be made to, those of IPv4 first: each was read into the address it means and
- * held to the ranges, and a name that answers one refused address is refused whole. Throws T0022.
+ * held to the ranges, and a name that answers one refused address is refused whole. Throws F0022.
  */
 export async function settled(asked: Asked, guard: Guard, lookup: Lookup): Promise<string[]> {
   const development = guard.mode === 'development'
@@ -68,7 +68,7 @@ export async function settled(asked: Asked, guard: Guard, lookup: Lookup): Promi
 
 /**
  * Takes a host as it is written, with a port after it or none, what it is held to, and what looks a name up.
- * Answers the one address to connect to. Throws T0022 for a host that is refused, and a `TypeError` for what is
+ * Answers the one address to connect to. Throws F0022 for a host that is refused, and a `TypeError` for what is
  * no host.
  */
 export async function addressWith(host: string, guard: Guard, lookup: Lookup): Promise<string> {
@@ -87,7 +87,7 @@ export async function addressWith(host: string, guard: Guard, lookup: Lookup): P
 /**
  * The address rule of the guarded fetch, for what opens a connection that is no fetch. Takes a host, a name or an
  * address in any form, with a port after it where one port of `privateHosts` is meant, and what it is held to.
- * Looks the name up once and answers the one address to connect to. Throws T0022 for a host that is private or
+ * Looks the name up once and answers the one address to connect to. Throws F0022 for a host that is private or
  * local and not listed.
  */
 export const guardedAddress = (host: string, o: Guard): Promise<string> => addressWith(host, o, systemLookup)

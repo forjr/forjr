@@ -70,7 +70,7 @@ export function withOwed(text: string, owed: Owed[]): { text: string; lost: Owed
   if (!owed.length) return { text, lost: [] }
   const held = heldOf(text)
   // A name that the text does not hold stands for nothing in the module yet.
-  let stem = 'tent_owed'
+  let stem = 'forjr_owed'
   while (text.includes(stem)) stem += '_'
   const lines: string[] = []
   const given: string[] = []

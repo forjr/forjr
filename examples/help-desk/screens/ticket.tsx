@@ -1,5 +1,5 @@
 import { ArrowLeft, Send, Sparkles } from 'lucide-react'
-import { Form, Link, read, role, screen, useAgent, useTranslations } from 'tentjs/ui'
+import { Form, Link, read, role, screen, useAgent, useTranslations } from 'forjr/ui'
 import { StaffFrame, Waiting } from '../components/frames'
 import { StatusPill } from '../components/status'
 import { helper } from '../functions/helper'

@@ -1,5 +1,5 @@
 import type { ReactNode } from 'react'
-import { Link, useGoTo } from 'tentjs/ui'
+import { Link, useGoTo } from 'forjr/ui'
 import { CloseButton, Dialog } from './Dialog'
 import { BarsIcon, GearIcon, ScreenIcon } from './icons'
 

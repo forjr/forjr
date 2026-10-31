@@ -28,11 +28,11 @@ function pictureBytes(size: number): Uint8Array<ArrayBuffer> {
 async function uploaded(t: TestContext, store?: S3StandIn): Promise<{ app: TestApp; dataFolder: string }> {
   const project = copyOf(t, 'uploaded')
   if (store) {
-    const file = join(project, 'tent.ts')
+    const file = join(project, 'forjr.ts')
     writeFileSync(
       file,
       readFileSync(file, 'utf8')
-        .replace("import { anyone, project } from 'tentjs'", "import { anyone, project, s3, secret } from 'tentjs'")
+        .replace("import { anyone, project } from 'forjr'", "import { anyone, project, s3, secret } from 'forjr'")
         .replace(
           'backups: { every: false },',
           `backups: { every: false },\n  files: { store: s3({ url: '${store.url}', bucket: 'files', key: secret('storeKey') }) },`,
@@ -49,13 +49,13 @@ test('[45-8] an upload that is cut off at half goes on from where it stopped, un
   const maya = app.browser({ as: await app.user({ name: 'Maya', roles: [] }) })
   const bytes = pictureBytes(200_000)
   const begun = await valueOf(
-    await maya.request('POST', '/_t/files?name=scan.png', {
+    await maya.request('POST', '/_f/files?name=scan.png', {
       headers: { 'upload-length': String(bytes.length), 'content-length': '0' },
     }),
   )
   assert.equal(typeof begun.upload, 'string')
   assert.equal(begun.offset, 0)
-  const at = `/_t/files?upload=${String(begun.upload)}`
+  const at = `/_f/files?upload=${String(begun.upload)}`
   // The connection is cut at half: the request states the whole rest, and half of it arrives.
   const cut = await maya.request('POST', at, {
     headers: { 'upload-offset': '0', 'content-length': String(bytes.length) },
@@ -71,13 +71,13 @@ test('[45-8] an upload that is cut off at half goes on from where it stopped, un
     headers: { 'upload-offset': '100000', 'content-length': '1' },
     body: new Uint8Array([1]),
   })
-  assert.equal(await codeOf(guessed), 'T0001')
+  assert.equal(await codeOf(guessed), 'F0001')
   // An offset that is not where it stands is refused and named.
   const wrong = await maya.request('POST', at, {
     headers: { 'upload-offset': '5', 'content-length': '10' },
     body: bytes.slice(5, 15),
   })
-  assert.equal(await codeOf(wrong), 'T0002')
+  assert.equal(await codeOf(wrong), 'F0002')
   const done = await valueOf(
     await maya.request('POST', at, {
       headers: { 'upload-offset': '100000', 'content-length': String(bytes.length - 100_000) },
@@ -86,10 +86,10 @@ test('[45-8] an upload that is cut off at half goes on from where it stopped, un
   )
   assert.equal(done.size, bytes.length)
   assert.equal(done.kind, 'image/png')
-  const back = new Uint8Array(await (await maya.request('GET', `/_t/files/${String(done.id)}`)).arrayBuffer())
+  const back = new Uint8Array(await (await maya.request('GET', `/_f/files/${String(done.id)}`)).arrayBuffer())
   assert.deepEqual(back, bytes)
   // The upload is over: its id names nothing any more.
-  assert.equal(await codeOf(await maya.request('POST', at, { headers: { 'content-length': '0' } })), 'T0001')
+  assert.equal(await codeOf(await maya.request('POST', at, { headers: { 'content-length': '0' } })), 'F0001')
 })
 
 test('[45-8] a signed address for a time downloads the file with no sign-in until it ends and not after, is made only by a caller who may download the file, and dies with its file', async (t) => {
@@ -100,9 +100,9 @@ test('[45-8] a signed address for a time downloads the file with no sign-in unti
   const scan = String(Object(await maya.upload(bytes, { name: 'scan.png', kind: 'image/png' })).value?.id)
   await maya.call('addPaper', { title: 'The scan', scan })
   const link = String(Object(await maya.call('shareScan', { scan, minutes: 10 })).value)
-  assert.match(link, new RegExp(`^/_t/files/${scan}\\?l=[A-Za-z0-9_-]+$`))
+  assert.match(link, new RegExp(`^/_f/files/${scan}\\?l=[A-Za-z0-9_-]+$`))
   const nobody = app.browser()
-  assert.equal((await nobody.request('GET', `/_t/files/${scan}`)).status, 404)
+  assert.equal((await nobody.request('GET', `/_f/files/${scan}`)).status, 404)
   const got = await nobody.request('GET', link)
   assert.equal(got.status, 200)
   assert.deepEqual(new Uint8Array(await got.arrayBuffer()), bytes)
@@ -111,7 +111,7 @@ test('[45-8] a signed address for a time downloads the file with no sign-in unti
   assert.equal((await nobody.request('GET', link.replace(scan, other))).status, 404)
   // A caller who may not download the file makes no signed address of it.
   const bob = app.browser({ as: await app.user({ name: 'Bob', roles: [] }) })
-  assert.equal(String(Object(Object(await bob.call('shareScan', { scan, minutes: 10 })).error).code), 'T0001')
+  assert.equal(String(Object(Object(await bob.call('shareScan', { scan, minutes: 10 })).error).code), 'F0001')
   // Past its end the address opens nothing.
   app.clock.advance('11 minutes')
   assert.equal((await nobody.request('GET', link)).status, 404)
@@ -157,7 +157,7 @@ test('[45-8] the store of the S3 protocol passes the tests of a store of files, 
   const wrong = s3Store({ url: standIn.url, bucket: 'files', region: 'us-east-1', keyId: id, keySecret: 'not it' })
   await assert.rejects(
     wrong.put('cd'.repeat(32), new Blob([new Uint8Array(3)]).stream(), { size: 3, kind: 'text/plain' }),
-    { code: 'T0009' },
+    { code: 'F0009' },
   )
 })
 
@@ -167,15 +167,15 @@ test('[45-8] an upload straight to a store is answered with an address of the st
   const maya = app.browser({ as: await app.user({ name: 'Maya', roles: [] }) })
   const bytes = pictureBytes(30_000)
   const begun = await valueOf(
-    await maya.request('POST', '/_t/files?name=scan.png&direct', {
+    await maya.request('POST', '/_f/files?name=scan.png&direct', {
       headers: { 'upload-length': String(bytes.length), 'content-type': 'image/png', 'content-length': '0' },
     }),
   )
   assert.equal(typeof begun.address, 'string')
   assert.ok(String(begun.address).startsWith(`${store.url}/files/`), String(begun.address))
-  const at = `/_t/files?upload=${String(begun.upload)}`
+  const at = `/_f/files?upload=${String(begun.upload)}`
   // Before the store holds the bytes, nothing is taken in.
-  assert.equal(await codeOf(await maya.request('POST', at, { headers: { 'content-length': '0' } })), 'T0002')
+  assert.equal(await codeOf(await maya.request('POST', at, { headers: { 'content-length': '0' } })), 'F0002')
   // The bytes go to the store, by the address, with the size and the kind that were stated.
   const put = await fetch(String(begun.address), {
     method: 'PUT',
@@ -185,11 +185,11 @@ test('[45-8] an upload straight to a store is answered with an address of the st
   assert.equal(put.status, 200)
   const done = await valueOf(await maya.request('POST', at, { headers: { 'content-length': '0' } }))
   assert.deepEqual([done.size, done.kind], [bytes.length, 'image/png'])
-  const back = new Uint8Array(await (await maya.request('GET', `/_t/files/${String(done.id)}`)).arrayBuffer())
+  const back = new Uint8Array(await (await maya.request('GET', `/_f/files/${String(done.id)}`)).arrayBuffer())
   assert.deepEqual(back, bytes)
   // A direct upload that sends another size than it stated is not taken in.
   const second = await valueOf(
-    await maya.request('POST', '/_t/files?name=small.png&direct', {
+    await maya.request('POST', '/_f/files?name=small.png&direct', {
       headers: { 'upload-length': '500', 'content-type': 'image/png', 'content-length': '0' },
     }),
   )
@@ -199,8 +199,8 @@ test('[45-8] an upload straight to a store is answered with an address of the st
     headers: { 'content-length': '400', 'content-type': 'image/png' },
     body: other,
   })
-  const refused = await maya.request('POST', `/_t/files?upload=${String(second.upload)}`, {
+  const refused = await maya.request('POST', `/_f/files?upload=${String(second.upload)}`, {
     headers: { 'content-length': '0' },
   })
-  assert.equal(await codeOf(refused), 'T0002')
+  assert.equal(await codeOf(refused), 'F0002')
 })

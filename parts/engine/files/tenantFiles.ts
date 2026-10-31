@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Connections, FileName, Store, TableLayout, TableStep, Tx, Writing } from '../../data/index.ts'
 import {
   applySteps,
@@ -81,7 +81,7 @@ export function tenantFilesOf(
   const layout = [...given.filter((one) => one.name !== directory.name), directory]
   const stack: Frame[] = []
   const running = new Map<string, string>()
-  let appLayout = layout.filter((one) => !one.name.startsWith('_t_'))
+  let appLayout = layout.filter((one) => !one.name.startsWith('_f_'))
   let applyDepth = 0
   // The files that the backfills of the version walk now: nothing but their own writes reads them meanwhile.
   const walking = new Set<string>()
@@ -240,7 +240,7 @@ export function tenantFilesOf(
   /** Makes the tables of the engine that the shared file lacks: the directory is among them. */
   const made = (): void => {
     const there = new Set(plain.shared.layout().map((one) => one.name))
-    const lacking = layout.filter((one) => one.name.startsWith('_t_') && !there.has(one.name))
+    const lacking = layout.filter((one) => one.name.startsWith('_f_') && !there.has(one.name))
     if (!lacking.length) return
     const steps: TableStep[] = lacking.map((one) => ({ do: 'addTable', table: one.name, layout: one }))
     plain.shared.write((tx) => applySteps(tx, plain.shared, steps), { steps: true })
@@ -464,7 +464,7 @@ export function tenantFilesOf(
     files,
     fingerprints: () => Object.fromEntries(running),
     follow(to) {
-      appLayout = to.filter((one) => !one.name.startsWith('_t_'))
+      appLayout = to.filter((one) => !one.name.startsWith('_f_'))
       files.layout(appLayout)
       fingerprinted()
     },
@@ -475,8 +475,8 @@ export function tenantFilesOf(
         awaited,
         ends,
         (file) =>
-          new TentError('T0008', `A call waited for the data file of ${file.table} ${file.id} past its time.`, {
-            fix: 'Ask again: the file is being brought up. `tent data files --behind` shows where the files stand.',
+          new ForjrError('F0008', `A call waited for the data file of ${file.table} ${file.id} past its time.`, {
+            fix: 'Ask again: the file is being brought up. `forjr data files --behind` shows where the files stand.',
           }),
         work,
       ),

@@ -62,11 +62,11 @@ export async function bytesLeft(o: Opened, fingerprints: string[]): Promise<void
 
 /**
  * Takes a machine, one file, and what asks its writer for an address. Fetches the bytes with `GET
- * /_t/copy/file/<fingerprint>` and hands them to the file store of this machine, where the same bytes are kept
+ * /_f/copy/file/<fingerprint>` and hands them to the file store of this machine, where the same bytes are kept
  * once. Throws where they cannot be fetched whole.
  */
 export async function fetchBytes(o: Opened, file: FileBytes, ask: (path: string) => Promise<Response>): Promise<void> {
-  const answer = await ask(`/_t/copy/file/${file.fingerprint}`)
+  const answer = await ask(`/_f/copy/file/${file.fingerprint}`)
   if (!answer.ok || !answer.body) {
     await answer.body?.cancel()
     throw new Error(`the writer answered ${answer.status}`)

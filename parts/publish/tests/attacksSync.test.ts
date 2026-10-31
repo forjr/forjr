@@ -14,10 +14,10 @@ import { ada, computer, fetched, folderOf, sent, started } from './server.ts'
 
 const print = (bytes: Uint8Array): string => createHash('sha256').update(bytes).digest('hex')
 
-/** Sends `access-key` to the admin channel of the server, as `tent access key` does. */
+/** Sends `access-key` to the admin channel of the server, as `forjr access key` does. */
 async function admin(server: Server, args: object): Promise<void> {
   const token = String(JSON.parse(readFileSync(join(server.data, 'engine.json'), 'utf8')).token)
-  const answered = await fetch(`${server.address}/_t/admin/access-key`, {
+  const answered = await fetch(`${server.address}/_f/admin/access-key`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
     body: JSON.stringify({ args }),
@@ -34,7 +34,7 @@ function pointOf(held: Omit<Point, 'id'>): Point {
 const heldBy = (server: Server): string =>
   JSON.stringify([server.history.pointers(), server.history.list({ pointer: 'main' }).map((one) => one.id)])
 
-test('[05-15.1] each address of publishing with no key, with a key of the API, with a removed key, and with a key whose right is one too low is T9104, and nothing is read or written', async (t) => {
+test('[05-15.1] each address of publishing with no key, with a key of the API, with a removed key, and with a key whose right is one too low is F9104, and nothing is read or written', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder)
   const here = computer(t, folder, 'here')
@@ -47,15 +47,15 @@ test('[05-15.1] each address of publishing with no key, with a key of the API, w
   const point = pointOf({ parents: [head], at: 1, by: ada, kind: 'command', files: {} })
   // Each use of an address, with the key whose right is one too low for it.
   const uses: [string, unknown, string, string?][] = [
-    ['/_t/sync/have', { points: [head], blobs: [], pointers: true }, 'work'],
-    ['/_t/sync/blobs', blobsBody([[print(bytes), bytes]]), 'read', blobsType],
-    ['/_t/sync/blobs', { want: Object.values(here.history.read(head)?.files ?? {}) }, 'bundle'],
-    ['/_t/sync/points', { points: [point], move: { pointer: 'main', to: point.id, was: head } }, 'read'],
-    ['/_t/sync/points', { from: 'main', have: [] }, 'bundle'],
-    ['/_t/publish', { point: head, version: 'x', files: {} }, 'push'],
-    ['/_t/publish', { back: true }, 'push'],
-    ['/_t/publish/values', { kind: 'secret', name: 'MAIL_KEY', value: 'v' }, 'push'],
-    ['/_t/publish/values', { list: true }, 'push'],
+    ['/_f/sync/have', { points: [head], blobs: [], pointers: true }, 'work'],
+    ['/_f/sync/blobs', blobsBody([[print(bytes), bytes]]), 'read', blobsType],
+    ['/_f/sync/blobs', { want: Object.values(here.history.read(head)?.files ?? {}) }, 'bundle'],
+    ['/_f/sync/points', { points: [point], move: { pointer: 'main', to: point.id, was: head } }, 'read'],
+    ['/_f/sync/points', { from: 'main', have: [] }, 'bundle'],
+    ['/_f/publish', { point: head, version: 'x', files: {} }, 'push'],
+    ['/_f/publish', { back: true }, 'push'],
+    ['/_f/publish/values', { kind: 'secret', name: 'MAIL_KEY', value: 'v' }, 'push'],
+    ['/_f/publish/values', { list: true }, 'push'],
   ]
   const before = heldBy(server)
   for (const [path, body, low, type] of uses) {
@@ -67,7 +67,7 @@ test('[05-15.1] each address of publishing with no key, with a key of the API, w
       [`a key of ${low}`, lower],
     ] as const) {
       const answered = await sent(server, path, body, key, type)
-      assert.equal(Object(answered.answer.error).code, 'T9104', `${path} with ${what}: ${JSON.stringify(answered)}`)
+      assert.equal(Object(answered.answer.error).code, 'F9104', `${path} with ${what}: ${JSON.stringify(answered)}`)
       assert.equal(JSON.stringify(answered.answer).includes(head), false, `${path} with ${what} reads nothing`)
     }
   }
@@ -76,13 +76,13 @@ test('[05-15.1] each address of publishing with no key, with a key of the API, w
   assert.equal(server.history.read(point.id), undefined)
 })
 
-test('[05-15.2] a key with a right, sent to /_t/call/, /api/ and /_t/files, is nobody: answered as a request with no key', async (t) => {
+test('[05-15.2] a key with a right, sent to /_f/call/, /api/ and /_f/files, is nobody: answered as a request with no key', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder)
   const asks: [string, string, string?][] = [
-    ['POST', '/_t/call/openOrders', JSON.stringify({ input: { limit: 5 } })],
+    ['POST', '/_f/call/openOrders', JSON.stringify({ input: { limit: 5 } })],
     ['GET', '/api/openOrders?limit=5'],
-    ['GET', '/_t/files/f_0123456789abcdef'],
+    ['GET', '/_f/files/f_0123456789abcdef'],
   ]
   const answer = async (method: string, path: string, body: string | undefined, key?: string): Promise<string> => {
     const one = await fetch(`${server.address}${path}`, {
@@ -104,7 +104,7 @@ test('[05-15.2] a key with a right, sent to /_t/call/, /api/ and /_t/files, is n
   }
 })
 
-test('[05-15.3] a point that names a description the server lacks is T9107, and nothing is kept', async (t) => {
+test('[05-15.3] a point that names a description the server lacks is F9107, and nothing is kept', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder)
   const here = computer(t, folder, 'here')
@@ -112,16 +112,16 @@ test('[05-15.3] a point that names a description the server lacks is T9107, and 
   const { key } = server.key(['push'])
   await push({ history: here.history, to: { address: server.address, key }, fetch: fetched })
   const point = pointOf({ parents: [head], at: 2, by: ada, kind: 'command', files: here.history.read(head)?.files })
-  const answered = await sent(server, '/_t/sync/points', { points: [{ ...point, description: '0'.repeat(64) }] }, key)
-  assert.equal(Object(answered.answer.error).code, 'T9107', JSON.stringify(answered.answer))
+  const answered = await sent(server, '/_f/sync/points', { points: [{ ...point, description: '0'.repeat(64) }] }, key)
+  assert.equal(Object(answered.answer.error).code, 'F9107', JSON.stringify(answered.answer))
   assert.equal(server.history.read(point.id), undefined)
 })
 
-test('[05-15.4] a blob of a gigabyte is T0003 before it is read, and requests past the count of a key are T0005', async (t) => {
+test('[05-15.4] a blob of a gigabyte is F0003 before it is read, and requests past the count of a key are F0005', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder, { limits: '{ syncPerMinute: 20 }' })
   const { key } = server.key(['push'])
-  const url = new URL(`${server.address}/_t/sync/blobs`)
+  const url = new URL(`${server.address}/_f/sync/blobs`)
   const status = await new Promise<{ status: number; body: string }>((done, failed) => {
     const asking = request(
       {
@@ -142,12 +142,12 @@ test('[05-15.4] a blob of a gigabyte is T0003 before it is read, and requests pa
     asking.on('error', failed)
     asking.write(randomBytes(1024))
   })
-  assert.equal(JSON.parse(status.body).error.code, 'T0003', status.body)
+  assert.equal(JSON.parse(status.body).error.code, 'F0003', status.body)
   const codes: string[] = []
   for (let n = 0; n < 22; n++)
-    codes.push(String(Object((await sent(server, '/_t/sync/have', { points: [] }, key)).answer.error).code))
+    codes.push(String(Object((await sent(server, '/_f/sync/have', { points: [] }, key)).answer.error).code))
   assert.deepEqual(codes.slice(0, 20), Array(20).fill('undefined'))
-  assert.deepEqual(codes.slice(20), ['T0005', 'T0005'])
+  assert.deepEqual(codes.slice(20), ['F0005', 'F0005'])
 })
 
 test('[05-15.5] a point whose files hold a path with .., a drive, or a slash at its start is refused, and nothing is written', async (t) => {
@@ -160,13 +160,13 @@ test('[05-15.5] a point whose files hold a path with .., a drive, or a slash at 
   const blob = Object.values(here.history.read(head)?.files ?? {})[0]
   for (const path of ['../outside.ts', 'tables/../../outside.ts', 'C:/outside.ts', 'c:outside.ts', '/outside.ts']) {
     const point = pointOf({ parents: [head], at: 3, by: ada, kind: 'command', files: { [path]: blob } })
-    const answered = await sent(server, '/_t/sync/points', { points: [point] }, key)
-    assert.equal(Object(answered.answer.error).code, 'T9107', `${path}: ${JSON.stringify(answered.answer)}`)
+    const answered = await sent(server, '/_f/sync/points', { points: [point] }, key)
+    assert.equal(Object(answered.answer.error).code, 'F9107', `${path}: ${JSON.stringify(answered.answer)}`)
     assert.equal(server.history.read(point.id), undefined)
   }
 })
 
-test('[05-15.6] [05-15.18] move of live, now, on, a name that starts at: or seen:, and a name with a slash or a line break is refused with T9103', async (t) => {
+test('[05-15.6] [05-15.18] move of live, now, on, a name that starts at: or seen:, and a name with a slash or a line break is refused with F9103', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder)
   const here = computer(t, folder, 'here')
@@ -176,10 +176,10 @@ test('[05-15.6] [05-15.18] move of live, now, on, a name that starts at: or seen
   const before = JSON.stringify(server.history.pointers())
   for (const pointer of ['live', 'now', 'on', 'at:http://x', 'seen:http://x:main', 'a/b', 'a\nb', 'bundle:x', ''])
     for (const was of [null, head]) {
-      const answered = await sent(server, '/_t/sync/points', { points: [], move: { pointer, to: head, was } }, key)
+      const answered = await sent(server, '/_f/sync/points', { points: [], move: { pointer, to: head, was } }, key)
       assert.equal(
         Object(answered.answer.error).code,
-        'T9103',
+        'F9103',
         `${JSON.stringify(pointer)}: ${JSON.stringify(answered)}`,
       )
     }
@@ -195,7 +195,7 @@ test('[05-15.12] a copy of the server data holds no key of publishing, but for i
   await push({ history: here.history, to, fetch: fetched })
   // The secret of a key is all after the underscore that ends its id: it is written for an address, so it may hold an
   // underscore of its own.
-  const secret = to.key.slice(to.key.indexOf('_', 'tent_'.length) + 1)
+  const secret = to.key.slice(to.key.indexOf('_', 'forjr_'.length) + 1)
   assert.equal(secret.length, 43)
   const files = readdirSync(server.data, { recursive: true, withFileTypes: true }).filter((one) => one.isFile())
   for (const one of files) {
@@ -213,7 +213,7 @@ test('[05-15.13] a key with read is handed a file of the source that holds the v
   await push({ history: here.history, to: server.key(['push']), fetch: fetched })
   const notes = String(here.history.read(head)?.files?.['notes.md'])
   const reader = server.key(['read'])
-  const answer = await fetch(`${server.address}/_t/sync/blobs`, {
+  const answer = await fetch(`${server.address}/_f/sync/blobs`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${reader.key}` },
     body: JSON.stringify({ want: [notes] }),
@@ -226,7 +226,7 @@ test('[05-15.13] a key with read is handed a file of the source that holds the v
   assert.match(page, /`read`[^\n]*source/, 'the docs say so')
 })
 
-test('[05-15.16] a point with a made-up by, and one whose description is no description, are taken as the sender word: a merge on the server over it answers T9103 or merges, and is no failure of its own', async (t) => {
+test('[05-15.16] a point with a made-up by, and one whose description is no description, are taken as the sender word: a merge on the server over it answers F9103 or merges, and is no failure of its own', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder)
   const to = server.key(['read', 'push'])
@@ -247,18 +247,18 @@ test('[05-15.16] a point with a made-up by, and one whose description is no desc
   const blobs = [...Object.values(files).map((p): [string, Uint8Array] => [p, two.history.blob(p) ?? new Uint8Array()])]
   const { key } = to
   assert.equal(
-    (await sent(server, '/_t/sync/blobs', blobsBody([...blobs, [print(words), words]]), key, blobsType)).status,
+    (await sent(server, '/_f/sync/blobs', blobsBody([...blobs, [print(words), words]]), key, blobsType)).status,
     200,
   )
   const answered = await sent(
     server,
-    '/_t/sync/points',
+    '/_f/sync/points',
     { points: [{ ...made, description: print(words) }], move: { pointer: 'main', to: made.id, was: base } },
     key,
   )
   const code = Object(answered.answer.error).code
   assert.ok(
-    code === undefined || code === 'T9103',
+    code === undefined || code === 'F9103',
     `merged or refused, and no failure of its own: ${JSON.stringify(answered.answer)}`,
   )
   assert.deepEqual(
@@ -268,7 +268,7 @@ test('[05-15.16] a point with a made-up by, and one whose description is no desc
   )
 })
 
-test('[05-15.19] a holder of push who sends blobs that no point names is T9103 at syncLooseSize, also after it names them in a point the server holds already, and the app keeps answering', async (t) => {
+test('[05-15.19] a holder of push who sends blobs that no point names is F9103 at syncLooseSize, also after it names them in a point the server holds already, and the app keeps answering', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder, { limits: '{ syncLooseSize: 60000 }' })
   const here = computer(t, folder, 'here')
@@ -282,42 +282,42 @@ test('[05-15.19] a holder of push who sends blobs that no point names is T9103 a
     return [print(bytes), bytes]
   }
   const sendOne = async (blob: [string, Uint8Array]): Promise<string | undefined> =>
-    Object((await sent(server, '/_t/sync/blobs', blobsBody([blob]), key, blobsType)).answer.error).code
+    Object((await sent(server, '/_f/sync/blobs', blobsBody([blob]), key, blobsType)).answer.error).code
   const [a, b, c] = [loose(1), loose(2), loose(3)]
-  assert.deepEqual([await sendOne(a), await sendOne(b), await sendOne(c)], [undefined, undefined, 'T9103'])
+  assert.deepEqual([await sendOne(a), await sendOne(b), await sendOne(c)], [undefined, undefined, 'F9103'])
   // A point the server holds already, sent again with the loose blobs among its files: nothing is taken of it.
-  await sent(server, '/_t/sync/points', { points: [{ ...known, files: { x: a[0], y: b[0] } }] }, key)
+  await sent(server, '/_f/sync/points', { points: [{ ...known, files: { x: a[0], y: b[0] } }] }, key)
   const d = loose(4)
-  assert.equal(await sendOne(d), 'T9103', 'the blobs are still loose: no point names them')
-  const call = await fetch(`${server.address}/_t/health`)
+  assert.equal(await sendOne(d), 'F9103', 'the blobs are still loose: no point names them')
+  const call = await fetch(`${server.address}/_f/health`)
   assert.equal(call.status, 200, 'the app keeps answering')
 })
 
-test('[05-15.20] a thousand requests a minute with made-up keys from one address are T0005 by the address', async (t) => {
+test('[05-15.20] a thousand requests a minute with made-up keys from one address are F0005 by the address', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder, { limits: '{ anyonePerMinute: 30 }' })
   const codes: string[] = []
   for (let n = 0; n < 33; n++) {
-    const made = `tent_${randomBytes(13).toString('hex')}_${randomBytes(32).toString('base64url')}`
-    codes.push(String(Object((await sent(server, '/_t/sync/have', { points: [] }, made)).answer.error).code))
+    const made = `forjr_${randomBytes(13).toString('hex')}_${randomBytes(32).toString('base64url')}`
+    codes.push(String(Object((await sent(server, '/_f/sync/have', { points: [] }, made)).answer.error).code))
   }
   assert.ok(
-    codes.slice(0, 29).every((one) => one === 'T9104'),
+    codes.slice(0, 29).every((one) => one === 'F9104'),
     codes.join(' '),
   )
-  assert.deepEqual(codes.slice(31), ['T0005', 'T0005'])
+  assert.deepEqual(codes.slice(31), ['F0005', 'F0005'])
 })
 
-test('[05-15.23] a have with a million ids is T0002: a thousand a request', async (t) => {
+test('[05-15.23] a have with a million ids is F0002: a thousand a request', async (t) => {
   const folder = folderOf(t)
   const server = await started(t, folder)
   const { key } = server.key(['read'])
   const million = Array.from({ length: 1_000_000 }, (_, n) => n.toString(36))
-  const answered = await sent(server, '/_t/sync/have', { points: million, blobs: [] }, key)
-  assert.equal(Object(answered.answer.error).code, 'T0002', JSON.stringify(answered.answer).slice(0, 300))
+  const answered = await sent(server, '/_f/sync/have', { points: million, blobs: [] }, key)
+  assert.equal(Object(answered.answer.error).code, 'F0002', JSON.stringify(answered.answer).slice(0, 300))
   const most = Array.from({ length: 1001 }, (_, n) => n.toString(36))
-  const over = await sent(server, '/_t/sync/have', { points: [], blobs: most }, key)
-  assert.equal(Object(over.answer.error).code, 'T0002')
-  const fits = await sent(server, '/_t/sync/have', { points: most.slice(1), blobs: [] }, key)
+  const over = await sent(server, '/_f/sync/have', { points: [], blobs: most }, key)
+  assert.equal(Object(over.answer.error).code, 'F0002')
+  const fits = await sent(server, '/_f/sync/have', { points: most.slice(1), blobs: [] }, key)
   assert.equal(fits.status, 200)
 })

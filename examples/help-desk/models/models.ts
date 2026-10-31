@@ -1,4 +1,4 @@
-import { model, secret } from 'tentjs'
+import { model, secret } from 'forjr'
 
 export const backup = model('backup', { provider: 'openai', name: 'gpt-5-mini', key: secret('OPENAI_KEY') })
 

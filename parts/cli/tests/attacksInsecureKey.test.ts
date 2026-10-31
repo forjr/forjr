@@ -35,9 +35,9 @@ async function ran(words: string[], folder: string): Promise<{ ended: number; sa
 }
 
 test('[05-12.22] the key of a login sent to an http address is refused, unless --insecure names that host', async (t) => {
-  const home = mkdtempSync(join(tmpdir(), 'tent-attacks-insecure-'))
+  const home = mkdtempSync(join(tmpdir(), 'forjr-attacks-insecure-'))
   t.after(() => rmSync(home, { recursive: true, force: true }))
-  envFor(t, { TENT_HOME: home, TENT_KEY: 'tent_the_key_of_a_login', TENT_AT: 'http://shop.example' })
+  envFor(t, { FORJR_HOME: home, FORJR_KEY: 'forjr_the_key_of_a_login', FORJR_AT: 'http://shop.example' })
   for (const words of [
     ['http://shop.example', 'login'],
     ['http://shop.example', 'whoami'],
@@ -49,7 +49,7 @@ test('[05-12.22] the key of a login sent to an http address is refused, unless -
     const { ended, said } = await ran(words, home)
     assert.equal(ended, 2, words.join(' '))
     assert.match(said, /no secure connection/, words.join(' '))
-    assert.equal(said.includes('tent_the_key_of_a_login'), false)
+    assert.equal(said.includes('forjr_the_key_of_a_login'), false)
   }
   assert.equal(existsSync(join(home, 'keys.json')), false, 'a key was kept for an address that is not secure')
   // With --insecure naming the host, the key is sent there: the refusal is not what ends it.

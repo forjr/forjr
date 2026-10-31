@@ -6,7 +6,7 @@ The type of the answer.
 
 A type. Left out, a change written with `run` answers nothing, whatever its `run` gives back, and one written with `set` the row of its write. The type of a call says the same: `await app.as(user).call(addOrder, {...})` of a change with `run` and no `output` is nothing.
 
-To answer a row from a `run`, state its fields as an `object`: only what `output` names leaves the function. A change written with `run` that answers a record which code takes, and states no `output`, is `code.T7009`, which the check finds.
+To answer a row from a `run`, state its fields as an `object`: only what `output` names leaves the function. A change written with `run` that answers a record which code takes, and states no `output`, is `code.F7009`, which the check finds.
 
 ## Example
 
@@ -21,7 +21,7 @@ export const addOrder = change('addOrder', {
 
 ## Errors
 
-`code.T7009`: a change written with `run` answers a record that code takes, and states no `output`.
+`code.F7009`: a change written with `run` answers a record that code takes, and states no `output`.
 
 ## See also
 

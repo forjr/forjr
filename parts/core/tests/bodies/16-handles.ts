@@ -1,4 +1,4 @@
-import { action, connections, files, later, log, mail, now, sessions, settings, concat } from 'tentjs'
+import { action, connections, files, later, log, mail, now, sessions, settings, concat } from 'forjr'
 import { calendar, shop } from '../app/shop.ts'
 
 export const handles = action('handles', {

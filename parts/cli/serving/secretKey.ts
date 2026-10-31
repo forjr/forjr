@@ -13,18 +13,18 @@ export function secretKeyFrom(file: string): { key: string } | { finding: Findin
   try {
     kept = keptAlone(file)
   } catch {
-    return { finding: finding('T0013', `No file of the key of the secrets is at ${file}.`) }
+    return { finding: finding('F0013', `No file of the key of the secrets is at ${file}.`) }
   }
   if (kept.why !== undefined)
     return {
-      finding: finding('T0013', `The key of the secrets is not taken from ${file}: ${kept.why}.`, {
+      finding: finding('F0013', `The key of the secrets is not taken from ${file}: ${kept.why}.`, {
         fix: `Keep the key in a file of your own that only you can read: ${kept.close}`,
       }),
     }
   const key = readFileSync(file, 'utf8').trim()
   if (key.length < 32)
     return {
-      finding: finding('T0013', `The file ${file} holds no key of the secrets: a key is 32 characters or more.`),
+      finding: finding('F0013', `The file ${file} holds no key of the secrets: a key is 32 characters or more.`),
     }
   return { key }
 }

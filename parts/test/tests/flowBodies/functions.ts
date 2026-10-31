@@ -1,4 +1,4 @@
-import { action, change, input, log, query, table, text } from 'tentjs'
+import { action, change, input, log, query, table, text } from 'forjr'
 
 export const marks = table('marks', {
   columns: { what: text() },

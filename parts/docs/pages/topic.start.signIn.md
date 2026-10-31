@@ -4,7 +4,7 @@ The engine holds no sign-in of its own: a function checks the password with `pas
 
 ```ts
 // functions/signIn.ts
-import { action, anyone, attempts, fail, passwords, sessions, text } from 'tentjs'
+import { action, anyone, attempts, fail, passwords, sessions, text } from 'forjr'
 
 export const signIn = action('signIn', {
   access: anyone('a visitor signs in'),
@@ -25,7 +25,7 @@ A `Form` sends what its named fields hold as the input of its function, checks i
 
 ```tsx
 // screens/signIn.tsx
-import { anyone, screen, text, Form } from 'tentjs/ui'
+import { anyone, screen, text, Form } from 'forjr/ui'
 import { signIn } from '../functions/signIn'
 
 export const signInScreen = screen('signInScreen', {

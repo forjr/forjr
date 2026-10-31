@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { manyLimit } from '../held.ts'
 import type { Opened } from '../opened.ts'
 import type { ReaderKey } from './keys.ts'
@@ -58,6 +58,7 @@ export interface WriterState {
 
 /** The length of a beat of an app, and how long a reader of it may be behind, as the running version states them. */
 export const beatOf = (w: WriterState): number => manyLimit(w.o.description, 'beat')
+/** Takes a writer. Answers how long a reader may be behind it, the longer time where one holds. */
 export function behindOf(w: WriterState): number {
   const stated = manyLimit(w.o.description, 'behind')
   return w.longer && w.o.clock.now() < w.longer.until ? Math.max(stated, w.longer.behind) : stated
@@ -77,8 +78,8 @@ export const writerWritesNow = (w: WriterState): Writes =>
         ? 'no lease'
         : 'writes'
 
-/** The error of a writer that does not write for now, or no longer: T0030 for what writes, and T0029 for anything else. */
-export function notWriting(state: Writes, writes: boolean, own: string | undefined): TentError {
+/** The error of a writer that does not write for now, or no longer: F0030 for what writes, and F0029 for anything else. */
+export function notWriting(state: Writes, writes: boolean, own: string | undefined): ForjrError {
   const why =
     state === 'stopped'
       ? 'a machine took over, and this writer was stopped'
@@ -87,9 +88,9 @@ export function notWriting(state: Writes, writes: boolean, own: string | undefin
         : 'this writer holds no lease'
   const fix =
     state === 'back'
-      ? 'Run `tent take-over` on the machine that is to go on.'
+      ? 'Run `forjr take-over` on the machine that is to go on.'
       : state === 'stopped'
         ? `Reach the writer${own ? ` at ${own}` : ''}, or start this folder with \`--reads\`.`
         : 'Ask again once this machine holds the lease, or reach the machine that holds it.'
-  return new TentError(writes && state !== 'back' ? 'T0030' : 'T0029', `This machine does not write: ${why}.`, { fix })
+  return new ForjrError(writes && state !== 'back' ? 'F0030' : 'F0029', `This machine does not write: ${why}.`, { fix })
 }

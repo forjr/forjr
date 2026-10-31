@@ -32,7 +32,7 @@ export async function openedCommands(
     built.findings.filter((one) => one.level === 'error'),
     [],
   )
-  const data = join(project, '.tent')
+  const data = join(project, '.forjr')
   const app = await engine.open(built.bundleFolder, { dataFolder: data, mode: 'test' })
   return { app, project, data }
 }
@@ -76,7 +76,7 @@ export async function ranLine(
   const sent = (request: Request): Request => {
     const headers = new Headers(request.headers)
     headers.set('authorization', `Bearer ${token}`)
-    headers.set('tent-caller', o.as ?? 'system')
+    headers.set('forjr-caller', o.as ?? 'system')
     const { pathname, search } = new URL(request.url)
     return new Request(`http://127.0.0.1:${port}${pathname}${search}`, {
       method: request.method,

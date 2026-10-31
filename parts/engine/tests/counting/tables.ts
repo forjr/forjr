@@ -1,4 +1,4 @@
-import { anyone, file, list, project, table, text } from 'tentjs'
+import { anyone, file, list, project, table, text } from 'forjr'
 
 // Many calls of the tests come from one address: the counts of a minute are set far above them.
 export const shop = project('shop', {

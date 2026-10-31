@@ -1,6 +1,6 @@
 import { mkdirSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs'
 import { join } from 'node:path'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { fingerprintOf, isPath, isStored } from '../../core/internal.ts'
 import type { Address } from '../door/address.ts'
 import { countedFor } from '../door/rate.ts'
@@ -11,7 +11,7 @@ import { stateOf } from '../pages/find.ts'
 import { screenNamedAt } from '../pages/named.ts'
 import { errorAnswer } from '../wire.ts'
 
-const prefix = '/_t/seo/image/'
+const prefix = '/_f/seo/image/'
 
 /** Every answer of the address can never act as a page of the app. */
 const locked = { 'content-security-policy': "default-src 'none'; sandbox", 'x-content-type-options': 'nosniff' }
@@ -69,8 +69,8 @@ function dropPast(o: Opened, folder: string, version: string, screen: string): v
 }
 
 /**
- * `GET /_t/seo/image/<screen>?<an address of it>`: the picture of that address for the links to it that are shared.
- * The component that the screen's `seo.image` names is drawn as nobody, handed the answers of the address, in the hidden browser of `tent
+ * `GET /_f/seo/image/<screen>?<an address of it>`: the picture of that address for the links to it that are shared.
+ * The component that the screen's `seo.image` names is drawn as nobody, handed the answers of the address, in the hidden browser of `forjr
  * shot`, into a PNG of its size, and kept by the mark of those answers, so it is drawn again only when one of them
  * changes; at most `limits.seoImagesPerMinute` drawings a minute for the app, one at a time. A screen with no
  * picture, one not open to anyone, and an address that the screen does not hold answer 404 and draw nothing. It
@@ -136,7 +136,7 @@ export const address: Address = {
           if (found) return found
           const limit = storedLimit(app.description, 'seoImagesPerMinute')
           if (!countedFor(app, 'seoImages', limit))
-            throw new TentError('T0005', `More than ${limit} pictures for shared links were drawn in a minute.`, {
+            throw new ForjrError('F0005', `More than ${limit} pictures for shared links were drawn in a minute.`, {
               fix: 'Ask again in a minute, or raise `seoImagesPerMinute` in `project.limits`.',
             })
           mkdirSync(folder, { recursive: true })

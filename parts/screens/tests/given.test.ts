@@ -3,7 +3,7 @@ import { test } from 'node:test'
 import type * as types from '../index.ts'
 import * as ui from '../index.ts'
 
-// The names that `30`, section 2, lists for `tentjs/ui`, by their groups: what is taken from `core`, the words of
+// The names that `30`, section 2, lists for `forjr/ui`, by their groups: what is taken from `core`, the words of
 // screens, the tags, the hooks and the helper.
 const listed = [
   ...['anyone', 'asset', 'boolean', 'choice', 'date', 'day', 'file', 'given', 'json', 'link', 'list'],
@@ -15,7 +15,7 @@ const listed = [
   'optimistic',
 ]
 
-// Each type that the section lists, named once: a type that `tentjs/ui` does not give fails the type checker here.
+// Each type that the section lists, named once: a type that `forjr/ui` does not give fails the type checker here.
 type Listed = [
   types.Access,
   types.AppState,
@@ -56,7 +56,7 @@ type Listed = [
   types.MessagesOfFile,
 ]
 
-test('[30-2] tentjs/ui gives every name that the list of its names holds, given among them, and every type, CallOptions among them', () => {
+test('[30-2] forjr/ui gives every name that the list of its names holds, given among them, and every type, CallOptions among them', () => {
   const missing = listed.filter((name) => !Object.hasOwn(ui, name) || Reflect.get(ui, name) === undefined)
   assert.deepEqual(missing, [])
   assert.equal(typeof ui.given, 'function')

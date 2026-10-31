@@ -298,19 +298,19 @@ test('[51-1] the options of heavy work are stored as the format gives them, and 
     const found = described([shop, definition]).codes
     assert.deepEqual(
       found,
-      ['T1009 a: the input field `run` is reserved for an action that states `worker` or `background`.'],
+      ['F1009 a: the input field `run` is reserved for an action that states `worker` or `background`.'],
       what,
     )
   }
   assert.deepEqual(described([shop, action('a', { access, input: fields, run })]).codes, [])
   assert.deepEqual(described([shop, action('a', { access, background: false, input: fields, run })]).codes, [])
 
-  // `by` and `old` belong to a column: on an input each is T1003, and so is `old` on a column that states no `by`.
+  // `by` and `old` belong to a column: on an input each is F1003, and so is `old` on a column that states no `by`.
   const asInput = (type: object) =>
     described([shop, action('a', { access, input: { v: Object.assign(text(), type) }, run })]).codes
-  assert.match(asInput({ by: 'summarize' })[0], /^T1003 a: input\.v, a `text`, has no option `by`/)
-  assert.match(asInput({ old: 'keep' })[0], /^T1003 a: input\.v, a `text`, has no option `old`/)
+  assert.match(asInput({ by: 'summarize' })[0], /^F1003 a: input\.v, a `text`, has no option `by`/)
+  assert.match(asInput({ old: 'keep' })[0], /^F1003 a: input\.v, a `text`, has no option `old`/)
   const alone = described([shop, table('t', { columns: { a: text({ optional: true, old: 'drop' }) } })]).codes
-  assert.match(alone[0], /^T1003 t: columns\.a, a `text`, has no option `old`/)
+  assert.match(alone[0], /^F1003 t: columns\.a, a `text`, has no option `old`/)
   assert.equal(alone.length, 1)
 })

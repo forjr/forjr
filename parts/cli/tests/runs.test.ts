@@ -24,7 +24,7 @@ const line = object({
   error: text({ optional: true }),
 })
 
-// What each command of `tent runs` prints with `--json`, as its value.
+// What each command of `forjr runs` prints with `--json`, as its value.
 const shapes: Record<string, Type> = {
   list: object({ runs: list(line) }),
   show: json(),
@@ -57,7 +57,7 @@ async function built(t: TestContext, name: string, change?: (written: string) =>
   return { project, ...made }
 }
 
-/** The app of the first copy, opened by an engine of the test, and the commands of `tent runs` typed against it. */
+/** The app of the first copy, opened by an engine of the test, and the commands of `forjr runs` typed against it. */
 async function opened(t: TestContext, name: string) {
   const engine = createEngine({ port: 0 })
   t.after(() => engine.close())
@@ -71,7 +71,7 @@ async function opened(t: TestContext, name: string) {
       assert.deepEqual(
         checkValue(shapes[words[0] ?? 'list'], asked.answer.value),
         [],
-        `the shape of tent runs ${words[0] ?? ''}`,
+        `the shape of forjr runs ${words[0] ?? ''}`,
       )
     return asked
   }
@@ -90,7 +90,7 @@ async function opened(t: TestContext, name: string) {
   return { app, one, data, runs, waiting, value }
 }
 
-test('[15-6@7b] `tent runs` lists the runs, `runs show` prints one in full, `runs approve`, `runs refuse` and `runs stop` answer and end a run, and a run that is not there is T0001', async (t) => {
+test('[15-6@7b] `forjr runs` lists the runs, `runs show` prints one in full, `runs approve`, `runs refuse` and `runs stop` answer and end a run, and a run that is not there is F0001', async (t) => {
   const { app, one, data, runs, waiting, value } = await opened(t, 'runs-commands')
   // An app with no run yet lists none.
   assert.deepEqual(value(await runs()), { runs: [] })
@@ -117,7 +117,7 @@ test('[15-6@7b] `tent runs` lists the runs, `runs show` prints one in full, `run
   assert.match(String(await app.runs.wait(first)), /^desk \S+ no \S+$/)
   // A second answer to a step that was answered is refused, and so is a step that the run does not wait at.
   const again = await runs('approve', first, 'approval')
-  assert.deepEqual([again.ended, again.answer.findings?.[0].code], [1, 'T0002'], again.printed)
+  assert.deepEqual([again.ended, again.answer.findings?.[0].code], [1, 'F0002'], again.printed)
 
   const second = await waiting('lamp')
   assert.deepEqual(value(await runs('approve', second, 'approval')), { run: second, step: 'approval', approved: true })
@@ -144,7 +144,7 @@ test('[15-6@7b] `tent runs` lists the runs, `runs show` prints one in full, `run
     ['approve', 'nothere', 'approval'],
   ]) {
     const none = await runs(...words)
-    assert.deepEqual([none.ended, none.answer.findings?.[0].code], [1, 'T0001'], words.join(' '))
+    assert.deepEqual([none.ended, none.answer.findings?.[0].code], [1, 'F0001'], words.join(' '))
     assert.match(String(none.answer.findings?.[0].message), /nothere/)
   }
   const fromless = await runs('replay', second)
@@ -157,7 +157,7 @@ test('[15-6@7b] `tent runs` lists the runs, `runs show` prints one in full, `run
   for (const piece of [first, second, third, 'bigOrder', 'stopped']) assert.ok(text.printed.includes(piece), piece)
 })
 
-test('[23-23] `tent runs replay` starts a new run on the live version that reuses the saved results before the named step', async (t) => {
+test('[23-23] `forjr runs replay` starts a new run on the live version that reuses the saved results before the named step', async (t) => {
   const { app, one, runs, waiting, value } = await opened(t, 'runs-replay')
   const run = await waiting('desk')
   app.runs.approve(run, 'approval')
@@ -203,7 +203,7 @@ test('[23-23] `tent runs replay` starts a new run on the live version that reuse
   assert.match(String(none.answer.findings?.[0].message), /nothere/)
 })
 
-test('[23-23] `tent runs move` moves a waiting run to the live version when its steps still match, and leaves it and names the step when one was renamed', async (t) => {
+test('[23-23] `forjr runs move` moves a waiting run to the live version when its steps still match, and leaves it and names the step when one was renamed', async (t) => {
   const { app, one, data, runs, waiting, value } = await opened(t, 'runs-move')
   const run = await waiting('desk')
   // The flow states no `moveRuns`, so a switch leaves its waiting run on the version it started with.
@@ -227,7 +227,7 @@ test('[23-23] `tent runs move` moves a waiting run to the live version when its 
   assert.equal(app.runs.read(run)?.version, two.versionId)
   // The check of the third project, held against the data of the running app, says beforehand what the move found.
   const checked = await typed(three.project, 'check', '--data', data, '--json')
-  const gone = (checked.answer.findings ?? []).filter((one) => one.code === 'T5003')
+  const gone = (checked.answer.findings ?? []).filter((one) => one.code === 'F5003')
   assert.deepEqual(
     gone.map((one) => [one.level, one.where?.definition]),
     [['warning', 'bigOrder']],

@@ -104,7 +104,7 @@ function tracesBody(o: Opened, rows: SpanRow[]): object {
         resource: { attributes: attributes({ 'service.name': o.name, 'service.version': o.version }) },
         scopeSpans: [
           {
-            scope: { name: 'tentjs' },
+            scope: { name: 'forjr' },
             spans: rows.map((row) => ({
               traceId: row.trace,
               spanId: row.span,
@@ -114,8 +114,8 @@ function tracesBody(o: Opened, rows: SpanRow[]): object {
               startTimeUnixNano: nano(row.at),
               endTimeUnixNano: nano(row.at + row.ms),
               attributes: attributes({
-                'tent.kind': row.kind,
-                ...(row.machine ? { 'tent.machine': row.machine } : {}),
+                'forjr.kind': row.kind,
+                ...(row.machine ? { 'forjr.machine': row.machine } : {}),
                 ...JSON.parse(row.facts),
               }),
               status: row.ok ? { code: 1 } : { code: 2, message: row.code ?? 'failed' },
@@ -138,15 +138,15 @@ function logsBody(o: Opened, records: LogRecord[]): object {
         resource: { attributes: attributes({ 'service.name': o.name, 'service.version': o.version }) },
         scopeLogs: [
           {
-            scope: { name: 'tentjs' },
+            scope: { name: 'forjr' },
             logRecords: records.map((record) => ({
               timeUnixNano: nano(record.at),
               severityNumber: severities[record.level] ?? 9,
               severityText: record.level.toUpperCase(),
               body: { stringValue: record.message },
               attributes: attributes({
-                ...(record.name ? { 'tent.name': record.name } : {}),
-                ...(record.ref ? { 'tent.ref': record.ref } : {}),
+                ...(record.name ? { 'forjr.name': record.name } : {}),
+                ...(record.ref ? { 'forjr.ref': record.ref } : {}),
               }),
               ...(record.trace ? { traceId: record.trace } : {}),
               ...(record.span ? { spanId: record.span } : {}),
@@ -167,9 +167,9 @@ function metricsBody(o: Opened, rows: VitalsRow[]): object {
         resource: { attributes: attributes({ 'service.name': o.name, 'service.version': o.version }) },
         scopeMetrics: [
           {
-            scope: { name: 'tentjs' },
+            scope: { name: 'forjr' },
             metrics: names.map((measure) => ({
-              name: `tent.vitals.${measure}`,
+              name: `forjr.vitals.${measure}`,
               unit: measure === 'cls' ? '1' : 'ms',
               gauge: {
                 dataPoints: rows

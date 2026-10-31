@@ -1,5 +1,5 @@
 import type { Type } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { answerOf, checkValue } from '../../core/internal.ts'
 import { handedAnswer } from '../../data/index.ts'
@@ -21,8 +21,8 @@ function filtered(type: Type, value: unknown): unknown {
 }
 
 /** The error of an answer that the app may not give: it is the fault of the app, and no caller is shown its words. */
-const misfit = (name: string, words: string): TentError =>
-  new TentError('T0009', `The answer of ${name} does not fit its output: ${words}`, {
+const misfit = (name: string, words: string): ForjrError =>
+  new ForjrError('F0009', `The answer of ${name} does not fit its output: ${words}`, {
     fix: 'State an `output` that the answer fits, or answer what the stated one names.',
   })
 
@@ -31,7 +31,7 @@ const misfit = (name: string, words: string): TentError =>
  * leaves the engine: the answer filtered through the declared output, which it must fit; where no output is
  * declared, the answer of a plan and of a list of writes filtered column by column, so that no `private` column
  * leaves; for a query written with `run`, what `db` handed out and nothing else; and nothing for a change written
- * with `run` and for an action. Throws T0009 for an answer that does not fit.
+ * with `run` and for an action. Throws F0009 for an answer that does not fit.
  */
 export function leaving(
   description: Description,
@@ -63,7 +63,7 @@ export function leaving(
   try {
     return handedAnswer(value)
   } catch (error) {
-    throw error instanceof TentError && error.code === 'T0009'
+    throw error instanceof ForjrError && error.code === 'F0009'
       ? misfit(
           name,
           `${error.message} A query written with \`run\` that states no \`output\` answers rows as \`db\` handed them, or a number.`,

@@ -9,7 +9,7 @@ One arrow, which is required. It is handed one record: each of the `props`, each
 ## Example
 
 ```tsx
-import { component, text } from 'tentjs/ui'
+import { component, text } from 'forjr/ui'
 
 export const Card = component('Card', {
   props: { title: text() },
@@ -24,9 +24,9 @@ export const Card = component('Card', {
 
 ## Errors
 
-`code.T1008`: it is left out.
+`code.F1008`: it is left out.
 
-`code.T1014`: what is written there is no arrow.
+`code.F1014`: what is written there is no arrow.
 
 ## See also
 

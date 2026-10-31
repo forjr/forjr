@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import type { Mode } from '../../data/index.ts'
 import { idMaker, sqliteStore } from '../../data/index.ts'
@@ -67,7 +67,7 @@ export interface Opening {
 }
 
 /** A refusal of an opening: its code, its words, and what mends it. */
-export const refused = (code: string, words: string, fix: string): TentError => new TentError(code, words, { fix })
+export const refused = (code: string, words: string, fix: string): ForjrError => new ForjrError(code, words, { fix })
 
 /**
  * What an opening holds while it is under way: what the engine will hold of the app, and each thing that the
@@ -146,11 +146,11 @@ export async function frameOf(program: Program, w: Opening, room: Room): Promise
     ...(w.identify ? { identify: w.identify } : {}),
     ...(w.framedBy ? { framedBy: w.framedBy } : {}),
     get app(): App {
-      if (!app) throw new TentError('T0013', `The app ${description.app.name} is not open yet.`)
+      if (!app) throw new ForjrError('F0013', `The app ${description.app.name} is not open yet.`)
       return app
     },
     get machine(): Machine {
-      if (!machine) throw new TentError('T0013', `The app ${description.app.name} is not open yet.`)
+      if (!machine) throw new ForjrError('F0013', `The app ${description.app.name} is not open yet.`)
       return machine
     },
     waits: program.waits,

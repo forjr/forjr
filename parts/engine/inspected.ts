@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto'
-import { later, TentError } from '../core/index.ts'
+import { later, ForjrError } from '../core/index.ts'
 import type { Opened } from './opened.ts'
 
 /**
@@ -21,8 +21,8 @@ const hour = 3_600_000
 /** 32 random characters that are safe in an address. */
 const random = (): string => randomBytes(24).toString('base64url')
 
-const refused = (what: string, fix: string, field: string): TentError =>
-  new TentError('T0002', what, { fix, fields: { [field]: 'pattern' } })
+const refused = (what: string, fix: string, field: string): ForjrError =>
+  new ForjrError('F0002', what, { fix, fields: { [field]: 'pattern' } })
 
 // One origin, by the form of its text: http or https, a host - names of letters, digits and hyphens joined by dots,
 // or an address of the newer kind in brackets - and a port, and nothing else.
@@ -41,7 +41,7 @@ function isOrigin(text: unknown): text is string {
 
 /**
  * Takes what was given as `framedBy`. Answers the origin of the tool, and whether the tool opens the page in a window
- * of its own: one origin - a scheme, a host and a port, and nothing else - or `{ opener: <origin> }`. Throws T0002
+ * of its own: one origin - a scheme, a host and a port, and nothing else - or `{ opener: <origin> }`. Throws F0002
  * for anything else.
  */
 function toolOf(framedBy: unknown): { origin: string; opener: boolean } {
@@ -59,7 +59,7 @@ function toolOf(framedBy: unknown): { origin: string; opener: boolean } {
 /**
  * Takes an app and what `app.inspect` was given: `{ framedBy, for? }`. Makes a token that puts a page into the
  * inspect mode for a tool of that origin, which holds for `for`, one hour where it is left out, and answers it.
- * Throws T0002 for a `framedBy` that is no origin, and for a `for` that is no length of time.
+ * Throws F0002 for a `framedBy` that is no origin, and for a `for` that is no length of time.
  */
 export function makeInspectToken(o: Opened, given: unknown): string {
   const tool = toolOf(Reflect.get(Object(given), 'framedBy'))

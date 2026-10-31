@@ -1,6 +1,6 @@
 import { randomBytes } from 'node:crypto'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { codes } from '../../core/internal.ts'
 import type { Opened } from '../opened.ts'
 import { callerOf } from './rule.ts'
@@ -26,12 +26,12 @@ export function statusOf(code: string): number | undefined {
 }
 
 /**
- * Whether an error is the caller's to see as it is: a code of the framework that has a status, but for T0009
+ * Whether an error is the caller's to see as it is: a code of the framework that has a status, but for F0009
  * itself, or an own `fail` of the app, whose code is no code of ours.
  */
-export const isShown = (error: unknown): error is TentError =>
-  error instanceof TentError &&
-  error.code !== 'T0009' &&
+export const isShown = (error: unknown): error is ForjrError =>
+  error instanceof ForjrError &&
+  error.code !== 'F0009' &&
   (!Object.hasOwn(codes, error.code) || statusOf(error.code) !== undefined)
 
 /**
@@ -47,7 +47,7 @@ export const logName = (o: Opened, name: string): string =>
  * trace, once.
  */
 export function failureOf(o: Opened, name: string, error: unknown): { code: string; ref?: string } {
-  const code = error instanceof TentError ? error.code : 'T0009'
+  const code = error instanceof ForjrError ? error.code : 'F0009'
   if (isShown(error)) return { code }
   const held = typeof error === 'object' && error !== null ? refs.get(error) : undefined
   if (held) return { code, ref: held }

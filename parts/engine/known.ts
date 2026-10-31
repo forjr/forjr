@@ -16,7 +16,7 @@ const isVersion = (text: unknown): text is string => typeof text === 'string' &&
 /**
  * Takes the folder of an install, where releases are served, the keys a list may be signed with, and the fetch.
  * Reads `known.json` there, and keeps it in the folder with the moment it was read, `readAt`. Answers the list, or
- * nothing where it could not be fetched. Throws T0026 for a list whose signature does not fit, that is older than
+ * nothing where it could not be fetched. Throws F0026 for a list whose signature does not fit, that is older than
  * the one before, or that names anything but versions - a list names versions and never an address: it is
  * thrown away, and the one before is kept.
  */
@@ -30,12 +30,12 @@ export async function readKnown(
       keys: o.keys,
       fetch: o.fetch,
       time: lookTime,
-      format: 'tent.known/1',
+      format: 'forjr.known/1',
       home,
       seen: 'known',
     })
   } catch (error) {
-    if (error instanceof Error && Reflect.get(error, 'code') === 'T0026') throw error
+    if (error instanceof Error && Reflect.get(error, 'code') === 'F0026') throw error
     return undefined
   }
   const listed: unknown = read.list.versions
@@ -51,7 +51,7 @@ export async function readKnown(
   const file = join(home, 'known.json')
   writeFileSync(
     `${file}.${process.pid}`,
-    `${JSON.stringify({ format: 'tent.known/1', ...known, readAt: Date.now() }, null, 2)}\n`,
+    `${JSON.stringify({ format: 'forjr.known/1', ...known, readAt: Date.now() }, null, 2)}\n`,
   )
   renameSync(`${file}.${process.pid}`, file)
   sawList(home, 'known', known.made)

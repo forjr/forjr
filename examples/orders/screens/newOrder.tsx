@@ -1,4 +1,4 @@
-import { Form, Link, read, role, screen, useTranslations } from 'tentjs/ui'
+import { Form, Link, read, role, screen, useTranslations } from 'forjr/ui'
 import { StaffFrame, Waiting } from '../components/frames'
 import { Labelled, MoneyField } from '../components/Labelled'
 import { button, Card, PageHeader } from '../components/ui'

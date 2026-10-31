@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { NotReady } from '../../data/index.ts'
 import type { CallContext, Work } from '../context.ts'
 import { limitOf } from '../limits.ts'
@@ -58,7 +58,7 @@ export interface Asked {
   about?: { from: string; origin: string }
   // A call of an outside door that waits for what it starts, as at `/api/`: an agent answers its text there.
   waits?: true
-  // A call of MCP: a run it starts that waits for a person fails it at once, with T7120 that names the ask.
+  // A call of MCP: a run it starts that waits for a person fails it at once, with F7120 that names the ask.
   runAsks?: true
   // The run of an action that is a run tells whoever follows it what its work says.
   say?: (value: unknown) => void
@@ -80,20 +80,24 @@ const never = new AbortController().signal
 export const slowAfter = 50
 
 /** The error of a kind of function that may not be called from where the call stands. */
-function notHere(name: string, kind: Kind, from: Work): TentError {
+function notHere(name: string, kind: Kind, from: Work): ForjrError {
   const where = from.kind === 'rule' ? `the rule of ${from.name}` : `the ${from.kind} ${from.name}`
-  return new TentError('T0013', `${name} is ${kind === 'action' ? 'an' : 'a'} ${kind}, and was called from ${where}.`, {
-    fix: 'A query calls queries, and so does the arrow of a rule. A change calls queries and changes. An action calls anything.',
-  })
+  return new ForjrError(
+    'F0013',
+    `${name} is ${kind === 'action' ? 'an' : 'a'} ${kind}, and was called from ${where}.`,
+    {
+      fix: 'A query calls queries, and so does the arrow of a rule. A change calls queries and changes. An action calls anything.',
+    },
+  )
 }
 
 /** The error of a change that is called inside a call which only reads. */
-export const readOnly = (what: string): TentError =>
-  new TentError('T0013', what + ' was used inside an action that a screen reads, which is called read-only.', {
+export const readOnly = (what: string): ForjrError =>
+  new ForjrError('F0013', what + ' was used inside an action that a screen reads, which is called read-only.', {
     fix: 'An action that is read as an entry of data only reads. What must write or send is called by a press.',
   })
 
-/** Holds a call from code to what may be used where: T0013 for a kind that the calling work may not call. */
+/** Holds a call from code to what may be used where: F0013 for a kind that the calling work may not call. */
 function allowedHere(name: string, kind: Kind, parent: CallContext | undefined): void {
   const from = parent?.work
   if (!from || from.kind === 'action' || from.kind === 'seed' || kind === 'query') return
@@ -104,8 +108,8 @@ function allowedHere(name: string, kind: Kind, parent: CallContext | undefined):
 /**
  * Passes steps 6 and 7 of the door for one call: its rule, where that is written as a value, the declared types of
  * its input, and then a rule made with `allow`, on the checked input. Answers what the work of the call is carried
- * out with. Throws T0028 for a call that nests too deep, T0006 and T3101 for a caller the rule keeps out, which is
- * written into the log, and T0002 for an input that does not fit.
+ * out with. Throws F0028 for a call that nests too deep, F0006 and F3101 for a caller the rule keeps out, which is
+ * written into the log, and F0002 for an input that does not fit.
  */
 function passed(
   o: Opened,
@@ -119,14 +123,14 @@ function passed(
   const depth = (parent?.work.depth ?? 0) + 1
   const deepest = limitOf(o.description, 'functionDepth')
   if (depth > deepest)
-    throw new TentError(
-      'T0028',
+    throw new ForjrError(
+      'F0028',
       `${name} was called ${depth} calls deep, past \`limits.functionDepth\` of ${deepest}.`,
       {
         fix: 'Functions that call each other must come to an end. Where they do, raise `functionDepth` in `project.limits`.',
       },
     )
-  const denied = (rule: string, needs: string): TentError => {
+  const denied = (rule: string, needs: string): ForjrError => {
     o.log.write('denied', { at: o.clock.now(), name, ...callerOf(caller), rule })
     return refusedBy(name, needs, caller)
   }
@@ -179,7 +183,7 @@ function passed(
  * function by its name, checks its rule and its input, carries it out with a `db` that is limited to its caller,
  * filters what it answers through its output, and writes the call into the log. A query and a change answer at
  * once, and an action answers a promise. A failure is written into the log, is told to whoever listens for
- * `call.failed`, and is thrown as it is: T0001 for a name that is no function, and what the steps throw. Of an
+ * `call.failed`, and is thrown as it is: F0001 for a name that is no function, and what the steps throw. Of an
  * app that keeps a data file for each tenant, a call that names a file which is not ready is carried out again
  * from its start once the file is, within the one time of the call, which runs from its start over every pass
  * and over the waits between them: it then answers a promise.
@@ -215,7 +219,7 @@ function calledHere(o: Opened, name: string, given: unknown, asked: Asked): unkn
  * named a file which is not ready is no failure of it.
  */
 function calledOnce(o: Opened, name: string, given: unknown, asked: Asked): unknown {
-  // Under `tent test`, the test that runs touched the definition.
+  // Under `forjr test`, the test that runs touched the definition.
   if (Object.hasOwn(o.description.functions, name)) noteTouched('functions', name)
   else if (Object.hasOwn(o.description.flows, name)) noteTouched('flows', name)
   const span = openSpan(o, { name: logName(o, name), kind: 'call', facts: { caller: asked.caller.kind } })
@@ -321,8 +325,8 @@ function passedOnce(o: Opened, name: string, given: unknown, asked: Asked): unkn
     }
   if (!record || !kind)
     return failed(
-      new TentError('T0001', `No function named ${JSON.stringify(name).slice(0, 80)} can be reached.`, {
-        fix: 'Call a query, a change or an action of the app by its name: `tent map` lists them.',
+      new ForjrError('F0001', `No function named ${JSON.stringify(name).slice(0, 80)} can be reached.`, {
+        fix: 'Call a query, a change or an action of the app by its name: `forjr map` lists them.',
       }),
     )
   // A heavy query that is asked through the door, or from an action, is carried out on a query thread, which

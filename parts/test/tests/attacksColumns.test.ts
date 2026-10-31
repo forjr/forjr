@@ -100,15 +100,15 @@ test('[45-19.4] a column with a read rule is reached by a filter through a link,
     ['desksOfWellPaid', { least: 4500 }],
     ['salaryInCode', { least: 4500 }],
   ] as const) {
-    assert.equal(await codeOf(app.as(plain).call(query, input)), 'T0013', `${query} is refused`)
+    assert.equal(await codeOf(app.as(plain).call(query, input)), 'F0013', `${query} is refused`)
     assert.equal(await codeOf(app.as(hr).call(query, input)), 'none', `${query} answers hr`)
   }
 })
 
 test('[45-19.4] a column with a read rule is reached by a sort or a group through a link: refused, or the value left out', async (t) => {
   const { app, plain } = await ruled(t)
-  assert.equal(await codeOf(app.as(plain).call('desksBySalary', {})), 'T0013')
-  assert.equal(await codeOf(app.as(plain).call('desksGrouped', {})), 'T0013')
+  assert.equal(await codeOf(app.as(plain).call('desksBySalary', {})), 'F0013')
+  assert.equal(await codeOf(app.as(plain).call('desksGrouped', {})), 'F0013')
   const summed = await app
     .as(plain)
     .call('desksSummed', {})

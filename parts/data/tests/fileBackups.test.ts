@@ -33,8 +33,8 @@ function listOf(folder: string): Record<string, string> {
 
 /** What the files of an app hold: the rows of the shared file, and every tenant's file with all it holds. */
 function heldBy(files: Files): { shared: Record<string, unknown>; files: Record<string, unknown> } {
-  // The shared `_t_meta` holds the mark of the count of removals, which a restore makes anew.
-  const { _t_meta: _, ...shared } = heldIn(files.shared)
+  // The shared `_f_meta` holds the mark of the count of removals, which a restore makes anew.
+  const { _f_meta: _, ...shared } = heldIn(files.shared)
   return { shared, files: Object.fromEntries([...files.walk()].map((file) => [file.id, heldIn(files.of(file))])) }
 }
 
@@ -131,12 +131,12 @@ test('[50-12] a backup holds the shared file and the files written since the bac
   // A file holds its table and its tenant: one that stands in a backup under another tenant is refused.
   copyFileSync(join(backups, second, north), join(backups, third, south))
   await assert.rejects(restore(files, join(backups, third), { of: teamFile(s.south) }), (error) => {
-    assert.equal(Object(error).code, 'T0009')
+    assert.equal(Object(error).code, 'F0009')
     assert.match(String(error), /another tenant/)
     return true
   })
   assert.deepEqual(totalsOf(files, s.south), [2, 20, 21])
-  await assert.rejects(restore(files, join(backups, third)), { code: 'T0009' })
+  await assert.rejects(restore(files, join(backups, third)), { code: 'F0009' })
   assert.deepEqual(totalsOf(files, s.south), [2, 20, 21])
 })
 
@@ -169,14 +169,14 @@ test('[50-12] a whole backup copies every file, and a restore whose list names a
   order(s.south, 200)
   rmSync(join(backups, first), { recursive: true })
   await assert.rejects(restore(files, join(backups, second)), (error) => {
-    assert.equal(Object(error).code, 'T0009')
+    assert.equal(Object(error).code, 'F0009')
     assert.ok(String(Object(error).message).includes(first))
     return true
   })
   assert.deepEqual(totalsOf(files, s.north), [1, 100])
   assert.deepEqual(totalsOf(files, s.south), [2, 20, 200])
   // A backup that ages out into a folder that is no kept backup is refused, and stays.
-  assert.throws(() => ageOut(join(backups, second), join(backups, first)), { code: 'T0009' })
+  assert.throws(() => ageOut(join(backups, second), join(backups, first)), { code: 'F0009' })
   assert.ok(existsSync(join(backups, second, 'files.json')))
   // The whole backup stands alone.
   await restore(files, join(backups, whole))
@@ -195,5 +195,5 @@ test('[50-12] a backup of files whose writes are not counted copies every file e
   const second = String(readdirSync(backups).sort().at(-1))
   // No file holds the number of its last write, so none is known to stand as the backup before holds it.
   assert.deepEqual(listOf(join(backups, second)), { [s.north]: second })
-  await assert.rejects(backup(files, backups, { before: 'data-none' }), { code: 'T0009' })
+  await assert.rejects(backup(files, backups, { before: 'data-none' }), { code: 'F0009' })
 })

@@ -28,7 +28,7 @@ const asNobody = async (app: TestApp, key?: string): Promise<string> => {
 
 /** The messages a live connection is sent while a watch is asked, until one of them names a code or a value. */
 async function watched(app: TestApp, key: string, query: string): Promise<Record<string, unknown>[]> {
-  const end = app.live(new Request('http://localhost/_t/live', { headers: { authorization: `Bearer ${key}` } }))
+  const end = app.live(new Request('http://localhost/_f/live', { headers: { authorization: `Bearer ${key}` } }))
   const got: Record<string, unknown>[] = []
   end.each((message) => void got.push(Object(message)))
   end.send({ t: 'watch', id: 'w', query, input: {} })
@@ -48,10 +48,10 @@ test('[05-11.15] a guessed key, a removed key, an ended key, an id of no key and
   const ended = await keyOf(app, { scopes: ['*'], for: '1 hour' })
   app.clock.advance('2 hours')
   const tried = {
-    guessed: `tent_${key.split('_')[1]}_${'Q'.repeat(43)}`,
+    guessed: `forjr_${key.split('_')[1]}_${'Q'.repeat(43)}`,
     removed: removed.key,
     ended: ended.key,
-    'an id of no key': `tent_01m4vne21rehxa0vhe4ztfk1qx_${key.slice(-43)}`,
+    'an id of no key': `forjr_01m4vne21rehxa0vhe4ztfk1qx_${key.slice(-43)}`,
     'the last character changed': lastChanged(key),
     'the first character changed': firstChanged(key),
   }
@@ -72,13 +72,13 @@ test('[05-11.15] a guessed key, a removed key, an ended key, an id of no key and
   held('keys.sameTime', (Math.max(...times) / Math.min(...times) - 1) * 100, 'percent')
 })
 
-test('[05-11.16] a key with the scope of one function is T3101 at /api/, at /_t/call/ and as a watch; its own function that calls another inside runs', async (t) => {
+test('[05-11.16] a key with the scope of one function is F3101 at /api/, at /_f/call/ and as a watch; its own function that calls another inside runs', async (t) => {
   const app = await keyedApp(t)
   const { key } = await keyOf(app, { scopes: ['outer'] })
-  assert.equal(Object((await api(app, 'GET', 'myOrders', { key })).body).code, 'T3101')
-  assert.equal(Object((await called(app, 'myOrders', {}, key)).error).code, 'T3101')
+  assert.equal(Object((await api(app, 'GET', 'myOrders', { key })).body).code, 'F3101')
+  assert.equal(Object((await called(app, 'myOrders', {}, key)).error).code, 'F3101')
   const got = await watched(app, key, 'myOrders')
-  assert.ok(JSON.stringify(got).includes('T3101'), `the watch is refused with T3101: ${JSON.stringify(got)}`)
+  assert.ok(JSON.stringify(got).includes('F3101'), `the watch is refused with F3101: ${JSON.stringify(got)}`)
   assert.equal(
     got.some((one) => one.t === 'result'),
     false,
@@ -92,7 +92,7 @@ test('[05-11.17] a key made for a user loses a role at the next call once the us
   const { key } = await keyOf(app, { scopes: ['*'], user: maya.user?.id })
   assert.equal((await api(app, 'GET', 'totals', { key })).status, 200)
   await app.write([{ change: 'users', id: String(maya.user?.id), values: { roles: [] } }], { as: 'system' })
-  assert.equal(Object((await api(app, 'GET', 'totals', { key })).body).code, 'T3101')
+  assert.equal(Object((await api(app, 'GET', 'totals', { key })).body).code, 'F3101')
   await app.write([{ remove: 'users', id: String(maya.user?.id) }], { as: 'system' })
   assert.equal(await asNobody(app, key), await asNobody(app))
 })
@@ -124,11 +124,11 @@ test('[05-11.20] a function that is not offered, asked for at /api/, is answered
   }
 })
 
-test('[05-11.25] a key with the scope of one function: at a route T3101, at a screen nobody, at an upload for another function T3101, at a download of a row it may read T3101', async (t) => {
+test('[05-11.25] a key with the scope of one function: at a route F3101, at a screen nobody, at an upload for another function F3101, at a download of a row it may read F3101', async (t) => {
   const app = await keyedApp(t)
   const maya = await app.user({ name: 'Maya', roles: [] })
   const filed = await keyOf(app, { scopes: ['files', 'holdFile'], user: maya.user?.id })
-  const up = await sent(app, 'POST', '/_t/files?name=a.txt', {
+  const up = await sent(app, 'POST', '/_f/files?name=a.txt', {
     key: filed.key,
     headers: { 'content-type': 'text/plain', 'content-length': '5' },
     body: 'hello',
@@ -138,21 +138,21 @@ test('[05-11.25] a key with the scope of one function: at a route T3101, at a sc
   const { key } = await keyOf(app, { scopes: ['myOrders'], user: maya.user?.id })
   const route = await sent(app, 'GET', '/report', { key })
   assert.equal(route.status, 403)
-  assert.match(await route.text(), /T3101/)
+  assert.match(await route.text(), /F3101/)
   assert.match(await (await sent(app, 'GET', '/who', { key })).text(), /Drawn for a visitor/)
-  const forAnother = await sent(app, 'POST', '/_t/files?name=a.txt&for=keepFile&field=doc', {
+  const forAnother = await sent(app, 'POST', '/_f/files?name=a.txt&for=keepFile&field=doc', {
     key,
     headers: { 'content-type': 'text/plain', 'content-length': '5' },
     body: 'hello',
   })
   assert.equal(forAnother.status, 403)
-  assert.match(await forAnother.text(), /T3101/)
-  const download = await sent(app, 'GET', `/_t/files/${fileId}`, { key })
+  assert.match(await forAnother.text(), /F3101/)
+  const download = await sent(app, 'GET', `/_f/files/${fileId}`, { key })
   assert.equal(download.status, 403)
-  assert.match(await download.text(), /T3101/)
+  assert.match(await download.text(), /F3101/)
 })
 
-test("[05-11.26] `/_t/live` opened with a made-up key, a visitor's cookie and no `Origin` is T0004", async (t) => {
+test("[05-11.26] `/_f/live` opened with a made-up key, a visitor's cookie and no `Origin` is F0004", async (t) => {
   const app = await keyedApp(t)
   const visitor = await sent(app, 'GET', '/who')
   const cookie = visitor.headers
@@ -162,10 +162,10 @@ test("[05-11.26] `/_t/live` opened with a made-up key, a visitor's cookie and no
   const { key } = await keyOf(app, { scopes: ['*'] })
   const headers = (one: string): Record<string, string> => ({
     authorization: `Bearer ${one}`,
-    cookie: cookie || 'tent_visitor.shop=x',
+    cookie: cookie || 'forjr_visitor.shop=x',
   })
-  for (const one of [`tent_01m4vne21rehxa0vhe4ztfk1qx_${'A'.repeat(43)}`, key])
-    assert.throws(() => app.live(new Request('http://localhost/_t/live', { headers: headers(one) })), { code: 'T0004' })
+  for (const one of [`forjr_01m4vne21rehxa0vhe4ztfk1qx_${'A'.repeat(43)}`, key])
+    assert.throws(() => app.live(new Request('http://localhost/_f/live', { headers: headers(one) })), { code: 'F0004' })
 })
 
 test('[05-11.29] a key written into the address of a request is not read: nobody', async (t) => {
@@ -176,24 +176,24 @@ test('[05-11.29] a key written into the address of a request is not read: nobody
     const one = await sent(app, 'GET', `/api/myOrders?${query}`)
     assert.notEqual(one.status, 200, query)
     const body = Object(await one.json())
-    assert.ok(body.code === 'T0006' || body.code === 'T0002', `${query}: ${JSON.stringify(body)}`)
+    assert.ok(body.code === 'F0006' || body.code === 'F0002', `${query}: ${JSON.stringify(body)}`)
   }
   assert.equal((await called(app, 'myOrders', {}, undefined)).ok, false)
   assert.equal(await asNobody(app), nobody)
 })
 
-test('[05-11.41] a key that was made for a user is nobody at the return of a connect, at `/_t/screen` and at `/_t/form/`', async (t) => {
+test('[05-11.41] a key that was made for a user is nobody at the return of a connect, at `/_f/screen` and at `/_f/form/`', async (t) => {
   const app = await keyedApp(t)
   const maya = await app.user({ name: 'Maya', roles: [] })
   const { key } = await keyOf(app, { scopes: ['*'], user: maya.user?.id })
-  const back = await sent(app, 'GET', '/_t/connect/github?code=c&state=s', { key })
+  const back = await sent(app, 'GET', '/_f/connect/github?code=c&state=s', { key })
   // Nobody at the return is sent once to the sign-in, or answered `connect=failed`: never handled as maya.
   const where = back.headers.get('location') ?? ''
   assert.equal(back.status, 302)
   assert.ok(!where.includes('connect=done'), where)
-  const screen = await sent(app, 'GET', '/_t/screen?path=%2Fwho', { key })
+  const screen = await sent(app, 'GET', '/_f/screen?path=%2Fwho', { key })
   assert.doesNotMatch(await screen.text(), new RegExp(String(maya.user?.id)))
-  const form = await sent(app, 'POST', '/_t/form/addOrder', {
+  const form = await sent(app, 'POST', '/_f/form/addOrder', {
     key,
     headers: { 'content-type': 'application/x-www-form-urlencoded', origin: 'http://localhost' },
     body: 'title=by+a+key',
@@ -202,11 +202,11 @@ test('[05-11.41] a key that was made for a user is nobody at the return of a con
   assert.deepEqual(await app.rows('orders'), [], 'the form wrote nothing as maya')
 })
 
-test('[05-11.21] `/api/openapi.json` as nobody is T0006, and it holds no rule, no code and no function that is not offered', async (t) => {
+test('[05-11.21] `/api/openapi.json` as nobody is F0006, and it holds no rule, no code and no function that is not offered', async (t) => {
   const app = await keyedApp(t)
   const asNone = await sent(app, 'GET', '/api/openapi.json')
   assert.equal(asNone.status, 401)
-  assert.equal(Object(await asNone.json()).code, 'T0006')
+  assert.equal(Object(await asNone.json()).code, 'F0006')
   const { key } = await keyOf(app, { scopes: ['myOrders'] })
   const read = await sent(app, 'GET', '/api/openapi.json', { key })
   assert.equal(read.status, 200)

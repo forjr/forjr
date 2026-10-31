@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { never } from './branches.ts'
 import { noteWait, noWait } from './eventWaits.ts'
 import { asSaved } from './kept.ts'
@@ -10,11 +10,11 @@ import { isWritten } from '../core/internal.ts'
 // How long a wait-for waits where it states no `timeout`: seven days, in milliseconds.
 const waitForTime = 604_800_000
 
-/** Holds the end of a wait to the longest wait of its flow: T5103 for one that lies further off. */
+/** Holds the end of a wait to the longest wait of its flow: F5103 for one that lies further off. */
 function held(pass: Pass, name: string, until: number): number {
   const most = pass.of.limits.wait
   if (until - pass.of.held.env.clock.now() > most)
-    throw new TentError('T5103', `The wait ${JSON.stringify(name)} is longer than \`limits.wait\` of ${most} ms.`, {
+    throw new ForjrError('F5103', `The wait ${JSON.stringify(name)} is longer than \`limits.wait\` of ${most} ms.`, {
       fix: 'Wait for less, or raise `limits.wait` of the flow.',
     })
   return until
@@ -22,7 +22,7 @@ function held(pass: Pass, name: string, until: number): number {
 
 /**
  * `step.wait`: saves the moment the wait ends and leaves the run waiting. On the pass that comes after that
- * moment the wait is done, and the run goes on. Throws T0027 for a time that does not read, and T5103 for a wait
+ * moment the wait is done, and the run goes on. Throws F0027 for a time that does not read, and F5103 for a wait
  * that is longer than the flow allows.
  */
 export async function waitTool(pass: Pass, time: string | Date, o: { name?: string } = {}): Promise<void> {
@@ -66,7 +66,7 @@ function waitedOf(result: unknown): Waited {
  * `step.waitFor`: waits for a person, where it is handed a name, or for an event, where it is handed what
  * `event(...)` gives. The step keeps what it shows, the event with its `where`, and the moment it gives up, and
  * its run waits. It answers what `approve`, `refuse` or the event saved, or `{ timedOut: true }` once its time
- * has passed. Throws T5103 for a time that is longer than the flow allows.
+ * has passed. Throws F5103 for a time that is longer than the flow allows.
  */
 export async function waitForTool(
   pass: Pass,

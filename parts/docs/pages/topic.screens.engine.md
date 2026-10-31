@@ -2,13 +2,13 @@
 
 Where the project has no screen for it, the engine answers a browser with a page of its own: not found (404), an error (500), sign-in needed (401, where no screen stands at `signInPath`), too many requests (429), and a page out of date (409). Each is plain HTML with one style and no script, so it is drawn even where the app's own code does not load: in the middle of the window the number of the status large, its words under it, and one link, back to the start for a page that is not found and a sign-in that is needed, and "Try again" for the others; the system's font, light or dark as the device prefers. In development and in the mode `test` the code of the error stands under the words in a small pill, with its place and its words below it; on live data the status, the words and the link alone.
 
-Its words are messages of the project, under `tent.notFound.title`, `tent.error.title`, `tent.signIn.title`, `tent.tooMany.title` and `tent.outOfDate.title`, and those of its link under `tent.page.start` and `tent.page.again`, in the language of the request:
+Its words are messages of the project, under `forjr.notFound.title`, `forjr.error.title`, `forjr.signIn.title`, `forjr.tooMany.title` and `forjr.outOfDate.title`, and those of its link under `forjr.page.start` and `forjr.page.again`, in the language of the request:
 
 ```tsx
-import { messages } from 'tentjs/ui'
+import { messages } from 'forjr/ui'
 
 export default messages('en', {
-  tent: { notFound: { title: 'Nothing lives at this address.' } },
+  forjr: { notFound: { title: 'Nothing lives at this address.' } },
 })
 ```
 

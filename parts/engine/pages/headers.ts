@@ -25,7 +25,7 @@ export function pageHeaders(
   const project = description.project
   const unlock = isStored(project.unlock) ? project.unlock : {}
   const hosts = textsOf(project.hosts)
-  const files = `${origin}/_t/b/`
+  const files = `${origin}/_f/b/`
   // The live connection is opened at the app's own address, by its own scheme.
   const live = origin.replace(/^http/, 'ws')
   // A frame inside the page shows the hosts that `unlock.frames` lists, and no other.

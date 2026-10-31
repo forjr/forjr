@@ -29,17 +29,17 @@ type ReplyPart = { text: string } | { reasoning: string }
 type Units = Record<string, number>
 ```
 
-A provider has the members for what its models can do, and no others: a call that needs a member it lacks fails with T7001. Everything else is the model layer's, and the same for every provider: checking the input and the answer, the limits, a second provider, storing files, the counting and the log.
+A provider has the members for what its models can do, and no others: a call that needs a member it lacks fails with F7001. Everything else is the model layer's, and the same for every provider: checking the input and the answer, the limits, a second provider, storing files, the counting and the log.
 
 - `reply` serves `reply`, `stream` and `fill`. It gives each part of the text as it arrives, the reasoning the model writes for itself as `reasoning` parts, and one `end` with the whole text, the tools the model asked for, and what the call used. `shape` asks for a typed answer: give its JSON as the text, or the value in `end.value` where the server read it.
 - `model` is the model's record from the description, with `name`, `url` and `options`. `key` is the value of its secret. Make every request with `fetch`, the guarded fetch, and end it when `signal` ends.
 - `units` is what the call used, by unit: `tokensIn` and `tokensOut` for a model that writes, or whatever your server charges by, as `images`. A unit you do not report is counted by the layer's rule. Report none under a name of the engine's own, such as `bytesOut`: it is left out.
 - `end.keep` is what your server needs handed back unchanged with the next request of the same run: it comes back as `keep` on that message, to your model alone.
 - `begin` and `check` are a long job: `begin` starts the work, and `check` is asked after the `wait` it names, in milliseconds, until it gives the result. Inside a step the job is kept, so a step that runs again goes on with it.
-- `size`, where you have it, is your own count of a request in tokens: one over the model's `takes` is refused before it is sent (T7109).
-- Say how a call failed by throwing a `ProviderFailure` from `tentjs/engine`: `new ProviderFailure(kind, message, { retryAfter })`. `busy` and `server` are tried again and then given to the next model; `unreachable` and `slow` go to the next model; `notAccepted` is T7110, `refused` T7106 and `cutOff` T7107. Any other error counts as `server`.
+- `size`, where you have it, is your own count of a request in tokens: one over the model's `takes` is refused before it is sent (F7109).
+- Say how a call failed by throwing a `ProviderFailure` from `forjr/engine`: `new ProviderFailure(kind, message, { retryAfter })`. `busy` and `server` are tried again and then given to the next model; `unreachable` and `slow` go to the next model; `notAccepted` is F7110, `refused` F7106 and `cutOff` F7107. Any other error counts as `server`.
 
-`Provider`, `ReplyRequest`, `ReplyPart` and `Units` are declared in `tentjs/ai`, which `tentjs/engine` gives again with `ProviderFailure`. A model that names a provider that neither ships nor was made stops the app from opening (T7113). In a test, `app.fake(model, answers)` stands in for a provider, with the answers that `topic.tests.model` gives under "A faked model": an answer with `fail`, as `{ fail: 'busy' }`, fails as a `ProviderFailure` of that kind does, so a test makes a provider that is down without one of its own.
+`Provider`, `ReplyRequest`, `ReplyPart` and `Units` are declared in `forjr/ai`, which `forjr/engine` gives again with `ProviderFailure`. A model that names a provider that neither ships nor was made stops the app from opening (F7113). In a test, `app.fake(model, answers)` stands in for a provider, with the answers that `topic.tests.model` gives under "A faked model": an answer with `fail`, as `{ fail: 'busy' }`, fails as a `ProviderFailure` of that kind does, so a test makes a provider that is down without one of its own.
 
 ## Example
 
@@ -48,8 +48,8 @@ A provider has the members for what its models can do, and no others: a call tha
 export const painter = model('painter', { provider: 'pictures', name: 'flux-pro', input: { prompt: text() }, output: object({ picture: file() }) })
 
 // engine.ts
-import type { Makers, Provider } from 'tentjs/engine'
-import { ProviderFailure } from 'tentjs/engine'
+import type { Makers, Provider } from 'forjr/engine'
+import { ProviderFailure } from 'forjr/engine'
 export default {
   providers: ({ secrets }) => ({
     pictures: {
@@ -71,4 +71,4 @@ export default {
 
 ## See also
 
-`word.model`, `option.model.provider`, `topic.tests`, `code.T7113`, `code.T7001`
+`word.model`, `option.model.provider`, `topic.tests`, `code.F7113`, `code.F7001`

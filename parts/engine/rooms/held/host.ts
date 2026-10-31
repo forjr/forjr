@@ -6,7 +6,7 @@ import { AsyncLocalStorage } from 'node:async_hooks'
 import { randomBytes, randomInt } from 'node:crypto'
 import { registerHooks, syncBuiltinESMExports } from 'node:module'
 import v8 from 'node:v8'
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import type { Bounds } from '../callables.ts'
 import { loadIn, nextLoading } from '../inProgram/loader.ts'
 import type { InsideWays } from '../inside/handed.ts'
@@ -88,7 +88,7 @@ function served(what: string, body: unknown): unknown {
         kill: probe(() => process.kill(process.ppid, 0)),
       },
     }
-  if (!inside) throw new TentError('T0009', 'The room runtime of the held program is not loaded.')
+  if (!inside) throw new ForjrError('F0009', 'The room runtime of the held program is not loaded.')
   const bounds: Bounds = Object(b.bounds)
   switch (what) {
     case 'load': {
@@ -125,10 +125,10 @@ function served(what: string, body: unknown): unknown {
       inside.forget(Number(b.call))
       return undefined
   }
-  throw new TentError('T0009', `The held program was asked for what it does not do: ${what.slice(0, 40)}.`)
+  throw new ForjrError('F0009', `The held program was asked for what it does not do: ${what.slice(0, 40)}.`)
 }
 
-/** What the engine asks, with a refusal of the permission model told as T0035, which crosses whole. */
+/** What the engine asks, with a refusal of the permission model told as F0035, which crosses whole. */
 function told(what: string, body: unknown): unknown {
   try {
     const answer = served(what, body)
@@ -183,7 +183,7 @@ inside = insideOf({
   carry: { run: (call, work) => calls.run(call, work), current: () => calls.getStore() },
   link: (_, path, makes) => loadIn(code, path, loading, makes),
   page: () => {
-    throw new TentError('T0011', 'The held program draws no page.')
+    throw new ForjrError('F0011', 'The held program draws no page.')
   },
 })
 process.send?.({ k: 'ready' })

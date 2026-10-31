@@ -1,4 +1,4 @@
-import { TentError } from '../errors.ts'
+import { ForjrError } from '../errors.ts'
 import { written } from '../write.ts'
 
 /** What is known while one definition is written back as text, and what its text was seen to name. */
@@ -50,7 +50,7 @@ export function top(w: Writing, name: string, value: unknown): string {
 }
 
 /** Thrown for what has no text of this kind: code, which a tool never writes. */
-export const noText = (what: string): TentError =>
-  new TentError('T0013', `${what} is code, and code has no text that is written from its record.`, {
+export const noText = (what: string): ForjrError =>
+  new ForjrError('F0013', `${what} is code, and code has no text that is written from its record.`, {
     fix: 'Change the text of its file. Only a plain definition is written anew from the description.',
   })

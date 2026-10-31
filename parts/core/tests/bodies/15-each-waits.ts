@@ -1,4 +1,4 @@
-import { action, each, mail, sum } from 'tentjs'
+import { action, each, mail, sum } from 'forjr'
 
 export const eachWaits = action('eachWaits', {
   access: 'everyone',

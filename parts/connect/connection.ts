@@ -1,5 +1,5 @@
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { ConnectEnv, Tokens } from './env.ts'
 import type { Registration } from './oauth.ts'
 import { registrationOf, renewed } from './oauth.ts'
@@ -13,9 +13,9 @@ export interface Connected {
   again(): Promise<string | undefined>
 }
 
-/** T7117: a call of a service whose auth is `oauth`, for no user, or for a user with no connection. */
-const notConnected = (service: string, words: string): TentError =>
-  new TentError('T7117', `The service ${service} is called ${words}.`, {
+/** F7117: a call of a service whose auth is `oauth`, for no user, or for a user with no connection. */
+const notConnected = (service: string, words: string): ForjrError =>
+  new ForjrError('F7117', `The service ${service} is called ${words}.`, {
     fields: { service },
     fix: 'Have the user connect their account first, with `connections.start`.',
   })
@@ -28,7 +28,7 @@ const soon = 60_000
  * and whose account it names. Answers the access token of the connection the call uses, renewed first where it ends
  * within a minute, and what renews it after a 401. One renewal runs at a time for a connection: a second call that
  * needs one waits for it and uses what it brought. A renewal that the provider refuses removes the connection.
- * Throws T7117 for a call for no user or with no connection, and T7115 where a renewal got no answer.
+ * Throws F7117 for a call for no user or with no connection, and F7115 where a renewal got no answer.
  */
 export async function connectionOf(
   env: ConnectEnv,

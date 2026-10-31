@@ -49,11 +49,25 @@ rmSync(join(folder, 'results', 'touched'), { recursive: true, force: true })
 
 // The runner skips every file when it finds this in what it is handed, as it is when a test starts this program; and
 // a test file of an outer run that starts this program is no test file of this tree, whose files note as their own.
-const { NODE_TEST_CONTEXT: _, TENT_TOUCHED_OF: __, ...env } = process.env
+const { NODE_TEST_CONTEXT: _, FORJR_TOUCHED_OF: __, ...env } = process.env
 
-// The folders of the test files of the tree: `tests/` and the `tests/` of each part.
-const parts = existsSync(join(folder, 'parts')) ? readdirSync(join(folder, 'parts')) : []
-const folders = ['tests', ...parts.map((part) => `parts/${part}/tests`)].filter((one) => existsSync(join(folder, one)))
+// The folders of the test files of the tree: the small tests beside each part, the large ones of each part under
+// `tests/apps/` and `tests/browsers/`, the tests of the rigs and of the examples, and `tests/` itself, where a planted
+// tree of the tests of the rigs keeps its own.
+const inside = (path) =>
+  existsSync(join(folder, path))
+    ? readdirSync(join(folder, path), { withFileTypes: true })
+        .filter((entry) => entry.isDirectory())
+        .map((entry) => `${path}/${entry.name}`)
+    : []
+const folders = [
+  'tests',
+  'tests/rigs',
+  'tests/examples',
+  ...inside('tests/apps'),
+  ...inside('tests/browsers'),
+  ...inside('parts').map((part) => `${part}/tests`),
+].filter((one) => existsSync(join(folder, one)))
 const textOf = (under, name) => readFileSync(join(folder, under, name), 'utf8')
 // A file that holds no test the run carries out is not handed to it: the runner starts the last hooks of such a file
 // without waiting for its first ones, so what a first hook opens is never closed and the file never ends.
@@ -104,7 +118,7 @@ const programPeak = 450 * 1024 * 1024
 // As many test files at once as the processor has cores less one, and no more than the memory there is holds.
 const concurrency = concurrencyOf({ cores: coresHere(), free: memoryNow(), peak: programPeak })
 // The cores each program of the run has as its share, which the rig holds it to: a program a test starts that runs
-// programs side by side, as `tent test` does, runs no more of them than its share holds. Two at the least, so that a
+// programs side by side, as `forjr test` does, runs no more of them than its share holds. Two at the least, so that a
 // program has one to run beside it.
 const share = Math.max(2, Math.floor(coresHere() / (night ? 1 : concurrency)))
 
@@ -113,9 +127,9 @@ const share = Math.max(2, Math.floor(coresHere() / (night ? 1 : concurrency)))
 // compile cache: a quarter of the load of the engine. Nothing under `results/` stands in a key of a test.
 const handed = {
   ...env,
-  TENT_RUN: night ? 'night' : 'day',
-  TENT_TOUCHED_TREE: folder,
-  TENT_RUN_CORES: String(share),
+  FORJR_RUN: night ? 'night' : 'day',
+  FORJR_TOUCHED_TREE: folder,
+  FORJR_RUN_CORES: String(share),
   NODE_COMPILE_CACHE: join(folder, 'results', 'compile-cache'),
 }
 // The rig of each program reads it, and notes a word as the run handed it: one a test set itself is the test's own.
@@ -390,7 +404,8 @@ function joinedInto(from, into) {
     const one = readJson(join(from, file))
     const joined = held.get(name) ?? { ...one, tests: {}, measures: {}, pictures: {} }
     for (const [id, state] of Object.entries(one.tests))
-      if (joined.tests[id] === undefined || worst.indexOf(state) > worst.indexOf(joined.tests[id])) joined.tests[id] = state
+      if (joined.tests[id] === undefined || worst.indexOf(state) > worst.indexOf(joined.tests[id]))
+        joined.tests[id] = state
     Object.assign(joined.measures, one.measures)
     Object.assign(joined.pictures, one.pictures)
     if (one.flaky?.length) joined.flaky = [...new Set([...(joined.flaky ?? []), ...one.flaky])].sort()
@@ -399,8 +414,11 @@ function joinedInto(from, into) {
   mkdirSync(into, { recursive: true })
   for (const [name, result] of held) {
     const tests = Object.fromEntries(Object.entries(result.tests).sort(([a], [b]) => a.localeCompare(b)))
-    writeFileSync(join(into, name), `${JSON.stringify({ ...result, tests }, null, 2)}
-`)
+    writeFileSync(
+      join(into, name),
+      `${JSON.stringify({ ...result, tests }, null, 2)}
+`,
+    )
   }
 }
 
@@ -426,7 +444,7 @@ if (replayed.size) {
     if (tests[id] === undefined || worst.indexOf(state) > worst.indexOf(tests[id])) tests[id] = state
   // The commit is the one the shares that ran name, or the one the run names where every file was replayed.
   const ranShare = sets.map((_, k) => join(shares, `1-${k}`, `${system}.json`)).find(existsSync)
-  const commit = ranShare ? readJson(ranShare).commit : (process.env.TENT_COMMIT ?? '')
+  const commit = ranShare ? readJson(ranShare).commit : (process.env.FORJR_COMMIT ?? '')
   mkdirSync(join(shares, 'replayed'), { recursive: true })
   writeFileSync(
     join(shares, 'replayed', `${system}.json`),

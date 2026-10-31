@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Runner } from '../../flows/index.ts'
 import type { CallContext } from '../context.ts'
 import { underWay } from '../context.ts'
@@ -10,8 +10,8 @@ import type { Opened } from '../opened.ts'
 import { hasFullAccess } from '../full.ts'
 
 /** The error of a run that is named and is not there. */
-const noRun = (run: unknown): TentError =>
-  new TentError('T0001', `No run ${(JSON.stringify(run) ?? '').slice(0, 80)} is there.`, {
+const noRun = (run: unknown): ForjrError =>
+  new ForjrError('F0001', `No run ${(JSON.stringify(run) ?? '').slice(0, 80)} is there.`, {
     fix: 'Name a run by the id that `start` or `runs.find` answered.',
   })
 
@@ -20,7 +20,7 @@ const noRun = (run: unknown): TentError =>
  * whoever reads them sees them, `approve`, `refuse` and `stop` answer a waiting step and end a run, `stopAll` and
  * `replayAll` act on every run that a filter fits, `pause` and `resume` hold a flow and let it go, and `rate` keeps
  * the rating of a run's starter. Each
- * member answers a promise. Each throws T0013 in code that has no full access, and the three that do more than
+ * member answers a promise. Each throws F0013 in code that has no full access, and the three that do more than
  * read also inside a call that only reads.
  */
 export const handle = (o: Opened): object => {
@@ -28,7 +28,7 @@ export const handle = (o: Opened): object => {
   const held = (member: string, reads: boolean): CallContext => {
     const cx = underWay()
     if (!cx || !hasFullAccess(cx))
-      throw new TentError('T0013', `\`runs.${member}\` is full access, and the code that used it has none.`, {
+      throw new ForjrError('F0013', `\`runs.${member}\` is full access, and the code that used it has none.`, {
         fix: "State `system: 'why'` on the function that uses it, with the reason it needs full access.",
       })
     if (!reads && cx.reads === true) throw readOnly(`\`runs.${member}\``)
@@ -42,7 +42,7 @@ export const handle = (o: Opened): object => {
   /** What answers a member that reads: the runner, and on a reader the runs in its own data. */
   const reading = (member: string): Pick<Runner, 'read' | 'find' | 'paused'> | undefined =>
     runner(member, true) ?? o.runsRead
-  /** Answers the runner for a member that names a run. Throws T0001 in an app that holds no run at all. */
+  /** Answers the runner for a member that names a run. Throws F0001 in an app that holds no run at all. */
   const forRun = (member: string, run: unknown): Runner => {
     const found = runner(member, false)
     if (!found) throw noRun(run)

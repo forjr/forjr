@@ -13,7 +13,7 @@ test("[21-17] a version whose page code cannot be loaded leaves every other vers
   // The same project with another word on its home screen: another version, with the same page code.
   const project = dirname(dirname(dirname(bundleFolder)))
   const other = `${project}-other`
-  cpSync(project, other, { recursive: true, filter: (from) => !from.startsWith(join(project, '.tent')) })
+  cpSync(project, other, { recursive: true, filter: (from) => !from.startsWith(join(project, '.forjr')) })
   t.after(() => rmSync(other, { recursive: true, force: true, maxRetries: 20, retryDelay: 100 }))
   const screens = join(other, 'screens.tsx')
   writeFileSync(screens, readFileSync(screens, 'utf8').replace('<h1>Home</h1>', '<h1>Home again</h1>'))

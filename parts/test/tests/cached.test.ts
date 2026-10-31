@@ -86,7 +86,7 @@ test('[32-11] with public: true a page that the cache keeps is sent with the hea
   assert.equal(shared.cache, 'public, max-age=0, s-maxage=60')
   assert.equal((await page(at, '/shared')).cache, 'public, max-age=0, s-maxage=60')
   // A visitor whose device holds a state: the answer is never public.
-  const cookie = `tent_state.shop=${Buffer.from(JSON.stringify({ dark: true })).toString('base64url')}`
+  const cookie = `forjr_state.shop=${Buffer.from(JSON.stringify({ dark: true })).toString('base64url')}`
   assert.equal((await page(at, '/shared', { headers: { cookie } })).cache, 'no-store')
   // A screen with no public says no-store to every browser.
   assert.equal((await page(at, '/news')).cache, 'no-store')

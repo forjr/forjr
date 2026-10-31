@@ -94,7 +94,7 @@ export async function chatServed(
   const at = await served('mcpScreened', {
     ...o,
     change: (folder) => {
-      const file = join(folder, 'tent.ts')
+      const file = join(folder, 'forjr.ts')
       writeFileSync(file, readFileSync(file, 'utf8').replace("'http://127.0.0.1:9'", JSON.stringify(host.origin)))
     },
   })

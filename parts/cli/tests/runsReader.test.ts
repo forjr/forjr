@@ -10,7 +10,7 @@ import { notDropped } from './started.ts'
 const key = 'k'.repeat(48)
 const moment = (): Promise<void> => new Promise((done) => setTimeout(done, 10))
 
-test('[15-6@7b] [29-10] `tent runs` on the computer of a reader lists and shows the runs from its own data, and on test data a yes that is typed there is carried out by the writer', async (t) => {
+test('[15-6@7b] [29-10] `forjr runs` on the computer of a reader lists and shows the runs from its own data, and on test data a yes that is typed there is carried out by the writer', async (t) => {
   const [one, two] = [createEngine({ port: 0 }), createEngine({ port: 0 })]
   t.after(async () => {
     await two.close()
@@ -56,5 +56,5 @@ test('[15-6@7b] [29-10] `tent runs` on the computer of a reader lists and shows 
   assert.match(String(await reader.runs.wait(run)), /^desk \S+ yes \S+$/)
   // A run that is not there is told by the reader itself.
   const none = await typed(project, 'runs', 'stop', 'nothere', '--data', readerData, '--json')
-  assert.deepEqual([none.ended, none.answer.findings?.[0].code], [1, 'T0001'])
+  assert.deepEqual([none.ended, none.answer.findings?.[0].code], [1, 'F0001'])
 })

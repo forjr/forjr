@@ -1,4 +1,4 @@
-import { action, anyone, mail, query, table, text } from 'tentjs'
+import { action, anyone, mail, query, table, text } from 'forjr'
 
 export const letters = table('letters', {
   columns: { to: text(), code: text({ private: true, optional: true }) },

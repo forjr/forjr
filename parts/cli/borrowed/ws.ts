@@ -24,7 +24,7 @@ function recordOf(data: RawData): object | undefined {
 }
 
 /**
- * Takes the address of `/_t/live` and the lines of its opening, which a program must be able to set. Opens the
+ * Takes the address of `/_f/live` and the lines of its opening, which a program must be able to set. Opens the
  * live connection with the borrowed WebSocket part, and answers it once it is open: what arrives before anybody
  * listens waits for them. Refused where the opening fails.
  */

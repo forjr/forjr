@@ -1,5 +1,5 @@
 import type { DatabaseSync, StatementSync } from 'node:sqlite'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { IdMaker } from '../ids.ts'
 import type { ColumnType, Row, TableLayout } from '../store.ts'
 import { vectorFrom } from '../vector.ts'
@@ -32,13 +32,13 @@ export interface Held {
   ids: IdMaker
   /** Answers the compiled statement of a text of the store's own, which is kept. */
   statement(sql: string): StatementSync
-  /** Answers the shape of a table. Throws T0009 for a table the file does not hold. */
+  /** Answers the shape of a table. Throws F0009 for a table the file does not hold. */
   shape(table: string): Shape
   /** Answers the copy of the vectors of a column, which a store that only reads makes for the one search. */
   copy(table: string, column: string): VectorCopy
   /** Answers the inside numbers of the rows of a table that the write under way added: the copy holds no vector of theirs. */
   fresh(table: string): ReadonlySet<number> | undefined
-  /** Holds that the search index of a table is there, and makes it where it is not. Throws T0009 for a store that keeps none. */
+  /** Holds that the search index of a table is there, and makes it where it is not. Throws F0009 for a store that keeps none. */
   indexed(table: string): void
 }
 
@@ -68,7 +68,7 @@ export function shapeOf(layout: TableLayout): Shape {
 }
 
 /** The error for a table that the file does not hold. */
-export const noTable = (table: string): TentError => new TentError('T0009', `The store holds no table \`${table}\`.`)
+export const noTable = (table: string): ForjrError => new ForjrError('F0009', `The store holds no table \`${table}\`.`)
 
 /**
  * Takes a shape, the name its rows are read under, and the names to read, every one where none are given. Answers

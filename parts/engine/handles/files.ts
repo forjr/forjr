@@ -1,5 +1,5 @@
 import { callerText } from '../../data/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { CallContext } from '../context.ts'
 import type { HandleAsks } from '../handleCall.ts'
 import { callOf } from '../handleCall.ts'
@@ -23,12 +23,12 @@ const system = { kind: 'system' } as const
 const calling = (member: string, asks: HandleAsks = { waits: true }): CallContext => callOf(`\`files.${member}\``, asks)
 
 /** The error of a file that is not there, or that is not this caller's to have: the two are told alike. */
-const notFound = (id: unknown): TentError =>
-  new TentError('T0001', `No file has the id ${(JSON.stringify(id) ?? 'nothing').slice(0, 60)}.`, {
+const notFound = (id: unknown): ForjrError =>
+  new ForjrError('F0001', `No file has the id ${(JSON.stringify(id) ?? 'nothing').slice(0, 60)}.`, {
     fix: 'Name the id of a file that this caller may download.',
   })
 
-/** Answers the file of an id for the caller of a call, by the rule of a download. Code with full access reaches every file. Throws T0001. */
+/** Answers the file of an id for the caller of a call, by the rule of a download. Code with full access reaches every file. Throws F0001. */
 function theirs(o: Opened, cx: CallContext, id: unknown): StoredFile {
   const file = fileRow(o, id)
   const reached =
@@ -122,7 +122,9 @@ export const handle = (o: Opened): object => ({
     const cx = calling('setKind', { waits: true, acts: true, full: 'states the kind of a file itself' })
     const file = theirs(o, cx, id)
     if (typeof kind !== 'string' || !/^[a-z0-9][a-z0-9!#$&^_.+-]*\/[a-z0-9][a-z0-9!#$&^_.+-]*$/.test(kind))
-      throw new TentError('T0002', 'The kind of a file is written as `text/markdown`.', { fields: { kind: 'pattern' } })
+      throw new ForjrError('F0002', 'The kind of a file is written as `text/markdown`.', {
+        fields: { kind: 'pattern' },
+      })
     o.machine.writes('the kind of a file')
     o.store.write((tx) => tx.change(table.name, file.id, { kind }, system))
   },

@@ -1,6 +1,6 @@
 import '@fontsource-variable/inter'
 import '../screens/app.css'
-import { component } from 'tentjs/ui'
+import { component } from 'forjr/ui'
 
 // Every screen of the product is shown in this, so the font and the one style file stand once in each page.
 export const AppFrame = component('AppFrame', {

@@ -1,5 +1,5 @@
 import { UserPlus, Users } from 'lucide-react'
-import { Link, read, role, screen, useTranslations } from 'tentjs/ui'
+import { Link, read, role, screen, useTranslations } from 'forjr/ui'
 import { StaffFrame, Waiting } from '../components/frames'
 import { Avatar, Badge, button, Card, Empty, PageHeader, table } from '../components/ui'
 import { customerList } from '../functions/customers'

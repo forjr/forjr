@@ -1,7 +1,7 @@
 import '@fontsource-variable/inter'
 import '../screens/app.css'
 import { BookOpen, Inbox, LifeBuoy, LogOut } from 'lucide-react'
-import { component, Form, Link } from 'tentjs/ui'
+import { component, Form, Link } from 'forjr/ui'
 import { signOut } from '../functions/signIn'
 
 function Brand() {

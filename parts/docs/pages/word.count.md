@@ -25,13 +25,13 @@ openOrders: number({ from: count({ of: orders, by: 'customer', where: { status: 
 
 The record `{ count: true }`.
 
-In the `from` of a column, `count({ of, by, where })` makes it a column that the engine keeps: the count of the rows of `of` whose link column `by` points at the row, and that `where` names, a filter as a record. The engine moves the number inside the very write that adds, changes or removes such a row, a raw write among them, so it is never late and never drifts, and fills it first by the one walk of the switch that adds the column, a page to a write. No code writes it (`code.T2107`); it may be filtered, sorted and indexed like any column. It is a fact of the row that holds it, read under that row's rule: it counts every linked row, also those the reader may not read, so a builder who must hide it states `read` on the column, as `read: role('staff')`, as on any column. The rows it counts lie in the same data file as its row (`code.T2025`). The column is a `number`, a whole number from 0.
+In the `from` of a column, `count({ of, by, where })` makes it a column that the engine keeps: the count of the rows of `of` whose link column `by` points at the row, and that `where` names, a filter as a record. The engine moves the number inside the very write that adds, changes or removes such a row, a raw write among them, so it is never late and never drifts, and fills it first by the one walk of the switch that adds the column, a page to a write. No code writes it (`code.F2107`); it may be filtered, sorted and indexed like any column. It is a fact of the row that holds it, read under that row's rule: it counts every linked row, also those the reader may not read, so a builder who must hide it states `read` on the column, as `read: role('staff')`, as on any column. The rows it counts lie in the same data file as its row (`code.F2025`). The column is a `number`, a whole number from 0.
 
 ## Errors
 
-`code.T1014`: the column that keeps the count is no `number`.
+`code.F1014`: the column that keeps the count is no `number`.
 
-`code.T2025`: the counted rows lie in another data file than the row that holds the count.
+`code.F2025`: the counted rows lie in another data file than the row that holds the count.
 
 ## See also
 

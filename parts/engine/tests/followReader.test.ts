@@ -37,7 +37,7 @@ async function machines(t: TestContext) {
  */
 async function visitorStarts(writer: App, message: string): Promise<{ run: string; cookie: string }> {
   const answer = await writer.request(
-    new Request('http://localhost/_t/call/openHelper', {
+    new Request('http://localhost/_f/call/openHelper', {
       method: 'POST',
       headers: { 'content-type': 'application/json', origin: 'http://localhost' },
       body: JSON.stringify({ input: { message } }),

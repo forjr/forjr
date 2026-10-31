@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import { copied, typedApart } from './typed.ts'
 
-test('[52-1] `tent test --room apart` runs the tests of an app with the test room asked for, and `--room program` and no flag in the room of the program', (t) => {
+test('[52-1] `forjr test --room apart` runs the tests of an app with the test room asked for, and `--room program` and no flag in the room of the program', (t) => {
   const project = copied(t, 'tested-room')
   rmSync(join(project, 'tests'), { recursive: true, force: true })
   mkdirSync(join(project, 'tests'))
@@ -15,7 +15,7 @@ test('[52-1] `tent test --room apart` runs the tests of an app with the test roo
 import assert from 'node:assert/strict'
 
 test('the room of the run', () => {
-  assert.equal(process.env.TENT_ROOM ?? 'program', process.env.ROOM_ASKED)
+  assert.equal(process.env.FORJR_ROOM ?? 'program', process.env.ROOM_ASKED)
 })
 `,
   )
@@ -30,6 +30,6 @@ test('the room of the run', () => {
   assert.equal(ran('apart', '--room', 'apart'), 0, 'the tests ran with the test room asked for')
   assert.equal(ran('program', '--room', 'program'), 0)
   // With no flag the run keeps the room that the program which typed the command states.
-  assert.equal(ran(process.env.TENT_ROOM ?? 'program'), 0)
+  assert.equal(ran(process.env.FORJR_ROOM ?? 'program'), 0)
   assert.equal(ran('program', '--room', 'apart'), 1, 'the test fails where the run asked for another room')
 })

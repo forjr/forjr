@@ -1,4 +1,4 @@
-import { route } from 'tentjs'
+import { route } from 'forjr'
 
 // A route that a signed-in caller reads.
 export const feed = route('feed', {

@@ -10,13 +10,13 @@ import { noteWord, testUnderWay } from './touched.ts'
  */
 export function isAppModule(url: string, project: string): boolean {
   if (!url.startsWith('file:')) return false
-  if (new URL(url).searchParams.has('tent-app')) return true
+  if (new URL(url).searchParams.has('forjr-app')) return true
   return url.startsWith(project) && !url.includes('/node_modules/')
 }
 
 const isSite = (one: unknown): one is NodeJS.CallSite => typeof Reflect.get(Object(one), 'getFileName') === 'function'
 
-// The packages of the framework in the folder of a project, by the address of the project: `tentjs` and every
+// The packages of the framework in the folder of a project, by the address of the project: `forjr` and every
 // package it names, which an install lays beside the app's own. Every other package is the app's.
 const frameworks = new Map<string, string[]>()
 function frameworkOf(project: string): string[] {
@@ -25,13 +25,13 @@ function frameworkOf(project: string): string[] {
   let named: string[] = []
   try {
     const told: unknown = JSON.parse(
-      readFileSync(fileURLToPath(new URL('node_modules/tentjs/package.json', project)), 'utf8'),
+      readFileSync(fileURLToPath(new URL('node_modules/forjr/package.json', project)), 'utf8'),
     )
     named = Object.keys(Object(Reflect.get(Object(told), 'dependencies')))
   } catch {
     // A project that holds no install of the framework, as one the framework's own tests run, holds none of its packages.
   }
-  const made = ['tentjs', ...named].map((name) => `${project}node_modules/${name}/`)
+  const made = ['forjr', ...named].map((name) => `${project}node_modules/${name}/`)
   frameworks.set(project, made)
   return made
 }
@@ -42,7 +42,7 @@ function frameworkOf(project: string): string[] {
  * them, but for the framework and the packages it brings.
  */
 function isAppFrame(url: string, project: string): boolean {
-  if (new URL(url).searchParams.has('tent-app')) return true
+  if (new URL(url).searchParams.has('forjr-app')) return true
   return url.startsWith(project) && !frameworkOf(project).some((one) => url.startsWith(one))
 }
 
@@ -74,9 +74,9 @@ export function calledByApp(
 
 /**
  * Has each word of the environment that the code of a test or of its app reads, in the work of a test under
- * `tent test`, noted under that test with its value as the program or the thread began. The word is found as the
+ * `forjr test`, noted under that test with its value as the program or the thread began. The word is found as the
  * system finds it, by its letters alone on Windows. A copy of the whole environment that this code makes, as a spread
- * or a list of its words, reads every word. The words that `tent test` sets itself are none of a test's. A thread that
+ * or a list of its words, reads every word. The words that `forjr test` sets itself are none of a test's. A thread that
  * carries its notes elsewhere hands `under`, whether its code is a test's work now, and `sink`, which takes a word.
  */
 export function noteWordsRead(
@@ -88,7 +88,7 @@ export function noteWordsRead(
   const here = import.meta.url
   const fold = (word: string): string => (process.platform === 'win32' ? word.toUpperCase() : word)
   const began = new Map(Object.entries(process.env).map(([word, value]) => [fold(word), value ?? null]))
-  const ours = new Set(['NODE_TEST_CONTEXT', 'TENT_TOUCHED', 'TENT_ROOM', 'TENT_DECLARED'].map(fold))
+  const ours = new Set(['NODE_TEST_CONTEXT', 'FORJR_TOUCHED', 'FORJR_ROOM', 'FORJR_DECLARED'].map(fold))
   /** Whether the code that read a word is the test's or the app's own, past the ways of this file. */
   const byApp = (): boolean => calledByApp(byApp, [here], project)
   // A word is kept by the fingerprint of its value: the record of the tests holds no value, which may be a secret.

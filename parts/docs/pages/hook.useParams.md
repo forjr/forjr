@@ -5,7 +5,7 @@ Answers the values of the address of the screen that is shown, in the code of a 
 ## Example
 
 ```tsx
-import { component, useParams } from 'tentjs/ui'
+import { component, useParams } from 'forjr/ui'
 
 export const OrderNumber = component('OrderNumber', {
   view: () => {

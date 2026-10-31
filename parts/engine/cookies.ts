@@ -14,19 +14,19 @@ function statedOf(o: Opened): { sameSite: 'Lax' | 'None'; domain?: string } {
 }
 
 /**
- * The name of a cookie of the engine for a request: `tent_<kind>.<the app's name>`, and over https with a prefix,
+ * The name of a cookie of the engine for a request: `forjr_<kind>.<the app's name>`, and over https with a prefix,
  * so that a browser takes it from this very site alone. With a `domain` the prefix is `__Secure-`: the names of one
  * parent share the cookie then, and the builder accepts what a sister site can do.
  */
 export function cookieName(o: Opened, about: About, kind: CookieKind): string {
-  const bare = `tent_${kind}.${o.name}`
+  const bare = `forjr_${kind}.${o.name}`
   if (about.scheme !== 'https') return bare
   return `${statedOf(o).domain === undefined ? '__Host-' : '__Secure-'}${bare}`
 }
 
-/** Whether a request carries a cookie of the engine: one whose name starts `tent_`, with or without a prefix. */
+/** Whether a request carries a cookie of the engine: one whose name starts `forjr_`, with or without a prefix. */
 export const carriesEngineCookie = (request: Request): boolean =>
-  (request.headers.get('cookie') ?? '').split(';').some((part) => /^(__Host-|__Secure-)?tent_/.test(part.trim()))
+  (request.headers.get('cookie') ?? '').split(';').some((part) => /^(__Host-|__Secure-)?forjr_/.test(part.trim()))
 
 /**
  * Takes a request and the name of a cookie. Answers the value that the request carries under that name, and

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Description } from '../../core/internal.ts'
 import { isStored, knownModel } from '../../core/internal.ts'
 import type { Method } from '../face.ts'
@@ -20,11 +20,11 @@ export interface ModelOf {
   isFunction: boolean
 }
 
-/** Takes a description and the name of a model. Answers what the layer reads of it. Throws T0001 for a name that is none. */
+/** Takes a description and the name of a model. Answers what the layer reads of it. Throws F0001 for a name that is none. */
 export function modelOf(description: Description, name: string): ModelOf {
   const stored = Object.hasOwn(description.models, name) ? description.models[name] : undefined
   if (!isStored(stored))
-    throw new TentError('T0001', `No model named ${JSON.stringify(name).slice(0, 80)} can be reached.`, {
+    throw new ForjrError('F0001', `No model named ${JSON.stringify(name).slice(0, 80)} can be reached.`, {
       fix: 'Call a model of the app by its name.',
     })
   const known = knownModel(stored)
@@ -62,7 +62,7 @@ export function canDo(model: ModelOf, method: Method, also: string[] = []): bool
 }
 
 /** The error of a call for what a model cannot do. */
-export const cannot = (model: string, what: string): TentError =>
-  new TentError('T7001', `The model ${model} is asked for ${what}, which it cannot do.`, {
+export const cannot = (model: string, what: string): ForjrError =>
+  new ForjrError('F7001', `The model ${model} is asked for ${what}, which it cannot do.`, {
     fix: `Give the model the ability in \`abilities\`, or ask a model that has it.`,
   })

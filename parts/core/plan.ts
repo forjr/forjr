@@ -1,4 +1,4 @@
-import { TentError } from './errors.ts'
+import { ForjrError } from './errors.ts'
 import type { Filter } from './filter.ts'
 import { filterOf } from './filter.ts'
 import type { Tables } from './lists.ts'
@@ -165,9 +165,9 @@ function joined(held: Filter | undefined, more: Filter): Filter {
   return 'all' in held && Array.isArray(held.all) ? { all: [...held.all, more] } : { all: [held, more] }
 }
 
-/** Throws T1014: a member of a plan was handed a value of another kind than it takes. */
+/** Throws F1014: a member of a plan was handed a value of another kind than it takes. */
 function wrong(member: string, takes: string): never {
-  throw new TentError('T1014', `${member} of a plan takes ${takes}.`, { fix: 'Hand it a value of that kind.' })
+  throw new ForjrError('F1014', `${member} of a plan takes ${takes}.`, { fix: 'Hand it a value of that kind.' })
 }
 
 /** Takes a column as `sort` writes it, with a hyphen in front for the largest first. Answers its stored entry. */
@@ -178,7 +178,7 @@ const sorted = (column: unknown): { by: string; down?: true } => {
 
 /**
  * Takes a count of rows as `limit` and `skip` are handed it. Answers it as it is stored: a whole number of zero
- * or more, or a reference, which is worked out when the plan is carried out. Throws T1014 for anything else: the
+ * or more, or a reference, which is worked out when the plan is carried out. Throws F1014 for anything else: the
  * store would read every row for a number under zero, and fail in its own words for one that is not whole.
  */
 function countOf(member: string, n: unknown): unknown {

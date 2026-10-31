@@ -49,7 +49,7 @@ test('[24-14] a caller whose access the command does not fit is refused before `
   const refused = await ranLine(app, data, ['close-desk'], { as: ada })
   assert.equal(refused.ended, 1)
   assert.equal(refused.out, '')
-  assert.match(refused.err, /T3101/)
+  assert.match(refused.err, /F3101/)
   const staff = await userOf(app, 'Sam', ['staff'])
   assert.equal((await ranLine(app, data, ['close-desk'], { as: staff })).out, 'closed\n')
   assert.equal((await ranLine(app, data, ['close-desk'])).out, 'closed\n', 'the system passes every access')
@@ -79,7 +79,7 @@ test('[24-14] the module of a command file holds neither a text of the backend f
   // The backend file reaches the module as the names of its definitions alone.
   for (const marker of ['Who calls', 'The shop is closed', 'a test reads the notes'])
     assert.equal(text.includes(marker), false, marker)
-  assert.match(text, /from\s*["']tentjs\/cli["']/)
+  assert.match(text, /from\s*["']forjr\/cli["']/)
   // A secret that a command file holds is found by the guard of the build.
   const file = join(project, 'commands', 'notes.ts')
   writeFileSync(file, readFileSync(file, 'utf8').replace("'no line'", "'the-pay-key-of-the-shop'"))
@@ -102,7 +102,7 @@ test('[24-14] `follow`, and a call of an agent, from a command', async (t) => {
     built.findings.filter((one) => one.level === 'error'),
     [],
   )
-  const data = join(project, '.tent')
+  const data = join(project, '.forjr')
   const app = await engine.open(built.bundleFolder, { dataFolder: data, mode: 'test' })
   // An offered agent: the command line follows its run and prints its text as it is written.
   const offered = await ranLine(app, data, ['helper', '--message', 'Hi'])

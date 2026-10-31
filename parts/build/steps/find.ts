@@ -10,7 +10,7 @@ import { found } from '../work.ts'
 
 // What the build does not read in the root of a project: the starter data and the makers of the adapters have a step of
 // their own, a clash is no file of the project yet, and the type list is written by the build itself.
-const leftInRoot = new Set(['seed.ts', 'engine.ts', 'tent.clash.ts', 'tent.d.ts', 'tests', 'assets'])
+const leftInRoot = new Set(['seed.ts', 'engine.ts', 'forjr.clash.ts', 'forjr.d.ts', 'tests', 'assets'])
 
 // What a build of a session read of each file, by its path, before any step added to it, with what the disk said of
 // the file then. The moments of a file move in steps of the clock of its file system, so two saves within one step
@@ -75,7 +75,7 @@ function walk(work: Work, folder: string, path: string): void {
       if (file.unread !== undefined)
         found(
           work,
-          'T1014',
+          'F1014',
           file,
           file.unread.line,
           `The file cannot be read: ${file.unread.words}`,
@@ -95,7 +95,7 @@ function assets(work: Work, folder: string, path: string): void {
       else
         found(
           work,
-          'T9002',
+          'F9002',
           `assets/${below}`,
           1,
           `The entry assets/${below} is a link that ${led.why}. A link is an asset only where it leads to a file inside the folder of the assets.`,

@@ -26,14 +26,14 @@ test('[27-5] from an action that waits: the action is answered the text of the r
   assert.deepEqual(await h.app.call('askHelper', { message: 'Hi.' }, { as: h.maya }), { text: 'You said Hi.' })
 })
 
-test('[27-5] a start from code is checked like one through the door, and an agent with no access is T0001 at the door', async (t) => {
+test('[27-5] a start from code is checked like one through the door, and an agent with no access is F0001 at the door', async (t) => {
   const h = await helped(t)
-  assert.equal(await codeOf(h.app.call('askBadly', {}, { as: h.maya })), 'T0002')
-  const answered = await send(h.app, `${h.origin}/_t/call/closed`, { input: { message: 'Hi.' } })
-  assert.equal(answered.error.code, 'T0001')
+  assert.equal(await codeOf(h.app.call('askBadly', {}, { as: h.maya })), 'F0002')
+  const answered = await send(h.app, `${h.origin}/_f/call/closed`, { input: { message: 'Hi.' } })
+  assert.equal(answered.error.code, 'F0001')
 })
 
-test('[27-5] two starts at once on one conversation: one is refused with T7103', async (t) => {
+test('[27-5] two starts at once on one conversation: one is refused with F7103', async (t) => {
   const h = await helped(t)
   const { held, go } = gate()
   t.after(go)
@@ -45,7 +45,7 @@ test('[27-5] two starts at once on one conversation: one is refused with T7103',
   const both = await Promise.all(
     [1, 2].map((n) => codeOf(h.app.start('strict', { message: `Start ${n}.`, thread: chat }, { as: h.maya }))),
   )
-  assert.deepEqual(both.sort(), ['T7103', 'ok'])
+  assert.deepEqual(both.sort(), ['F7103', 'ok'])
 })
 
 test("[27-5] with then: 'wait' the second runs after the first, their rows stand in that order, and working names it with its message while it waits", async (t) => {

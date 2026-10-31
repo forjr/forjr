@@ -10,18 +10,18 @@ function programProject(as: string, more = ''): string {
   rmSync(folder, { recursive: true, force: true })
   mkdirSync(folder, { recursive: true })
   writeFileSync(
-    join(folder, 'tent.ts'),
-    "import { project } from 'tentjs'\n\nexport const shop = project('shop', { title: 'Shop' })\n",
+    join(folder, 'forjr.ts'),
+    "import { project } from 'forjr'\n\nexport const shop = project('shop', { title: 'Shop' })\n",
   )
   writeFileSync(
     join(folder, 'services.ts'),
-    `import { secret, service } from 'tentjs'\n\nexport const local = service('local', { ${more}mcp: { command: ['node', 'server.js'] } })\n`,
+    `import { secret, service } from 'forjr'\n\nexport const local = service('local', { ${more}mcp: { command: ['node', 'server.js'] } })\n`,
   )
   writeFileSync(join(folder, 'mcp.lock.json'), '{}\n')
   return folder
 }
 
-test('[25-11] `auth`, `headers` and `url` on an outside server that is a program are T1014', async () => {
+test('[25-11] `auth`, `headers` and `url` on an outside server that is a program are F1014', async () => {
   for (const [what, more] of [
     ['url', "url: 'https://tools.example/mcp', "],
     ['auth', "auth: { bearer: secret('TOOLS_KEY') }, "],
@@ -30,7 +30,7 @@ test('[25-11] `auth`, `headers` and `url` on an outside server that is a program
     const folder = programProject(`mcp-program-${what}`, more)
     const made = await buildProject(folder, { for: 'dev', out: join(folder, 'bundle') })
     assert.ok(
-      made.findings.some((one) => one.code === 'T1014' && one.where?.file === 'services.ts'),
+      made.findings.some((one) => one.code === 'F1014' && one.where?.file === 'services.ts'),
       `${what}: ${JSON.stringify(made.findings)}`,
     )
   }

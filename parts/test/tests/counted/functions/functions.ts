@@ -1,4 +1,4 @@
-import { anyone, change, choice, input, number, text } from 'tentjs'
+import { anyone, change, choice, input, number, text } from 'forjr'
 import { customers } from '../tables/customers'
 import { orders } from '../tables/orders'
 

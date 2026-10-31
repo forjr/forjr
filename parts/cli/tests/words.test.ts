@@ -5,7 +5,7 @@ import { after, test } from 'node:test'
 import { buildProject, describeProject } from '../../build/index.ts'
 import { checkProject } from '../../check/index.ts'
 import type { Finding } from '../../core/index.ts'
-import { each, input, TentError } from '../../core/index.ts'
+import { each, input, ForjrError } from '../../core/index.ts'
 import type { App, Engine } from '../../engine/index.ts'
 import { createEngine } from '../../engine/index.ts'
 import { root } from './typed.ts'
@@ -84,7 +84,7 @@ const cap = (name: string): string => name[0].toUpperCase() + name.slice(1)
 const lit = (value: unknown): string => JSON.stringify(value)
 
 const words = [...pure, ...kept].map(([name]) => name)
-const imports = `import { action, anyone, change, each, ${words.join(', ')}, date, input, json, now, query, random, settings, table, text, token } from 'tentjs'`
+const imports = `import { action, anyone, change, each, ${words.join(', ')}, date, input, json, now, query, random, settings, table, text, token } from 'forjr'`
 const open = "anyone('a test asks it')"
 
 /** The table whose `read` rule is an arrow that holds a word: a caller reads the rows whose value is what the word answers. */
@@ -151,7 +151,7 @@ export const see${cap(name)} = query('see${cap(name)}', { access: ${open}, rows:
   )
   .join('')
 
-const tables = `import { ${words.join(', ')}, anyone, date, each, json, now, random, settings, table, text } from 'tentjs'
+const tables = `import { ${words.join(', ')}, anyone, date, each, json, now, random, settings, table, text } from 'forjr'
 
 const open = ${open}
 
@@ -228,7 +228,7 @@ export const bodyRandom = query('bodyRandom', { access: ${open}, output: json(),
 export const bodyToken = query('bodyToken', { access: ${open}, output: json(), run: () => token() })
 `
 
-const seed = `import { ${words.join(', ')}, each, now, random, seed, settings, token } from 'tentjs'
+const seed = `import { ${words.join(', ')}, each, now, random, seed, settings, token } from 'forjr'
 
 export default seed(({ db }) => {${[...everywhere, eachCase].map(seeded).join('')}
   db.probes.add({ word: 'seed now', at: now() })
@@ -239,13 +239,13 @@ export default seed(({ db }) => {${[...everywhere, eachCase].map(seeded).join(''
 })
 `
 
-const tent = `import { number, project } from 'tentjs'
+const forjr = `import { number, project } from 'forjr'
 
 export const places = project('places', { title: 'Places', settings: { rate: { type: number({ default: 7 }) } } })
 `
 
 // A rule's arrow that the build reads, with a word that is drawn inside it.
-const drawn = `import { anyone, json, random, table, text, token, where } from 'tentjs'
+const drawn = `import { anyone, json, random, table, text, token, where } from 'forjr'
 
 export const byRandom = table('byRandom', {
   columns: { word: text(), value: json() },
@@ -277,7 +277,7 @@ async function make(): Promise<World> {
   const folder = join(root, 'results', 'cli', 'words', 'places')
   rmSync(join(folder, '..'), { recursive: true, force: true, maxRetries: 20, retryDelay: 100 })
   for (const [path, text] of [
-    ['tent.ts', tent],
+    ['forjr.ts', forjr],
     ['seed.ts', seed],
     ['tables/probes.ts', tables],
     ['functions/places.ts', functions],
@@ -346,7 +346,7 @@ async function codeOf(work: Promise<unknown>): Promise<string | undefined> {
   try {
     await work
   } catch (error) {
-    return error instanceof TentError ? error.code : `no code: ${error}`
+    return error instanceof ForjrError ? error.code : `no code: ${error}`
   }
   return undefined
 }
@@ -387,11 +387,11 @@ everyPlace('a setting', [settingCase])
 // `each`: yes in every place, in the forms that can hold its arrow.
 const [, , list, doubled] = eachCase
 
-test('[12-6] each, in a query: in a body it answers its list, and in a form written with values it is T1014', async () => {
+test('[12-6] each, in a query: in a body it answers its list, and in a form written with values it is F1014', async () => {
   assert.deepEqual(await asked('bodyEach', list), doubled)
   assert.equal((await world()).forms.bodyEach, 'plain')
-  // Handed a reference in the place of its list, as `rows` and `set` would hand it one, it raises T1014 itself.
-  assert.throws(() => each(Object(input('lines')), (n: number) => n), { code: 'T1014' })
+  // Handed a reference in the place of its list, as `rows` and `set` would hand it one, it raises F1014 itself.
+  assert.throws(() => each(Object(input('lines')), (n: number) => n), { code: 'F1014' })
 })
 
 test('[12-6] each, in a rule: in the arrow of a rule that was read it answers its list', async () => {
@@ -444,34 +444,34 @@ test('[12-6] now(), in an action: it is the present moment', async () => {
 const isDrawn = (value: unknown): boolean => typeof value === 'number' && value >= 0 && value < 1
 const isToken = (value: unknown): boolean => typeof value === 'string' && /^[A-Za-z0-9_-]{43}$/.test(value)
 
-test('[12-6] random() and token(), in a query: T4002 for the check and T4101 while running, in rows and in a body alike', async () => {
+test('[12-6] random() and token(), in a query: F4002 for the check and F4101 while running, in rows and in a body alike', async () => {
   const { findings } = await world()
   const names = ['rowsRandom', 'rowsToken', 'bodyRandom', 'bodyToken']
   assert.deepEqual(
     findings
-      .filter((one) => one.code === 'T4002')
+      .filter((one) => one.code === 'F4002')
       .map((one) => one.where?.definition)
       .sort(),
     [...names].sort(),
   )
-  for (const name of names) assert.equal(await codeOf(asked(name)), 'T4101', name)
+  for (const name of names) assert.equal(await codeOf(asked(name)), 'F4101', name)
 })
 
-test('[12-6] random() and token(), in a rule: T1014 where the build read the arrow, and T4101 while running', async () => {
+test('[12-6] random() and token(), in a rule: F1014 where the build read the arrow, and F4101 while running', async () => {
   const folder = join(root, 'results', 'cli', 'words', 'drawn')
   mkdirSync(join(folder, 'tables'), { recursive: true })
-  writeFileSync(join(folder, 'tent.ts'), tent)
+  writeFileSync(join(folder, 'forjr.ts'), forjr)
   writeFileSync(join(folder, 'tables', 'drawn.ts'), drawn)
   const described = await describeProject(folder)
   assert.deepEqual(
     described.findings.map((one) => [one.code, one.where?.definition]),
     [
-      ['T1014', 'byRandom'],
-      ['T1014', 'byToken'],
+      ['F1014', 'byRandom'],
+      ['F1014', 'byToken'],
     ],
   )
   // A rule whose arrow is code draws while a read is under way, and the read is refused.
-  assert.equal(await codeOf(read('random')), 'T4101')
+  assert.equal(await codeOf(read('random')), 'F4101')
 })
 
 test('[12-6] random() and token(), in a change: as a value of set and in a body each draws its value', async () => {
@@ -504,10 +504,10 @@ test('[21-19] app.read and app.write are carried out as a call: a rule is handed
   assert.deepEqual(pairs(await app.read({ from: 'ruledSetting' }, { as })), [['yes', 7]])
   assert.deepEqual(pairs(await app.read({ from: 'ruledNow' }, { as }), 'at'), [['now', new Date(later)]])
   // A rule that is code and draws is refused in a read, as in a query.
-  assert.equal(await codeOf(app.read({ from: 'ruledRandom' }, { as })), 'T4101')
+  assert.equal(await codeOf(app.read({ from: 'ruledRandom' }, { as })), 'F4101')
   assert.equal(
     await codeOf(app.read({ from: 'probes', where: { col: 'value', is: { random: true } } }, { as })),
-    'T4101',
+    'F4101',
   )
   // A write is one moment: `now()` in what it writes is the moment that the rule of its table reads the new row
   // by, so the row is answered.

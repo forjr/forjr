@@ -1,6 +1,6 @@
 import type { Description } from '../../core/internal.ts'
 import { locksOf } from '../../core/internal.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Mode } from '../../data/index.ts'
 import { storedLimit } from '../limits.ts'
 import { readBundle } from '../open.ts'
@@ -18,8 +18,8 @@ export function secretOpener(data: { folder: string; mode: Mode } | undefined): 
   const values = data ? secretValues(data.folder, valuesHeldFor(data.mode)) : undefined
   return (name) => {
     if (values) return values.value(name)
-    throw new TentError('T0019', `The secret ${name} that \`python.index\` names has no value here.`, {
-      fix: `Name the data folder that holds it, or set it with \`tent secrets set ${name}\`.`,
+    throw new ForjrError('F0019', `The secret ${name} that \`python.index\` names has no value here.`, {
+      fix: `Name the data folder that holds it, or set it with \`forjr secrets set ${name}\`.`,
     })
   }
 }
@@ -27,16 +27,16 @@ export function secretOpener(data: { folder: string; mode: Mode } | undefined): 
 /**
  * Takes a bundle by its folder, or a description with how the text of each of its locks is read by its file, where
  * the parts are taken from, and the data folder whose secrets an index names. Makes the environment of each lock
- * ahead of the first call, as `tent python install` does. Answers each environment by its lock, and each lock that
- * could not be made into one, with its error: T0016, T7020 for a lock that is not there, and T0019 for a secret
- * that has no value. Throws T0011 for a folder that holds no bundle.
+ * ahead of the first call, as `forjr python install` does. Answers each environment by its lock, and each lock that
+ * could not be made into one, with its error: F0016, F7020 for a lock that is not there, and F0019 for a secret
+ * that has no value. Throws F0011 for a folder that holds no bundle.
  */
 export async function installEnvironments(
   o: ({ bundle: string } | { description: Description; lock(file: string): string | undefined }) & {
     parts?: PythonParts
     data?: { folder: string; mode: Mode }
   },
-): Promise<{ environments: (Environment & { lock: string })[]; failed: { lock: string; error: TentError }[] }> {
+): Promise<{ environments: (Environment & { lock: string })[]; failed: { lock: string; error: ForjrError }[] }> {
   const description = 'bundle' in o ? readBundle(o.bundle).description : o.description
   const read = (file: string) =>
     'bundle' in o
@@ -54,7 +54,7 @@ export async function installEnvironments(
     if (lock === undefined) {
       done.failed.push({
         lock: file,
-        error: new TentError('T7020', `${file} is not there.`, { fix: 'Run `tent python lock`.' }),
+        error: new ForjrError('F7020', `${file} is not there.`, { fix: 'Run `forjr python lock`.' }),
       })
       continue
     }
@@ -64,7 +64,7 @@ export async function installEnvironments(
       const made = await environmentOf({ lock, stated, parts, secret, time, program: startedProgram })
       done.environments.push({ lock: file, ...made })
     } catch (error) {
-      if (!(error instanceof TentError)) throw error
+      if (!(error instanceof ForjrError)) throw error
       done.failed.push({ lock: file, error })
     }
   }

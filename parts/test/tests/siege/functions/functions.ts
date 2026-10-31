@@ -1,4 +1,4 @@
-import { action, anyone, change, flow, input, json, list, log, number, object, query, range, role, text, concat } from 'tentjs'
+import { action, anyone, change, flow, input, json, list, log, number, object, query, range, role, text, concat } from 'forjr'
 import { notes, orders, staff, words as wordTable } from '../tables/tables'
 
 const open = anyone('an attack calls it')

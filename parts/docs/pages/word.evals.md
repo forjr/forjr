@@ -7,7 +7,7 @@ Runs cases of an agent, a flow or a function of a test app, each several times, 
 ```ts
 import test from 'node:test'
 import assert from 'node:assert/strict'
-import { evals, judge, testApp } from 'tentjs/test'
+import { evals, judge, testApp } from 'forjr/test'
 
 test('the helper answers about orders', async () => {
   const app = await testApp()
@@ -44,7 +44,7 @@ test('the helper answers about orders', async () => {
 
 ## Returns
 
-A promise of `{ name, passed, failed, notRun, score, used, each }`. `used` is one record of units: what the model layer counted while the cases ran, the calls of a `judge` among it. `each` holds, for every case, its `name`, `pass`, `score`, and its runs, each with `pass`, `score`, `text` and `why`. Every run of every case starts from the data of the app as it was when `evals` was called. Files ending `.ai.ts` under `tests/` hold these tests: `tent test` leaves them out, and `tent test --ai` runs only them.
+A promise of `{ name, passed, failed, notRun, score, used, each }`. `used` is one record of units: what the model layer counted while the cases ran, the calls of a `judge` among it. `each` holds, for every case, its `name`, `pass`, `score`, and its runs, each with `pass`, `score`, `text` and `why`. Every run of every case starts from the data of the app as it was when `evals` was called. Files ending `.ai.ts` under `tests/` hold these tests: `forjr test` leaves them out, and `forjr test --ai` runs only them.
 
 ## See also
 

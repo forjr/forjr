@@ -1,12 +1,12 @@
-// Loaded first into a program that a test starts: writes into the file that `TENT_TOLD` names, one record on each
+// Loaded first into a program that a test starts: writes into the file that `FORJR_TOLD` names, one record on each
 // line, every module the program loads and every program of the system it runs, with what lay beside the path it
-// handed that program. The answer of the program that `TENT_HOLD` names is held until the file `TENT_HOLD_UNTIL`
-// is there, and with `TENT_RAISED` the account is answered as that of a program that was raised.
+// handed that program. The answer of the program that `FORJR_HOLD` names is held until the file `FORJR_HOLD_UNTIL`
+// is there, and with `FORJR_RAISED` the account is answered as that of a program that was raised.
 import { appendFileSync, existsSync, readdirSync } from 'node:fs'
 import { registerHooks, syncBuiltinESMExports } from 'node:module'
 import { basename, dirname } from 'node:path'
 
-const into = process.env.TENT_TOLD
+const into = process.env.FORJR_TOLD
 
 /** Writes one record, with the moment it was written. */
 function told(record: Record<string, unknown>): void {
@@ -22,14 +22,14 @@ function handed(words: unknown): { args: string[]; beside: string[] } {
 
 /** What a program answered, with the level of the rights of a raised program where the test asks for it. */
 const raisedIf = (program: string, out: unknown): unknown =>
-  program === 'whoami.exe' && process.env.TENT_RAISED === 'yes' && typeof out === 'string'
+  program === 'whoami.exe' && process.env.FORJR_RAISED === 'yes' && typeof out === 'string'
     ? out.replace(/"S-1-16-\d+"/g, '"S-1-16-12288"')
     : out
 
 /** Hands on the answer of a program, at once or once the test lets it go. */
 function held(program: string, go: () => void): void {
-  const until = process.env.TENT_HOLD_UNTIL
-  if (program !== process.env.TENT_HOLD || until === undefined) {
+  const until = process.env.FORJR_HOLD_UNTIL
+  if (program !== process.env.FORJR_HOLD || until === undefined) {
     go()
     return
   }

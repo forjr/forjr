@@ -1,7 +1,7 @@
 // The window of bots: it starts the app on this computer, if it is not running yet, and shows it.
 //
 // Where the app answers is `BOTS_AT`, `http://127.0.0.1:4805` where it is not set. What starts it is the
-// line that `tent service <bundle> --data <folder> --port 4805 --line` prints, given in `BOTS_START` or kept
+// line that `forjr service <bundle> --data <folder> --port 4805 --line` prints, given in `BOTS_START` or kept
 // in `start.txt` beside this program.
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
@@ -130,7 +130,7 @@ fn main() {
                             }
                         }
                         None => {
-                            say(&window, "Start bots with tent service, or write its line into start.txt beside this program");
+                            say(&window, "Start bots with forjr service, or write its line into start.txt beside this program");
                             return;
                         }
                     }

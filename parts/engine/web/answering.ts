@@ -430,7 +430,7 @@ export function webSide(o: Serving, extra: { hsts?: string } = {}): WebSide {
         // A connection that a part above the engine joins elsewhere, as to the engine in a box, is passed on as it is.
         const joined = await o.joined?.(asked, from)
         if (joined) theirs = joined
-        else if (new URL(asked.url).pathname === '/_t/live') return await live(asked, request, socket, head)
+        else if (new URL(asked.url).pathname === '/_f/live') return await live(asked, request, socket, head)
         else theirs = o.link(asked, from)
       } catch {
         // What refuses the opening tells nothing of why: the address is not found.

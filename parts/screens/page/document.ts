@@ -53,8 +53,8 @@ export function documentHead(o: {
     '<meta charset="utf-8">',
     '<meta name="viewport" content="width=device-width, initial-scale=1">',
     `<title>${asText(o.title)}</title>`,
-    ...(o.app === undefined ? [] : [`<meta name="tent-app" content="${asText(o.app)}">`]),
-    ...(o.slash === undefined ? [] : [`<meta name="tent-slash" content="${asText(o.slash)}">`]),
+    ...(o.app === undefined ? [] : [`<meta name="forjr-app" content="${asText(o.app)}">`]),
+    ...(o.slash === undefined ? [] : [`<meta name="forjr-slash" content="${asText(o.slash)}">`]),
     ...(o.head ?? []),
     ...page.load.styles.map((file) => `<link rel="stylesheet" href="${asText(fileOf(page, file))}">`),
     ...modules.map((file) => `<link rel="modulepreload" href="${asText(fileOf(page, file))}">`),
@@ -67,8 +67,8 @@ export function documentHead(o: {
 /**
  * Takes the page record, the drawing of its screen, the main file of the page code, the files of the page code that
  * run before it, and the lines that ask for what the drawing met ahead, as the pictures it loads with. Answers the
- * body of the document that follows its head: the element with the id `tent` holds the drawing, and the block with
- * the id `tent-page` the page record. Modules run in the order in which the document names them: one named before
+ * body of the document that follows its head: the element with the id `forjr` holds the drawing, and the block with
+ * the id `forjr-page` the page record. Modules run in the order in which the document names them: one named before
  * the main file has run when the main file starts.
  */
 export function documentBody(o: {
@@ -80,8 +80,8 @@ export function documentBody(o: {
 }): string {
   return [
     ...(o.ahead ?? []),
-    `<div id="tent">${o.drawing}</div>`,
-    `<script type="application/json" id="tent-page">${asBlock(o.page)}</script>`,
+    `<div id="forjr">${o.drawing}</div>`,
+    `<script type="application/json" id="forjr-page">${asBlock(o.page)}</script>`,
     ...(o.main === undefined ? [] : (o.before ?? [])).map(
       (file) => `<script type="module" src="${asText(fileOf(o.page, file))}"></script>`,
     ),

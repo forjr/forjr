@@ -84,9 +84,9 @@ test('[26-3] [16-2@9a] each kind of ProviderFailure leads to the row of the tabl
   }
   // Fails with its code, and goes to no second model.
   for (const [kind, code] of [
-    ['notAccepted', 'T7110'],
-    ['refused', 'T7106'],
-    ['cutOff', 'T7107'],
+    ['notAccepted', 'F7110'],
+    ['refused', 'F7106'],
+    ['cutOff', 'F7107'],
   ] as const) {
     const second = told(['text:never'])
     const layer = twoModels(told([kind]), second)
@@ -97,10 +97,10 @@ test('[26-3] [16-2@9a] each kind of ProviderFailure leads to the row of the tabl
   {
     const layer = twoModels(told(['unreachable']), told(['notAccepted', 'server']))
     const failed = await Promise.resolve(layer.call('writer', 'reply', ['Hi.'])).catch((error: unknown) => error)
-    assert.equal(Reflect.get(Object(failed), 'code'), 'T7110')
+    assert.equal(Reflect.get(Object(failed), 'code'), 'F7110')
     const all = twoModels(told(['unreachable']), told(['slow']))
     const both = await Promise.resolve(all.call('writer', 'reply', ['Hi.'])).catch((error: unknown) => error)
-    assert.equal(Reflect.get(Object(both), 'code'), 'T7104')
+    assert.equal(Reflect.get(Object(both), 'code'), 'F7104')
     assert.match(String(Reflect.get(Object(both), 'message')), /writer: unreachable.*backup: slow/)
   }
 })
@@ -160,15 +160,15 @@ test('[26-3] [16-2@9a] a provider that has size is asked for the count of a requ
   const fits = layerOf([small], { providers: { counts: provider(100) } })
   assert.equal(await fits.call('small', 'reply', ['A short text.']), 'ok')
   const over = layerOf([small], { providers: { counts: provider(101) } })
-  assert.equal(await codeOf(over.call('small', 'reply', ['A short text.'])), 'T7109')
+  assert.equal(await codeOf(over.call('small', 'reply', ['A short text.'])), 'F7109')
   assert.deepEqual([counted, replies], [[100, 101], 1])
   // Without size the rule counts: a text of 3,000 bytes is a thousand tokens, over a model that takes 100.
   const bare: Provider = { reply: provider(0).reply }
   const ruled = layerOf([small], { providers: { counts: bare } })
-  assert.equal(await codeOf(ruled.call('small', 'reply', ['x'.repeat(3000)])), 'T7109')
+  assert.equal(await codeOf(ruled.call('small', 'reply', ['x'.repeat(3000)])), 'F7109')
 })
 
-test('[16-2@9a] T7001: a model is asked for an ability it does not have', async () => {
+test('[16-2@9a] F7001: a model is asked for an ability it does not have', async () => {
   const replies: Provider = {
     async *reply() {
       yield { end: { text: 'ok', calls: [] } }
@@ -176,13 +176,13 @@ test('[16-2@9a] T7001: a model is asked for an ability it does not have', async 
   }
   const plain = model('plain', { provider: 'mine', name: 'p-1', abilities: ['reply'], takes: 1000 })
   const layer = layerOf([plain], { providers: { mine: replies } })
-  assert.equal(await codeOf(layer.call('plain', 'fill', [{ n: number() }, 'Count.'])), 'T7001')
-  assert.equal(await codeOf(layer.call('plain', 'embed', ['a text'])), 'T7001')
-  assert.equal(await codeOf(layer.call('plain', 'reply', ['Look.', { images: ['f1'] }])), 'T7001')
-  assert.equal(await codeOf(layer.call('plain', 'call', [{}])), 'T7001')
+  assert.equal(await codeOf(layer.call('plain', 'fill', [{ n: number() }, 'Count.'])), 'F7001')
+  assert.equal(await codeOf(layer.call('plain', 'embed', ['a text'])), 'F7001')
+  assert.equal(await codeOf(layer.call('plain', 'reply', ['Look.', { images: ['f1'] }])), 'F7001')
+  assert.equal(await codeOf(layer.call('plain', 'call', [{}])), 'F7001')
   // A model that has the ability, but whose provider has no member for it, cannot do it either.
   const said = model('said', { provider: 'mine', name: 's-1', abilities: ['reply', 'speak'], takes: 1000 })
   const lacking = layerOf([said], { providers: { mine: replies } })
-  assert.equal(await codeOf(lacking.call('said', 'speak', ['Hi.'])), 'T7001')
+  assert.equal(await codeOf(lacking.call('said', 'speak', ['Hi.'])), 'F7001')
   assert.deepEqual(layer.used, [])
 })

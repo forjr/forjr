@@ -4,7 +4,7 @@ import { join } from 'node:path'
 import { test } from 'node:test'
 import { copied, typedApart } from './typed.ts'
 
-test('[15-6@4] `tent test` shows the whole failure of a test that failed, with what that test wrote out and where it failed, and its fix names what a builder of an app can run', (t) => {
+test('[15-6@4] `forjr test` shows the whole failure of a test that failed, with what that test wrote out and where it failed, and its fix names what a builder of an app can run', (t) => {
   const project = copied(t, 'tested-whole')
   writeFileSync(
     join(project, 'tests', 'fails.test.ts'),
@@ -49,7 +49,7 @@ test('a test that throws', () => {
   assert.doesNotMatch(thrown, /the order as the test found it/)
   // The fix names what a builder of an app can run: the command itself, and no call of the runtime.
   for (const one of found) {
-    assert.match(String(one.fix), /\`tent test\`/)
+    assert.match(String(one.fix), /\`forjr test\`/)
     assert.doesNotMatch(String(one.fix), /node --test/)
   }
   // Typed with no --json, the same is printed as text.

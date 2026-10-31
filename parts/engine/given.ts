@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { App } from './app.ts'
 import { failureOf } from './door/failure.ts'
 import { storedLimit } from './limits.ts'
@@ -104,7 +104,7 @@ export function givenBy(token: string, apps: () => Iterable<Opened>) {
         held.upkeep.set(name, object)
         for (const o of apps()) if (!o.closed && (!app || o.app === app)) keepUp(o, app ? 'app' : 'all', name, object)
       } else
-        throw new TentError('T0013', `What was given as the ${kind} \`${name}\` has not the form of one.`, {
+        throw new ForjrError('F0013', `What was given as the ${kind} \`${name}\` has not the form of one.`, {
           fix: 'Give an admin command as `{ run(app, args) }`, a handle as its working object, an `onRequest` and an `onLink` as a function, and a share of the upkeep as `{ daily() }`.',
         })
     },

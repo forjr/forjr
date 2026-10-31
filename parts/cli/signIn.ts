@@ -9,8 +9,8 @@ const waits = 10 * 60_000
 
 /**
  * The browser's part of `login` for an app's own command line: it makes the standard's proof, listens on a port of
- * this computer that the system gives, opens the browser at the app's `/_t/oauth/authorize` as the client
- * `tent-cli`, for the whole app and to read and change, and waits for the code that the browser brings back. The
+ * this computer that the system gives, opens the browser at the app's `/_f/oauth/authorize` as the client
+ * `forjr-cli`, for the whole app and to read and change, and waits for the code that the browser brings back. The
  * word of the proof is told first, so that the terminal shows what the page shows. `open` is how the browser is
  * opened: the person's own, where none is handed.
  */
@@ -46,10 +46,10 @@ export function browserSignIn(o: { open?: (address: string) => void | Promise<vo
     signal?.addEventListener('abort', stopped, { once: true })
     try {
       word(challenge.slice(0, 6).toUpperCase())
-      const asked = new URL('/_t/oauth/authorize', address)
+      const asked = new URL('/_f/oauth/authorize', address)
       for (const [name, value] of Object.entries({
         response_type: 'code',
-        client_id: 'tent-cli',
+        client_id: 'forjr-cli',
         redirect_uri: redirect,
         code_challenge: challenge,
         code_challenge_method: 'S256',

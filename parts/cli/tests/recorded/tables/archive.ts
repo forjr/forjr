@@ -1,4 +1,4 @@
-import { table, text } from 'tentjs'
+import { table, text } from 'forjr'
 
 // A table that no test reads or writes.
 export const archive = table('archive', {

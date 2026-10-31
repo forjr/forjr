@@ -1,4 +1,4 @@
-import { action, change, input, number, query, text } from 'tentjs'
+import { action, change, input, number, query, text } from 'forjr'
 import { orders } from '../tables/orders'
 
 // The orders that are not paid yet, oldest first.

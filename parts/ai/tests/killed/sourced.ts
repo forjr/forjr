@@ -23,7 +23,7 @@ const writer = {
     handed.push((o.tools ?? []).map((one) => one.name))
     const answer = o.messages.find((one) => one.who === 'tool')
     if (!answer) {
-      yield { end: { text: '', calls: [{ id: 'c1', tool: 'deskLookUp', input: { word: 'tent' } }] } }
+      yield { end: { text: '', calls: [{ id: 'c1', tool: 'deskLookUp', input: { word: 'forjr' } }] } }
       return
     }
     yield { end: { text: String(answer.result ?? answer.error), calls: [] } }

@@ -31,7 +31,7 @@ test('[31-11] a file of the bundle that the page asks for and that is no longer 
     go: (address) => void gone.push(address),
     // The folder of that version was removed by the next save before the page asked for its file.
     load: async () => {
-      throw new TypeError('Failed to fetch dynamically imported module: /_t/b/browser/s.v2.js')
+      throw new TypeError('Failed to fetch dynamically imported module: /_f/b/browser/s.v2.js')
     },
     shows: () => '/s?tab=open',
     wait: () => () => undefined,

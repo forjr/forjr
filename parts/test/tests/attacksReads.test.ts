@@ -40,7 +40,7 @@ async function listener(t: TestContext): Promise<{ port: number; methods: string
   return { port, methods }
 }
 
-test('[05-4.10] a link on another site, and a picture tag, that point at a screen whose data holds an action that writes: nothing is written, the log holds T0013, and the caller is sent the error screen with T0009', async (t) => {
+test('[05-4.10] a link on another site, and a picture tag, that point at a screen whose data holds an action that writes: nothing is written, the log holds F0013, and the caller is sent the error screen with F0009', async (t) => {
   const gate = await gated(t)
   await noted(gate, { title: 'the one note' })
   // The visitor of the other site is signed in to the app: the request carries their cookie.
@@ -48,7 +48,7 @@ test('[05-4.10] a link on another site, and a picture tag, that point at a scree
   const outside = await listener(t)
   // The attack can get in: the same actions, called by a press, write.
   assert.equal(
-    (await wire(gate, { path: '/_t/call/writesByChange', as: id, headers: { cookie, origin: gate.origin } })).status,
+    (await wire(gate, { path: '/_f/call/writesByChange', as: id, headers: { cookie, origin: gate.origin } })).status,
     200,
   )
   assert.equal(await notesIn(gate), 2)
@@ -67,17 +67,17 @@ test('[05-4.10] a link on another site, and a picture tag, that point at a scree
       await settled()
       assert.equal(page.status, 500, `${path} ${how}`)
       const record = recordOf(page.text)
-      assert.deepEqual([record.screen, Object(record.error).code], ['tent.error', 'T0009'], `${path} ${how}`)
+      assert.deepEqual([record.screen, Object(record.error).code], ['forjr.error', 'F0009'], `${path} ${how}`)
       assert.ok(!page.text.includes('Never drawn') && !page.text.includes('Posted with'))
       assert.equal(await notesIn(gate), 2, `${path} ${how}: nothing is written`)
       // The log says what was refused: the write, and the action that made it.
       const logged = failures(gate).slice(before)
       assert.ok(
-        logged.some((line) => line === `${action} action T0013` || line === `${action} action T0012`),
+        logged.some((line) => line === `${action} action F0013` || line === `${action} action F0012`),
         `${path} ${how}: ${logged.join(', ')}`,
       )
       if (action !== 'writesBySql' && action !== 'posts')
-        assert.ok(logged.includes('addNote change T0013'), logged.join(', '))
+        assert.ok(logged.includes('addNote change F0013'), logged.join(', '))
     }
   assert.deepEqual(outside.methods, [], 'nothing was sent out')
 
@@ -86,7 +86,7 @@ test('[05-4.10] a link on another site, and a picture tag, that point at a scree
   assert.equal(later.status, 200)
   await settled()
   assert.equal(await notesIn(gate), 2)
-  assert.ok(failures(gate).includes('addNote change T0013'))
+  assert.ok(failures(gate).includes('addNote change F0013'))
   // An entry that the page does not wait for is not called by the request for the screen at all.
   const calls = logOf(gate.dataFolder, 'calls').length
   assert.equal((await got(gate, '/writes/unwaited', { ...picture, cookie })).status, 200)
@@ -95,7 +95,7 @@ test('[05-4.10] a link on another site, and a picture tag, that point at a scree
   assert.equal(await notesIn(gate), 2)
 })
 
-test('[05-4.10] the same action asked through /_t/read/ is called read-only: nothing is written, the log holds T0013, and the answer is T0009', async (t) => {
+test('[05-4.10] the same action asked through /_f/read/ is called read-only: nothing is written, the log holds F0013, and the answer is F0009', async (t) => {
   const gate = await gated(t)
   await noted(gate, { title: 'the one note' })
   const { id, cookie } = await signedIn(gate, 'Ada', ['staff'])
@@ -114,25 +114,25 @@ test('[05-4.10] the same action asked through /_t/read/ is called read-only: not
     for (const headers of asks) {
       // A page of the signed-in browser names the user it was drawn for.
       const answer = await wire(gate, {
-        path: `/_t/read/${name}`,
+        path: `/_f/read/${name}`,
         input,
         headers,
         ...(headers.cookie ? { as: id } : {}),
       })
       await settled()
-      assert.deepEqual([answer.status, answer.error.code], [500, 'T0009'], name)
+      assert.deepEqual([answer.status, answer.error.code], [500, 'F0009'], name)
       assert.equal(await notesIn(gate), 1, `${name}: nothing is written`)
     }
     const logged = failures(gate).slice(before)
     assert.ok(
-      logged.some((line) => line === `${name} action T0013` || line === `${name} action T0012`),
+      logged.some((line) => line === `${name} action F0013` || line === `${name} action F0012`),
       `${name}: ${logged.join(', ')}`,
     )
     // From a page of another site, with the visitor's cookie, the read is not carried out at all.
     const calls = logOf(gate.dataFolder, 'calls').filter((row) => row.name === 'addNote').length
     for (const origin of ['https://evil.example', 'null', `http://localhost:${gate.port + 1}`]) {
-      const crossed = await wire(gate, { path: `/_t/read/${name}`, input, headers: { cookie, origin } })
-      assert.deepEqual([crossed.status, crossed.error.code], [403, 'T0004'], `${name} from ${origin}`)
+      const crossed = await wire(gate, { path: `/_f/read/${name}`, input, headers: { cookie, origin } })
+      assert.deepEqual([crossed.status, crossed.error.code], [403, 'F0004'], `${name} from ${origin}`)
     }
     assert.equal(logOf(gate.dataFolder, 'calls').filter((row) => row.name === 'addNote').length, calls)
     // A read is a `POST` of JSON: a link, a picture tag and a form are none.
@@ -143,7 +143,7 @@ test('[05-4.10] the same action asked through /_t/read/ is called read-only: not
       { headers: { 'content-type': 'application/x-www-form-urlencoded' } },
     ]) {
       const answer = await wire(gate, {
-        path: `/_t/read/${name}`,
+        path: `/_f/read/${name}`,
         input,
         ...asked,
         headers: { cookie, ...asked.headers },
@@ -155,20 +155,20 @@ test('[05-4.10] the same action asked through /_t/read/ is called read-only: not
   assert.equal(await notesIn(gate), 1)
   assert.deepEqual(outside.methods, [])
   // A write that the action leaves for after its answer is refused too.
-  assert.deepEqual((await wire(gate, { path: '/_t/read/writesLater' })).body, { ok: true, value: 'answered' })
+  assert.deepEqual((await wire(gate, { path: '/_f/read/writesLater' })).body, { ok: true, value: 'answered' })
   await settled()
   assert.equal(await notesIn(gate), 1)
-  assert.ok(failures(gate).includes('addNote change T0013'))
+  assert.ok(failures(gate).includes('addNote change F0013'))
   // A change is no read, whoever asks.
   const change = await wire(gate, {
-    path: '/_t/read/addNote',
+    path: '/_f/read/addNote',
     input: { title: 'read as a change' },
     as: id,
     headers: { cookie },
   })
-  assert.deepEqual([change.status, change.error.code], [404, 'T0001'])
+  assert.deepEqual([change.status, change.error.code], [404, 'F0001'])
   assert.equal(await notesIn(gate), 1)
   // And a call of the action, by a press of the app's own page, writes: the rule is the read's, and not the action's.
-  assert.equal((await wire(gate, { path: '/_t/call/writesByChange', headers: { origin: gate.origin } })).status, 200)
+  assert.equal((await wire(gate, { path: '/_f/call/writesByChange', headers: { origin: gate.origin } })).status, 200)
   assert.equal(await notesIn(gate), 2)
 })

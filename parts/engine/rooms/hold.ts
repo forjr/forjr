@@ -23,7 +23,7 @@ const namedIn = (hold: Hold, key: 'net' | 'programs' | 'native'): readonly strin
 /**
  * Takes the call that is under way and what it fetches. Holds an action of an app that states `hold` to the hosts
  * that its `net` names, in every room: answers nothing where no hold applies, and otherwise a promise refused with
- * T0035, naming the packages that reach the network, for any other host. `connect` is loaded for a held app alone.
+ * F0035, naming the packages that reach the network, for any other host. `connect` is loaded for a held app alone.
  */
 export function heldNet(cx: CallContext, asked: Parameters<typeof fetch>): Promise<void> | undefined {
   if (cx.work.kind !== 'action') return undefined
@@ -43,7 +43,7 @@ export function heldNet(cx: CallContext, asked: Parameters<typeof fetch>): Promi
 
 /**
  * Takes the description of a version a room loads. Holds the packages of an app that states `hold` which load a
- * native module, by the map, to those its `native` names, in every room: T0035, naming the others.
+ * native module, by the map, to those its `native` names, in every room: F0035, naming the others.
  */
 export function heldNative(description: Description): void {
   const hold = holdOf(description)
@@ -55,7 +55,7 @@ export function heldNative(description: Description): void {
 
 /**
  * Takes the description of an app and a program it starts. Holds the program of an outside MCP server of an app
- * that states `hold` to those its `programs` names, in every room: T0035 for any other. The program of a `python`
+ * that states `hold` to those its `programs` names, in every room: F0035 for any other. The program of a `python`
  * and its installing are the framework's own, and pass.
  */
 export function heldProgram(description: Description, start: ProgramStart): void {

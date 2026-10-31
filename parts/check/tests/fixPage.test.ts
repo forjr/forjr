@@ -7,10 +7,10 @@ import { heldToProjects } from './copies.ts'
 // The name of a build document, which a developer does not have.
 const buildDocument = /\b\d{2}-[a-z-]+\.md\b/
 
-test('[15-1@9a] the fix of T7007 names its page of the shipped docs, and no build document', async () => {
-  const { findings } = await heldToProjects('T7007')
+test('[15-1@9a] the fix of F7007 names its page of the shipped docs, and no build document', async () => {
+  const { findings } = await heldToProjects('F7007')
   for (const one of findings) {
-    assert.match(one.fix ?? '', /`tent docs option\.agent\.memory`/, one.message)
+    assert.match(one.fix ?? '', /`forjr docs option\.agent\.memory`/, one.message)
     assert.doesNotMatch(one.fix ?? '', buildDocument, one.message)
   }
 })

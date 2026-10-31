@@ -1,4 +1,4 @@
-import { anyone, flow, number, object, text } from 'tentjs'
+import { anyone, flow, number, object, text } from 'forjr'
 
 // A flow that the pages of the app may call: it runs as whoever called it, and answers through its `output`.
 export const welcome = flow('welcome', {

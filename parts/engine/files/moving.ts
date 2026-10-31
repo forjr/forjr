@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { FileName, Row, TableLayout, Tx } from '../../data/index.ts'
 import { applySteps, layoutOf } from '../../data/index.ts'
 import type { Opened } from '../opened.ts'
@@ -12,7 +12,7 @@ import { table as holds } from '../tables/holds.ts'
 const system = { kind: 'system' } as const
 
 // The table of a data file that holds what the file says of itself, and the key that a move is noted under.
-const meta = '_t_meta'
+const meta = '_f_meta'
 const key = 'move'
 
 /** One table whose rows move: into the files of its tenants, or out of them into the shared file. */
@@ -77,9 +77,9 @@ const filesOf = (tenantFiles: TenantFiles, by: string): FileName[] =>
 const turn = (): Promise<void> => new Promise((done) => setImmediate(done))
 
 /** The error of rows that a `unique` rule of the whole app does not take, with the table, the tenant and the count. */
-const refusal = (table: string, file: FileName, rows: number): TentError =>
-  new TentError(
-    'T2001',
+const refusal = (table: string, file: FileName, rows: number): ForjrError =>
+  new ForjrError(
+    'F2001',
     `${rows === 1 ? '1 row' : `${rows} rows`} of \`${table}\` cannot be moved into the shared file, where a \`unique\` rule holds for the whole app, from the data file of ${file.table} ${file.id}.`,
     { fix: 'Change those rows so that no two tenants share the value, and take the version with `--move` again.' },
   )
@@ -101,7 +101,7 @@ function added(tx: Tx, table: string, rows: Row[]): number {
     try {
       tx.add(table, row, system)
     } catch (error) {
-      if (!(error instanceof TentError) || error.code !== 'T2101') throw error
+      if (!(error instanceof ForjrError) || error.code !== 'F2101') throw error
       refused++
     }
   return refused
@@ -118,7 +118,7 @@ class Counted extends Error {
 
 /**
  * Counts, with nothing changed, what a move out of the files would be refused for: every row is added to the
- * shared file inside one write, which is undone. Throws T2001 for the first tenant whose rows a `unique` rule of
+ * shared file inside one write, which is undone. Throws F2001 for the first tenant whose rows a `unique` rule of
  * the whole app does not take.
  */
 export async function countMove(o: Opened, tenantFiles: TenantFiles, moves: Moved[], to: TableLayout[]): Promise<void> {
@@ -185,7 +185,7 @@ export function holdsMoved(tx: Tx, moves: Moved[], to: TableLayout[]): void {
 
 /**
  * Takes every row of a table out of the place that the rows left, inside a write, with their kept earlier versions
- * and their rows of `_t_filled`.
+ * and their rows of `_f_filled`.
  */
 export function emptied(tx: Tx, table: string): void {
   tx.sql(`DELETE FROM "${table}"`, [], [table])
@@ -221,7 +221,7 @@ async function addRows(o: Opened, tenantFiles: TenantFiles, moves: Moved[], to: 
           if (!(error instanceof Counted)) throw error
           throw refusal(table, file, refused)
         }
-        if (o.closed) throw new TentError('T0013', 'The app was closed while its rows moved.')
+        if (o.closed) throw new ForjrError('F0013', 'The app was closed while its rows moved.')
         await turn()
       }
       continue
@@ -246,7 +246,7 @@ async function addRows(o: Opened, tenantFiles: TenantFiles, moves: Moved[], to: 
           addFilled(tx, filled)
         }),
       )
-      if (o.closed) throw new TentError('T0013', 'The app was closed while its rows moved.')
+      if (o.closed) throw new ForjrError('F0013', 'The app was closed while its rows moved.')
       await turn()
     }
   }
@@ -257,7 +257,7 @@ async function addRows(o: Opened, tenantFiles: TenantFiles, moves: Moved[], to: 
  * to. Notes the move in the shared file, holds every write of a table that moves, and adds the rows where they
  * go, a tenant at a time, each tenant in one write, each row with its id and its two moments. No row leaves its
  * place: a read is answered from where the rows stand. A row that cannot be added undoes the move, and throws
- * T2001 with the table, the tenant and the count. Answers what ends the hold, once the switch has taken its write
+ * F2001 with the table, the tenant and the count. Answers what ends the hold, once the switch has taken its write
  * or was refused.
  */
 export async function moveRows(

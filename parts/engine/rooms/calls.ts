@@ -1,5 +1,5 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { DbMembers } from '../../data/index.ts'
 import { faceOf, handAgain, keptAs } from '../../data/index.ts'
 import type { CallContext } from '../context.ts'
@@ -74,8 +74,8 @@ export function callsOf(room: Room): OpenCalls {
     find(call) {
       const one = open.get(call)
       if (!one)
-        throw new TentError(
-          'T0013',
+        throw new ForjrError(
+          'F0013',
           'The room asked for a call that is not open: a callable works while its call lasts.',
           {
             fix: 'Use what a call was handed inside that call, and keep none of it for a later one.',
@@ -185,7 +185,7 @@ export function askerOf(room: Room, call: number): Asker {
     theirs: (n) => callsOf(room).find(call).fns.get(n)?.(),
     held: () => callsOf(room).hold(call),
     db: () => {
-      throw new TentError('T0013', 'The code of the room handed the engine a `db`, which it hands no one.')
+      throw new ForjrError('F0013', 'The code of the room handed the engine a `db`, which it hands no one.')
     },
   }
   return asker

@@ -1,6 +1,6 @@
 # App builder
 
-An AI app builder, built with Tent.js. People sign in, describe an app in a chat, and an AI builds it for them. Each sees their app beside the chat, can point at a part of it and ask for a change, can undo the last turn, and can publish. Nothing one person's AI writes reaches another person's app.
+An AI app builder, built with Forjr. People sign in, describe an app in a chat, and an AI builds it for them. Each sees their app beside the chat, can point at a part of it and ask for a change, can undo the last turn, and can publish. Nothing one person's AI writes reaches another person's app.
 
 ## What it shows
 
@@ -12,14 +12,14 @@ An AI app builder, built with Tent.js. People sign in, describe an app in a chat
 ## Run it
 
 ```sh
-npm install -g tentjs
-git clone https://github.com/tentislabs/tent.js
-cd tent.js/examples/app-builder/product
+npm install -g forjr
+git clone https://github.com/forjr/forjr
+cd forjr/examples/app-builder/product
 npm install
-tent build --out ../bundle
+forjr build --out ../bundle
 cd ..
-npm install tentjs
-tent secrets set ANTHROPIC_KEY --data run/data
+npm install forjr
+forjr secrets set ANTHROPIC_KEY --data run/data
 node server.ts bundle
 ```
 

@@ -1,0 +1,6 @@
+{
+  "forjr/data": "parts/data/index.ts",
+  "forjr/core": "parts/core/index.ts",
+  "forjr/engine": "parts/engine/index.ts",
+  "forjr/test": "parts/test/index.ts"
+}

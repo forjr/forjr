@@ -1,4 +1,4 @@
-import { flow, mail } from 'tentjs'
+import { flow, mail } from 'forjr'
 import { slack } from '../services/slack'
 import { orders } from '../tables/shop'
 

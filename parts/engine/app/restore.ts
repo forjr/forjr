@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { basename } from 'node:path'
 import { restore } from '../../data/index.ts'
 import { archiveOf } from '../archived/archive.ts'
@@ -19,7 +19,7 @@ export const member =
     heldOpen(o)
     // A reader's data is its writer's: nothing is put back under it, in any mode.
     if (o.machine.reader)
-      throw new TentError('T0030', "This machine is a reader, and a restore is the writer's.", {
+      throw new ForjrError('F0030', "This machine is a reader, and a restore is the writer's.", {
         fix: `Restore on the writer, at ${o.machine.reader.writer()}: its readers then fetch the data anew.`,
       })
     // An app on one machine holds nothing of itself that another file could change: what does is loaded for the others.

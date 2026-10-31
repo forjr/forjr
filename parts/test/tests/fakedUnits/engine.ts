@@ -1,4 +1,4 @@
-import type { Makers } from 'tentjs/engine'
+import type { Makers } from 'forjr/engine'
 
 // The provider of the model that is a function, which the test fakes: it is never called.
 export default {

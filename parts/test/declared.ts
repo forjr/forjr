@@ -173,7 +173,7 @@ export function declaredCases(description: Description): Cases {
 }
 
 /** A rule in the words it is written with: `role('staff')`, `signedIn`, `anyone`, or a rule written as code. */
-export function ruleWords(rule: unknown): string {
+export function ruleAsWritten(rule: unknown): string {
   const stored: Stored = isStored(rule) ? rule : {}
   if (stored.rule === 'role') return `role('${String(stored.role)}')`
   if (stored.rule === 'where' || stored.rule === 'allow') return 'a rule written as code'

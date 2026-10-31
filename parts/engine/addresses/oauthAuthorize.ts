@@ -29,17 +29,17 @@ async function refused(o: Opened, request: Request, origin: string, error: unkno
 }
 
 /**
- * `GET /_t/oauth/authorize`: where a client sends the person. A person who is not signed in is sent to the
+ * `GET /_f/oauth/authorize`: where a client sends the person. A person who is not signed in is sent to the
  * project's `signInPath`, with a text of the engine's own that holds the whole request and works for
  * `authorizeTime`; nothing is fetched before. A signed-in person is asked on the page, or, where they gave this
  * client the same before and it is sent back to an `https` address, sent back with a code at once. A request that
- * cannot be trusted is the `error` screen with T0002, and never a return. It passes steps 1 to 4 of the door,
+ * cannot be trusted is the `error` screen with F0002, and never a return. It passes steps 1 to 4 of the door,
  * counted like a request for a screen, and a key and a token are nobody here.
  */
 export const address: Address = {
   order: 2,
   match: (request) =>
-    request.method === 'GET' && programsAt(request, '/_t/oauth/authorize') && { name: 'oauth-authorize' },
+    request.method === 'GET' && programsAt(request, '/_f/oauth/authorize') && { name: 'oauth-authorize' },
   steps: [1, 2, 3],
   async handle({ app: o, request, caller, about }) {
     try {
@@ -68,7 +68,7 @@ export const address: Address = {
     if (person === undefined) {
       const signIn =
         typeof o.description.project.signInPath === 'string' ? o.description.project.signInPath : '/sign-in'
-      const back = `/_t/oauth/authorize?r=${madeText(o, 'authorize', { ...asking })}`
+      const back = `/_f/oauth/authorize?r=${madeText(o, 'authorize', { ...asking })}`
       return new Response(null, {
         status: 302,
         headers: { location: `${signIn}?back=${encodeURIComponent(back)}`, 'cache-control': 'no-store' },
@@ -86,7 +86,7 @@ export const address: Address = {
           one.for === trust.for &&
           trust.scopes.every((scope) => one.scopes.includes(scope)),
       )
-      if (before && overHttps(asking.redirect) && client.id !== 'tent-cli' && !client.forApp) {
+      if (before && overHttps(asking.redirect) && client.id !== 'forjr-cli' && !client.forApp) {
         const code = newCode(o, {
           user: person,
           client: client.id,

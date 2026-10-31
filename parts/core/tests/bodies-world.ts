@@ -2,7 +2,7 @@ import { readFileSync } from 'node:fs'
 import { registerHooks } from 'node:module'
 import { join } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
-import { TentError } from '../index.ts'
+import { ForjrError } from '../index.ts'
 import type { Runtime } from '../internal.ts'
 import { matches, setRuntime } from '../internal.ts'
 
@@ -14,7 +14,7 @@ export const folder = join(import.meta.dirname, 'bodies')
 registerHooks({
   resolve(specifier, context, next) {
     const to = (file: string) => ({ url: pathToFileURL(file).href, shortCircuit: true })
-    if (specifier === 'tentjs') return to(join(folder, '..', '..', 'index.ts'))
+    if (specifier === 'forjr') return to(join(folder, '..', '..', 'index.ts'))
     return next(specifier, context)
   },
   load(url, context, next) {
@@ -314,7 +314,7 @@ export function testRuntime(note: Note, mayWait: boolean | undefined, valueSize?
       start: noting(
         'handle',
         'connections.start',
-        (service) => `https://shop.test/_t/connect/${isRecord(service) ? service.definition : ''}`,
+        (service) => `https://shop.test/_f/connect/${isRecord(service) ? service.definition : ''}`,
       ),
     },
     settings: { shopName: 'Corner Shop', vat: 0.2 },
@@ -466,9 +466,9 @@ export async function oneRun(
   }
 }
 
-/** Whether two failures are the same: a `TentError` with its code and its words, and any other failure by its kind. */
+/** Whether two failures are the same: a `ForjrError` with its code and its words, and any other failure by its kind. */
 export function sameFailure(a: unknown, b: unknown): boolean {
-  if (a instanceof TentError || b instanceof TentError)
-    return a instanceof TentError && b instanceof TentError && a.code === b.code && a.message === b.message
+  if (a instanceof ForjrError || b instanceof ForjrError)
+    return a instanceof ForjrError && b instanceof ForjrError && a.code === b.code && a.message === b.message
   return a instanceof Error && b instanceof Error && a.constructor === b.constructor
 }

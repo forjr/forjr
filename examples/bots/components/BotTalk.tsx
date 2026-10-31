@@ -1,5 +1,5 @@
 import { type ReactNode, useEffect, useRef } from 'react'
-import { boolean, component, Link, read, text, useAgent, useCall } from 'tentjs/ui'
+import { boolean, component, Link, read, text, useAgent, useCall } from 'forjr/ui'
 import { bot as botAgent } from '../agents/bot'
 import { chief } from '../agents/chief'
 import { appList, setBotApp } from '../functions/apps'

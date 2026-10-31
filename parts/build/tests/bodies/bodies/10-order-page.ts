@@ -1,4 +1,4 @@
-import { query } from 'tentjs'
+import { query } from 'forjr'
 import { customers } from '../app/shop.ts'
 
 export const orderPage = query('orderPage', {

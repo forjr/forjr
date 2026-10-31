@@ -9,7 +9,7 @@ const system = { kind: 'system' } as const
 
 const isRow = (value: unknown): value is Row => typeof value === 'object' && value !== null && !Array.isArray(value)
 
-/** The key of a hold, as `_t_holds` keeps it. */
+/** The key of a hold, as `_f_holds` keeps it. */
 const keyOf = (hold: Row): Row => ({
   file: hold.file,
   tableName: hold.tableName,
@@ -50,7 +50,7 @@ export async function forgetFilesOf(o: Opened, person: string): Promise<void> {
           : Number(
               tx.read(
                 {
-                  from: '_t_history',
+                  from: '_f_history',
                   where: {
                     all: [
                       { col: 'tableName', is: tableName },

@@ -2,7 +2,7 @@ import { commandLine } from '../commandLine.ts'
 import type { Command } from '../command.ts'
 
 /**
- * `tent cli <target> <words>`: the runner of an app's own command line, as a command of the player, with no
+ * `forjr cli <target> <words>`: the runner of an app's own command line, as a command of the player, with no
  * launcher. It prints by itself, and ends as the command it ran ends.
  */
 export const command: Command = {

@@ -26,8 +26,8 @@ test('[44-2] a publish whose impact holds wider rights is refused without accept
   )
   here.edit(
     functions,
-    "import { action, change, input, number, query, text } from 'tentjs'",
-    "import { action, anyone, change, input, number, query, text } from 'tentjs'",
+    "import { action, change, input, number, query, text } from 'forjr'",
+    "import { action, anyone, change, input, number, query, text } from 'forjr'",
   )
   await here.save()
 
@@ -35,7 +35,7 @@ test('[44-2] a publish whose impact holds wider rights is refused without accept
   const tried = await publish({ project: here.project, history: here.history, to, fetch: fetched, try: true })
   assert.deepEqual(
     tried.impact?.rights.map((one) => [one.name, one.change]),
-    [['addOrder', 'now callable by anyone']],
+    [['addOrder', 'now callable by anyone (why: a test widens it)']],
   )
   assert.equal(tried.impact?.against, 'live')
   // The impact is the one report: what the target told of itself to work it out is no part of the answer.
@@ -46,7 +46,7 @@ test('[44-2] a publish whose impact holds wider rights is refused without accept
     () => undefined,
     (error: { code?: string; fields?: Record<string, string> }) => error,
   )
-  assert.deepEqual([refused?.code, refused?.fields?.reason], ['T9103', 'impact'])
+  assert.deepEqual([refused?.code, refused?.fields?.reason], ['F9103', 'impact'])
   assert.equal(running(server), before)
 
   // Accepted, it lands, and the impact is kept with the point that was published.

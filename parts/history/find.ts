@@ -23,7 +23,7 @@ export function find(file: SqliteFile, word: string): Point | undefined {
   return starting.length === 1 ? starting[0] : undefined
 }
 
-/** The point that a word names. Throws T9107 where it names none. */
+/** The point that a word names. Throws F9107 where it names none. */
 export function found(file: SqliteFile, word: string): Point {
   const point = find(file, word)
   if (!point) throw missing('point', word, `The history holds no point that \`${word}\` names.`)

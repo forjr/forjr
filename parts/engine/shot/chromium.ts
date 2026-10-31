@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored } from '../../core/internal.ts'
 import type { Opened } from '../opened.ts'
 import type { Browsed, BrowserOpening } from './browsed.ts'
@@ -63,7 +63,7 @@ export function routedOver(
 
 /**
  * Takes an app, where its browser reaches it, and how the page is opened. Starts a browser of the Chromium family
- * and drives one page of it over the browser's own channel, with the small client that `tent shot` uses. Every
+ * and drives one page of it over the browser's own channel, with the small client that `forjr shot` uses. Every
  * request of the page goes through the routes of the engine. Answers the page.
  */
 export async function chromiumPage(
@@ -107,7 +107,7 @@ export async function chromiumPage(
     })
     await page.send('Network.enable')
     // The page tells the app that a test drives it, which the mode `test` alone reads.
-    await page.send('Network.setCookie', { name: 'tent_test', value: '1', url: at.origin })
+    await page.send('Network.setCookie', { name: 'forjr_test', value: '1', url: at.origin })
     if (opening.cookie)
       await page.send('Network.setCookie', { ...opening.cookie, url: at.origin, httpOnly: true, sameSite: 'Lax' })
     if (opening.language) {
@@ -149,7 +149,7 @@ export async function chromiumPage(
       },
       async files(expression, paths) {
         const element = await evaluated(expression, false)
-        if (typeof element.objectId !== 'string') throw new TentError('T0001', 'No field of files was found.')
+        if (typeof element.objectId !== 'string') throw new ForjrError('F0001', 'No field of files was found.')
         await page.send('DOM.setFileInputFiles', { files: paths, objectId: element.objectId })
       },
       async picture(how = {}) {

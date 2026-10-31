@@ -20,12 +20,12 @@ const { join } = await import('node:path')
 const origin = `http://localhost:${JSON.parse(readFileSync(join(dataFolder, 'engine.json'), 'utf8')).port}`
 const said: Record<string, unknown> = { engine: loaded.some((url) => url.endsWith('/parts/engine/open.ts')) }
 const post = { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{"input":{}}' }
-said.called = (await app.request(new Request(`${origin}/_t/call/publicTags`, post))).status
+said.called = (await app.request(new Request(`${origin}/_f/call/publicTags`, post))).status
 // Every address of a page is asked for: none is there, and none loads what draws one.
 said.screens = []
-for (const path of ['/', '/orders/42', '/_t/b/browser/page.js'])
+for (const path of ['/', '/orders/42', '/_f/b/browser/page.js'])
   Object(said.screens).push((await app.request(new Request(origin + path))).status)
-said.read = (await app.request(new Request(`${origin}/_t/read/publicTags`, post))).status
+said.read = (await app.request(new Request(`${origin}/_f/read/publicTags`, post))).status
 said.page = await app.page('/').then(
   () => 'answered',
   (error) => Reflect.get(Object(error), 'code'),

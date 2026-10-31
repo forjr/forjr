@@ -69,7 +69,7 @@ const handed = (record: string, key: string, names: string[]): string =>
  * screen side outside its own folder is held by the main file once, which gives it in the record `inner`, and what
  * it takes of React it reads from `names`: so a page holds each once, whichever of its files asks. The main file
  * names a part as `./<part>.js`, and a part the main file as `./page.js`. In the form for one file each is a plain
- * script: the main file gives its names as `__tent` of the page, each part reads them from there, and the part
+ * script: the main file gives its names as `__forjr` of the page, each part reads them from there, and the part
  * `chat`, which only that form holds, is among them.
  */
 export async function browserFiles(o: {
@@ -107,7 +107,7 @@ export async function browserFiles(o: {
   const keyOf = (file: string): string => slashed(relative(screens, file))
   const shared = [...given].sort(([a], [b]) => (a < b ? -1 : 1))
   const main = await bundlePage({
-    entry: 'tent-page-entry',
+    entry: 'forjr-page-entry',
     made: [
       `export * from ${JSON.stringify(`${page}/browser.ts`)}`,
       ...shared.map(
@@ -131,7 +131,7 @@ export async function browserFiles(o: {
     side: 'browser',
     small: o.small,
     pure: o.pure,
-    ...(o.single ? { classic: { name: '__tent', globals: {} } } : {}),
+    ...(o.single ? { classic: { name: '__forjr', globals: {} } } : {}),
     ...mapped('page'),
     // The main file loads a part by its name, and holds nothing of it.
     instead: (file) => {
@@ -147,7 +147,7 @@ export async function browserFiles(o: {
       side: 'browser',
       small: o.small,
       pure: o.pure,
-      ...(o.single ? { classic: { globals: { './page.js': '__tent' } } } : {}),
+      ...(o.single ? { classic: { globals: { './page.js': '__forjr' } } } : {}),
       ...mapped(name),
       instead: (file) => {
         if (before.has(name)) {

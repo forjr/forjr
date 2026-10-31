@@ -1,4 +1,4 @@
-import { component, read, screen } from 'tentjs/ui'
+import { component, read, screen } from 'forjr/ui'
 import { allNotes, slowCount, slowFailing, slowNote } from '../functions/shelf'
 
 export const Waiting = component('Waiting', {

@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { screen, useCall, useRun } from 'tentjs/ui'
+import { screen, useCall, useRun } from 'forjr/ui'
 import { startWaiting } from './functions'
 
 // A screen in code that starts a run of a flow, follows it, and stops it with `stop` of `useRun`.

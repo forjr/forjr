@@ -20,7 +20,7 @@ A store keeps bytes under their fingerprint and knows nothing else: the ids, nam
 
 ```ts
 // engine.ts
-import type { FileStore, Makers } from 'tentjs/engine'
+import type { FileStore, Makers } from 'forjr/engine'
 
 const kept = new Map<string, Uint8Array>()
 const files: FileStore = {

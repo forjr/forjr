@@ -14,24 +14,24 @@ import { copyOf, lineWith, lying } from './copies.ts'
 // The codes of the build and of the first rules of the check: those of the build and of the rules of the
 // check, and those that the description raises, whose projects a build first makes possible.
 const codes = [
-  ...['T1001', 'T1002', 'T1003', 'T1004', 'T1005', 'T1006', 'T1007', 'T1008', 'T1009', 'T1010', 'T1011'],
-  ...['T1012', 'T1013', 'T1014', 'T4001', 'T4002', 'T4003', 'T4004', 'T4005', 'T8000', 'T8001', 'T8002', 'T9002'],
+  ...['F1001', 'F1002', 'F1003', 'F1004', 'F1005', 'F1006', 'F1007', 'F1008', 'F1009', 'F1010', 'F1011'],
+  ...['F1012', 'F1013', 'F1014', 'F4001', 'F4002', 'F4003', 'F4004', 'F4005', 'F8000', 'F8001', 'F8002', 'F9002'],
 ]
 
 test('[15-1] every rule has a passing project and a failing project, and the failing one gives exactly its code', async () => {
   // These codes are held among whatever else the check holds: a folder, a rule and a finding of a code that is none
   // of them is held by the tests of its own code.
-  const folders = readdirSync(lying('.')).filter((name) => /^T\d{4}$/.test(name))
+  const folders = readdirSync(lying('.')).filter((name) => /^F\d{4}$/.test(name))
   for (const code of codes) assert.ok(folders.includes(code), `${code} has its folder of projects`)
   // Every rule of the check among these codes is a file of the list.
   const rules = list.map((one) => one.name)
-  for (const code of ['T1014', 'T4001', 'T4002', 'T4003', 'T4004', 'T4005', 'T8001', 'T8002', 'T9002'])
+  for (const code of ['F1014', 'F4001', 'F4002', 'F4003', 'F4004', 'F4005', 'F8001', 'F8002', 'F9002'])
     assert.ok(rules.includes(code), `the rule ${code} is in the list`)
   for (const code of codes) {
     for (const side of ['pass', 'fail']) assert.ok(existsSync(join(lying(code), side, 'functions')), `${code}/${side}`)
-    // T8000 is what the type checker finds, which is started for it. Every other code is found by our own rules,
+    // F8000 is what the type checker finds, which is started for it. Every other code is found by our own rules,
     // where the type checker would report the same mistake a second time under its own code.
-    const check = code === 'T8000' ? checkProject : checkRules
+    const check = code === 'F8000' ? checkProject : checkRules
     const ours = async (project: string) =>
       (await check(copyOf(join(code, project), `${code}-${project}`))).findings.filter((one) =>
         codes.includes(one.code),
@@ -42,19 +42,19 @@ test('[15-1] every rule has a passing project and a failing project, and the fai
     assert.deepEqual([...new Set(failing.map((one) => one.code))], [code], `the failing project of ${code}`)
     for (const one of failing) {
       assert.ok(one.fix, `a finding of ${code} says the fix`)
-      assert.equal(one.docs, `tent docs ${code}`)
+      assert.equal(one.docs, `forjr docs ${code}`)
     }
   }
 })
 
 test('[15-1] a folder that is named by a path from where the program was started is found with what its whole path is found with', async () => {
-  const whole = copyOf(join('T8000', 'fail'), 'T8000-from-here')
+  const whole = copyOf(join('F8000', 'fail'), 'F8000-from-here')
   const fromHere = relative(process.cwd(), whole)
   assert.ok(!isAbsolute(fromHere), fromHere)
   const places = (findings: { code: string; where?: { file: string; line: number } }[]) =>
     findings.map((one) => `${one.code} ${one.where?.file}:${one.where?.line}`)
   const expected = places((await checkProject(whole)).findings)
-  assert.deepEqual(expected, ['T8000 functions/notes.ts:5'])
+  assert.deepEqual(expected, ['F8000 functions/notes.ts:5'])
   assert.deepEqual(places((await checkProject(fromHere)).findings), expected)
 })
 
@@ -64,7 +64,7 @@ test('[15-2] a project with twenty different mistakes reports all twenty in one 
   const ours = made.findings.filter((one) => codes.includes(one.code))
   const found = new Set(ours.map((one) => one.code))
   // Twenty-two codes, each for a mistake of its own: every code of the list but the one for a project that is not there.
-  const expected = codes.filter((code) => code !== 'T1012')
+  const expected = codes.filter((code) => code !== 'F1012')
   assert.equal(expected.length, 22)
   for (const code of expected) assert.ok(found.has(code), `${code} is reported, among ${[...found].sort().join(' ')}`)
   assert.deepEqual([...found].sort(), expected)
@@ -72,8 +72,8 @@ test('[15-2] a project with twenty different mistakes reports all twenty in one 
   for (const one of ours) {
     assert.match(one.where?.file ?? '', /\.ts$/, one.code)
     assert.ok((one.where?.line ?? 0) > 0, one.code)
-    assert.ok(one.message.length > 10 && one.fix && one.docs === `tent docs ${one.code}`, one.code)
-    assert.equal(one.level, one.code === 'T8001' || one.code === 'T8002' ? 'warning' : 'error', one.code)
+    assert.ok(one.message.length > 10 && one.fix && one.docs === `forjr docs ${one.code}`, one.code)
+    assert.equal(one.level, one.code === 'F8001' || one.code === 'F8002' ? 'warning' : 'error', one.code)
   }
 })
 
@@ -107,7 +107,7 @@ test('[10-5] an async run on a query or a change is refused by the type checker 
   const made = await checkProject(folder)
   const text = readFileSync(join(folder, 'functions', 'notes.ts'), 'utf8')
   const lines = [lineWith(text, 'run: async ({ db })'), lineWith(text, 'run: async ({ input, db })')]
-  for (const code of ['T4005', 'T8000']) {
+  for (const code of ['F4005', 'F8000']) {
     const found = made.findings.filter((one) => one.code === code)
     assert.deepEqual(
       found.map((one) => one.where?.line),
@@ -116,8 +116,8 @@ test('[10-5] an async run on a query or a change is refused by the type checker 
     )
     for (const one of found) assert.equal(one.level, 'error')
   }
-  assert.match(made.findings.find((one) => one.code === 'T8000')?.message ?? '', /^TS\d+: .*Promise/)
-  assert.match(made.findings.find((one) => one.code === 'T4005')?.fix ?? '', /Take `async` away/)
+  assert.match(made.findings.find((one) => one.code === 'F8000')?.message ?? '', /^TS\d+: .*Promise/)
+  assert.match(made.findings.find((one) => one.code === 'F4005')?.fix ?? '', /Take `async` away/)
   assert.equal(made.findings.length, 4)
 })
 
@@ -128,24 +128,24 @@ test('[12-3b] the check reports a word that asks the engine at the top of a file
   const of = (code: string) =>
     made.findings.filter((one) => one.code === code).map((one) => `${one.where?.definition ?? ''}:${one.where?.line}`)
   // A reference word and a setting, each read at the top of the file.
-  assert.deepEqual(of('T1014'), [`:${lineWith(text, "input('first')")}`, `:${lineWith(text, 'settings.shopName')}`])
+  assert.deepEqual(of('F1014'), [`:${lineWith(text, "input('first')")}`, `:${lineWith(text, 'settings.shopName')}`])
   // `-` between two inputs, `===` between a column of a row and an input, a moment in a text, and `calc` in a form written with values.
   assert.deepEqual(
-    of('T8001'),
+    of('F8001'),
     ['apart', 'same', 'told', 'byCalc'].map((name) => `${name}:${lineWith(text, `query('${name}'`)}`),
   )
-  const moments = made.findings.filter((one) => one.code === 'T8001')
+  const moments = made.findings.filter((one) => one.code === 'F8001')
   assert.match(moments[0].fix ?? '', /between/)
   assert.match(moments[2].fix ?? '', /concat/)
   // Rows that `db` handed against a field of an input, and two lists written in place.
   const lists = `lists:${lineWith(text, "query('lists'")}`
-  assert.deepEqual(of('T8002'), [lists, lists])
-  assert.match(made.findings.find((one) => one.code === 'T8002')?.fix ?? '', /a field of each, as their ids/)
-  for (const one of made.findings) assert.equal(one.level, one.code === 'T1014' ? 'error' : 'warning')
+  assert.deepEqual(of('F8002'), [lists, lists])
+  assert.match(made.findings.find((one) => one.code === 'F8002')?.fix ?? '', /a field of each, as their ids/)
+  for (const one of made.findings) assert.equal(one.level, one.code === 'F1014' ? 'error' : 'warning')
   assert.equal(made.findings.length, 8, 'and nothing is found of what compares rightly')
 
   // The fail projects of the three codes hold the cases of the document.
-  const top = await checkRules(copyOf(join('T1014', 'fail'), 'top'))
+  const top = await checkRules(copyOf(join('F1014', 'fail'), 'top'))
   assert.match(top.findings[0].message, /`now\(\)`, a word that asks the engine, stands at the top/)
 })
 
@@ -185,7 +185,7 @@ test('[15-3] our rules finish within the budget on a project of a hundred defini
       writeFileSync(file, wrong ? `${text}\nconst wrong${round}: number = 'text'\n` : `${text}\n// mended ${round}\n`)
       assert.deepEqual(
         (await kept.next()).map((one) => [one.code, one.where?.file]),
-        wrong ? [['T8000', 'part0.ts']] : [],
+        wrong ? [['F8000', 'part0.ts']] : [],
         `save ${round + 1}`,
       )
     }
@@ -225,7 +225,7 @@ test('[15-3] where the type checker ends by itself, what waits for its next pass
 })
 
 test('[15-3] a file added while the type checker is kept running, which nothing imports, is read by the pass after it is saved, and the fix is worked out from the file as it is saved', async () => {
-  const folder = copyOf('T8001/pass', 'T8001-pass-added')
+  const folder = copyOf('F8001/pass', 'F8001-pass-added')
   const { source } = await checkRules(folder)
   const kept = keepTypes(folder, source)
   let late: ReturnType<typeof setTimeout> | undefined
@@ -242,14 +242,14 @@ test('[15-3] a file added while the type checker is kept running, which nothing 
     writeFileSync(join(folder, 'functions', 'added.ts'), "export const wrong: number = 'text'\n")
     assert.deepEqual(
       (await next()).map((one) => [one.code, one.where?.file, one.where?.line]),
-      [['T8000', 'functions/added.ts', 1]],
+      [['F8000', 'functions/added.ts', 1]],
     )
     writeFileSync(
       join(folder, 'functions', 'added.ts'),
       "const order = { placedBy: 'a user' }\nexport const name: string = order.placedBy.name\n",
     )
     const [one] = await next()
-    assert.deepEqual([one?.code, one?.where?.line], ['T8000', 2])
+    assert.deepEqual([one?.code, one?.where?.line], ['F8000', 2])
     assert.match(String(one?.fix), /with\('placedBy'\)/)
   } finally {
     clearTimeout(late)
@@ -257,12 +257,12 @@ test('[15-3] a file added while the type checker is kept running, which nothing 
   }
 })
 
-test('[15-1] an error of the type checker that names no place, a file it is handed that is not found, is T8000 too, run once and kept running', async () => {
-  const folder = copyOf('T8001/pass', 'T8001-pass-gone')
+test('[15-1] an error of the type checker that names no place, a file it is handed that is not found, is F8000 too, run once and kept running', async () => {
+  const folder = copyOf('F8001/pass', 'F8001-pass-gone')
   const { source } = await checkRules(folder)
   const gone = { ...source, 'gone.ts': { file: join(folder, 'gone.ts'), text: '' } }
   const named = (found: { code: string; message: string }[]) =>
-    found.some((one) => one.code === 'T8000' && /^TS\d+: .*gone\.ts/.test(one.message))
+    found.some((one) => one.code === 'F8000' && /^TS\d+: .*gone\.ts/.test(one.message))
   assert.ok(named(await checkTypes(folder, gone)), 'the type checker run once names the file that is not found')
   const kept = keepTypes(folder, gone)
   try {
@@ -270,4 +270,34 @@ test('[15-1] an error of the type checker that names no place, a file it is hand
   } finally {
     kept.stop()
   }
+})
+
+test('[15-1] the projects of every rule of the list: the failing one gives its code and nothing else, the passing one gives nothing', async () => {
+  const wrong: string[] = []
+  for (const entry of list) {
+    const { rule } = await entry.load()
+    // A rule over the facts of a running app is held by the tests that hand it the facts.
+    if (rule.needs.includes('facts')) continue
+    const of = async (side: string) =>
+      (await checkRules(copyOf(join(entry.name, side), `project-${entry.name.replace('/', '-')}-${side}`))).findings
+    const failing = await of('fail')
+    const passing = await of('pass')
+    if (!failing.some((one) => one.code === rule.code))
+      wrong.push(`${entry.name}: the failing project gives no ${rule.code}`)
+    const others = [...new Set(failing.filter((one) => one.code !== rule.code).map((one) => one.code))]
+    if (others.length) wrong.push(`${entry.name}: the failing project gives ${others.join(', ')} beside ${rule.code}`)
+    const besides = [...new Set(passing.map((one) => one.code))]
+    if (besides.length) wrong.push(`${entry.name}: the passing project gives ${besides.join(', ')}`)
+  }
+  assert.deepEqual(wrong, [])
+})
+
+test('[15-1] the passing project of every rule of the list passes the type checker too', async () => {
+  const wrong: string[] = []
+  for (const entry of list) {
+    const copy = copyOf(join(entry.name, 'pass'), `project-${entry.name.replace('/', '-')}-pass-typed`)
+    for (const one of (await checkProject(copy)).findings.filter((found) => found.code === 'F8000'))
+      wrong.push(`${entry.name}: ${one.where?.file}:${one.where?.line} ${one.message}`)
+  }
+  assert.deepEqual(wrong, [])
 })

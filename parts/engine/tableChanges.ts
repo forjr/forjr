@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
 import type { Seal, Store, TableLayout, TableStep } from '../data/index.ts'
 import {
@@ -43,11 +43,12 @@ export interface Planned {
 /**
  * Takes the store of an app, which stands open, its description, and the tables of the engine. Answers the steps
  * from the layout the file holds to the layout that the description asks for, and the tables of the engine that
- * the file lacks. Changes nothing. Where a step would be refused, it throws the finding: T2001 to T2004.
+ * the file lacks. Changes nothing. Where a step would be refused, it throws the finding: F2001 to F2004.
  */
 export function planTables(store: Store, description: Description, engine: TableLayout[]): Planned {
   const [refused] = factsOf(store, description).tableFindings
-  if (refused) throw new TentError(refused.code, refused.message, refused.fix === undefined ? {} : { fix: refused.fix })
+  if (refused)
+    throw new ForjrError(refused.code, refused.message, refused.fix === undefined ? {} : { fix: refused.fix })
   const held = store.layout()
   const there = new Set(held.map((table) => table.name))
   const own: TableStep[] = engine
@@ -55,11 +56,11 @@ export function planTables(store: Store, description: Description, engine: Table
     .map((layout) => ({ do: 'addTable', table: layout.name, layout }))
   const stated = description.project.removed
   const { steps } = planTableChanges(
-    held.filter((table) => !table.name.startsWith('_t_')),
+    held.filter((table) => !table.name.startsWith('_f_')),
     layoutOf(description),
     { removed: Array.isArray(stated) ? stated.map(String) : [] },
   )
-  return { own, steps, held: held.some((table) => !table.name.startsWith('_t_')) }
+  return { own, steps, held: held.some((table) => !table.name.startsWith('_f_')) }
 }
 
 /**
@@ -74,7 +75,7 @@ export function applyPlanned(store: Store, planned: Planned, o: { seal?: Seal } 
 /**
  * Takes the store of an app, which stands open, its description, and the tables of the engine. Brings the tables
  * of the data to what the description asks for, inside one write. Where a step is refused, nothing is changed, and
- * it throws the finding: T2001 to T2004.
+ * it throws the finding: F2001 to F2004.
  */
 export function changeTables(store: Store, description: Description, engine: TableLayout[]): void {
   applyPlanned(store, planTables(store, description, engine))

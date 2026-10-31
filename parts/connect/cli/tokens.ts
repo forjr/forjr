@@ -4,7 +4,7 @@ import type { Reach } from '../env.ts'
 import { keepTokens, keptApp } from './keys.ts'
 
 /** The id that the app's own command line names itself by. */
-export const cliClient = 'tent-cli'
+export const cliClient = 'forjr-cli'
 
 // How long a lock on the file of the keys may stand before it is taken as left over by a program that ended.
 const staleLock = 30_000
@@ -54,7 +54,7 @@ export async function tokensOf(
 
 /** A request of the token address, as a form, through a reach that adds no sign-in of its own. */
 export const tokenRequest = (fields: Record<string, string>): Request =>
-  new Request('http://localhost/_t/oauth/token', {
+  new Request('http://localhost/_f/oauth/token', {
     method: 'POST',
     headers: { 'content-type': 'application/x-www-form-urlencoded' },
     body: new URLSearchParams(fields).toString(),

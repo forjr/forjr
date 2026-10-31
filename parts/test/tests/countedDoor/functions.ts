@@ -1,4 +1,4 @@
-import { flow, incoming, number, query, route, table, text } from 'tentjs'
+import { flow, incoming, number, query, route, table, text } from 'forjr'
 
 export const notes = table('notes', {
   columns: { title: text() },

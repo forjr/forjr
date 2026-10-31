@@ -27,10 +27,10 @@ const extension = '2026-01-26'
 
 /** What the file holds, and the records that the modules of its views gave. */
 function heldIn(): Held | undefined {
-  const block = document.querySelector('body > script[type="application/json"]#tent-views')
+  const block = document.querySelector('body > script[type="application/json"]#forjr-views')
   const read: unknown = JSON.parse(block?.textContent ?? 'null')
   if (!isStored(read) || typeof read.screen !== 'string') return undefined
-  const coded: unknown = Reflect.get(globalThis, '__tentViews')
+  const coded: unknown = Reflect.get(globalThis, '__forjrViews')
   const records: ViewRecord[] = (Array.isArray(coded) ? coded : []).filter(
     (one): one is ViewRecord => isStored(one) && typeof one.name === 'string',
   )
@@ -51,7 +51,7 @@ const isPage = (value: unknown): value is Page =>
 async function mayConnect(origin: string): Promise<boolean> {
   try {
     // A policy that forbids it fails at once; an answer that never comes counts as none after a while.
-    await fetch(`${origin}/_t/health`, {
+    await fetch(`${origin}/_f/health`, {
       mode: 'no-cors',
       credentials: 'omit',
       cache: 'no-store',
@@ -65,23 +65,23 @@ async function mayConnect(origin: string): Promise<boolean> {
 
 /** Shows the one line that says the view is out of date, above the screen, once, in the language of the frame. */
 function outOfDate(words: Words): void {
-  if (document.getElementById('tent-old')) return
+  if (document.getElementById('forjr-old')) return
   const line = document.createElement('p')
-  line.id = 'tent-old'
+  line.id = 'forjr-old'
   line.setAttribute('role', 'status')
-  line.textContent = textOf(words, 'tent.chat.outOfDate')
+  line.textContent = textOf(words, 'forjr.chat.outOfDate')
   document.body.prepend(line)
 }
 
 async function alive(): Promise<void> {
-  const holder = document.querySelector('body > div#tent')
+  const holder = document.querySelector('body > div#forjr')
   const held = heldIn()
   if (!holder || !held || window.parent === window) return
   if (isLeftward(held.language)) document.documentElement.setAttribute('dir', 'rtl')
   // The file of each language of the project holds that language's words, over the framework's own.
   const words: Words = { ...ownWords, ...wordsIn(held.messages) }
   const origin = new URL(document.baseURI).origin
-  const version = document.querySelector('head > meta[name="tent-version"]')?.getAttribute('content') ?? ''
+  const version = document.querySelector('head > meta[name="forjr-version"]')?.getAttribute('content') ?? ''
   const bridge = bridgeTo(window.parent)
   const connected = await mayConnect(origin)
   const record = held.records.find((one) => one.name === held.screen)
@@ -95,10 +95,10 @@ async function alive(): Promise<void> {
   const taken = (result: unknown): unknown => {
     const wire = wireOf(result)
     const meta: Record<string, unknown> = isStored(result) && isStored(result._meta) ? result._meta : {}
-    const page = meta['tent.page']
+    const page = meta['forjr.page']
     if (!isStored(wire) || wire.ok !== true || !isPage(page)) return wire
-    if (typeof meta['tent.pass'] === 'string') pass = meta['tent.pass']
-    const frame = isStored(meta['tent.frame']) ? meta['tent.frame'] : {}
+    if (typeof meta['forjr.pass'] === 'string') pass = meta['forjr.pass']
+    const frame = isStored(meta['forjr.frame']) ? meta['forjr.frame'] : {}
     if (typeof frame.ask === 'number' && frame.ask > 0) every = frame.ask
     if (typeof frame.life === 'number' && frame.life > 0) life = frame.life
     const made: Page = { ...page, base: origin, ...(pass === undefined ? {} : { pass }) }
@@ -130,13 +130,13 @@ async function alive(): Promise<void> {
     if (store) return
     const wire = taken(params)
     if (!isStored(wire) || wire.ok !== true || !isPage(wire.value)) {
-      holder.textContent = textOf(words, 'tent.chat.notShown')
+      holder.textContent = textOf(words, 'forjr.chat.notShown')
       return
     }
     first = wire.value
     store = livingPage(first, held.records, reach, wordsIn(held.messages))
     createRoot(holder).render(createElement(StoreContext.Provider, { value: store }, createElement(Shown)))
-    holder.setAttribute('data-t-alive', '')
+    holder.setAttribute('data-f-alive', '')
     // A frame that cannot connect asks again every so often; one that can, before its pass ends.
     setInterval(again, connected ? Math.max(1000, life - 60_000) : every)
   })
@@ -148,7 +148,7 @@ async function alive(): Promise<void> {
     })
   } catch {
     // A chat app that does not answer the opening leaves no empty frame: the frame says it could not be shown.
-    holder.textContent = textOf(words, 'tent.chat.notShown')
+    holder.textContent = textOf(words, 'forjr.chat.notShown')
     return
   }
   bridge.notify('ui/notifications/initialized', {})

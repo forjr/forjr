@@ -1,6 +1,6 @@
-import { TentError } from '../core/index.ts'
-import type { Description } from '../core/internal.ts'
-import { providerAddresses } from '../core/internal.ts'
+import { ForjrError } from '../core/index.ts'
+import type { Description, Placed } from '../core/internal.ts'
+import { definitionsOf, providerAddresses } from '../core/internal.ts'
 
 /** What an agent that builds may read, change and call in a workspace: the `policy` of `agent`. */
 export interface Policy {
@@ -61,57 +61,6 @@ function covers(entry: string, kind: string, name: string): boolean {
 /** Whether a list of a policy covers a definition of a kind and a name. */
 export const allows = (list: string[], kind: string, name: string): boolean =>
   list.some((one) => covers(one, kind, name))
-
-// The parts of a description that hold definitions by their names.
-const parts = [
-  'tables',
-  'functions',
-  'flows',
-  'screens',
-  'components',
-  'services',
-  'models',
-  'routes',
-  'incoming',
-  'commands',
-]
-
-/** The kind of a definition as a policy names it: one of the ten words, `agent`, `python`, `route`, `incoming`, `command`. */
-function kindOf(part: string, record: Record<string, unknown>): string {
-  if (part === 'functions') return record.python !== undefined ? 'python' : String(record.kind ?? 'action')
-  if (part === 'flows') return record.agent !== undefined ? 'agent' : 'flow'
-  return part.replace(/s$/, '')
-}
-
-/** One definition of a description: its kind, its stored record, and the file it lies in. */
-export interface Placed {
-  kind: string
-  record: Record<string, unknown>
-  file?: string
-}
-
-/** Every definition of a description by its name, the project among them, with the file that holds it. */
-export function definitionsOf(description: Description | undefined): Map<string, Placed> {
-  const found = new Map<string, Placed>()
-  if (!description) return found
-  const places: Record<string, unknown> = Object(Reflect.get(description, 'places'))
-  const fileOf = (name: string): string | undefined => {
-    const file: unknown = Reflect.get(Object(places[name]), 'file')
-    return typeof file === 'string' ? file : undefined
-  }
-  for (const part of parts) {
-    const all: Record<string, unknown> = Object(Reflect.get(description, part))
-    for (const [name, record] of Object.entries(all)) {
-      const file = fileOf(name)
-      found.set(name, { kind: kindOf(part, Object(record)), record: Object(record), ...(file ? { file } : {}) })
-    }
-  }
-  const project: Record<string, unknown> = Object(Reflect.get(description, 'project'))
-  const name = String(Reflect.get(Object(Reflect.get(description, 'app')), 'name') ?? '')
-  const file = fileOf(name)
-  if (name !== '') found.set(name, { kind: 'project', record: project, ...(file ? { file } : {}) })
-  return found
-}
 
 /** The hosts that a definition names: the address of a service, the place of a model or of its provider, and the `hosts` of the project. */
 function hostsOf(placed: Placed): string[] {
@@ -242,9 +191,9 @@ export function needsOf(
   return { asks: [...asks] }
 }
 
-/** The error of a write that the policy refuses: T9105, with the rule that was broken, which the model is handed. */
-export const refusedBy = (rule: string): TentError =>
-  new TentError('T9105', `The policy of the agent does not allow this: ${rule}.`, {
+/** The error of a write that the policy refuses: F9105, with the rule that was broken, which the model is handed. */
+export const refusedBy = (rule: string): ForjrError =>
+  new ForjrError('F9105', `The policy of the agent does not allow this: ${rule}.`, {
     fields: { rule },
     fix: 'Write the change within the policy: the kinds of definition it may create, edit and remove, the hosts it may reach and the options it opens.',
   })

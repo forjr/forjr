@@ -18,7 +18,7 @@ export const shop = project('shop', {
 
 ## Errors
 
-`code.T1014`: a state that is kept `in: 'address'`, one that states `back`, and one `in: 'device'` that is no `boolean`, `choice`, `number` or `text` with a `max` of 100 or less. Also a state that is no `boolean`, states no `default` and is not `optional`.
+`code.F1014`: a state that is kept `in: 'address'`, one that states `back`, and one `in: 'device'` that is no `boolean`, `choice`, `number` or `text` with a `max` of 100 or less. Also a state that is no `boolean`, states no `default` and is not `optional`.
 
 ## See also
 

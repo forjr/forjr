@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Adding } from './adding.ts'
 import type { By } from './face.ts'
 import type { FlowOf } from './flowOf.ts'
@@ -56,13 +56,13 @@ export function underWay(source: Source, start: Counted): RunRow | undefined {
 
 /**
  * Whether a start may be answered a run that is under way: where it is the system's, which reads every run, or
- * comes from the caller who started that run. Throws T7103 for any other, and answers nothing of the run.
+ * comes from the caller who started that run. Throws F7103 for any other, and answers nothing of the run.
  */
 export function mayJoin(by: By, run: RunRow): void {
   const started = run.startedBy
   const same = started.kind === by.kind && started.id === by.id && by.id !== undefined
   if (by.kind === 'system' || same) return
-  throw new TentError('T7103', `A run of ${run.flow} for this key is under way, and the flow joins a start to it.`, {
+  throw new ForjrError('F7103', `A run of ${run.flow} for this key is under way, and the flow joins a start to it.`, {
     fix: 'Start it again once that run has ended, or as the caller who started it.',
   })
 }

@@ -15,9 +15,9 @@ export interface State {
 }
 
 /** What a state is bound to: the form and the service, so that a state of one service opens for no other. */
-const boundOf = (service: string): string => `tent.connect/1\n${service}`
+const boundOf = (service: string): string => `forjr.connect/1\n${service}`
 
-/** Takes an app, a service and a state. Answers the state encrypted under the key of the secrets. Throws T0019 with none. */
+/** Takes an app, a service and a state. Answers the state encrypted under the key of the secrets. Throws F0019 with none. */
 export function sealState(o: Opened, service: string, state: State): string {
   const key = secretKeyAt(o.dataFolder)
   if (!key) throw noKeyAtHand('Connecting an account')

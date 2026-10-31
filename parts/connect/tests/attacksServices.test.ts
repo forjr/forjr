@@ -18,7 +18,7 @@ const errorOf = (call: Promise<unknown>): Promise<Record<string, unknown>> =>
     (error) => Object(error),
   )
 
-test("[05-11.1] a service whose address, or whose answer that sends the call on, leads into this computer's own network is T0022", async (t) => {
+test("[05-11.1] a service whose address, or whose answer that sends the call on, leads into this computer's own network is F0022", async (t) => {
   const inside = [
     'http://10.0.0.1/x',
     'http://169.254.169.254/latest/meta-data',
@@ -35,12 +35,12 @@ test("[05-11.1] a service whose address, or whose answer that sends the call on,
     service('meta', { url: 'https://169.254.169.254', calls: { one: get('/latest', { input: {} }) } }),
     service('sends', { url: sends.origin, calls: { one: get('/go', { input: {} }) } }),
   ])
-  assert.equal(await codeOf(call('inner', 'one', {})), 'T0022')
-  assert.equal(await codeOf(call('meta', 'one', {})), 'T0022')
-  for (const _ of inside) assert.equal(await codeOf(call('sends', 'one', {})), 'T0022')
+  assert.equal(await codeOf(call('inner', 'one', {})), 'F0022')
+  assert.equal(await codeOf(call('meta', 'one', {})), 'F0022')
+  for (const _ of inside) assert.equal(await codeOf(call('sends', 'one', {})), 'F0022')
 })
 
-test('[05-11.2] a service that answers a gigabyte, and one that never ends its answer, is cut at its size and its time: T7115', async (t) => {
+test('[05-11.2] a service that answers a gigabyte, and one that never ends its answer, is cut at its size and its time: F7115', async (t) => {
   const server = await standIn(t, (request, response) => {
     response.writeHead(200, {
       'content-type': request.url === '/file' ? 'application/octet-stream' : 'application/json',
@@ -74,9 +74,9 @@ test('[05-11.2] a service that answers a gigabyte, and one that never ends its a
     service('plain', { url: server.origin, tries: 1, calls: { json: get('/big', { input: {} }) } }),
   ])
   const began = performance.now()
-  assert.equal(await codeOf(call('big', 'json', {})), 'T7115')
-  assert.equal(await codeOf(call('big', 'slow', {})), 'T7115')
-  assert.equal(await codeOf(call('plain', 'json', {})), 'T7115', 'cut at 10 MB when no size is stated')
+  assert.equal(await codeOf(call('big', 'json', {})), 'F7115')
+  assert.equal(await codeOf(call('big', 'slow', {})), 'F7115')
+  assert.equal(await codeOf(call('plain', 'json', {})), 'F7115', 'cut at 10 MB when no size is stated')
   assert.ok(performance.now() - began < 20_000)
 })
 
@@ -93,7 +93,7 @@ test('[05-11.2] an answer of a call whose output is a file with no maxSize is cu
       calls: { one: get('/f', { input: {}, output: file() }) },
     }),
   ])
-  assert.equal(await codeOf(call('downloads', 'one', {})), 'T7115')
+  assert.equal(await codeOf(call('downloads', 'one', {})), 'F7115')
 })
 
 test('[05-11.4] a value for a place in the path that holds `../admin`, a question mark or a line break stays one part of the address', async (t) => {
@@ -182,7 +182,7 @@ test('[05-11.39] a `Retry-After` of a year ends the call; one of a negative numb
     response.end('{}')
   })
   const made = calling([service('shop', { url: server.origin, calls: { one: get('/s', { input: {} }) } })])
-  assert.equal(await codeOf(made.call('shop', 'one', {})), 'T7115', 'a year ends the call')
+  assert.equal(await codeOf(made.call('shop', 'one', {})), 'F7115', 'a year ends the call')
   assert.equal(server.asked.length, 1)
   n = 2
   assert.deepEqual(await made.call('shop', 'one', {}), {})
@@ -190,7 +190,7 @@ test('[05-11.39] a `Retry-After` of a year ends the call; one of a negative numb
   assert.deepEqual(made.slept, [1000, 1000], 'a negative number and a past date wait as for none')
 })
 
-test('[05-11.44] a signer that throws is T0009, and one that answers a request for another host is still held to the guarded fetch', async (t) => {
+test('[05-11.44] a signer that throws is F0009, and one that answers a request for another host is still held to the guarded fetch', async (t) => {
   const server = await standIn(t, ok)
   const throws: Signer = () => {
     throw new Error('the signer failed')
@@ -203,8 +203,8 @@ test('[05-11.44] a signer that throws is T0009, and one that answers a request f
     ],
     { signers: { throws, elsewhere } },
   )
-  assert.equal(await codeOf(call('throws', 'one', {})), 'T0009')
-  assert.equal(await codeOf(call('away', 'one', {})), 'T0022')
+  assert.equal(await codeOf(call('throws', 'one', {})), 'F0009')
+  assert.equal(await codeOf(call('away', 'one', {})), 'F0022')
   assert.equal(server.asked.length, 0)
 })
 
@@ -222,7 +222,7 @@ test('[05-11.42] an error body of 10 MB of JSON from a service is kept up to `li
     }),
   ])
   const error = await errorOf(call('shop', 'one', {}))
-  assert.equal(error.code, 'T7115')
+  assert.equal(error.code, 'F7115')
   const kept = JSON.stringify(Object(error.service).body ?? '')
   assert.ok(kept.length <= 16_384 + 64, `${kept.length} characters are kept`)
 })

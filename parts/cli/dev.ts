@@ -6,8 +6,8 @@ import type { Source } from '../build/index.ts'
 import { buildSaved, readBody, storeTidied, watchProject } from '../build/index.ts'
 import { keepTypes, rulesThread } from '../check/index.ts'
 import type { Finding } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
-import type { Description } from '../core/internal.ts'
+import { ForjrError } from '../core/index.ts'
+import type { Description, PageBytes } from '../core/internal.ts'
 import { finding, limitDefaults } from '../core/internal.ts'
 import type { App } from '../engine/index.ts'
 import { createEngine, makeSecretKey, placedTidied } from '../engine/index.ts'
@@ -22,11 +22,12 @@ import { guardOf } from './guarded.ts'
 import { historyWork, person, shown } from './historyWork.ts'
 import type { Lying } from './lying.ts'
 import { changedFrom, lyingIn } from './lying.ts'
+import { mapAsked, mapAskedOf, mapInputOf, needsNoPage, releasedForMap } from './mapRelease.ts'
 import { findingText } from './print.ts'
 import { engineAt } from './reach.ts'
 import { unread } from './unread.ts'
 
-/** A session of `tent dev`: the app that it runs, and what ends it. */
+/** A session of `forjr dev`: the app that it runs, and what ends it. */
 export interface Dev {
   folder: string
   port: number
@@ -69,15 +70,15 @@ const quiet = 250
 const isError = (one: Finding): boolean => one.level === 'error'
 
 /**
- * Throws T0013 where an engine runs on the data folder already, and says where: only where what `engine.json`
+ * Throws F0013 where an engine runs on the data folder already, and says where: only where what `engine.json`
  * names proved that it holds the token. A file that a stopped engine left keeps no project shut.
  */
 async function refuseSecond(dataFolder: string): Promise<void> {
   const running = await engineAt(dataFolder)
   if (!running) return
-  throw new TentError(
-    'T0013',
-    `This project runs already, in the program ${running.pid}, at http://localhost:${running.port}: one \`tent dev\` runs in a project.`,
+  throw new ForjrError(
+    'F0013',
+    `This project runs already, in the program ${running.pid}, at http://localhost:${running.port}: one \`forjr dev\` runs in a project.`,
     { fix: 'Use the one that runs, or end it first with Ctrl+C in its terminal.' },
   )
 }
@@ -99,9 +100,9 @@ async function freePort(asked: number): Promise<number> {
 
 /** What a thing that was thrown is as a finding: an error of our own with its code and its fix, and anything else as it reads. */
 function foundIn(thrown: unknown): Finding {
-  if (thrown instanceof TentError)
+  if (thrown instanceof ForjrError)
     return finding(thrown.code, thrown.message, thrown.fix === undefined ? {} : { fix: thrown.fix })
-  return finding('T0009', thrown instanceof Error ? thrown.message : String(thrown))
+  return finding('F0009', thrown instanceof Error ? thrown.message : String(thrown))
 }
 
 /**
@@ -110,7 +111,7 @@ function foundIn(thrown: unknown): Finding {
  * `development`, seeds data that is empty, and watches the folder: each save is built and held against our own
  * rules, and with no error the new version is added and switched to, so that open pages follow it. With an error
  * the last good version keeps running, and what was found is said and shown on the open pages. The type checker
- * runs beside this and holds nothing back. Throws T0013 where a program runs the project already.
+ * runs beside this and holds nothing back. Throws F0013 where a program runs the project already.
  */
 export async function startDev(
   folder: string,
@@ -125,7 +126,7 @@ export async function startDev(
     out(line: string): void
   },
 ): Promise<Dev> {
-  const dataFolder = join(folder, '.tent')
+  const dataFolder = join(folder, '.forjr')
   await refuseSecond(dataFolder)
   // Our rules run on a thread of their own, beside the build of a save and the load of its version.
   const rules = rulesThread()
@@ -149,6 +150,10 @@ export async function startDev(
   // What the newest build read, the files that were told of since a round last began, and whether a save was found
   // with no file named: a save is one round, however many times it is told of.
   let read: Record<string, string> | undefined
+  // The newest build, whose description and source the map is made from, and the bytes of the page of the last release
+  // build made for the map, with the fingerprints of the files the newest build had read when it was made.
+  let newest: Awaited<ReturnType<typeof buildSaved>> | undefined
+  let pageKept: { prints: string; page: PageBytes | 'unbuilt' } | undefined
   const told = new Set<string>()
   let found = false
   let saidMuch = false
@@ -187,6 +192,7 @@ export async function startDev(
       },
     })
     read = built.prints
+    newest = built
     if (built.bundleList) wrote.add(resolve(built.bundleList))
     return { ...built, ruled: held ?? ruled(built) }
   }
@@ -271,14 +277,14 @@ export async function startDev(
     await watched
     for (const one of watchers) await one.close()
     await rules.close()
-    throw new TentError('T0013', 'The session was ended before the project could be built and run.')
+    throw new ForjrError('F0013', 'The session was ended before the project could be built and run.')
   }
   tell(built.findings)
   // The roots are known once the project is read: from then on the sweep looks over them too.
   folders = [folder, ...built.roots]
   for (const [lies, said] of lyingIn(built.roots)) lying.set(lies, said)
 
-  // The build tools are loaded here already, so the engine of `tent dev` reads sequences as `tent start` does.
+  // The build tools are loaded here already, so the engine of `forjr dev` reads sequences as `forjr start` does.
   const engine = createEngine({ port: await freePort(o.port ?? 3000), readBody })
   let opened: App
   let inspectToken: string | undefined
@@ -361,7 +367,7 @@ export async function startDev(
   await tidy(opened)
   o.out(`${name} runs at http://localhost:${port} (development). Press Ctrl+C to stop it.`)
   if (inspectToken !== undefined)
-    o.out(`In the inspect mode, for the tool at ${o.inspect}: http://localhost:${port}/?t-inspect=${inspectToken}`)
+    o.out(`In the inspect mode, for the tool at ${o.inspect}: http://localhost:${port}/?f-inspect=${inspectToken}`)
   for (const root of built.roots) watchers.push(await watchProject(root, saved))
   // Each failure while running that the open pages show, the terminal says too, with the path of its file.
   const unwatch = failuresTold({ app: opened, port, folder: resolve(folder), out: o.out })
@@ -483,7 +489,7 @@ export async function startDev(
     if (!saidMuch && process.memoryUsage.rss() > much) {
       saidMuch = true
       o.out(
-        'The engine holds more than 1 GB of memory: the runtime cannot forget a module that it loaded. Start `tent dev` again to clear it.',
+        'The engine holds more than 1 GB of memory: the runtime cannot forget a module that it loaded. Start `forjr dev` again to clear it.',
       )
     }
   }
@@ -557,7 +563,7 @@ export async function startDev(
       backing = false
       marking = true
       await settle()
-      throw new TentError(
+      throw new ForjrError(
         why.code,
         `Going back to ${word} was undone, since the data cannot follow it: ${why.message}`,
         {
@@ -568,7 +574,7 @@ export async function startDev(
     return {
       point: shown(point),
       version: running(),
-      note: 'Rows that `tent data clean` dropped are not brought back.',
+      note: 'Rows that `forjr data clean` dropped are not brought back.',
       findings: failed.map((one) => ({ code: one.code, message: one.message })),
     }
   }
@@ -595,6 +601,62 @@ export async function startDev(
       findings: failed.map((one) => ({ code: one.code, message: one.message })),
     }
   }
+  // The release build that is being made for the map, which a second call of the map that comes meanwhile waits for.
+  let pageMaking: Promise<unknown> | undefined
+  /**
+   * The bytes of the page for the map: those kept while the newest build read the same files, else those of a release
+   * build made for the map in the order of the session's work: once no build of a save runs, as work of its own, so
+   * that a save that comes meanwhile is built after it, and two calls that come at once share it.
+   */
+  const pageNow = async (): Promise<PageBytes | 'unbuilt'> => {
+    for (;;) {
+      const prints = JSON.stringify(read ?? {})
+      if (pageKept?.prints === prints) return pageKept.page
+      if (pageMaking || working) {
+        await (pageMaking ?? working)
+        await paid()
+        continue
+      }
+      const made = releasedForMap(folder).then((released) => {
+        pageKept = { prints, page: released.page }
+      })
+      pageMaking = made
+      working = made.finally(() => {
+        pageMaking = undefined
+        working = undefined
+        if (pending && !closed) turn()
+      })
+      await working
+    }
+  }
+  engine.give(
+    'admin',
+    'map',
+    {
+      run: async (_app: App, args: object) => {
+        // A save that the watcher has not told of yet is found as the sweep finds one, and the build under way is waited for.
+        look()
+        if (pending) turn()
+        await working
+        await paid()
+        const asked = mapAskedOf(args)
+        const current = newest ?? built
+        try {
+          const input = mapInputOf(folder, current.description, current.source)
+          if (asked.name !== undefined) {
+            const first = mapAsked(input, asked)
+            if (needsNoPage(first)) return first
+          }
+          return mapAsked({ ...input, page: await pageNow() }, asked)
+        } catch (error) {
+          // A word that names nothing is answered as a refusal, which the command raises as its own.
+          if (!(error instanceof ForjrError)) throw error
+          return { refused: { code: error.code, message: error.message, ...(error.fix ? { fix: error.fix } : {}) } }
+        }
+      },
+    },
+    opened,
+  )
   engine.give(
     'admin',
     'history',
@@ -605,8 +667,8 @@ export async function startDev(
             if (writes(args)) return await written(args)
             return await goBack(String(Reflect.get(args, 'point') ?? ''))
           } catch (error) {
-            // The channel sends a code that no caller sees as T0009: why going back was refused is answered whole.
-            if (!(error instanceof TentError)) throw error
+            // The channel sends a code that no caller sees as F0009: why going back was refused is answered whole.
+            if (!(error instanceof ForjrError)) throw error
             return { refused: { code: error.code, message: error.message, ...(error.fix ? { fix: error.fix } : {}) } }
           }
         }

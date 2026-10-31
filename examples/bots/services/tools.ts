@@ -1,6 +1,6 @@
-import { secret, service } from 'tentjs'
+import { secret, service } from 'forjr'
 
-// The person's own mail and calendar, each an MCP server; `tent mcp approve mailbox` and `calendar` approve their tools.
+// The person's own mail and calendar, each an MCP server; `forjr mcp approve mailbox` and `calendar` approve their tools.
 // The name `mail` is the engine's own handle, so the mail box is named `mailbox`.
 export const mailbox = service('mailbox', {
   url: 'http://127.0.0.1:7811/mcp',

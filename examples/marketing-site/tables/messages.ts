@@ -1,4 +1,4 @@
-import { anyone, role, table, text } from 'tentjs'
+import { anyone, role, table, text } from 'forjr'
 
 export const messages = table('messages', {
   columns: {

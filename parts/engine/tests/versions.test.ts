@@ -47,7 +47,7 @@ const printsOf = (folder: string): Record<string, string> =>
 
 /** The cards that a call through the door answers, by their titles, as the version that the call names answers them. */
 async function titles(app: App, origin: string, version?: string): Promise<unknown> {
-  const answer = await send(app, `${origin}/_t/call/allCards`, version === undefined ? {} : { version })
+  const answer = await send(app, `${origin}/_f/call/allCards`, version === undefined ? {} : { version })
   return answer.error.code ?? (Array.isArray(answer.body.value) ? answer.body.value.map((row) => Object(row).title) : 0)
 }
 
@@ -86,7 +86,7 @@ test('[21-17] app.add and app.switch make a second version the running one, a ca
   assert.deepEqual(await titles(app, origin), ['a', 'b', 'c'])
   assert.deepEqual(await titles(app, origin, two), ['a', 'b'])
   assert.deepEqual(await titles(app, origin, first.versionId), ['a', 'b', 'c'])
-  assert.equal(await titles(app, origin, 'no-such-version'), 'T0007')
+  assert.equal(await titles(app, origin, 'no-such-version'), 'F0007')
 
   // The switch: no table changes, so it is not hard, and it opens nothing again.
   assert.deepEqual(await app.switch(two), { hard: false, opens: false, steps: [] })
@@ -104,13 +104,13 @@ test('[21-17] app.add and app.switch make a second version the running one, a ca
   assert.equal(idsOf(await app.call('allCards', {}, { as: system })).length, 2)
   // On test data a page of the older version is still served by it, for as long as it can be loaded.
   assert.deepEqual(await titles(app, origin, first.versionId), ['a', 'b', 'c'])
-  const health = await app.request(new Request(`${origin}/_t/health`))
+  const health = await app.request(new Request(`${origin}/_f/health`))
   assert.equal(Object((await health.json()).value).version, two)
   // A switch to the version that runs changes nothing, and tells nobody.
   assert.deepEqual(await app.switch(two), { hard: false, opens: false, steps: [] })
   assert.equal(heard.length, 1)
   // A version that was never added cannot be switched to.
-  assert.equal(await codeOf(app.switch('no-such-version')), 'T0007')
+  assert.equal(await codeOf(app.switch('no-such-version')), 'F0007')
 
   // A version that a live connection watches is needed: it is not dropped. The running one never is.
   const page = watcher(app, origin)
@@ -133,8 +133,8 @@ test('[21-17] app.add and app.switch make a second version the running one, a ca
     app.versions().map((one) => one.id),
     [two],
   )
-  const gone = await send(app, `${origin}/_t/call/allCards`, { version: first.versionId })
-  assert.deepEqual([gone.status, gone.error.code, gone.error.running], [409, 'T0007', two])
+  const gone = await send(app, `${origin}/_f/call/allCards`, { version: first.versionId })
+  assert.deepEqual([gone.status, gone.error.code, gone.error.running], [409, 'F0007', two])
   assert.equal(existsSync(join(dataFolder, 'versions', first.versionId)), false)
   assert.equal(await app.drop(first.versionId), false, 'a version that is not loadable is not dropped')
   assert.equal((await page.watch('old', 'allCards', {}, { version: first.versionId })).t, 'failed')
@@ -165,7 +165,7 @@ test('[21-17] a switch whose table change is refused leaves the first version ru
   // The column is gone with no statement: the switch fails with the finding, and nothing is changed.
   const gone = await app.add(more.gone.folder)
   const refused = await refusal(app.switch(gone))
-  assert.equal(refused.code, 'T2002')
+  assert.equal(refused.code, 'F2002')
   assert.match(refused.message, /rank/)
   assert.deepEqual(
     app.versions().map((one) => [one.id, one.running]),
@@ -200,18 +200,18 @@ test('[21-17] a switch whose table change is refused leaves the first version ru
     [[unique, true]],
   )
   assert.deepEqual(heard, [unique])
-  assert.equal(await titles(app, origin, first.versionId), 'T0007')
-  assert.equal(await titles(app, origin, colour), 'T0007')
+  assert.equal(await titles(app, origin, first.versionId), 'F0007')
+  assert.equal(await titles(app, origin, colour), 'F0007')
   // The page that watched under a version which is gone is told to reload, and its watch is over.
   await untilTried('the page of the older version was told to reload', () => page.of('reload').length === 1)
   await addCard(app, 'b', 2)
   await untilTried('the page of the running version was sent the card', () => later.of('result', 'count').length === 2)
   assert.equal(page.got.filter((one) => one.id === 'cards').length, 1)
   // The table is as the new version asks: a second card of one title is refused.
-  assert.equal(await codeOf(app.call('addCard', { title: 'b', rank: 3 }, { as: system })), 'T2101')
+  assert.equal(await codeOf(app.call('addCard', { title: 'b', rank: 3 }, { as: system })), 'F2101')
 })
 
-test('[21-17] [21-16@6] in the mode development a version is the list of its files, kept once by their fingerprints, a call that names the version it left is T0007, and every open page is told the new version', async (t) => {
+test('[21-17] [21-16@6] in the mode development a version is the list of its files, kept once by their fingerprints, a call that names the version it left is F0007, and every open page is told the new version', async (t) => {
   const { app, first, more, origin, dataFolder } = await board(t, 'development', ['two'])
   await addCard(app, 'a', 1)
   await addCard(app, 'b', 2)
@@ -237,14 +237,14 @@ test('[21-17] [21-16@6] in the mode development a version is the list of its fil
     [...new Set([...Object.values(printsOf(first.folder)), ...Object.values(printsOf(more.two.folder))])].sort(),
   )
   // In development a page is served by the running version only: the one that was added is not served yet.
-  assert.equal(await titles(app, origin, two), 'T0007')
+  assert.equal(await titles(app, origin, two), 'F0007')
 
   await app.switch(two)
   // Every open page is told the version that runs now, and the watches of the version it left are dropped.
   await untilTried('the page was told the new version', () => page.of('version').length === 1)
   assert.deepEqual(page.of('version')[0], { t: 'version', version: two })
-  assert.equal(await titles(app, origin, first.versionId), 'T0007')
-  const gone = await send(app, `${origin}/_t/call/allCards`, { version: first.versionId })
+  assert.equal(await titles(app, origin, first.versionId), 'F0007')
+  const gone = await send(app, `${origin}/_f/call/allCards`, { version: first.versionId })
   assert.equal(gone.error.running, two)
   assert.deepEqual(await titles(app, origin, two), ['a', 'b'])
   await addCard(app, 'd', 0)
@@ -273,7 +273,7 @@ test('[21-16@6] in the mode development a page that opens its live connection af
   await app.switch(two)
   /** The messages a live connection that names a version is sent once it stands open. */
   const told = async (version: string): Promise<unknown[]> => {
-    const end = app.live(new Request(`${origin}/_t/live?version=${version}`, { headers: { origin } }))
+    const end = app.live(new Request(`${origin}/_f/live?version=${version}`, { headers: { origin } }))
     const got: unknown[] = []
     end.each(
       (message) => void got.push(message),
@@ -316,7 +316,7 @@ test('[21-16@6] on test data and on live data an open page keeps its version: it
 
 test('[21-16@6] app.show sends what the build and the check found to every open page in the mode development, also to a page that opens later, and is refused in any other mode', async (t) => {
   const { app, origin } = await board(t, 'development', [])
-  const found = [finding('T1005', 'A screen file imports a backend file as its text.')]
+  const found = [finding('F1005', 'A screen file imports a backend file as its text.')]
   const page = watcher(app, origin)
   await page.watch('cards', 'allCards')
   app.show(found)
@@ -338,7 +338,7 @@ test('[21-16@6] app.show sends what the build and the check found to every open 
   assert.deepEqual(after.of('findings'), [])
 
   const other = await board(t, 'test', [])
-  assert.throws(() => other.app.show(found), { code: 'T0013' })
+  assert.throws(() => other.app.show(found), { code: 'F0013' })
 })
 
 test('[21-17] two apps that are opened from one bundle, and two versions of one app, share no value that a function module keeps at its top', async (t) => {
@@ -349,12 +349,12 @@ test('[21-17] two apps that are opened from one bundle, and two versions of one 
   const one = await engine.open(bundle.folder, {
     dataFolder: join(work, 'one'),
     mode: 'test',
-    address: 'one.tent.test',
+    address: 'one.forjr.test',
   })
   const other = await engine.open(bundle.folder, {
     dataFolder: join(work, 'other'),
     mode: 'test',
-    address: 'other.tent.test',
+    address: 'other.forjr.test',
   })
   const bump = (app: App): Promise<unknown> => app.call('bump', {}, { as: system })
   assert.deepEqual([await bump(one), await bump(one), await bump(one)], [1, 2, 3])

@@ -1,5 +1,5 @@
 import type { Caller, Type } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { ToolSource, ToolSpec } from '../../core/internal.ts'
 import { checkValue } from '../../core/internal.ts'
 import type { AiEnv } from '../face.ts'
@@ -39,7 +39,7 @@ function namedIn(given: unknown): { name: string; context: unknown }[] {
  * Takes what the engine hands `ai`, what the program gave the run, the agent, and where its sources are asked.
  * Answers the tools of each source the run names, in the order the run names them: a tool of a source sends data out
  * unless its spec says `sends: false`, and asks first where it states `danger: 'ask'` or sends and `trust` does not
- * name it. Throws T0001 for a source that was not offered, naming it.
+ * name it. Throws F0001 for a source that was not offered, naming it.
  */
 export function sourceTools(
   env: AiEnv,
@@ -53,8 +53,8 @@ export function sourceTools(
   for (const { name, context } of namedIn(given)) {
     const source = Object.hasOwn(env.sources, name) ? env.sources[name] : undefined
     if (!source)
-      throw new TentError(
-        'T0001',
+      throw new ForjrError(
+        'F0001',
         `The run names the source ${JSON.stringify(name).slice(0, 80)}, which was not offered.`,
         {
           fix: 'Offer the source with `engine.offer` before the run starts, also after a restart.',
@@ -80,14 +80,14 @@ export function sourceTools(
 }
 
 /**
- * Carries out one call of a tool of a source, after its input was checked: T0002, with a line for each field, for
+ * Carries out one call of a tool of a source, after its input was checked: F0002, with a line for each field, for
  * an input that does not fit. `ask` makes the step wait for the starter's yes, as an ask of its own.
  */
 export function sourceCall(env: AiEnv, tool: SourceTool, at: Asking, input: unknown): Promise<unknown> {
   const missed = checkValue(tool.offered.input, input)
   if (missed.length)
-    throw new TentError(
-      'T0002',
+    throw new ForjrError(
+      'F0002',
       `The input of ${tool.offered.entry.tool} does not fit: ${missed.map((one) => one.message).join(' ')}`,
     )
   return tool.source.call({
@@ -95,7 +95,7 @@ export function sourceCall(env: AiEnv, tool: SourceTool, at: Asking, input: unkn
     context: tool.context,
     tool: tool.offered.entry.tool,
     input,
-    ask: async (what) => Boolean(await env.call('_t_agreed', [{ name: tool.offered.entry.tool, what }])),
+    ask: async (what) => Boolean(await env.call('_f_agreed', [{ name: tool.offered.entry.tool, what }])),
   })
 }
 

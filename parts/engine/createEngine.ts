@@ -1,5 +1,5 @@
 import { randomBytes } from 'node:crypto'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { ToolSource } from '../core/internal.ts'
 import { limitDefaults, setRuntime } from '../core/internal.ts'
 import { forgetReader, handReader } from './ai/reader.ts'
@@ -70,7 +70,7 @@ export interface EngineOptions {
   readBody?: ReadBody
   /**
    * Whether the engine reads the list of known problems of its release once a day, and says in its log when its
-   * version is on it. True where it is left out; `TENT_NOTICES=off` switches it off too.
+   * version is on it. True where it is left out; `FORJR_NOTICES=off` switches it off too.
    */
   notices?: boolean
   /**
@@ -90,14 +90,14 @@ type ReadBodyAnswer = { body: object[] } | { why: string; line: number }
 export interface Engine {
   /**
    * Opens the bundle of a folder over a data folder, and answers the app. The table changes apply here, and the
-   * web side of the engine starts with its first app. The promise is refused where the app does not open: T0011,
-   * T0018, T2001 to T2004 and T0013.
+   * web side of the engine starts with its first app. The promise is refused where the app does not open: F0011,
+   * F0018, F2001 to F2004 and F0013.
    */
   open(bundleFolder: string, o: OpenOptions): Promise<App>
   /**
    * Opens an app as a reader of the writer at `from`, on a data folder of its own, with no bundle: it fetches the
    * running version and the data where the folder is empty, and follows its writer from then on. The promise is
-   * refused where the app does not open: T0029 for a writer that an empty folder cannot reach, T0013 and T0011.
+   * refused where the app does not open: F0029 for a writer that an empty folder cannot reach, F0013 and F0011.
    */
   read(o: ReadOptions): Promise<App>
   /**
@@ -111,18 +111,18 @@ export interface Engine {
    * the call it is used in before what the code hands it; an `onRequest`, which stands in front of the engine's
    * own; an `onLink`, which is handed the opening of a connection first and answers its other end, or nothing; or a
    * share of the daily upkeep, as `{ daily() }`. For one app, or for every app of the engine where none
-   * is named. Throws T0013 for a thing that has not the form of its kind.
+   * is named. Throws F0013 for a thing that has not the form of its kind.
    */
   give(kind: 'admin' | 'handle' | 'onRequest' | 'onLink' | 'upkeep', name: string, object: object, app?: App): void
   /**
    * Offers a source of tools under a name, for every app of the engine: a run of an agent that `app.start`
-   * names it in `sources` is given its tools. Throws T0013 for a source that has not `tools` and `call`.
+   * names it in `sources` is given its tools. Throws F0013 for a source that has not `tools` and `call`.
    */
   offer(name: string, source: ToolSource): void
   /**
-   * Puts addresses of a program under a prefix of `/_t/` for one app, called with a key: the door holds each
+   * Puts addresses of a program under a prefix of `/_f/` for one app, called with a key: the door holds each
    * request to the size, the right, the count and the time that the program states, and logs it, and the handler
-   * answers it. Throws T0013 for a prefix outside `/_t/`.
+   * answers it. Throws F0013 for a prefix outside `/_f/`.
    */
   serve(app: App, prefix: string, o: ServedOptions, handler: (o: ServedRequest) => Promise<Response>): void
   /** The port the engine listens on, once its web side runs: the one that was asked for, or the free one that port 0 took. */
@@ -238,7 +238,7 @@ export function createEngine(options: EngineOptions = {}): Engine {
           const door = async (handed: Request): Promise<Response> => {
             const named = requestOf(handed, from)
             const { pathname } = new URL(handed.url)
-            const health = pathname === '/_t/health'
+            const health = pathname === '/_f/health'
             const { o } = named
             // A request for health is no use of an app, which may sleep.
             if (o)
@@ -264,7 +264,7 @@ export function createEngine(options: EngineOptions = {}): Engine {
               timer = setTimeout(
                 () =>
                   refuse(
-                    new TentError('T0008', `The app was not woken within ${bound} ms.`, {
+                    new ForjrError('F0008', `The app was not woken within ${bound} ms.`, {
                       fix: 'Ask again in a moment.',
                     }),
                   ),
@@ -293,9 +293,9 @@ export function createEngine(options: EngineOptions = {}): Engine {
           // The code of the program is held to the time of a call where no app says another, and its error is told to nobody.
           return chained(request).catch((error) =>
             refusal(
-              error instanceof TentError && error.code === 'T0008'
+              error instanceof ForjrError && error.code === 'F0008'
                 ? error
-                : new TentError('T0009', 'An error occurred.'),
+                : new ForjrError('F0009', 'An error occurred.'),
             ),
           )
         },
@@ -381,25 +381,25 @@ export function createEngine(options: EngineOptions = {}): Engine {
   if (options.readBody) handReader(program.token, options.readBody)
   return {
     open(bundleFolder, o) {
-      if (closed) return Promise.reject(new TentError('T0013', 'The engine was closed, and opens no app.'))
+      if (closed) return Promise.reject(new ForjrError('F0013', 'The engine was closed, and opens no app.'))
       // The daily look at the known problems starts with the first app, in an engine that runs for some time.
-      if (!unwatched && options.notices !== false && process.env.TENT_NOTICES !== 'off')
+      if (!unwatched && options.notices !== false && process.env.FORJR_NOTICES !== 'off')
         unwatched = watchKnown((line) => console.error(line))
       return openApp(program, bundleFolder, o)
     },
     read(o) {
-      if (closed) return Promise.reject(new TentError('T0013', 'The engine was closed, and opens no app.'))
+      if (closed) return Promise.reject(new ForjrError('F0013', 'The engine was closed, and opens no app.'))
       return import('./read.ts').then(({ readApp }) => readApp(program, o))
     },
     async work(o) {
-      if (closed) throw new TentError('T0013', 'The engine was closed, and starts no worker.')
+      if (closed) throw new ForjrError('F0013', 'The engine was closed, and starts no worker.')
       const { startWorker } = await import('./work/worker.ts')
       const { systemClock } = await import('./makers.ts')
       const input = {
         dataFolder: o.folder,
         secrets: {},
         settings: {},
-        mcp: { request: () => Promise.reject(new TentError('T0013', 'No client of MCP is joined to a worker.')) },
+        mcp: { request: () => Promise.reject(new ForjrError('F0013', 'No client of MCP is joined to a worker.')) },
       }
       const makers = o.makers ?? options.makers
       const clock = makers?.clock?.(input) ?? systemClock

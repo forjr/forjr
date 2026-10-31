@@ -28,8 +28,8 @@ test(
     await level(app, near, far)
     const before = app.at()
     // A reader that is current does not take over: its writer runs.
-    assert.equal(await codeOf(near.takeOver()), 'T0032')
-    assert.equal(await codeOf(app.takeOver()), 'T0030')
+    assert.equal(await codeOf(near.takeOver()), 'F0032')
+    assert.equal(await codeOf(app.takeOver()), 'F0030')
     await app.kill()
     await beat(near, 6)
     assert.equal(near.at().current, false)
@@ -124,27 +124,27 @@ test('[29-7] an old writer that is told took stops for good, and a took of a far
     'the old writer was told',
     async () => {
       await beat(app)
-      return (await send(app, 'addOrder', { title: 'refused' })).code === 'T0030'
+      return (await send(app, 'addOrder', { title: 'refused' })).code === 'F0030'
     },
     20,
   )
   const read = await send(app, 'listOrders')
-  assert.deepEqual([read.status, read.code], [503, 'T0029'])
+  assert.deepEqual([read.status, read.code], [503, 'F0029'])
   assert.equal(near.role, 'writer')
   assert.equal(near.at().epoch, took.epoch)
   // Its folder is not opened again as a writer.
   await app.kill()
-  assert.equal(await codeOf(app.restart()), 'T0030')
+  assert.equal(await codeOf(app.restart()), 'F0030')
   await moment()
 })
 
-test('[29-7] tent machines answers the epoch, the machines and nothing else, then another writer that was heard of with its address, and on a stopped writer the one that stopped it', async (t) => {
+test('[29-7] forjr machines answers the epoch, the machines and nothing else, then another writer that was heard of with its address, and on a stopped writer the one that stopped it', async (t) => {
   const { app, near, far } = await machinesOf(t)
   /** What the command of the admin channel answers on the first machine of the test. */
   const listed = async (): Promise<Record<string, unknown>> => {
     const { port, token } = JSON.parse(readFileSync(join(folderOf(t, 'data'), 'engine.json'), 'utf8'))
     const answer = await app.request(
-      new Request(`http://127.0.0.1:${port}/_t/admin/machines`, {
+      new Request(`http://127.0.0.1:${port}/_f/admin/machines`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
         body: JSON.stringify({ args: {} }),
@@ -172,7 +172,7 @@ test('[29-7] tent machines answers the epoch, the machines and nothing else, the
   const second = await near.takeOver()
   await until('the old writer was stopped', async () => {
     await beat(app)
-    return (await send(app, 'addOrder', { title: 'refused' })).code === 'T0030'
+    return (await send(app, 'addOrder', { title: 'refused' })).code === 'F0030'
   })
   assert.deepEqual((await listed()).other, { epoch: second.epoch, own: nearOwn })
 })
@@ -205,7 +205,7 @@ test('[29-7] two readers that take over at the same write end with one writer', 
   )
   const newer = a.epoch > b.epoch ? first : second
   assert.equal(await writes(newer), true)
-  assert.equal((await send(app, 'addOrder', { title: 'the old writer is stopped' })).code, 'T0030')
+  assert.equal((await send(app, 'addOrder', { title: 'the old writer is stopped' })).code, 'F0030')
 })
 
 test('[29-7] a writer that opens behind its near reader stands back, stands back again when it is opened once more, and a take-over on either of the two ends it', async (t) => {
@@ -225,16 +225,16 @@ test('[29-7] a writer that opens behind its near reader stands back, stands back
       'the writer stands back',
       async () => {
         await beat(app)
-        return (await send(app, 'listOrders')).code === 'T0029'
+        return (await send(app, 'listOrders')).code === 'F0029'
       },
       20,
     )
-    assert.equal((await send(app, 'addOrder', { title: 'refused' })).code, 'T0029')
+    assert.equal((await send(app, 'addOrder', { title: 'refused' })).code, 'F0029')
     assert.equal(app.at().n, held - 5)
     // Opened once more, it stands back again.
     await app.kill()
     await app.restart()
-    assert.equal((await send(app, 'listOrders')).code, 'T0029', on)
+    assert.equal((await send(app, 'listOrders')).code, 'F0029', on)
     if (on === 'reader') {
       // The reader goes on with all it holds, and stops the writer with its took.
       await beat(app, 6)

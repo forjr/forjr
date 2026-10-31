@@ -1,4 +1,4 @@
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 import { Hidden, Shown } from './mixed'
 
 // A screen that draws both parts of one file.

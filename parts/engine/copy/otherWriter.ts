@@ -31,7 +31,7 @@ export function gaveWay(w: WriterState, told: { epoch: string; own?: string }): 
   void o.flows?.runner.close()
   writerLine(w, 'warn', 'A machine took over. This writer is stopped for good.', w.stopped)
   for (const one of [...w.links.values()]) {
-    tell(one.link, { t: 'no', code: 'T0030', ...(told.own ? { writer: told.own } : {}) })
+    tell(one.link, { t: 'no', code: 'F0030', ...(told.own ? { writer: told.own } : {}) })
     one.link.close()
   }
   o.raise('writer.changed', { app: o.app, epoch: told.epoch })

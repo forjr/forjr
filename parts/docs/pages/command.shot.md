@@ -1,14 +1,14 @@
-# `tent shot`
+# `forjr shot`
 
 Makes a picture of a screen of the app that runs, as nobody sees it, with a browser of the Chromium family that is already on the computer.
 
 ## Usage
 
 ```
-tent shot <path> [--size <width>x<height>] [--full] [--dark] [--wait <ms>] [--out <file>] [--data <folder>]
+forjr shot <path> [--size <width>x<height>] [--full] [--dark] [--wait <ms>] [--out <file>] [--data <folder>]
 ```
 
-The command asks the engine that runs on the data folder, `.tent/` of the project or the one that `--data` names. With no engine running it starts none and says so (`code.T0013`): start the app first, with `tent dev` or `tent start`.
+The command asks the engine that runs on the data folder, `.forjr/` of the project or the one that `--data` names. With no engine running it starts none and says so (`code.F0013`): start the app first, with `forjr dev` or `forjr start`.
 
 | Flag | What it does |
 |---|---|
@@ -22,13 +22,13 @@ The picture is taken when the page has come alive, its first results have arrive
 
 Every request that the browser makes for another place than the app is made by the engine, under the rule of every fetch of the app: outside addresses, and no private or local address that `privateHosts` does not list. A picture taken on a server never looks into the server's own network, whatever hosts the project lists. A picture on such an address is left out of the picture.
 
-The browser is Chrome, Edge or Chromium where one is installed, or the program that `TENT_BROWSER` names. Nothing is borrowed for it: the engine drives the browser over the browser's own channel.
+The browser is Chrome, Edge or Chromium where one is installed, or the program that `FORJR_BROWSER` names. Nothing is borrowed for it: the engine drives the browser over the browser's own channel.
 
 ## Example
 
 ```
-tent dev
-tent shot /orders --size 1280x800 --full --out orders.png
+forjr dev
+forjr shot /orders --size 1280x800 --full --out orders.png
 ```
 
 A program that holds the app takes the same picture with `app.shot('/orders', { size: { width: 1280, height: 800 }, full: true, out: 'orders.png' })`, and in the modes `development` and `test` one as a user with `as`, by a session it makes for that user (`topic.engine.web`).

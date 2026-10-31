@@ -1,6 +1,6 @@
 node_modules/
 .runtime/
-.tent/
+.forjr/
 *.db
 *.db-wal
 *.db-shm
@@ -9,6 +9,8 @@ trials/**/dist/
 .claude/worktrees/
 /results/
 *.new.png
-tests/planted/**/results/
+tests/rigs/projects/**/results/
 install/out/
 install/settings.json
+.claude/settings.local.json
+.claude/after-compaction.md

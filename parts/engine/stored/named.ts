@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { FileStore } from '../makers.ts'
 import type { Opened } from '../opened.ts'
 import { valuesOf } from '../values/ofApp.ts'
@@ -12,27 +12,27 @@ function textOf(o: Opened, stated: unknown, what: string): string {
   if (isStored(stated) && typeof stated.setting === 'string') {
     const value: unknown = Reflect.get(valuesOf(o).settings.values, stated.setting)
     if (typeof value === 'string' && value !== '') return value
-    throw new TentError('T0009', `The setting \`${stated.setting}\` that names ${what} of a store holds no text.`, {
-      fix: `Set it: \`tent settings set ${stated.setting} <value>\`.`,
+    throw new ForjrError('F0009', `The setting \`${stated.setting}\` that names ${what} of a store holds no text.`, {
+      fix: `Set it: \`forjr settings set ${stated.setting} <value>\`.`,
     })
   }
-  throw new TentError('T0009', `A store of files names ${what} with neither a text, a setting nor a secret.`)
+  throw new ForjrError('F0009', `A store of files names ${what} with neither a text, a setting nor a secret.`)
 }
 
 /**
  * Takes what the engine holds of an app, and the record of a store of files that its project names, as `s3`
  * made it. Answers the store, made now: its address and its key are worked out from their settings and secrets
- * at this moment. Throws T0009 for a record that names no store the framework ships, and T0019 for a secret that
+ * at this moment. Throws F0009 for a record that names no store the framework ships, and F0019 for a secret that
  * holds no value.
  */
 export function namedStore(o: Opened, named: unknown): FileStore {
   const s3 = isStored(named) ? named.s3 : undefined
-  if (!isStored(s3)) throw new TentError('T0009', 'A store of files is named by `s3`, and this one is no such record.')
+  if (!isStored(s3)) throw new ForjrError('F0009', 'A store of files is named by `s3`, and this one is no such record.')
   const key = textOf(o, s3.key, 'the key')
   const colon = key.indexOf(':')
   if (colon < 1)
-    throw new TentError(
-      'T0009',
+    throw new ForjrError(
+      'F0009',
       'The key of a store of the S3 protocol is written as `<the id of the key>:<its secret>`.',
       {
         fix: 'Set the secret that `key` names to the id of the key, a colon, and its secret.',

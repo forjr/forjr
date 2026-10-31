@@ -13,7 +13,7 @@ type Killed = { kills: number; seed: number; ended: Ended[] }
 const again = 10
 
 // The word a start that its round kills at a line is handed, with that line; the start after the kill is handed none.
-const killedWord = 'TENT_KILLED_AT'
+const killedWord = 'FORJR_KILLED_AT'
 
 /**
  * Takes a line that a program prints for the run that kills it. Writes it at once, not when the program next gives

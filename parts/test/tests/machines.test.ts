@@ -38,7 +38,7 @@ test(
     assert.deepEqual([near.at().n, near.at().sum], [app.at().n, app.at().sum])
     assert.equal(near.description.app.name, 'many')
 
-    // Until it is current it answers nothing itself: a query is handed to the writer, and `/_t/health` is T0029.
+    // Until it is current it answers nothing itself: a query is handed to the writer, and `/_f/health` is F0029.
     assert.equal(near.at().current, false)
     const before = callsOf(t, 'data', 'listOrders')
     const early = await send(near, 'listOrders')
@@ -46,8 +46,8 @@ test(
     assert.equal(Object(early.value).length, 3)
     assert.equal(callsOf(t, 'data', 'listOrders'), before + 1)
     assert.equal(callsOf(t, 'reader-2', 'listOrders'), 0)
-    const unwell = await send(near, '', {}, { path: '/_t/health', method: 'GET' })
-    assert.deepEqual([unwell.status, unwell.code], [503, 'T0029'])
+    const unwell = await send(near, '', {}, { path: '/_f/health', method: 'GET' })
+    assert.deepEqual([unwell.status, unwell.code], [503, 'F0029'])
 
     // Once it is current it answers what the writer answers, with no request reaching the writer.
     await current(app, near)
@@ -55,7 +55,7 @@ test(
     assert.deepEqual(mine.value, theirs.value)
     assert.equal(callsOf(t, 'reader-2', 'listOrders'), 1)
     assert.equal(callsOf(t, 'data', 'listOrders'), before + 2)
-    assert.equal((await send(near, '', {}, { path: '/_t/health', method: 'GET' })).status, 200)
+    assert.equal((await send(near, '', {}, { path: '/_f/health', method: 'GET' })).status, 200)
     // What the writer writes from now on arrives, and is what the reader answers.
     await send(app, 'addOrder', { title: 'four' })
     assert.equal(near.at().n, app.at().n)
@@ -79,7 +79,7 @@ test('[29-2] the machines are listed with their kinds and their numbers, on the 
     assert.deepEqual(told(reader.machines()), ['writer false true', 'reader false true', 'reader true false'])
   const [writer, first, second] = app.machines()
   assert.deepEqual(
-    [writer.own, first.own, second.own].map((own) => /^https:\/\/.+\.tent\.test$/.test(String(own))),
+    [writer.own, first.own, second.own].map((own) => /^https:\/\/.+\.forjr\.test$/.test(String(own))),
     [true, true, true],
   )
   assert.equal(new Set([writer.id, first.id, second.id]).size, 3)
@@ -91,7 +91,7 @@ test('[29-2] the machines are listed with their kinds and their numbers, on the 
   ] as const) {
     const { port, token } = JSON.parse(readFileSync(join(folderOf(t, folder), 'engine.json'), 'utf8'))
     const answer = await machine.request(
-      new Request(`http://127.0.0.1:${port}/_t/admin/machines`, {
+      new Request(`http://127.0.0.1:${port}/_f/admin/machines`, {
         method: 'POST',
         headers: { 'content-type': 'application/json', authorization: `Bearer ${token}` },
         body: JSON.stringify({ args: {} }),
@@ -127,33 +127,33 @@ test('[29-3] a reader answers a query with no request reaching the writer, and a
   // One ref stands in both logs: the line of the reader that handed it on, and the call of the writer.
   const [handed] = logRows(t, 'reader-2', 'calls').filter((row) => row.kind === 'handed')
   assert.match(String(handed.ref), /^[0-9a-z]{8}$/)
-  assert.equal(handed.name, '/_t/call/addOrder')
+  assert.equal(handed.name, '/_f/call/addOrder')
   const [carried] = logRows(t, 'data', 'calls').filter((row) => row.ref === handed.ref)
   assert.deepEqual([carried.name, carried.ok], ['addOrder', 1])
   // The log of the writer holds the address of the caller, as the reader stated it.
   const lines = logRows(t, 'data', 'lines').filter((row) => String(row.data).includes(String(handed.ref)))
   assert.equal(lines.length, 1)
   assert.match(String(lines[0].data), /"from":"10\.9\.\d+\.\d+"/)
-  // An action that says it changes nothing and calls a change is refused with T0013, on a reader as on the
-  // writer, which a caller is sent as T0009: nothing is written.
+  // An action that says it changes nothing and calls a change is refused with F0013, on a reader as on the
+  // writer, which a caller is sent as F0009: nothing is written.
   const sneaked = await send(far, 'sneak', { title: 'met the writer' })
-  assert.deepEqual([sneaked.status, sneaked.code], [500, 'T0009'])
+  assert.deepEqual([sneaked.status, sneaked.code], [500, 'F0009'])
   assert.deepEqual(await titles(app), ['by the writer', 'through the near reader'])
   // A request that a reader is sent with headers of its sender's own making is answered as its sender's own.
   const made = await send(
     near,
     'listOrders',
     {},
-    { headers: { 'tent-reader': 'made up', 'tent-for': '1.2.3.4; https; x' } },
+    { headers: { 'forjr-reader': 'made up', 'forjr-for': '1.2.3.4; https; x' } },
   )
   assert.equal(made.status, 200)
   assert.equal(Object(made.value).length, 2)
   // On the writer, the headers of a reader with no key of a reader behind them are not found.
-  assert.equal((await send(app, 'listOrders', {}, { headers: { 'tent-reader': 'made up' } })).code, 'T0001')
-  assert.equal((await send(app, 'listOrders', {}, { headers: { 'tent-for': '1.2.3.4; https; x' } })).code, 'T0001')
+  assert.equal((await send(app, 'listOrders', {}, { headers: { 'forjr-reader': 'made up' } })).code, 'F0001')
+  assert.equal((await send(app, 'listOrders', {}, { headers: { 'forjr-for': '1.2.3.4; https; x' } })).code, 'F0001')
 })
 
-test('[29-3] in the mode test a write that code asks a reader for is carried out by the writer as that caller, and with the writer stopped a handed-on request is T0029', async (t) => {
+test('[29-3] in the mode test a write that code asks a reader for is carried out by the writer as that caller, and with the writer stopped a handed-on request is F0029', async (t) => {
   const { app, near } = await machinesOf(t)
   const ada = await app.user({ name: 'Ada', roles: [] })
   // `app.as(user).call` of a change and `app.write` on a reader are carried out by the writer.
@@ -170,12 +170,12 @@ test('[29-3] in the mode test a write that code asks a reader for is carried out
   assert.equal(callsOf(t, 'data', 'countOrders'), before)
   // A restore is the writer's in every mode.
   const mark = await app.mark()
-  assert.equal(await codeOf(near.back(mark)), 'T0030')
-  // With the writer stopped, a request that is handed on is T0029, and so is a member that code asked for.
+  assert.equal(await codeOf(near.back(mark)), 'F0030')
+  // With the writer stopped, a request that is handed on is F0029, and so is a member that code asked for.
   await app.kill()
   const refused = await send(near, 'addOrder', { title: 'nobody carries it out' })
-  assert.deepEqual([refused.status, refused.code], [503, 'T0029'])
-  assert.equal(await codeOf(near.as(ada).call('addOrder', { title: 'nor this' })), 'T0029')
+  assert.deepEqual([refused.status, refused.code], [503, 'F0029'])
+  assert.equal(await codeOf(near.as(ada).call('addOrder', { title: 'nor this' })), 'F0029')
   // While it is current, the reader still answers what only reads.
   assert.equal(Object((await send(near, 'listOrders')).value).length, 2)
   await moment()

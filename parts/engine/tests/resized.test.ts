@@ -60,7 +60,7 @@ function visitor(run: Running) {
   }
   return {
     async upload(bytes: Uint8Array<ArrayBuffer>, name: string, kind: string): Promise<string> {
-      const answer = await request('POST', `/_t/files?name=${encodeURIComponent(name)}`, {
+      const answer = await request('POST', `/_f/files?name=${encodeURIComponent(name)}`, {
         headers: { 'content-type': kind, 'content-length': String(bytes.length) },
         body: bytes,
       })
@@ -69,7 +69,7 @@ function visitor(run: Running) {
       return String(Object(wire.value).id)
     },
     async door(path: string, accept = 'image/avif,image/webp,image/*'): Promise<{ kind: string; text: string }> {
-      const answer = await request('GET', `/_t/img/${path}`, { headers: { accept } })
+      const answer = await request('GET', `/_f/img/${path}`, { headers: { accept } })
       return {
         kind: answer.headers.get('content-type') ?? '',
         text: Buffer.from(await answer.arrayBuffer()).toString('latin1'),
@@ -78,11 +78,11 @@ function visitor(run: Running) {
   }
 }
 
-/** The tiny copy that `_t_files` holds of a file, read beside the engine. */
+/** The tiny copy that `_f_files` holds of a file, read beside the engine. */
 function tinyOf(dataFolder: string, id: string): unknown {
   const data = new DatabaseSync(join(dataFolder, 'data.db'), { readOnly: true })
   try {
-    return data.prepare('SELECT tiny FROM "_t_files" WHERE id = ?').get(id)?.tiny
+    return data.prepare('SELECT tiny FROM "_f_files" WHERE id = ?').get(id)?.tiny
   } finally {
     data.close()
   }

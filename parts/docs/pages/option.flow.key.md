@@ -23,7 +23,7 @@ A run keeps its key as `key` of what `runs.read` answers, and `runs.find({ flow:
 
 ## Errors
 
-`code.T1014`: `key` is no arrow.
+`code.F1014`: `key` is no arrow.
 
 ## See also
 

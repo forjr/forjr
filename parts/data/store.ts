@@ -109,7 +109,7 @@ export interface Tx {
   change(table: string, id: RowKey, values: Row, caller: Caller): Row
   remove(table: string, id: RowKey, caller: Caller): void
   sql(text: string, values: unknown[], touches?: string[]): unknown[]
-  /** A raw text that may only read, also while a write is open: one that writes is T0012. */
+  /** A raw text that may only read, also while a write is open: one that writes is F0012. */
   sqlRead(text: string, values: unknown[]): unknown[]
 }
 

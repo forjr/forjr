@@ -1,5 +1,5 @@
 import type { Answered } from '../../connect/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { checkOfJob, isStored } from '../../core/internal.ts'
 import type { CallContext } from '../context.ts'
 import { readOnly } from '../door/call.ts'
@@ -48,7 +48,7 @@ function cleaned(value: unknown, forms: string[]): unknown {
   return value
 }
 
-/** The signal of a service call: it ends with the time of the work it is made in, with T0008, and with the call itself. */
+/** The signal of a service call: it ends with the time of the work it is made in, with F0008, and with the call itself. */
 function signalOf(cx: CallContext): { signal: AbortSignal; done(): void } {
   const left = cx.work.ends - performance.now()
   if (!Number.isFinite(left)) return { signal: cx.signal, done: () => undefined }
@@ -56,7 +56,7 @@ function signalOf(cx: CallContext): { signal: AbortSignal; done(): void } {
   const timer = setTimeout(
     () =>
       time.abort(
-        new TentError('T0008', `The time of ${cx.work.name} ended while a service call waited.`, {
+        new ForjrError('F0008', `The time of ${cx.work.name} ended while a service call waited.`, {
           fix: 'Give the work more time in its `limits`, or call the service in a step of a flow.',
         }),
       ),
@@ -68,8 +68,8 @@ function signalOf(cx: CallContext): { signal: AbortSignal; done(): void } {
 /**
  * Takes the call context of the code that calls, the name of a service call, and what it was handed: the input and
  * `{ account, for }`. Makes the call through `connect`, which is loaded at the first one: in a query, a change and
- * the arrow of a rule it is T0013, and in a call that only reads it must state `changes: false` or be a `get`
- * (T0013). Inside a step it carries the once-only key of its place. A T7115 leaves with every secret taken out of
+ * the arrow of a rule it is F0013, and in a call that only reads it must state `changes: false` or be a `get`
+ * (F0013). Inside a step it carries the once-only key of its place. A F7115 leaves with every secret taken out of
  * what the service answered. With `onWorker` the work on a worker makes it, which is handed the call once it may
  * be made, to make with the once-only key it worked out. Answers a promise of what the call answers.
  */
@@ -82,7 +82,7 @@ export function callService(
   const call = serviceCallOf(cx, definition)
   const { kind } = cx.work
   if (kind === 'query' || kind === 'change' || kind === 'rule')
-    throw new TentError('T0013', `The service call ${definition} was made in the ${kind} ${cx.work.name}.`, {
+    throw new ForjrError('F0013', `The service call ${definition} was made in the ${kind} ${cx.work.name}.`, {
       fix: 'Call a service from an action, a route or a step of a flow.',
     })
   const changes = call?.changes ?? call?.method !== 'GET'
@@ -90,8 +90,8 @@ export function callService(
   // Naming whose account a call uses is full access.
   const how = args[1]
   if (isStored(how) && how.for !== undefined && !hasFullAccess(cx))
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `${cx.work.name} names the account of another user for ${definition}, which is full access.`,
       {
         fix: "State `system: 'why'` on the definition, or call the service for the caller's own account.",
@@ -157,7 +157,7 @@ async function made(
       ),
     )
   } catch (error) {
-    if (error instanceof TentError && error.code === 'T7115' && error.service) {
+    if (error instanceof ForjrError && error.code === 'F7115' && error.service) {
       const forms = valuesOf(cx.app).forms()
       const { status, body } = error.service
       error.service = {

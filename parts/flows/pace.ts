@@ -59,7 +59,7 @@ export function paceOf(flow: FlowOf): PaceOf | undefined {
   }
 }
 
-/** Whether a row of `_t_runs` is a start that waits for its pace: queued, with the moment it may go. */
+/** Whether a row of `_f_runs` is a start that waits for its pace: queued, with the moment it may go. */
 export const isWaitingStart = (run: RunRow): boolean => run.state === 'queued' && run.wakeAt !== undefined
 
 /** One test of the plan of a read of the runs. */

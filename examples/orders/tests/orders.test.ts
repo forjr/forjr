@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { testApp } from 'tentjs/test'
+import { testApp } from 'forjr/test'
 
 type App = Awaited<ReturnType<typeof testApp>>
 
@@ -84,7 +84,7 @@ test('the staff screens are for staff: a visitor is sent to the sign-in, and a c
       assert.match(String(visitor.headers.location), /^\/sign-in\?back=/)
       assert.equal((await app.as(ada).page(path)).status, 404, path)
     }
-    await assert.rejects(app.as(ada).call('ordersByStatus', { status: 'open' }), { code: 'T3101' })
+    await assert.rejects(app.as(ada).call('ordersByStatus', { status: 'open' }), { code: 'F3101' })
   } finally {
     await app.close()
   }
@@ -136,7 +136,7 @@ test('step 3 of the walk: the door refuses an order with no total, and names the
     await assert.rejects(
       app.as(sam).call('addOrder', { customer: ada }),
       (error: { code?: string; fields?: object }) => {
-        assert.equal(error.code, 'T0002')
+        assert.equal(error.code, 'F0002')
         assert.ok(error.fields && 'total' in error.fields)
         return true
       },
@@ -176,7 +176,7 @@ test('only staff mark an order paid, and an order that is not there is "not foun
     const ada = await userId(app, 'ada@example.com')
     const [order] = await app.as(sam).call('ordersByStatus', { status: 'open' })
     assert.ok(order)
-    await assert.rejects(app.as(ada).call('markPaid', { order: order.id }), { code: 'T3101' })
+    await assert.rejects(app.as(ada).call('markPaid', { order: order.id }), { code: 'F3101' })
     assert.equal((await app.as(sam).page('/orders/01m4v0443hfnd99ka5b5d558xx')).status, 404)
   } finally {
     await app.close()
@@ -255,7 +255,7 @@ test('step 11 of the walk: a customer reads their own orders and no other, and n
     const all = await app.rows('orders')
     assert.equal(mine.length, all.filter((order) => order.placedBy === ada).length)
     for (const order of mine) assert.equal(order.placedBy, ada)
-    await assert.rejects(app.as(ada).call('orderStats', {}), { code: 'T3101' })
+    await assert.rejects(app.as(ada).call('orderStats', {}), { code: 'F3101' })
   } finally {
     await app.close()
   }

@@ -40,7 +40,7 @@ test('[50-10] a plain health query that reads a tenant table fails after the swi
     '    code: text({ optional: true }),\n    rush: number({ optional: true }),',
   )
   here.edit(
-    'tent.ts',
+    'forjr.ts',
     '  backups: { every: false, keep: 2 },',
     "  backups: { every: false, keep: 2 },\n  publish: { health: 'listOrders' },",
   )
@@ -51,7 +51,7 @@ test('[50-10] a plain health query that reads a tenant table fails after the swi
     () => undefined,
     (error: { code?: string; fields?: Record<string, string> }) => error,
   )
-  assert.deepEqual([refused?.code, refused?.fields?.reason], ['T9103', 'health'])
+  assert.deepEqual([refused?.code, refused?.fields?.reason], ['F9103', 'health'])
   assert.equal(running(server), first.version, 'the switch back was taken at once')
   assert.deepEqual(heard.length, 2, 'the version ran, and was gone back from')
   assert.equal(heard[1], first.version)

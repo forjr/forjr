@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { AiEnv, CallAt, Message, Method } from '../face.ts'
 import type { Asking } from './ask.ts'
 import { canDo, cannot, modelOf } from './record.ts'
@@ -30,7 +30,7 @@ const optionsOf = (value: unknown): Record<string, unknown> =>
  * the model is known to take them.
  */
 async function promptOf(asking: Asking, prompt: unknown, o: Record<string, unknown>): Promise<Message> {
-  if (typeof prompt !== 'string') throw new TentError('T0002', 'The prompt of a model call is a text.')
+  if (typeof prompt !== 'string') throw new ForjrError('F0002', 'The prompt of a model call is a text.')
   const asked = modelOf(asking.env.description(asking.version), asking.model)
   if (!canDo(asked, asking.method, asking.also)) throw cannot(asked.name, asking.method)
   const ids = Array.isArray(o.images) ? o.images.map(String) : []
@@ -52,10 +52,10 @@ const reasoningOf = (o: Record<string, unknown>): ((part: string | null) => void
  * `runtime.call('writer.reply', [...])`, and the model itself for one that is a function. Carries the call out
  * through the model layer: the abilities, the limits, the tries, a second provider, the size and the time, the
  * counting and the log, files, and a long job that a step keeps. Answers a promise of what the call answers, and
- * for `stream` the parts as they arrive. Throws T7001 for what the model cannot do, and the codes of the layer.
+ * for `stream` the parts as they arrive. Throws F7001 for what the model cannot do, and the codes of the layer.
  */
 export function modelCall(env: AiEnv, o: ModelCallOf): unknown {
-  if (!methods.includes(o.method)) throw new TentError('T0001', `A model has no call named ${o.method}.`)
+  if (!methods.includes(o.method)) throw new ForjrError('F0001', `A model has no call named ${o.method}.`)
   const images = (value: unknown): string[] => (Array.isArray(optionsOf(value).images) ? ['images'] : [])
   const asking: Asking = {
     env,

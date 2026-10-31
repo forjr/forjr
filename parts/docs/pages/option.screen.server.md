@@ -9,7 +9,7 @@ Whether the screen is drawn on the server for the first HTML.
 ## Example
 
 ```tsx
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 export const ordersScreen = screen('ordersScreen', {
   path: '/map',

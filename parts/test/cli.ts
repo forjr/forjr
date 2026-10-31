@@ -14,13 +14,13 @@ export interface CliAsked {
 
 /**
  * `app.cli(words, { as, input, person, answers })`: runs the app's own command line with those words, by the way
- * of this computer: the test app's own admin token and `Tent-Caller`, over `app.request` and `app.live`. Answers
+ * of this computer: the test app's own admin token and `Forjr-Caller`, over `app.request` and `app.live`. Answers
  * what it printed and how it ended.
  */
 export const cli =
   (app: () => App, dataFolder: () => string) =>
   async (words: string[], o: CliAsked = {}): Promise<{ code: number; out: string; err: string }> => {
-    // Under `tent test`, the command of the app's own that the test ran.
+    // Under `forjr test`, the command of the app's own that the test ran.
     if (words[0] !== undefined && Object.hasOwn(app().description.commands, words[0])) noteTouched('commands', words[0])
     const token = adminTokenOf(dataFolder())
     const [out, err]: string[][] = [[], []]
@@ -41,7 +41,7 @@ export const cli =
     const signed = (request: Request): Request => {
       const headers = new Headers(request.headers)
       headers.set('authorization', `Bearer ${token}`)
-      headers.set('tent-caller', o.as ?? 'system')
+      headers.set('forjr-caller', o.as ?? 'system')
       return new Request(request, { headers })
     }
     const code = await runCommandLine({

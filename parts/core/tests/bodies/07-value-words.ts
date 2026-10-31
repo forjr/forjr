@@ -1,4 +1,4 @@
-import { avg, contains, each, fingerprint, floor, join, lower, max, min, query, range, round, slice, sum, trim, upper, where, concat } from 'tentjs'
+import { avg, contains, each, fingerprint, floor, join, lower, max, min, query, range, round, slice, sum, trim, upper, where, concat } from 'forjr'
 
 export const valueWords = query('valueWords', {
   access: 'everyone',

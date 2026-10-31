@@ -38,6 +38,6 @@ export function tagTable(file: SourceFile, inserts: Insert[], gone: { start: num
       view === undefined ? [node.start, node.end - 1] : [node.start, node.end - 1, view]
   })
   if (!Object.keys(table).length) return []
-  const statement = `;Reflect.get(globalThis, '__tentTags')?.(${JSON.stringify(file.path)}, ${JSON.stringify(table)});`
+  const statement = `;Reflect.get(globalThis, '__forjrTags')?.(${JSON.stringify(file.path)}, ${JSON.stringify(table)});`
   return [{ at: file.text.length, text: statement }]
 }

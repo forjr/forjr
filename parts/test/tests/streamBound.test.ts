@@ -9,7 +9,7 @@ import { served } from './served.ts'
 // Two screens that wait for a promise that never comes: one around a part of its own that waits inside a boundary
 // of React's, and one whose whole view waits.
 const waiting = `import { Suspense, use } from 'react'
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 const never = new Promise<void>(() => {})
 
@@ -49,10 +49,10 @@ const shelf = (): Promise<Served> => {
   common ??= served('streamed', {
     change: (folder) => {
       writeFileSync(join(folder, 'screens', 'waiting.tsx'), waiting)
-      const tent = join(folder, 'tent.ts')
+      const forjr = join(folder, 'forjr.ts')
       writeFileSync(
-        tent,
-        readFileSync(tent, 'utf8').replace(
+        forjr,
+        readFileSync(forjr, 'utf8').replace(
           "queryTime: '60 seconds'",
           "queryTime: '60 seconds', streamTime: '2 seconds'",
         ),
@@ -76,9 +76,9 @@ function loggedOf(dataFolder: string, name: string): { ok: unknown; message: str
   }
 }
 
-/** The drawing of a document: what the element with the id `tent` holds. */
+/** The drawing of a document: what the element with the id `forjr` holds. */
 const drawingOf = (html: string): string =>
-  /<div id="tent">([\s\S]*?)<\/div>\s*<script type="application\/json"/.exec(html)?.[1] ?? ''
+  /<div id="forjr">([\s\S]*?)<\/div>\s*<script type="application\/json"/.exec(html)?.[1] ?? ''
 
 test('[31-20] a draw that still waits when the time of a stream is up is ended: the page is sent with what was drawn, the part that waits is left for the browser, and the failure is logged with its trace', async () => {
   const { address, dataFolder } = await shelf()
@@ -103,7 +103,7 @@ test('[31-20] a view that waits as a whole when the time of a stream is up is se
   const html = await answer.text()
   assert.equal(answer.status, 200)
   assert.equal(drawingOf(html).trim(), '', 'nothing is drawn of a view that waited as a whole')
-  assert.match(html, /id="tent-page"/)
+  assert.match(html, /id="forjr-page"/)
   assert.match(loggedOf(dataFolder, 'allWaitsScreen').message, /time of a stream/)
   const whole = await app.page('/all-waits')
   assert.equal(whole.status, 200)

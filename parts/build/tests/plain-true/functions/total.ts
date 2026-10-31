@@ -1,4 +1,4 @@
-import { number, query } from 'tentjs'
+import { number, query } from 'forjr'
 
 export const total = query('total', {
   access: 'signedIn',

@@ -26,7 +26,7 @@ function binaryWords(binaries: Binaries): string[] {
 
 /**
  * Takes where the parts are taken from, the data folder whose secrets an index names, and what `python` of
- * `project` states. Answers the installer as the build tools are handed it, for `tent python lock`: the lines of
+ * `project` states. Answers the installer as the build tools are handed it, for `forjr python lock`: the lines of
  * Python that the engine pins, with a Python of the builder's own in front where `python.own` names one, the systems
  * a lock is made for, and the run that resolves entries into the lines of a lock, for every system or for one.
  */

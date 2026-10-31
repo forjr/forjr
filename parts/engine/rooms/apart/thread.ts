@@ -4,7 +4,7 @@
 import { AsyncLocalStorage } from 'node:async_hooks'
 import { workerData } from 'node:worker_threads'
 import type { MessagePort } from 'node:worker_threads'
-import { TentError } from '../../../core/index.ts'
+import { ForjrError } from '../../../core/index.ts'
 import type { Bounds } from '../callables.ts'
 import { pageCodeAt } from '../inProgram/draw.ts'
 import { loadIn, nextLoading } from '../inProgram/loader.ts'
@@ -23,7 +23,7 @@ const flags: unknown = Reflect.get(Object(given), 'flags')
 const isPort = (value: unknown): value is MessagePort =>
   typeof value === 'object' && value !== null && typeof Reflect.get(value, 'postMessage') === 'function'
 if (!isPort(port) || !(flags instanceof Int32Array))
-  throw new TentError('T0009', 'The thread of the test room was started with no wire.')
+  throw new ForjrError('F0009', 'The thread of the test room was started with no wire.')
 
 const calls = new AsyncLocalStorage<number>()
 // The place of each version and the mark its modules are loaded under in this heap, by its id.
@@ -34,7 +34,7 @@ const loading = new Set<Promise<void>>()
 
 /** What the engine asks this thread, with the values as they crossed. */
 function served(what: string, body: unknown): unknown {
-  if (!inside) throw new TentError('T0009', 'The room runtime of the test room is not loaded.')
+  if (!inside) throw new ForjrError('F0009', 'The room runtime of the test room is not loaded.')
   const b: Record<string, unknown> = Object(body)
   const bounds: Bounds = Object(b.bounds)
   switch (what) {
@@ -67,17 +67,17 @@ function served(what: string, body: unknown): unknown {
       inside.forget(Number(b.call))
       return undefined
   }
-  throw new TentError('T0009', `The test room was asked for what it does not do: ${what.slice(0, 40)}.`)
+  throw new ForjrError('F0009', `The test room was asked for what it does not do: ${what.slice(0, 40)}.`)
 }
 
 const wire = wireOf(port, flags, 1, served)
 // A thread that stops by itself tells the engine so, which may be waiting for it at once and take no event.
 process.on('exit', () => wire.end())
 
-// Under `tent test` the code of a call notes each word of the environment it reads and each way out it takes, told
+// Under `forjr test` the code of a call notes each word of the environment it reads and each way out it takes, told
 // to the engine as the call crosses, which notes it under the test of the call; where the program holds what reaches
 // outside, a way out is refused here as there.
-if (process.env.TENT_TOUCHED || outsideHeld()) {
+if (process.env.FORJR_TOUCHED || outsideHeld()) {
   const under = (): boolean => calls.getStore() !== undefined
   noteWordsRead({
     under,
@@ -89,7 +89,7 @@ if (process.env.TENT_TOUCHED || outsideHeld()) {
 /** The place of a version of this heap, and the mark of its modules. */
 function placeOf(version: VersionTold): { place: string; loading: string } {
   const held = places.get(version.id)
-  if (!held) throw new TentError('T0011', `The test room holds no version ${version.id}.`)
+  if (!held) throw new ForjrError('F0011', `The test room holds no version ${version.id}.`)
   return held
 }
 
@@ -113,7 +113,7 @@ inside = insideOf({
     return loadIn(place, path, loading, makes)
   },
   page: (version) => {
-    if (version.page === undefined) throw new TentError('T0011', `The version ${version.id} holds no page code.`)
+    if (version.page === undefined) throw new ForjrError('F0011', `The version ${version.id} holds no page code.`)
     return pageCodeAt(placeOf(version).place, version.page)
   },
   timeout: (ms) => (Number.isFinite(ms) ? AbortSignal.timeout(Math.max(1, ms)) : undefined),

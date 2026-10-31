@@ -1,4 +1,4 @@
-import { agent, model, secret } from 'tentjs'
+import { agent, model, secret } from 'forjr'
 import { messages } from '../tables/tables'
 
 export const writer = model('writer', { provider: 'anthropic', name: 'claude-sonnet-5-5', key: secret('ANTHROPIC_KEY') })

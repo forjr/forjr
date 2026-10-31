@@ -5,7 +5,7 @@ The workspaces of a product, from its own backend code: each one person's projec
 ## Example
 
 ```ts
-import { action, text, workspaces } from 'tentjs'
+import { action, text, workspaces } from 'forjr'
 
 export const newProject = action('newProject', {
   access: 'signedIn',
@@ -38,7 +38,7 @@ Each member answers a promise. Every member but `create` and `list` holds the ca
 
 ## Errors
 
-`code.T0013` in an app that no program gave workspaces, and in code that has no full access. `code.T3101` for a workspace of another caller. `code.T0001` for an id that names no workspace. `code.T9105` where a workspace holds code that nothing lets run.
+`code.F0013` in an app that no program gave workspaces, and in code that has no full access. `code.F3101` for a workspace of another caller. `code.F0001` for an id that names no workspace. `code.F9105` where a workspace holds code that nothing lets run.
 
 ## See also
 

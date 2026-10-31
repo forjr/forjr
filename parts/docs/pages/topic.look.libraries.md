@@ -22,7 +22,7 @@ A part that only draws and never answers a press - text made from Markdown by a 
 
 ## Weight
 
-A heavy library makes a page heavier: `tent map` and `tent build` tell the bytes of each screen and each style file in the page, and nothing is refused for its size.
+A heavy library makes a page heavier: `forjr map` and `forjr build` tell the bytes of each screen and each style file in the page, and nothing is refused for its size.
 
 ## See also
 

@@ -1,5 +1,5 @@
 import type { Caller } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { fromJsonSchema, isStored } from '../core/internal.ts'
 import { answerOf } from './answered.ts'
 import { callInput } from './callInput.ts'
@@ -48,17 +48,17 @@ export interface AppServices {
 const elsewhere: Turns = { take: async () => () => undefined }
 
 /** The error of a name that is no call of a service of the version. */
-const noCall = (name: string): TentError =>
-  new TentError('T0001', `No call named ${JSON.stringify(name).slice(0, 80)} of a service can be reached.`, {
+const noCall = (name: string): ForjrError =>
+  new ForjrError('F0001', `No call named ${JSON.stringify(name).slice(0, 80)} of a service can be reached.`, {
     fix: 'Call a service by a call that its definition names.',
   })
 
 /**
  * Takes what the engine hands `connect`. Answers the services of an app: `call` checks the input of a call against
- * its types (T0002), builds its request, puts the auth on it, waits its turn under the limits of its service,
+ * its types (F0002), builds its request, puts the auth on it, waits its turn under the limits of its service,
  * sends it through the guarded fetch, tries it again where that is safe, reads the answer, and writes one row of
  * the log. A stand-in that the engine names is asked in place of sending. What it throws is in `tries.ts` and
- * `answered.ts`: T7115, T7116, T0019, T0022 and the reason of the signal.
+ * `answered.ts`: F7115, F7116, F0019, F0022 and the reason of the signal.
  */
 export function createServices(env: ConnectEnv): AppServices {
   const turns = new Map<string, Turns>()
@@ -154,7 +154,7 @@ export function createServices(env: ConnectEnv): AppServices {
       const description = env.description(o.version)
       const stored = Object.hasOwn(description.services, service) ? description.services[service] : undefined
       if (!stored?.mcp)
-        throw new TentError('T0001', `${JSON.stringify(service).slice(0, 80)} is no outside MCP server of the app.`, {
+        throw new ForjrError('F0001', `${JSON.stringify(service).slice(0, 80)} is no outside MCP server of the app.`, {
           fix: 'Name a service that states `mcp`.',
         })
       return outside.tools(service, stored, { caller: { kind: 'system' }, ...o, turns: turnsFor(service, stored) })

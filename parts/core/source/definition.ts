@@ -1,5 +1,5 @@
 import type { Description } from '../description.ts'
-import { TentError } from '../errors.ts'
+import { ForjrError } from '../errors.ts'
 import type { Doc } from './doc.ts'
 import { group } from './doc.ts'
 import { flowEntries, functionEntries, incomingEntries, tableEntries } from './backend.ts'
@@ -35,7 +35,7 @@ function found(w: Writing, d: Description, name: string): { word: string; entrie
   if (at(d.routes)) throw noText(`The route \`${name}\``)
   if (at(d.commands)) throw noText(`The command \`${name}\``)
   if (at(d.backfills ?? {})) throw noText(`The backfill \`${name}\``)
-  throw new TentError('T0001', `The description holds no definition named \`${name}\`.`, {
+  throw new ForjrError('F0001', `The description holds no definition named \`${name}\`.`, {
     fix: 'Name a definition of the description.',
   })
 }

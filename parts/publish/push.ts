@@ -1,24 +1,24 @@
 import type { GuardedFetch } from '../connect/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { History } from '../history/index.ts'
 import { lackingThere, sendPoints } from './send.ts'
 import { seenAt } from './seen.ts'
 import type { Target } from './target.ts'
 
-/** The branch that `now` follows, and the point it stands on. Throws T9107 where the history holds none. */
+/** The branch that `now` follows, and the point it stands on. Throws F9107 where the history holds none. */
 function headOf(history: History): { branch: string; head: string } {
   const branch = history.pointer('on') ?? 'main'
   const head = history.pointer(branch) ?? history.pointer('now')
   if (head === undefined)
-    throw new TentError('T9107', 'The history holds no point to send.', { fix: 'Record a point first.' })
+    throw new ForjrError('F9107', 'The history holds no point to send.', { fix: 'Record a point first.' })
   return { branch, head }
 }
 
 /**
  * Sends the points of the branch that `now` follows that the target lacks, oldest first, each after its own
  * blobs, and asks the target to move its pointer of that branch's name where it still stands where this computer
- * last saw it. Where it does not, the target merges, or refuses with T9103. Answers how many points and blobs were
- * sent. Throws T9101 for a head that is unsettled or that did not pass the check here, unless `unchecked`.
+ * last saw it. Where it does not, the target merges, or refuses with F9103. Answers how many points and blobs were
+ * sent. Throws F9101 for a head that is unsettled or that did not pass the check here, unless `unchecked`.
  */
 export async function push(o: {
   history: History
@@ -29,8 +29,8 @@ export async function push(o: {
   const { branch, head } = headOf(o.history)
   const point = o.history.read(head)
   if (point?.unsettled || (point?.checked === false && o.unchecked !== true))
-    throw new TentError(
-      'T9101',
+    throw new ForjrError(
+      'F9101',
       `The point ${head} ${point.unsettled ? 'is a merge with clashes that are not settled' : 'did not pass the check on this computer'}, and is not pushed.`,
       {
         fields: { point: head, reason: point.unsettled ? 'unsettled' : 'not-checked' },

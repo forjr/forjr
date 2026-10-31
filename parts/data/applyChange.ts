@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { Change } from './changes.ts'
 import type { SinkChange } from './sink.ts'
 import { forgetKept, keepChange, sinkSize as kept } from './changes.ts'
@@ -14,20 +14,20 @@ import { changesTable, hereTable } from './tables.ts'
 
 const system = { kind: 'system' } as const
 
-const clash = (why: string): TentError =>
-  new TentError('T0033', `A change does not fit the store it is applied to: ${why}.`, {
+const clash = (why: string): ForjrError =>
+  new ForjrError('F0033', `A change does not fit the store it is applied to: ${why}.`, {
     fix: 'Move the data file aside and fetch the data anew from the writer.',
   })
 
-const wrongTenant = (file: FileName, named: unknown): TentError =>
-  new TentError(
-    'T0009',
+const wrongTenant = (file: FileName, named: unknown): ForjrError =>
+  new ForjrError(
+    'F0009',
     `A change of the data file of ${file.table} ${file.id} makes a file that names ${JSON.stringify(named)} as its tenant: a file holds its table and its tenant.`,
   )
 
 const copyOf = (store: Store): NonNullable<Store['copy']> => {
   if (!store.copy)
-    throw new TentError('T0013', 'A change is applied to a store that can be copied, and this store has no `copy`.')
+    throw new ForjrError('F0013', 'A change is applied to a store that can be copied, and this store has no `copy`.')
   return store.copy
 }
 
@@ -92,7 +92,7 @@ function recordsInto(store: Store, changes: SinkChange[]): void {
  * alone: a change of a tenant's file into that file, which it makes where it is not there, and a change whose
  * number the file already holds skipped; a tenant that a change removed is gone with its file. For a copy that is
  * made from a backup, where one commit to the disk for each change is what costs, many go to a write. Throws
- * T0033 where a row is not as a record expects it, and a write that fails holds nothing of its changes.
+ * F0033 where a row is not as a record expects it, and a write that fails holds nothing of its changes.
  */
 export function applyChanges(on: Store | Files, changes: SinkChange[]): void {
   if (!('shared' in on)) {
@@ -175,18 +175,18 @@ function applyToFiles(files: Files, change: Change, only: 'kept' | 'file' | unde
 
 /**
  * Takes the store of a reader, or the files of an app, and one change of its writer. Puts the change into the
- * store as one write: the table steps, then the record with the rows of the change, then what `_t_here` and
- * `_t_changes` hold of it. It seals nothing: the rows that a rebuild sealed on the writer arrive in the record.
+ * store as one write: the table steps, then the record with the rows of the change, then what `_f_here` and
+ * `_f_changes` hold of it. It seals nothing: the rows that a rebuild sealed on the writer arrive in the record.
  * After the write it has the store forget each table that a raw SQL write of the change stated. Handed the files
  * of an app, it makes the write of the file that the change names, which it makes where it is not there, and then
  * the kept change in a write of the shared file; for a change that holds `fetch` the kept change alone; and it
  * removes the file of a tenant that the change says is gone. A change of a tenant whose row is gone, and one
  * whose number its file already holds, write no file. With `only: 'kept'` it writes the kept change and nothing
  * else, and with `only: 'file'`, handed the store of one tenant's file, the write of that file alone. Throws
- * T0033 where the running fingerprint of the change is not the one this store works out, and where a row is not as
- * the record expects it: the write is undone, and the store holds nothing of the change. Throws T0009 for a change
+ * F0033 where the running fingerprint of the change is not the one this store works out, and where a row is not as
+ * the record expects it: the write is undone, and the store holds nothing of the change. Throws F0009 for a change
  * of a tenant's file that is handed under the name of another tenant: nothing of it is applied, neither the
- * file nor the kept change. Throws T0013 for a store that cannot be copied.
+ * file nor the kept change. Throws F0013 for a store that cannot be copied.
  */
 export function applyChange(on: Store | Files, change: Change, o: { only?: 'kept' | 'file' } = {}): void {
   if ('shared' in on) applyToFiles(on, change, o.only)

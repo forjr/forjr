@@ -23,7 +23,7 @@ export function whereWith(tick: Tick, ...values: unknown[]): unknown {
  * One word with two uses. Takes a list and a filter, as a plan writes one, and answers the rows that fit: it reads
  * a row's own fields and nothing else, and handed a reference it answers its record. Or takes a filter alone, or
  * an arrow over the user and `db`, and answers the rule of a table that lets a caller reach the rows that fit.
- * Throws T0027 for a value in the place of the list that is no list.
+ * Throws F0027 for a value in the place of the list that is no list.
  */
 export function where<Row>(rows: readonly Row[], filter: object): Row[]
 export function where(rule: (user: User | undefined, db: QueryDb) => unknown): WhereRule

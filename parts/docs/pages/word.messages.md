@@ -6,7 +6,7 @@ Gives the messages of one language: what a language file exports as its default,
 
 ```ts
 // messages/en.ts
-import { messages } from 'tentjs/ui'
+import { messages } from 'forjr/ui'
 
 export default messages('en', {
   orders: { title: 'Open orders', count: { one: '{count} order', other: '{count} orders' } },
@@ -22,9 +22,9 @@ The record `{ language, messages }`, as it was handed.
 
 ## Errors
 
-- `code.T1010`: the file holds something beside messages written in place, which the build reads without running the file. Write each message as a text, a record of plural forms, or a record of more messages.
-- `code.T1014`: two files of one language give the same key. Give each key in one file of that language.
-- `code.T9001`: a key that one language gives and another lacks: the message of the default language is shown in its place until the other gives it.
+- `code.F1010`: the file holds something beside messages written in place, which the build reads without running the file. Write each message as a text, a record of plural forms, or a record of more messages.
+- `code.F1014`: two files of one language give the same key. Give each key in one file of that language.
+- `code.F9001`: a key that one language gives and another lacks: the message of the default language is shown in its place until the other gives it.
 
 ## See also
 

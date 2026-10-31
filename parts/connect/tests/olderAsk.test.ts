@@ -1,6 +1,6 @@
 import assert from 'node:assert/strict'
 import test from 'node:test'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { mcpClient } from '../mcp/client.ts'
 
 /**
@@ -63,7 +63,7 @@ test('[25-11] a question of a server of the older form that the person answers a
     () => undefined,
     (error: unknown) => error,
   )
-  assert.ok(first instanceof TentError && first.fields?.question === 'Close the month?', String(first))
+  assert.ok(first instanceof ForjrError && first.fields?.question === 'Close the month?', String(first))
   const state = String(first.fields?.state)
   // The person answers later than the call is held.
   await new Promise((done) => setTimeout(done, 60))

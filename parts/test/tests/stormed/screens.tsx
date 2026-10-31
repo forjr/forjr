@@ -1,4 +1,4 @@
-import { read, screen } from 'tentjs/ui'
+import { read, screen } from 'forjr/ui'
 import { peekAttempts, peekMail, peekSession } from './functions'
 
 // Each screen reads an action that does what a read may not.

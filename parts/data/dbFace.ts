@@ -1,4 +1,4 @@
-import { TentError, table } from '../core/index.ts'
+import { ForjrError, table } from '../core/index.ts'
 import type { Plan } from '../core/internal.ts'
 import { answered } from './answered.ts'
 
@@ -83,9 +83,10 @@ function written(value: unknown): unknown {
 /** Calls a member of a plan of `core`, which answers the plan after it. */
 function next(plan: object, name: string, args: unknown[] = []): object {
   const member: unknown = Reflect.get(plan, name)
-  if (typeof member !== 'function') throw new TentError('T0009', `A plan has no member \`${name}\`.`)
+  if (typeof member !== 'function') throw new ForjrError('F0009', `A plan has no member \`${name}\`.`)
   const made: unknown = Reflect.apply(member, plan, args.map(written))
-  if (typeof made !== 'object' || made === null) throw new TentError('T0009', `\`${name}\` of a plan answered no plan.`)
+  if (typeof made !== 'object' || made === null)
+    throw new ForjrError('F0009', `\`${name}\` of a plan answered no plan.`)
   return made
 }
 
@@ -93,7 +94,7 @@ function next(plan: object, name: string, args: unknown[] = []): object {
 function recordOf(plan: object): Plan {
   const record: unknown = Reflect.get(plan, 'plan')
   if (typeof record !== 'object' || record === null || typeof Reflect.get(record, 'from') !== 'string')
-    throw new TentError('T0009', 'A chain of db holds no plan.')
+    throw new ForjrError('F0009', 'A chain of db holds no plan.')
   return Object(record)
 }
 
@@ -158,8 +159,8 @@ export function dbFace(m: DbMembers, o: FaceOptions): Record<string, unknown> {
     for (const member of ['system', 'sql', 'n'])
       Object.defineProperty(db, member, {
         get(): never {
-          throw new TentError(
-            'T0013',
+          throw new ForjrError(
+            'F0013',
             `${name} used \`db.${member}\`, which is full access, and states no \`system\`.`,
             {
               fix: "State `system: 'why'` on the definition, with the reason it needs full access.",
@@ -178,7 +179,7 @@ export function dbFace(m: DbMembers, o: FaceOptions): Record<string, unknown> {
       after(sql(`SELECT "_n" FROM ${quoted(name)} WHERE "id" = ?`, [id]), (rows) => {
         const row: unknown = Array.isArray(rows) ? rows[0] : undefined
         if (row === undefined)
-          throw new TentError('T2103', `No row of \`${name}\` is found under the id ${JSON.stringify(id)}.`)
+          throw new ForjrError('F2103', `No row of \`${name}\` is found under the id ${JSON.stringify(id)}.`)
         return Number(Reflect.get(Object(row), '_n'))
       }),
     )

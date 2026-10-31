@@ -1,5 +1,5 @@
 import { createHmac } from 'node:crypto'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { isStored } from '../core/internal.ts'
 import type { App } from '../engine/index.ts'
 
@@ -17,7 +17,7 @@ function signed(scheme: unknown, secret: string, body: string, now: number): Rec
     createHmac('sha256', key).update(text).digest(as)
   if (scheme === 'standard') {
     if (secret.startsWith('whpk_'))
-      throw new TentError('T0013', 'A test signs no call with a public key: hand the headers of a signed call.')
+      throw new ForjrError('F0013', 'A test signs no call with a public key: hand the headers of a signed call.')
     const key = Buffer.from(secret.startsWith('whsec_') ? secret.slice(6) : secret, 'base64')
     const id = `msg_${now}`
     return {
@@ -37,7 +37,7 @@ function signed(scheme: unknown, secret: string, body: string, now: number): Rec
       ...(typeof scheme.id === 'string' ? { [scheme.id]: `call-${now}` } : {}),
     }
   }
-  throw new TentError('T0013', "A test signs no call of a check of the builder's own: hand the headers it reads.")
+  throw new ForjrError('F0013', "A test signs no call of a check of the builder's own: hand the headers it reads.")
 }
 
 /**
@@ -50,7 +50,7 @@ export const incoming =
     const { description } = app()
     const record = Object.hasOwn(description.incoming, name) ? description.incoming[name] : undefined
     if (!record || typeof record.path !== 'string')
-      throw new TentError('T0013', `${JSON.stringify(name).slice(0, 60)} names no call coming in of the app.`)
+      throw new ForjrError('F0013', `${JSON.stringify(name).slice(0, 60)} names no call coming in of the app.`)
     const body = typeof o.body === 'string' ? o.body : JSON.stringify(o.body ?? {})
     const verify: Record<string, unknown> = isStored(record.verify) ? record.verify : {}
     const service = typeof verify.service === 'string' ? description.services[verify.service] : undefined

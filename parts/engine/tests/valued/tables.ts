@@ -1,4 +1,4 @@
-import { boolean, list, number, project, table, text } from 'tentjs'
+import { boolean, list, number, project, table, text } from 'forjr'
 
 export const valued = project('valued', {
   settings: {

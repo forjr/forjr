@@ -1,4 +1,4 @@
-import { action, change, input, link, number, query, text } from 'tentjs'
+import { action, change, input, link, number, query, text } from 'forjr'
 import { orders } from '../tables/orders'
 
 const paymentKey = 'sk_live_THE-SECRET-VALUE-OF-THIS-COMPUTER-0123456789'

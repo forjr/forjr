@@ -5,7 +5,7 @@ import { asValue, isWritten } from '../written.ts'
 /**
  * Takes nothing, or `{ digits }`, a whole number from 1 up. Answers a new secret text, or that many digits, which
  * it asks the engine for. Where a definition is being made, or no call is under way, and handed a reference, it
- * answers its record. Throws T0027 for a `digits` that is no whole number from 1 up, and for more digits than a
+ * answers its record. Throws F0027 for a `digits` that is no whole number from 1 up, and for more digits than a
  * value may hold.
  */
 export function token(o?: { digits?: number }): string

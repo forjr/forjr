@@ -1,6 +1,6 @@
 // The list of the open orders.
 // Two comments stand before the screen, and one after it.
-import { screen, read, Form } from 'tentjs/ui'
+import { screen, read, Form } from 'forjr/ui'
 import { openOrders, markPaid } from '../functions/orders'
 
 /* a block comment before the definition */

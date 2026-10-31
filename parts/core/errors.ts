@@ -25,7 +25,7 @@ export const namedCodes = (given: Record<string, string>): void => void Object.a
 export const nameOf = (code: string): string => (Object.hasOwn(names, code) ? names[code] : code)
 
 /** Every failure: a code, the short word of the code, and a message, with the place and the fix where they apply. */
-export class TentError extends Error {
+export class ForjrError extends Error {
   code: string
   // Declared and not made, so that an error holds only the members it was given.
   declare fix?: string
@@ -51,7 +51,7 @@ export class TentError extends Error {
 }
 
 /** What the build and the check report: a failure with its level and the command that explains its code. */
-export interface Finding extends TentError {
+export interface Finding extends ForjrError {
   level: 'error' | 'warning' | 'note'
   docs: string
 }
@@ -63,7 +63,7 @@ export interface WireError {
   message: string
   fields?: Record<string, string>
   ref?: string
-  // The trace that the failed call stood in, which `tent logs --trace` reads on the machine.
+  // The trace that the failed call stood in, which `forjr logs --trace` reads on the machine.
   trace?: string
   running?: string
   fix?: string

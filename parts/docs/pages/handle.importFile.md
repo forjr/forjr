@@ -5,7 +5,7 @@ Imports a file that a person uploaded, each record through a change, so an app o
 ## Example
 
 ```ts
-import { action, file, importFile, number, object, role, text } from 'tentjs'
+import { action, file, importFile, number, object, role, text } from 'forjr'
 import { addMember } from './members'
 
 export const importMembers = action('importMembers', {
@@ -28,7 +28,7 @@ The change is called as the caller of the call, so every row passes the change's
 
 ## Errors
 
-`code.T0001` for a file that is not there or not the caller's to download, and for `with` that is no change. `code.T0002` for a file of a form that no import reads, or that does not read as its form. `code.T0013` where no call is under way, and in a query or a change.
+`code.F0001` for a file that is not there or not the caller's to download, and for `with` that is no change. `code.F0002` for a file of a form that no import reads, or that does not read as its form. `code.F0013` where no call is under way, and in a query or a change.
 
 ## See also
 

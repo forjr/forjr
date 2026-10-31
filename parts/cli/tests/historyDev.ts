@@ -20,14 +20,14 @@ export async function untilTried(what: string, holds: () => boolean | Promise<bo
 
 /** The files of a small project with no screen: a table of items, a query, a change, and the starter data. */
 export const files = (o: { limits?: string; tables?: string; functions?: string } = {}): Record<string, string> => ({
-  'tent.ts': `import { project } from 'tentjs'\n\nexport const notes = project('notes', {\n  title: 'Notes',${o.limits ? `\n  limits: ${o.limits},` : ''}\n})\n`,
+  'forjr.ts': `import { project } from 'forjr'\n\nexport const notes = project('notes', {\n  title: 'Notes',${o.limits ? `\n  limits: ${o.limits},` : ''}\n})\n`,
   'tables.ts':
     o.tables ??
-    `import { anyone, table, text } from 'tentjs'\n\nexport const items = table('items', {\n  columns: { title: text() },\n  access: { read: 'anyone', add: ${why} },\n})\n`,
+    `import { anyone, table, text } from 'forjr'\n\nexport const items = table('items', {\n  columns: { title: text() },\n  access: { read: 'anyone', add: ${why} },\n})\n`,
   'functions.ts':
     o.functions ??
-    `import { anyone, change, input, query, text } from 'tentjs'\nimport { items } from './tables'\n\nexport const allItems = query('allItems', { access: 'anyone', rows: items.oldest('createdAt').limit(100) })\n\nexport const addItem = change('addItem', {\n  access: ${why},\n  input: { title: text() },\n  set: items.add({ title: input('title') }),\n})\n`,
-  'seed.ts': `import { seed } from 'tentjs'\n\nexport default seed(({ db }) => {\n  db.items.add({ title: 'seeded' })\n})\n`,
+    `import { anyone, change, input, query, text } from 'forjr'\nimport { items } from './tables'\n\nexport const allItems = query('allItems', { access: 'anyone', rows: items.oldest('createdAt').limit(100) })\n\nexport const addItem = change('addItem', {\n  access: ${why},\n  input: { title: text() },\n  set: items.add({ title: input('title') }),\n})\n`,
+  'seed.ts': `import { seed } from 'forjr'\n\nexport default seed(({ db }) => {\n  db.items.add({ title: 'seeded' })\n})\n`,
 })
 
 /** A copy of the project of these tests with the files that a test gives it in the place of its own. */
@@ -38,7 +38,7 @@ export function projectOf(t: TestContext, name: string, o: Parameters<typeof fil
   return folder
 }
 
-/** `tent dev` on a project of these tests, on a port that the system gives, ended when the test ends. */
+/** `forjr dev` on a project of these tests, on a port that the system gives, ended when the test ends. */
 export async function developed(t: TestContext, name: string, o: Parameters<typeof files>[0] = {}): Promise<Dev> {
   // The session is ended before its folder is removed: what a test asks for at its end is done in the order asked.
   let started: Dev | undefined
@@ -47,7 +47,7 @@ export async function developed(t: TestContext, name: string, o: Parameters<type
   return started
 }
 
-/** What `tent history` answers with `--json`, which must end with 0. */
+/** What `forjr history` answers with `--json`, which must end with 0. */
 export async function history(folder: string, ...words: string[]): Promise<Record<string, unknown>> {
   const answered = await typed(folder, 'history', ...words, '--json')
   assert.equal(answered.ended, 0, answered.printed)

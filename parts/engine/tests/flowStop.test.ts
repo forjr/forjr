@@ -33,7 +33,7 @@ test('[46-4] [46-1] `onStop` runs once, saved, as the last work of a stopped run
     ],
     'the steps of onStop are saved under their names with `onStop.` in front',
   )
-  assert.equal(await waited, 'T5106', 'a caller that waits is answered once onStop has ended')
+  assert.equal(await waited, 'F5106', 'a caller that waits is answered once onStop has ended')
   // A stopped run is stopped once: its onStop is carried out no second time.
   app.runs.stop(run)
   await settle()

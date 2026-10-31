@@ -1,7 +1,7 @@
-# The reference of Tent.js
+# The reference of Forjr
 
 Every word with its options, every hook, every tag with its properties, every command with its flags, and every code.
-Each line is made from the types and lists of this version, with the first sentence of its page, which `tent docs <name>` prints.
+Each line is made from the types and lists of this version, with the first sentence of its page, which `forjr docs <name>` prints.
 
 ## Words
 
@@ -358,7 +358,7 @@ python(name: string, o: PythonOptions) // A function whose code is a Python file
   lock?: string // A lock of its own, for packages that cannot share the lock of the project.
   offer?: readonly Offer[] // The outside doors it is offered to.
   output: unknown // The type of the answer.
-  packages?: readonly string[] // The packages the code needs, which `tent python lock` locks and the engine installs into the environment of the lock.
+  packages?: readonly string[] // The packages the code needs, which `forjr python lock` locks and the engine installs into the environment of the lock.
   remember?: true | { for?: string; kind?: boolean; version?: string; shared?: string } // Keeps the answers for the same input.
   rows?: Record<string, PlanBuilder<never, unknown, unknown>> // Plans whose rows reach Python as tables.
   sends?: boolean // Whether it sends data out.
@@ -551,267 +551,267 @@ useUser(): User | undefined // Answers who looks at the page, in the code of a v
 ## Commands
 
 A command that reaches the engine of an app also takes `[--data <folder>]`, and every command `[--json]`.
-`tent --version`, or `tent -v`, prints the version of the tentjs that runs.
+`forjr --version`, or `forjr -v`, prints the version of the forjr that runs.
 
-tent access // Prints one table of who can do what.
-tent access key --do <add|list|remove> [--name <text>] [--scopes <text>] [--roles <text>] [--user <text>] [--per-minute <number>] [--for <text>] [--asks <text>] [--right <text>] [--kinds <text>] [--at-once <number>] [--workers <number>]
-tent access role --do <add|remove> --user <text> --role <text>
-tent add --package <text> [--allow-scripts] // Installs an npm package into the project.
-tent api read --from <text> --out <text> // `tent api read` turns a published description of an API into the JSON that the build reads from a service's `from`.
-tent build [--out <text>] [--dev] // Writes a bundle of the project.
-tent check // Builds the description of the project.
-tent cli // Runs the app's own command line.
-tent data backup [--whole] // Reads and keeps the data of an app through its running engine.
-tent data clean
-tent data files [--behind] [--unswept] [--due] [--stray] [--sweep] [--retry <text>]
-tent data import --file <text> --with <text> [--map <text> ...] [--language <text>] [--as <text>] [--dry]
-tent data restore [--file <text>] [--of <text>] [--at <text>] [--dry]
-tent data rows --table <text> [--of <text>]
-tent data user --do <export|remove> --id <text> [--out <text>] [--yes]
-tent dev [--port <number>] [--fresh] [--mail] [--keep] [--inspect <text>] // Builds the project, runs it in the mode `development`.
-tent docs [--topic <text>] [--reference] // Prints a page of the docs.
-tent export --out <text> [--base <text>] [--origin <text>] [--names <plain|any>] // Writes a site, or the public part of an app.
-tent filled [--look] [--failed <text>] [--of <text>] [--all] // Lists every column that work fills.
-tent history back --point <text> // Lists the points of the history of the project, records a named one.
-tent history branch [--name <text>] [--switch]
-tent history compare --a <text> --b <text>
-tent history export --out <text> [--kinds <text> ...]
-tent history [--newest <number>]
-tent history merge [--from <text>] [--yes] [--settle] [--unchecked]
-tent history save --name <text>
-tent impact [--point <text>] // Says what a change will reach before it lands.
-tent login --address <text> [--name <text>] [--insecure <text>] // Keeps the key of a server for publishing, pushing and pulling.
-tent logs [--errors] [--mail] [--trace <text>] [--slow] [--vitals] [--since <text>] [--at <text>] [--insecure <text>] // Prints the newest calls, errors and slow queries of the log of the app, each in the order they were written, or one trace as its tree, or the slowest traces beside the slow queries, or the speed visitors saw of each screen.
-tent machines // Lists the writer and each reader of a running app, the writer first.
-tent map // Prints the whole app as a short outline.
-tent mcp approve --service <text> [--as <text>] // A server of MCP on this computer.
-tent mcp
-tent models // Lists every model of the project with what it can do.
-tent models test [--name <text>]
-tent new --name <text> // Makes a bare project folder with `AGENTS.md`.
-tent publish [--to <text>] [--point <text>] [--back] [--preview] [--stop-runs] [--install] [--move] [--yes] [--accept-impact] [--gradual] [--status] [--widen] [--insecure <text>] // Publishes the files of a point of the history to a server.
-tent pull [--to <text>] [--unchecked] [--insecure <text>] // Fetches the points of a server's branch of the name that `now` follows and merges them into the files of the project.
-tent push [--to <text>] [--unchecked] [--insecure <text>] // Sends the points of the history that a server lacks and moves the server's branch of the name that `now` follows, so that several people who work on one project share it (`topic.history.engine`).
-tent python clean [--older <text>] // Locks the packages of the project's `python` definitions.
-tent python install [--target <text>] [--live]
-tent python lock
-tent run --name <text> [--to <text>] [--with <text>] [--as <text>] [--times <text>] [--dry] [--yes] // Calls a function of the app and prints what it answered.
-tent runs approve --id <text> --step <text> [--at <text>] [--insecure <text>] // Lists the runs of the flows of the app, and with a second word shows.
-tent runs move --id <text> [--at <text>] [--insecure <text>]
-tent runs pause --flow <text>
-tent runs refuse --id <text> --step <text> [--at <text>] [--insecure <text>]
-tent runs replay [--id <text>] --from <text> [--flow <text>] [--key <text>] [--state <text>] [--since <text>] [--before <text>] [--yes] [--at <text>] [--insecure <text>]
-tent runs resume --flow <text>
-tent runs [--of <text>] [--all] [--at <text>] [--insecure <text>]
-tent runs show --id <text> [--at <text>] [--insecure <text>]
-tent runs stop [--id <text>] [--flow <text>] [--key <text>] [--state <text>] [--since <text>] [--before <text>] [--yes] [--at <text>] [--insecure <text>]
-tent runs undo --id <text> [--started] [--dry]
-tent secrets list [--live] [--to <text>] [--insecure <text>] // Sets, removes and lists the secrets of an app.
-tent secrets remove --name <text> [--live] [--to <text>] [--insecure <text>]
-tent secrets --do <key> [--replace]
-tent secrets set --name <text> [--live] [--to <text>] [--insecure <text>]
-tent service [--line] [--install] [--machine] [--user <text>] [--yes] // Prints, for the system it runs on.
-tent settings list [--live] [--to <text>] [--insecure <text>] // Sets, removes and lists the values of the settings that the project states.
-tent settings remove --name <text> [--live] [--to <text>] [--insecure <text>]
-tent settings set --name <text> --value <text> [--live] [--to <text>] [--insecure <text>]
-tent shot --address <text> [--size <text>] [--full] [--dark] [--out <text>] [--wait <number>] // Makes a picture of a screen of the app that runs, as nobody sees it.
-tent start [--bundle <text>] [--port <number>] [--host <text>] [--mode <development|test|live>] [--seed] [--proxy <text> ...] [--web <text> ...] [--reads <text>] [--far] [--own <text>] [--key-from <text>] [--works <text>] [--kinds <text>] [--at-once <number>] [--load <text>] [--fetched <text>] [--insecure] [--parts <text>] [--sleep-after <text>] [--versions-from <text>] [--every <text>] [--stop-runs] [--move] [--mail] [--count-by <limits|app|caller>] [--count-every <text>] [--level-every <text>] [--caller-counts-kept <text>] [--counts-kept <text>] [--domain <text>] [--secure <text> ...] [--secret-key-from <text>] [--as-root] [--update <fixes|all|none>] // Runs a bundle as a server, until the program is told to end.
-tent take-over [--yes] // Makes a reader the writer of what it holds.
-tent test [--only <text>] [--ai] [--all] [--budget <text> ...] [--compare] [--from-runs <text>] [--below <number>] [--plan <text>] [--watch] [--declared] [--update] [--shard <text>] [--join <text> ...] [--looks <update>] [--room <program|apart>] // Runs the tests of the app.
-tent uninstall // Removes Tent.js from this computer.
-tent update [--version <text>] [--back] [--build-tools] [--keep] [--time <text>] // Updates Tent.js on this computer to the newest release.
-tent upgrade // Rewrites a project for the breaking changes of a newer major version.
-tent workers [--release <text>] // Lists the workers that are joined to a running writer.
+forjr access // Prints one table of who can do what.
+forjr access key --do <add|list|remove> [--name <text>] [--scopes <text>] [--roles <text>] [--user <text>] [--per-minute <number>] [--for <text>] [--asks <text>] [--right <text>] [--kinds <text>] [--at-once <number>] [--workers <number>]
+forjr access role --do <add|remove> --user <text> --role <text>
+forjr add --package <text> [--allow-scripts] // Installs an npm package into the project.
+forjr api read --from <text> --out <text> // `forjr api read` turns a published description of an API into the JSON that the build reads from a service's `from`.
+forjr build [--out <text>] [--dev] // Writes a bundle of the project.
+forjr check // Builds the description of the project.
+forjr cli // Runs the app's own command line.
+forjr data backup [--whole] // Reads and keeps the data of an app through its running engine.
+forjr data clean
+forjr data files [--behind] [--unswept] [--due] [--stray] [--sweep] [--retry <text>]
+forjr data import --file <text> --with <text> [--map <text> ...] [--language <text>] [--as <text>] [--dry]
+forjr data restore [--file <text>] [--of <text>] [--at <text>] [--dry]
+forjr data rows --table <text> [--of <text>]
+forjr data user --do <export|remove> --id <text> [--out <text>] [--yes]
+forjr dev [--port <number>] [--fresh] [--mail] [--keep] [--inspect <text>] // Builds the project, runs it in the mode `development`.
+forjr docs [--topic <text>] [--reference] // Prints a page of the docs.
+forjr export --out <text> [--base <text>] [--origin <text>] [--names <plain|any>] // Writes a site, or the public part of an app.
+forjr filled [--look] [--failed <text>] [--of <text>] [--all] // Lists every column that work fills.
+forjr history back --point <text> // Lists the points of the history of the project, records a named one.
+forjr history branch [--name <text>] [--switch]
+forjr history compare --a <text> --b <text>
+forjr history export --out <text> [--kinds <text> ...]
+forjr history [--newest <number>]
+forjr history merge [--from <text>] [--yes] [--settle] [--unchecked]
+forjr history save --name <text>
+forjr impact [--point <text>] // Says what a change will reach before it lands.
+forjr login --address <text> [--name <text>] [--insecure <text>] // Keeps the key of a server for publishing, pushing and pulling.
+forjr logs [--errors] [--mail] [--trace <text>] [--slow] [--vitals] [--since <text>] [--at <text>] [--insecure <text>] // Prints the newest calls, errors and slow queries of the log of the app, each in the order they were written, or one trace as its tree, or the slowest traces beside the slow queries, or the speed visitors saw of each screen.
+forjr machines // Lists the writer and each reader of a running app, the writer first.
+forjr map [--name <text>] [--size <number>] [--all] // Prints the app for the AI that reads it.
+forjr mcp approve --service <text> [--as <text>] // A server of MCP on this computer.
+forjr mcp
+forjr models // Lists every model of the project with what it can do.
+forjr models test [--name <text>]
+forjr new --name <text> // Makes a bare project folder with `AGENTS.md`.
+forjr publish [--to <text>] [--point <text>] [--back] [--preview] [--stop-runs] [--install] [--move] [--yes] [--accept-impact] [--gradual] [--status] [--widen] [--insecure <text>] // Publishes the files of a point of the history to a server.
+forjr pull [--to <text>] [--unchecked] [--insecure <text>] // Fetches the points of a server's branch of the name that `now` follows and merges them into the files of the project.
+forjr push [--to <text>] [--unchecked] [--insecure <text>] // Sends the points of the history that a server lacks and moves the server's branch of the name that `now` follows, so that several people who work on one project share it (`topic.history.engine`).
+forjr python clean [--older <text>] // Locks the packages of the project's `python` definitions.
+forjr python install [--target <text>] [--live]
+forjr python lock
+forjr run --name <text> [--to <text>] [--with <text>] [--as <text>] [--times <text>] [--dry] [--yes] // Calls a function of the app and prints what it answered.
+forjr runs approve --id <text> --step <text> [--at <text>] [--insecure <text>] // Lists the runs of the flows of the app, and with a second word shows.
+forjr runs move --id <text> [--at <text>] [--insecure <text>]
+forjr runs pause --flow <text>
+forjr runs refuse --id <text> --step <text> [--at <text>] [--insecure <text>]
+forjr runs replay [--id <text>] --from <text> [--flow <text>] [--key <text>] [--state <text>] [--since <text>] [--before <text>] [--yes] [--at <text>] [--insecure <text>]
+forjr runs resume --flow <text>
+forjr runs [--of <text>] [--all] [--at <text>] [--insecure <text>]
+forjr runs show --id <text> [--at <text>] [--insecure <text>]
+forjr runs stop [--id <text>] [--flow <text>] [--key <text>] [--state <text>] [--since <text>] [--before <text>] [--yes] [--at <text>] [--insecure <text>]
+forjr runs undo --id <text> [--started] [--dry]
+forjr secrets list [--live] [--to <text>] [--insecure <text>] // Sets, removes and lists the secrets of an app.
+forjr secrets remove --name <text> [--live] [--to <text>] [--insecure <text>]
+forjr secrets --do <key> [--replace]
+forjr secrets set --name <text> [--live] [--to <text>] [--insecure <text>]
+forjr service [--line] [--install] [--machine] [--user <text>] [--yes] // Prints, for the system it runs on.
+forjr settings list [--live] [--to <text>] [--insecure <text>] // Sets, removes and lists the values of the settings that the project states.
+forjr settings remove --name <text> [--live] [--to <text>] [--insecure <text>]
+forjr settings set --name <text> --value <text> [--live] [--to <text>] [--insecure <text>]
+forjr shot --address <text> [--size <text>] [--full] [--dark] [--out <text>] [--wait <number>] // Makes a picture of a screen of the app that runs, as nobody sees it.
+forjr start [--bundle <text>] [--port <number>] [--host <text>] [--mode <development|test|live>] [--seed] [--proxy <text> ...] [--web <text> ...] [--reads <text>] [--far] [--own <text>] [--key-from <text>] [--works <text>] [--kinds <text>] [--at-once <number>] [--load <text>] [--fetched <text>] [--insecure] [--parts <text>] [--sleep-after <text>] [--versions-from <text>] [--every <text>] [--stop-runs] [--move] [--mail] [--count-by <limits|app|caller>] [--count-every <text>] [--level-every <text>] [--caller-counts-kept <text>] [--counts-kept <text>] [--domain <text>] [--secure <text> ...] [--secret-key-from <text>] [--as-root] [--update <fixes|all|none>] // Runs a bundle as a server, until the program is told to end.
+forjr take-over [--yes] // Makes a reader the writer of what it holds.
+forjr test [--only <text>] [--ai] [--all] [--budget <text> ...] [--compare] [--from-runs <text>] [--below <number>] [--plan <text>] [--watch] [--declared] [--update] [--shard <text>] [--join <text> ...] [--looks <update>] [--room <program|apart>] // Runs the tests of the app.
+forjr uninstall // Removes Forjr from this computer.
+forjr update [--version <text>] [--back] [--build-tools] [--keep] [--time <text>] // Updates Forjr on this computer to the newest release.
+forjr upgrade // Rewrites a project for the breaking changes of a newer major version.
+forjr workers [--release <text>] // Lists the workers that are joined to a running writer.
 
 ## Codes
 
-T0001 not-found // No definition of that name can be reached.
-T0002 bad-input // The input does not fit the declared types.
-T0003 too-large // A call or an upload over its size limit.
-T0004 wrong-origin // A request that changes something came from a page of another site.
-T0005 rate-limited // A rate limit was reached.
-T0006 not-signed-in // The rule needs a signed-in caller and there is none.
-T0007 version-gone // The version that a page names can no longer be loaded.
-T0008 took-too-long // A time limit of the engine was passed.
-T0009 internal // Something went wrong that is not the caller's to see.
-T0010 no-engine // A definition or a handle was used with nothing in the runtime slot.
-T0011 bad-description // A description does not have the shape of the format.
-T0012 read-only // A write was tried where only a read is allowed.
-T0013 not-allowed-here // Something was used where it cannot work.
-T0014 no-users-table // A user is needed, and the app has no `users` table.
-T0015 cannot-read // `files.text` was asked for the words of a file of a kind that no reader knows, or of a file that its reader cannot read.
-T0016 part-not-fetched // A part that is fetched at its first use could not be fetched.
-T0017 wrong-name // A request named a host that is none of the app's own names.
-T0018 cannot-open // The data cannot be opened.
-T0019 secret-missing // A secret that is needed has no value.
-T0020 no-mailer // `mail.send` was used where a message would be sent.
-T0021 mail-not-sent // The mail server did not take a message.
-T0022 address-refused // The guarded fetch refused an address.
-T0023 fetch-cut-off // An answer to the guarded fetch passed its size or its time.
-T0026 update-refused // An update, or a list that an install reads from where releases are served, was refused because it does not fit what was signed.
-T0027 cannot-work-out // A value word was handed a value of another kind than it works with.
-T0028 nested-too-deep // Functions that call each other from code stand deeper in each other than `limits.functionDepth` lets them.
-T0029 not-current // A machine cannot answer for now.
-T0030 not-the-writer // A machine that is not the writer was asked for what only the writer does.
-T0031 record-behind // A write was refused because the place of record of the app has been behind for too long.
-T0032 writer-runs // `app.takeOver`, or `tent take-over`.
-T0033 copy-clash // A change of the writer does not fit the data of the reader it is applied to.
-T0034 engines-differ // A reader and its writer run stores of two shape numbers.
-T0035 not-allowed-out // With `hold` on, an action of the app, or a package it imports.
-T0036 not-sent // A call that a page held while it had no connection was not sent within `limits.callHold`.
-T0037 room-ended // The room where the app's code runs ended the call.
-T0038 usage // A command was typed with a word, a flag or a value it does not take.
-T1001 not-top-level // A word that makes a definition is called where no top-level `export const` takes what it makes.
-T1002 name-mismatch // The exported name and the stated name of a definition differ.
-T1003 unknown-option // A definition, a type or a part of one states an option that it does not have.
-T1004 name-used-twice // Two definitions of one project have the same name.
-T1005 both-imports // A file imports two of `tentjs`, `tentjs/ui` and `tentjs/cli`.
-T1006 helper-exported // A backend file exports something that is no definition.
-T1007 two-forms // A definition is written in two forms at once.
-T1008 missing-option // A required option is left out.
-T1009 reserved-name // A name is used that the framework keeps for itself.
-T1010 not-plain // Something stands where only what can be read as text may stand.
-T1011 bad-word // A length of time, a size or a schedule does not read.
-T1012 project-count // A project has no `project` definition, or more than one.
-T1013 bad-name // The name of a definition or of a column is not camelCase letters and digits.
-T1014 bad-value // An option holds a value that is not allowed where it stands.
-T2001 rows-do-not-fit // A table change that the rows which are there do not fit.
-T2002 column-gone // A column that the data holds is gone from its table.
-T2003 table-gone // A table that the data holds is gone from the project.
-T2004 rename-not-stated // One name is gone and another is new, with no `was`.
-T2005 link-to-missing-table // A `link` names a table that the project does not hold.
-T2006 search-not-text // A table names a column in `search` that is no text.
-T2007 owner-not-users // The `owner` of a table names a column that is no `link('users')`.
-T2008 vector-size // A `near` is handed a value whose size is not the size of the column.
-T2009 near-without-limit // A plan with `near` states neither `limit` nor `first()`.
-T2010 vector-misused // A vector column is used as an ordinary column.
-T2013 tenant-misused // A table that keeps a data file for each tenant is used in a way that does not keep to one file.
-T2014 tenant-rule-open // A note.
-T2015 filled-misused // A column that work fills, as its `by` states it, cannot be filled so.
-T2016 shown-table-misused // A table that shows the counts or the scores of the engine is used in a way that is not for it.
-T2025 count-across-files // A kept `count`, `sum`, `min` or `max` counts the rows of a table that lie in another data file than the row that holds it.
-T2026 findable-sealed-misused // A sort or a range filter is asked of a column that is sealed and findable.
-T2027 link-to-memory // A table links to a table kept in memory, whose rows go by themselves.
-T2028 no-archive // What the app wrote cannot be read back.
-T2029 index-advised // A query passed its slow bar, and its plan reads a whole table.
-T2030 heavy-on-memory // A query that states `heavy` reads a table kept in memory.
-T2011 sealed-misused // A `sealed` column is used where the store would have to read it.
-T2012 vector-of-another-model // A value is searched with or written to a vector column that states a model, and the value states another model.
-T2101 not-unique // A write breaks a `unique` rule.
-T2102 link-in-use // A row cannot be removed because other rows link to it.
-T2103 row-not-found // A `change` or a `remove` names a row that does not exist.
-T2104 link-missing // A `link` value names a row that does not exist.
-T2105 vector-not-valid // A vector that a change writes, or that a `near` is given in code.
-T2106 near-not-valid // A plan that code made with `near` is none that can be answered.
-T2107 value-not-valid // A value that code writes does not fit its column.
-T2108 too-many-rows // One read of a live query answered more rows than `liveRows`.
-T5107 no-worker // No worker of its kind carried the work out.
-T5108 old-try // What a worker sent names a task that is not out to it.
-T5109 worker-refused // The writer does not take a worker that asked to join.
-T5110 out-of-memory // The system of a worker ended the work for want of memory.
-T5111 event-two-shapes // A warning.
-T2109 not-one-file // Code read or wrote a table that keeps a data file for each tenant in a way that does not keep to the file of one tenant.
-T3001 no-access-rule // A flow or an agent names a door in `offer` and states no `access`.
-T3002 anyone-on-write // Bare `'anyone'` stands on a write.
-T3003 anyone-on-personal // Bare `'anyone'` stands on a read of personal data.
-T3004 system-without-why // A function uses full access and states no `system`.
-T3005 unreachable-table // No rule lets anyone read a table.
-T3006 private-in-output // A query written with `rows` names a `private` column in `pick`.
-T3007 secret-in-browser // A secret value of this computer was found in the code that a browser loads.
-T3008 incoming-not-verified // A call coming in states neither `verify` nor `open`.
-T3009 system-skips-owner // A function that callers other than the system may call states `system` and changes a row named by its input, of a table whose rules would not let that caller change it, and holds the caller against no row before the write.
-T3011 secrets-not-searched // A build found a secrets file that this computer cannot open.
-T3101 access-denied // A rule does not let this caller do it.
-T4001 clock-in-query // The code of a query reads a clock.
-T4002 random-in-query // A query draws a random value.
-T4003 network-in-query // A query reaches the network.
-T4004 live-without-limit // A query that is live is written with `rows`.
-T4005 async-run // The `run` of a query or of a change is written `async`.
-T4101 query-not-pure // A query read a clock, drew a random number or reached the network while it ran.
-T5001 work-outside-step // The code of a flow did work outside a step.
-T5002 step-not-awaited // A flow uses a step tool and does not wait for its promise.
-T5003 step-name-gone // A warning.
-T5007 worker-misused // What a definition or the project states of heavy work does not hold together.
-T5008 heavy-work-note // A note.
-T5101 too-many-steps // A run came to more steps than its flow allows.
-T5102 result-too-large // The result of a step, or the answer of a flow.
-T5103 wait-too-long // A wait of a flow is longer than its flow allows.
-T5104 run-too-long // A run worked for longer than its flow allows.
-T5105 called-too-deep // A flow was called from a run that stands as deep among the runs that called each other as the project allows.
-T5106 run-stopped // A run that was waited for was stopped before it ended.
-T6007 path-used-twice // Two definitions have one address.
-T6008 direct-call // A screen file calls a function of the backend directly.
-T6009 field-not-usable // A field of a `Form` that its function cannot take, a name in `with`.
-T6011 state-not-declared // `set` of a `Link` or of `then`, or the `consent` of a script of the head, names a state that is not declared or is of the wrong type, or `set` gives a literal that does not fit.
-T6012 bad-screen-part // A part of a screen that does not fit.
-T6013 address-not-allowed // A literal address of a `Link`, of `useGoTo`, of `then` of a `Form`.
-T6015 cannot-cache // `cache` on a screen that is not open to anyone.
-T6016 needs-an-engine // A screen that calls a function was exported.
-T6018 lives-in-the-browser // A component that is drawn on the server alone holds what lives in the browser, or its file gives something else beside such components.
-T6021 no-currency // `'currency'` is handed to `format` in place.
-T6022 name-twice-in-view // A use of a component that keeps state in the address.
-T6023 bad-data-entry // An entry of `data` reads what cannot be read.
-T6025 size-not-known // An `Image` whose size is neither written nor known from its file.
-T6031 consent-in-address // The state that the `consent` of a script of the head names is kept in the address.
-T6030 public-reads-visitor // A screen whose `cache` states `public` reads `user`.
-T6032 seo-image-not-public // A screen whose `seo.image` names a component is not open to anyone.
-T7001 ability-missing // A model was asked for something it cannot do.
-T7002 three-marks // An agent that can do all three of what makes it open to being led.
-T7003 limits-incomplete // A limit that is stated can never bound.
-T7004 too-many-tools // More functions are offered to MCP than `toolsListed` lets a chat app be listed.
-T7005 fallback-lacks-ability // A model in `fallback` lacks an ability of the model it stands in for.
-T7006 model-not-known // A model that the list of models does not know.
-T7007 memory-table // The table in `memory.in` of an agent does not have what a memory table must have.
-T7008 tools-too-deep // The flows and agents that are tools of an agent stand deeper than `callDepth`, or lead back to the agent.
-T7009 tool-not-described // A flow, a function or a screen that others are told of does not say what it is.
-T7010 no-access // An agent that a screen file imports states no `access`.
-T7011 vector-in-fill // The shape handed to `fill` holds a `vector`.
-T7012 tool-not-as-starter // A flow that is a tool of an agent does not state `as: 'starter'`.
-T7013 api-file-broken // The published description of an API that a service names in `from` could not be read for the calls that `use` names.
-T7014 plain-fetch // Backend code calls `fetch` itself.
-T7015 secret-revealed // Code calls `reveal()`, and so opens a secret.
-T7016 held-way-out // `hold` of `project` names a host.
-T7017 trusted-reaches-ask // A tool that `trust` names reaches, where the check can see it.
-T7018 asks-in-the-middle // A tool would ask the person in the middle of its work.
-T7019 tool-answer-open // The `output` of a tool is or holds `json`.
-T7020 python-lock-stale // The lock of the packages of the project's `python` definitions does not fit the project.
-T7021 not-for-a-chat // A screen that is offered to MCP reads or calls a function that is not offered to MCP.
-T7101 thread-too-long // A conversation has grown too long for the model of its agent.
-T7102 limit-reached // A limit was reached.
-T7103 thread-busy // A start was refused because as many runs work already as may work at once, or because its conversation has a run that works or waits on it.
-T7104 provider-failed // Every model that could answer a call failed.
-T7105 no-voice // A start of an agent was handed `audio` or `speak`.
-T7106 model-refused // The model refused for what was asked.
-T7107 answer-cut-off // The answer of the model was cut off.
-T7108 answer-did-not-fit // The answer of a model did not fit its type.
-T7109 request-too-large // A request holds more than its model takes.
-T7110 request-not-accepted // The provider did not accept the request.
-T7111 not-agreed // A call was refused because no person agreed to it.
-T7112 tool-changed // A tool of an outside MCP server is not as it was approved.
-T7113 provider-missing // A definition names something of the builder's own that nobody made in `engine.ts`, so the app does not open.
-T7114 driver-missing // An agent names in `driver` a driver that nobody made in `engine.ts`.
-T7115 service-failed // A call of a service failed.
-T7116 service-answer-did-not-fit // What a service answered does not fit the `output` that its call states.
-T7117 not-connected // A service whose auth is `oauth` was called for a user who has no connection to it, or for no user at all.
-T7118 not-verified // A call coming in, or the request of a route handed to `verified`.
-T7119 python-failed // A call of a `python` failed in its Python code or in its Python program.
-T7120 nobody-to-ask // A function that states `danger: 'ask'` was called by a program.
-T7121 sequence-refused // A sequence that a model handed was refused before anything of it ran.
-T7130 no-typed-answer // An agent that states `output` ended its run with no call of `answer`.
-T7131 guard-refused // A guard of an agent did not pass a text.
-T7132 stood-in // In a case that `tent test --declared` made.
-T8000 type-error // The type checker found something in the project.
-T8001 date-by-javascript // In a plain definition, `==`, `!=`, `===`.
-T8002 list-by-javascript // In a plain definition, `==`, `!=`.
-T9001 missing-message // A language file lacks a key that another language has.
-T9002 missing-asset // A definition names an asset by a written name.
-T9003 unknown-message // A message whose key no language of the project has.
-T9004 untested // A warning.
-T9101 point-not-usable // A point was to be merged from, merged into, pushed or published.
-T9102 clash-left // `tent history merge --settle` was typed while the clashes of the merge are still there.
-T9103 publish-refused // A server refused a push or a publish, and said why.
-T9104 no-right // A request to an address of publishing came with no key.
-T9105 policy-refused // What a project tool was asked for, or what a workspace holds.
-T9106 edit-not-found // The text that the project tool `edit` was to replace does not stand in the file exactly once.
-T9107 history-missing // A point or the bytes of a file that the history was asked for is not there, or what was sent does not fit the id it was sent under.
-T9108 not-gradual // A publish asked to go gradually, and its version cannot.
+F0001 not-found // No definition of that name can be reached.
+F0002 bad-input // The input does not fit the declared types.
+F0003 too-large // A call or an upload over its size limit.
+F0004 wrong-origin // A request that changes something came from a page of another site.
+F0005 rate-limited // A rate limit was reached.
+F0006 not-signed-in // The rule needs a signed-in caller and there is none.
+F0007 version-gone // The version that a page names can no longer be loaded.
+F0008 took-too-long // A time limit of the engine was passed.
+F0009 internal // Something went wrong that is not the caller's to see.
+F0010 no-engine // A definition or a handle was used with nothing in the runtime slot.
+F0011 bad-description // A description does not have the shape of the format.
+F0012 read-only // A write was tried where only a read is allowed.
+F0013 not-allowed-here // Something was used where it cannot work.
+F0014 no-users-table // A user is needed, and the app has no `users` table.
+F0015 cannot-read // `files.text` was asked for the words of a file of a kind that no reader knows, or of a file that its reader cannot read.
+F0016 part-not-fetched // A part that is fetched at its first use could not be fetched.
+F0017 wrong-name // A request named a host that is none of the app's own names.
+F0018 cannot-open // The data cannot be opened.
+F0019 secret-missing // A secret that is needed has no value.
+F0020 no-mailer // `mail.send` was used where a message would be sent.
+F0021 mail-not-sent // The mail server did not take a message.
+F0022 address-refused // The guarded fetch refused an address.
+F0023 fetch-cut-off // An answer to the guarded fetch passed its size or its time.
+F0026 update-refused // An update, or a list that an install reads from where releases are served, was refused because it does not fit what was signed.
+F0027 cannot-work-out // A value word was handed a value of another kind than it works with.
+F0028 nested-too-deep // Functions that call each other from code stand deeper in each other than `limits.functionDepth` lets them.
+F0029 not-current // A machine cannot answer for now.
+F0030 not-the-writer // A machine that is not the writer was asked for what only the writer does.
+F0031 record-behind // A write was refused because the place of record of the app has been behind for too long.
+F0032 writer-runs // `app.takeOver`, or `forjr take-over`.
+F0033 copy-clash // A change of the writer does not fit the data of the reader it is applied to.
+F0034 engines-differ // A reader and its writer run stores of two shape numbers.
+F0035 not-allowed-out // With `hold` on, an action of the app, or a package it imports.
+F0036 not-sent // A call that a page held while it had no connection was not sent within `limits.callHold`.
+F0037 room-ended // The room where the app's code runs ended the call.
+F0038 usage // A command was typed with a word, a flag or a value it does not take.
+F1001 not-top-level // A word that makes a definition is called where no top-level `export const` takes what it makes.
+F1002 name-mismatch // The exported name and the stated name of a definition differ.
+F1003 unknown-option // A definition, a type or a part of one states an option that it does not have.
+F1004 name-used-twice // Two definitions of one project have the same name.
+F1005 both-imports // A file imports two of `forjr`, `forjr/ui` and `forjr/cli`.
+F1006 helper-exported // A backend file exports something that is no definition.
+F1007 two-forms // A definition is written in two forms at once.
+F1008 missing-option // A required option is left out.
+F1009 reserved-name // A name is used that the framework keeps for itself.
+F1010 not-plain // Something stands where only what can be read as text may stand.
+F1011 bad-word // A length of time, a size or a schedule does not read.
+F1012 project-count // A project has no `project` definition, or more than one.
+F1013 bad-name // The name of a definition or of a column is not camelCase letters and digits.
+F1014 bad-value // An option holds a value that is not allowed where it stands.
+F2001 rows-do-not-fit // A table change that the rows which are there do not fit.
+F2002 column-gone // A column that the data holds is gone from its table.
+F2003 table-gone // A table that the data holds is gone from the project.
+F2004 rename-not-stated // One name is gone and another is new, with no `was`.
+F2005 link-to-missing-table // A `link` names a table that the project does not hold.
+F2006 search-not-text // A table names a column in `search` that is no text.
+F2007 owner-not-users // The `owner` of a table names a column that is no `link('users')`.
+F2008 vector-size // A `near` is handed a value whose size is not the size of the column.
+F2009 near-without-limit // A plan with `near` states neither `limit` nor `first()`.
+F2010 vector-misused // A vector column is used as an ordinary column.
+F2013 tenant-misused // A table that keeps a data file for each tenant is used in a way that does not keep to one file.
+F2014 tenant-rule-open // A note.
+F2015 filled-misused // A column that work fills, as its `by` states it, cannot be filled so.
+F2016 shown-table-misused // A table that shows the counts or the scores of the engine is used in a way that is not for it.
+F2025 count-across-files // A kept `count`, `sum`, `min` or `max` counts the rows of a table that lie in another data file than the row that holds it.
+F2026 findable-sealed-misused // A sort or a range filter is asked of a column that is sealed and findable.
+F2027 link-to-memory // A table links to a table kept in memory, whose rows go by themselves.
+F2028 no-archive // What the app wrote cannot be read back.
+F2029 index-advised // A query passed its slow bar, and its plan reads a whole table.
+F2030 heavy-on-memory // A query that states `heavy` reads a table kept in memory.
+F2011 sealed-misused // A `sealed` column is used where the store would have to read it.
+F2012 vector-of-another-model // A value is searched with or written to a vector column that states a model, and the value states another model.
+F2101 not-unique // A write breaks a `unique` rule.
+F2102 link-in-use // A row cannot be removed because other rows link to it.
+F2103 row-not-found // A `change` or a `remove` names a row that does not exist.
+F2104 link-missing // A `link` value names a row that does not exist.
+F2105 vector-not-valid // A vector that a change writes, or that a `near` is given in code.
+F2106 near-not-valid // A plan that code made with `near` is none that can be answered.
+F2107 value-not-valid // A value that code writes does not fit its column.
+F2108 too-many-rows // One read of a live query answered more rows than `liveRows`.
+F5107 no-worker // No worker of its kind carried the work out.
+F5108 old-try // What a worker sent names a task that is not out to it.
+F5109 worker-refused // The writer does not take a worker that asked to join.
+F5110 out-of-memory // The system of a worker ended the work for want of memory.
+F5111 event-two-shapes // A warning.
+F2109 not-one-file // Code read or wrote a table that keeps a data file for each tenant in a way that does not keep to the file of one tenant.
+F3001 no-access-rule // A flow or an agent names a door in `offer` and states no `access`.
+F3002 anyone-on-write // Bare `'anyone'` stands on a write.
+F3003 anyone-on-personal // Bare `'anyone'` stands on a read of personal data.
+F3004 system-without-why // A function uses full access and states no `system`.
+F3005 unreachable-table // No rule lets anyone read a table.
+F3006 private-in-output // A query written with `rows` names a `private` column in `pick`.
+F3007 secret-in-browser // A secret value of this computer was found in the code that a browser loads.
+F3008 incoming-not-verified // A call coming in states neither `verify` nor `open`.
+F3009 system-skips-owner // A function that callers other than the system may call states `system` and changes a row named by its input, of a table whose rules would not let that caller change it, and holds the caller against no row before the write.
+F3011 secrets-not-searched // A build found a secrets file that this computer cannot open.
+F3101 access-denied // A rule does not let this caller do it.
+F4001 clock-in-query // The code of a query reads a clock.
+F4002 random-in-query // A query draws a random value.
+F4003 network-in-query // A query reaches the network.
+F4004 live-without-limit // A query that is live is written with `rows`.
+F4005 async-run // The `run` of a query or of a change is written `async`.
+F4101 query-not-pure // A query read a clock, drew a random number or reached the network while it ran.
+F5001 work-outside-step // The code of a flow did work outside a step.
+F5002 step-not-awaited // A flow uses a step tool and does not wait for its promise.
+F5003 step-name-gone // A warning.
+F5007 worker-misused // What a definition or the project states of heavy work does not hold together.
+F5008 heavy-work-note // A note.
+F5101 too-many-steps // A run came to more steps than its flow allows.
+F5102 result-too-large // The result of a step, or the answer of a flow.
+F5103 wait-too-long // A wait of a flow is longer than its flow allows.
+F5104 run-too-long // A run worked for longer than its flow allows.
+F5105 called-too-deep // A flow was called from a run that stands as deep among the runs that called each other as the project allows.
+F5106 run-stopped // A run that was waited for was stopped before it ended.
+F6007 path-used-twice // Two definitions have one address.
+F6008 direct-call // A screen file calls a function of the backend directly.
+F6009 field-not-usable // A field of a `Form` that its function cannot take, a name in `with`.
+F6011 state-not-declared // `set` of a `Link` or of `then`, or the `consent` of a script of the head, names a state that is not declared or is of the wrong type, or `set` gives a literal that does not fit.
+F6012 bad-screen-part // A part of a screen that does not fit.
+F6013 address-not-allowed // A literal address of a `Link`, of `useGoTo`, of `then` of a `Form`.
+F6015 cannot-cache // `cache` on a screen that is not open to anyone.
+F6016 needs-an-engine // A screen that calls a function was exported.
+F6018 lives-in-the-browser // A component that is drawn on the server alone holds what lives in the browser, or its file gives something else beside such components.
+F6021 no-currency // `'currency'` is handed to `format` in place.
+F6022 name-twice-in-view // A use of a component that keeps state in the address.
+F6023 bad-data-entry // An entry of `data` reads what cannot be read.
+F6025 size-not-known // An `Image` whose size is neither written nor known from its file.
+F6031 consent-in-address // The state that the `consent` of a script of the head names is kept in the address.
+F6030 public-reads-visitor // A screen whose `cache` states `public` reads `user`.
+F6032 seo-image-not-public // A screen whose `seo.image` names a component is not open to anyone.
+F7001 ability-missing // A model was asked for something it cannot do.
+F7002 three-marks // An agent that can do all three of what makes it open to being led.
+F7003 limits-incomplete // A limit that is stated can never bound.
+F7004 too-many-tools // More functions are offered to MCP than `toolsListed` lets a chat app be listed.
+F7005 fallback-lacks-ability // A model in `fallback` lacks an ability of the model it stands in for.
+F7006 model-not-known // A model that the list of models does not know.
+F7007 memory-table // The table in `memory.in` of an agent does not have what a memory table must have.
+F7008 tools-too-deep // The flows and agents that are tools of an agent stand deeper than `callDepth`, or lead back to the agent.
+F7009 tool-not-described // A flow, a function or a screen that others are told of does not say what it is.
+F7010 no-access // An agent that a screen file imports states no `access`.
+F7011 vector-in-fill // The shape handed to `fill` holds a `vector`.
+F7012 tool-not-as-starter // A flow that is a tool of an agent does not state `as: 'starter'`.
+F7013 api-file-broken // The published description of an API that a service names in `from` could not be read for the calls that `use` names.
+F7014 plain-fetch // Backend code calls `fetch` itself.
+F7015 secret-revealed // Code calls `reveal()`, and so opens a secret.
+F7016 held-way-out // `hold` of `project` names a host.
+F7017 trusted-reaches-ask // A tool that `trust` names reaches, where the check can see it.
+F7018 asks-in-the-middle // A tool would ask the person in the middle of its work.
+F7019 tool-answer-open // The `output` of a tool is or holds `json`.
+F7020 python-lock-stale // The lock of the packages of the project's `python` definitions does not fit the project.
+F7021 not-for-a-chat // A screen that is offered to MCP reads or calls a function that is not offered to MCP.
+F7101 thread-too-long // A conversation has grown too long for the model of its agent.
+F7102 limit-reached // A limit was reached.
+F7103 thread-busy // A start was refused because as many runs work already as may work at once, or because its conversation has a run that works or waits on it.
+F7104 provider-failed // Every model that could answer a call failed.
+F7105 no-voice // A start of an agent was handed `audio` or `speak`.
+F7106 model-refused // The model refused for what was asked.
+F7107 answer-cut-off // The answer of the model was cut off.
+F7108 answer-did-not-fit // The answer of a model did not fit its type.
+F7109 request-too-large // A request holds more than its model takes.
+F7110 request-not-accepted // The provider did not accept the request.
+F7111 not-agreed // A call was refused because no person agreed to it.
+F7112 tool-changed // A tool of an outside MCP server is not as it was approved.
+F7113 provider-missing // A definition names something of the builder's own that nobody made in `engine.ts`, so the app does not open.
+F7114 driver-missing // An agent names in `driver` a driver that nobody made in `engine.ts`.
+F7115 service-failed // A call of a service failed.
+F7116 service-answer-did-not-fit // What a service answered does not fit the `output` that its call states.
+F7117 not-connected // A service whose auth is `oauth` was called for a user who has no connection to it, or for no user at all.
+F7118 not-verified // A call coming in, or the request of a route handed to `verified`.
+F7119 python-failed // A call of a `python` failed in its Python code or in its Python program.
+F7120 nobody-to-ask // A function that states `danger: 'ask'` was called by a program.
+F7121 sequence-refused // A sequence that a model handed was refused before anything of it ran.
+F7130 no-typed-answer // An agent that states `output` ended its run with no call of `answer`.
+F7131 guard-refused // A guard of an agent did not pass a text.
+F7132 stood-in // In a case that `forjr test --declared` made.
+F8000 type-error // The type checker found something in the project.
+F8001 date-by-javascript // In a plain definition, `==`, `!=`, `===`.
+F8002 list-by-javascript // In a plain definition, `==`, `!=`.
+F9001 missing-message // A language file lacks a key that another language has.
+F9002 missing-asset // A definition names an asset by a written name.
+F9003 unknown-message // A message whose key no language of the project has.
+F9004 untested // A warning.
+F9101 point-not-usable // A point was to be merged from, merged into, pushed or published.
+F9102 clash-left // `forjr history merge --settle` was typed while the clashes of the merge are still there.
+F9103 publish-refused // A server refused a push or a publish, and said why.
+F9104 no-right // A request to an address of publishing came with no key.
+F9105 policy-refused // What a project tool was asked for, or what a workspace holds.
+F9106 edit-not-found // The text that the project tool `edit` was to replace does not stand in the file exactly once.
+F9107 history-missing // A point or the bytes of a file that the history was asked for is not there, or what was sent does not fit the id it was sent under.
+F9108 not-gradual // A publish asked to go gradually, and its version cannot.

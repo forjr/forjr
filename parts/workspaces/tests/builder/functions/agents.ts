@@ -1,4 +1,4 @@
-import { agent, model, secret } from 'tentjs'
+import { agent, model, secret } from 'forjr'
 import { messages } from '../tables/tables'
 
 export const writer = model('writer', { provider: 'anthropic', name: 'claude-sonnet-5-5', key: secret('ANTHROPIC_KEY') })
@@ -105,4 +105,10 @@ export const worder = agent('worder', {
     tools: every,
     reaches: ['api.example.com'],
   },
+})
+
+// One that reads the files of tables alone, and is offered the map.
+export const mapReader = agent('mapReader', {
+  ...base,
+  policy: { read: ['table'], tools: ['map'] },
 })

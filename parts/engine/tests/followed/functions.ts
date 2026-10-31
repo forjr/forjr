@@ -1,16 +1,16 @@
-import { action, agent, change, flow, input, json, list, model, number, role, runs, text } from 'tentjs'
+import { action, agent, change, flow, input, json, list, model, number, role, runs, text } from 'forjr'
 import { users } from './tables.ts'
 
 /** What holds a step back until the test lets it go, by name, kept on the program for the tests. */
 async function gate(name: string): Promise<void> {
-  const held: unknown = Reflect.get(globalThis, Symbol.for('tentjs.test.followed'))
+  const held: unknown = Reflect.get(globalThis, Symbol.for('forjr.test.followed'))
   const waits: unknown = held instanceof Map ? held.get(name) : undefined
   if (waits instanceof Promise) await waits
 }
 
 /** Whether the test asked a step to fail once, which it then does no more. */
 function failOnce(name: string): boolean {
-  const held: unknown = Reflect.get(globalThis, Symbol.for('tentjs.test.followed.fail'))
+  const held: unknown = Reflect.get(globalThis, Symbol.for('forjr.test.followed.fail'))
   if (!(held instanceof Set) || !held.has(name)) return false
   held.delete(name)
   return true
@@ -232,7 +232,7 @@ export const visiting = flow('visiting', {
     }),
 })
 
-// An action that is a run, which its caller may follow by the id of the T0008 that ends the wait.
+// An action that is a run, which its caller may follow by the id of the F0008 that ends the wait.
 export const heavy = action('heavy', {
   access: 'signedIn',
   background: true,

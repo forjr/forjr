@@ -51,7 +51,7 @@ export function started(
   const lies = join(folder, name)
   mkdirSync(lies, { recursive: true })
   for (const [path, content] of Object.entries(files)) put(lies, path, content)
-  const data = join(lies, '.tent')
+  const data = join(lies, '.forjr')
   return { project: lies, history: openedIn(data), data }
 }
 
@@ -76,7 +76,7 @@ export function filesIn(folder: string, at = ''): Record<string, string> {
 export const heldIn = (project: string): Record<string, string> =>
   Object.fromEntries(
     Object.entries(filesIn(project)).filter(
-      ([path]) => !path.startsWith('.tent/') && !path.startsWith('node_modules/'),
+      ([path]) => !path.startsWith('.forjr/') && !path.startsWith('node_modules/'),
     ),
   )
 

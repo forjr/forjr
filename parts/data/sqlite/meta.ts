@@ -9,18 +9,18 @@ export const shapeNumber = 1
 
 const layoutKey = (table: string): string => `layout:${table}`
 
-/** Answers the value that `_t_meta` holds under a key, or nothing. */
+/** Answers the value that `_f_meta` holds under a key, or nothing. */
 export function metaOf(db: DatabaseSync, key: string): unknown {
-  const row = db.prepare('SELECT "value" FROM "_t_meta" WHERE "key" = ?').get(key)
+  const row = db.prepare('SELECT "value" FROM "_f_meta" WHERE "key" = ?').get(key)
   return typeof row?.value === 'string' ? JSON.parse(row.value) : undefined
 }
 
-/** Writes a value into `_t_meta` under a key, or takes the key away where the value is nothing. */
+/** Writes a value into `_f_meta` under a key, or takes the key away where the value is nothing. */
 function setMeta(db: DatabaseSync, key: string, value: unknown): void {
-  if (value === undefined) db.prepare('DELETE FROM "_t_meta" WHERE "key" = ?').run(key)
+  if (value === undefined) db.prepare('DELETE FROM "_f_meta" WHERE "key" = ?').run(key)
   else
     db.prepare(
-      'INSERT INTO "_t_meta" ("key", "value") VALUES (?, ?) ON CONFLICT ("key") DO UPDATE SET "value" = excluded."value"',
+      'INSERT INTO "_f_meta" ("key", "value") VALUES (?, ?) ON CONFLICT ("key") DO UPDATE SET "value" = excluded."value"',
     ).run(key, JSON.stringify(value))
 }
 
@@ -31,7 +31,7 @@ export function keepLayout(db: DatabaseSync, table: string, layout: TableLayout 
   setMeta(db, layoutKey(table), layout)
 }
 
-/** Makes `_t_meta` in a file that has none, with the shape number and its own shape. */
+/** Makes `_f_meta` in a file that has none, with the shape number and its own shape. */
 export function makeMeta(db: DatabaseSync): void {
   db.exec('BEGIN IMMEDIATE')
   try {
@@ -45,9 +45,9 @@ export function makeMeta(db: DatabaseSync): void {
   }
 }
 
-/** Whether a file holds `_t_meta`: one that does not was never opened by a store. */
+/** Whether a file holds `_f_meta`: one that does not was never opened by a store. */
 export const hasMeta = (db: DatabaseSync): boolean =>
-  db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = '_t_meta'").get() !== undefined
+  db.prepare("SELECT 1 FROM sqlite_master WHERE type = 'table' AND name = '_f_meta'").get() !== undefined
 
 /**
  * Answers the layout of each table the file holds, as the store wrote it down: SQLite's own list of tables cannot
@@ -55,7 +55,7 @@ export const hasMeta = (db: DatabaseSync): boolean =>
  */
 export function layoutsIn(db: DatabaseSync): TableLayout[] {
   return db
-    .prepare(`SELECT "value" FROM "_t_meta" WHERE "key" LIKE 'layout:%' ORDER BY rowid`)
+    .prepare(`SELECT "value" FROM "_f_meta" WHERE "key" LIKE 'layout:%' ORDER BY rowid`)
     .all()
     .map((row): TableLayout => JSON.parse(String(row.value)))
 }

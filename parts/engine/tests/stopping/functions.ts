@@ -1,4 +1,4 @@
-import { boolean, change, emit, event, fail, flow, input, query, text } from 'tentjs'
+import { boolean, change, emit, event, fail, flow, input, query, text } from 'forjr'
 import { marks } from './tables.ts'
 
 export const addMark = change('addMark', {

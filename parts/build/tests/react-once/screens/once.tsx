@@ -1,5 +1,5 @@
 import * as React from 'react'
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 // Two packages that the test writes into `node_modules`: one imports `react` and `react-dom`, and one asks for
 // `react` by `require`.
 import { required } from 'asks-react'

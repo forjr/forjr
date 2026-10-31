@@ -1,4 +1,4 @@
-import { component, read, text } from 'tentjs/ui'
+import { component, read, text } from 'forjr/ui'
 import { allNotes } from './functions'
 import { loud } from './heavy'
 

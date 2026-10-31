@@ -9,7 +9,7 @@ A start of a flow adds a run. The engine takes the run up and calls `run` from i
 A wait ends the pass. Later the engine calls `run` from its top again: the finished steps answer at once, and the run goes on behind the wait. So the code between two steps runs on every pass. It may read, through `db`, a setting and `log`, and it must do nothing else: a change, an action, a call of a service or of a model, a call of a flow, `start`, `now()`, `random()` and `token()` belong inside a step.
 
 ```ts
-import { flow, text } from 'tentjs'
+import { flow, text } from 'forjr'
 import { markWelcomed, sendWelcome } from './functions.ts'
 
 export const welcome = flow('welcome', {
@@ -38,7 +38,7 @@ export const welcome = flow('welcome', {
 | `step.done(value?)` | Ends the whole run as done, with the value as the answer of the flow, from wherever it is called |
 | `step.again(input?)` | Ends the run as done and, in the same write, starts a new run of the same flow with that input, or its own where it is handed none, the same key and starter, and `from` naming the run before. So a subscription that renews every month for years never meets `limits.steps`. Nothing of the saved steps is carried over: what the new run needs is in its input |
 
-A step that states `sealed: true`, `step('card', work, { sealed: true })`, or every step of a flow that states `sealed: true`, saves what it answers sealed with the key of the secrets, bound to its run, its step and its repeat, as a sealed column is: the data file, a backup, another run and `runs.read` hold the sealed text alone, the run that saved it reads it back opened, and a person's export opens it for them. With no key at hand such a step fails with `code.T0019`.
+A step that states `sealed: true`, `step('card', work, { sealed: true })`, or every step of a flow that states `sealed: true`, saves what it answers sealed with the key of the secrets, bound to its run, its step and its repeat, as a sealed column is: the data file, a backup, another run and `runs.read` hold the sealed text alone, the run that saved it reads it back opened, and a person's export opens it for them. With no key at hand such a step fails with `code.F0019`.
 
 A step answers its result as it was saved: plain data, in which a `date` is text in the standard form, on the pass that made it and on every later one. The input of a run is read back through the types of `input` on every pass, so a `date` of it is a `Date`.
 
@@ -63,7 +63,7 @@ export const onDone = flow('onDone', {
 })
 ```
 
-A flow is given what its `input` declares, and anything else is `code.T0002`. A flow has full access, because no user is present: one that states `as: 'starter'` runs with the rights of the caller who started it, and each function it calls passes its own rule as that caller. A flow with full access is called and waited for only from code that has full access too, a function that states `system`; `start` is not held so. Runs call each other three deep, and one more is `code.T5105`.
+A flow is given what its `input` declares, and anything else is `code.F0002`. A flow has full access, because no user is present: one that states `as: 'starter'` runs with the rights of the caller who started it, and each function it calls passes its own rule as that caller. A flow with full access is called and waited for only from code that has full access too, a function that states `system`; `start` is not held so. Runs call each other three deep, and one more is `code.F5105`.
 
 A change that a step calls is carried out once, also where the step runs a second time after a failure or a restart: the engine keeps a once-only key for each call of a step, made from what is called and with what. So a second try writes no row twice.
 
@@ -71,4 +71,4 @@ A change that a step calls is carried out once, also where the step runs a secon
 
 A flow that states `access` may be called by the pages of the app as a function is: `<Form call={welcome}>` draws its fields from the `input` of the flow. The call starts a run, waits for it, and answers what the `output` of the flow names. Such a flow states `as: 'starter'`, or `system` with the reason it has full access.
 
-A run that outlasts `actionTime` goes on, and the caller is answered `code.T0008` with the id of the run in `fields.run`. The same call with `{ run }` alone waits for that run again, and with `{ run, stop: true }` stops it, for the caller who started it.
+A run that outlasts `actionTime` goes on, and the caller is answered `code.F0008` with the id of the run in `fields.run`. The same call with `{ run }` alone waits for that run again, and with `{ run, stop: true }` stops it, for the caller who started it.

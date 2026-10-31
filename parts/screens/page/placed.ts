@@ -59,7 +59,7 @@ export function placing<Handed extends unknown[], Made>(
   made: (...handed: Handed) => Made,
 ): (...handed: Handed) => Made {
   // A module of a development build hands the places of its tags by this name, once the page code has loaded.
-  Reflect.set(globalThis, '__tentTags', tagsOf)
+  Reflect.set(globalThis, '__forjrTags', tagsOf)
   return (...handed) => {
     const element = made(...handed)
     const place = placeOf(sourceIn(handed[4]))

@@ -10,7 +10,7 @@ import { codeOf, logRows, running, send, system } from './apps.ts'
 /** Sends a command to the admin channel of an app, as a command of this computer does, with no network. */
 function command(run: Running, name: string, args: object): Promise<Answered> {
   const token = String(JSON.parse(readFileSync(join(run.dataFolder, 'engine.json'), 'utf8')).token)
-  return send(run.app, `${run.origin}/_t/admin/${name}`, {
+  return send(run.app, `${run.origin}/_f/admin/${name}`, {
     body: JSON.stringify({ args }),
     headers: { authorization: `Bearer ${token}` },
   })
@@ -22,26 +22,26 @@ const fileOf = (dataFolder: string, name: string): Record<string, string> =>
 
 /** Writes the values of a secrets file by hand, as somebody who moves a value from one place to another. */
 const writeFile = (dataFolder: string, name: string, values: Record<string, string>): void =>
-  writeFileSync(join(dataFolder, name), JSON.stringify({ format: 'tent.secrets/1', values }))
+  writeFileSync(join(dataFolder, name), JSON.stringify({ format: 'forjr.secrets/1', values }))
 
 // A value that a test sets: long enough to be looked for, and found nowhere by chance.
 const payKey = 'sk-test-4f9a1c7e2b8d6a30'
 
-test('[22-14a] reveal() of a secret with no value is T0019, a value that is set while the engine runs is used by the next call, and the file holds no value as it is', async (t) => {
+test('[22-14a] reveal() of a secret with no value is F0019, a value that is set while the engine runs is used by the next call, and the file holds no value as it is', async (t) => {
   const run = await running(t, { project: 'valued' })
   const { app, dataFolder } = run
   // With no value the use of the secret fails, and names the secret and the command that sets it.
   const none = await assert.rejects(
     app.call('lengthOfKey', {}, { as: system }),
     (error: { code: string; message: string; fix: string }) => {
-      assert.equal(error.code, 'T0019')
+      assert.equal(error.code, 'F0019')
       assert.match(error.message, /PAY_KEY/)
-      assert.match(error.fix, /tent secrets set PAY_KEY/)
+      assert.match(error.fix, /forjr secrets set PAY_KEY/)
       return true
     },
   )
   assert.equal(none, undefined)
-  // An engine makes no key: with none at hand a secret cannot be set, and T0019 names the key.
+  // An engine makes no key: with none at hand a secret cannot be set, and F0019 names the key.
   const keyless = await command(run, 'secrets', { do: 'set', name: 'PAY_KEY', value: payKey })
   assert.deepEqual(keyless.body, { ok: true, value: { name: 'PAY_KEY', set: false, key: false } })
   assert.equal(existsSync(join(dataFolder, 'secrets.test')), false)
@@ -59,7 +59,7 @@ test('[22-14a] reveal() of a secret with no value is T0019, a value that is set 
   assert.equal(await app.call('lengthOfKey', {}, { as: system }), payKey.length + 7)
   // The file holds the form of its kind and one text for the name, in which the value does not stand.
   const written = readFileSync(join(dataFolder, 'secrets.test'), 'utf8')
-  assert.equal(JSON.parse(written).format, 'tent.secrets/1')
+  assert.equal(JSON.parse(written).format, 'forjr.secrets/1')
   assert.deepEqual(Object.keys(fileOf(dataFolder, 'secrets.test')), ['PAY_KEY'])
   assert.match(fileOf(dataFolder, 'secrets.test').PAY_KEY, /^[A-Za-z0-9_-]+$/)
   assert.equal(written.includes(payKey), false)
@@ -69,7 +69,7 @@ test('[22-14a] reveal() of a secret with no value is T0019, a value that is set 
   assert.deepEqual(listed.body, { ok: true, value: { set: ['PAY_KEY'], missing: [] } })
   // A removal takes the value away, and the use fails again.
   assert.deepEqual((await command(run, 'secrets', { do: 'remove', name: 'PAY_KEY' })).body.ok, true)
-  assert.equal(await codeOf(app.call('lengthOfKey', {}, { as: system })), 'T0019')
+  assert.equal(await codeOf(app.call('lengthOfKey', {}, { as: system })), 'F0019')
 })
 
 test('[22-14a] a value written twice gives two texts, and both open; a value copied from the test file into the live one, and one moved to another name, does not open', async (t) => {
@@ -92,7 +92,7 @@ test('[22-14a] a value written twice gives two texts, and both open; a value cop
     })
     assert.deepEqual(readSecrets(dataFolder), [payKey])
   }
-  // The same text under another name does not open, and the use of it is T0019.
+  // The same text under another name does not open, and the use of it is F0019.
   writeFile(dataFolder, 'secrets.test', { PAY_KEY: second, OTHER_KEY: second })
   assert.deepEqual(readSecrets(dataFolder), [])
   assert.deepEqual(unreadSecrets(dataFolder), ['secrets.test'])
@@ -111,11 +111,11 @@ test('[22-14a] a value written twice gives two texts, and both open; a value cop
   assert.throws(
     () => storedValues(dataFolder, bundle.description, { kind: 'secrets', name: 'NEW_KEY', value: 'a new value' }),
     {
-      code: 'T0019',
+      code: 'F0019',
     },
   )
   assert.equal(readFileSync(join(dataFolder, 'secrets.test'), 'utf8'), before)
-  assert.equal(await codeOf(app.call('lengthOfKey', {}, { as: system })), 'T0019')
+  assert.equal(await codeOf(app.call('lengthOfKey', {}, { as: system })), 'F0019')
 })
 
 test('[22-5] a secret that code did not reveal appears in no log and no answer, and one that code revealed and then put into an error message is [secret] in the log', async (t) => {
@@ -126,10 +126,10 @@ test('[22-5] a secret that code did not reveal appears in no log and no answer, 
   // With no `reveal()` the secret reads `[secret]` wherever it is written out.
   assert.deepEqual(await app.call('asText', {}, { as: system }), ['[secret]', '[secret]', '{"key":"[secret]"}'])
   // In a query it cannot be opened at all.
-  assert.equal(await codeOf(app.call('revealInQuery', {}, { as: system })), 'T0013')
+  assert.equal(await codeOf(app.call('revealInQuery', {}, { as: system })), 'F0013')
   // The code opens it, writes it into the log three ways, and throws it in the message of an error.
-  const failed = await send(app, `${origin}/_t/call/leaks`, { headers: { origin } })
-  assert.deepEqual([failed.status, failed.error.code], [500, 'T0009'])
+  const failed = await send(app, `${origin}/_f/call/leaks`, { headers: { origin } })
+  assert.deepEqual([failed.status, failed.error.code], [500, 'F0009'])
   const kept = JSON.stringify([
     logRows(dataFolder, 'lines'),
     logRows(dataFolder, 'errors'),
@@ -148,7 +148,7 @@ test('[22-5] a secret that code did not reveal appears in no log and no answer, 
   assert.equal(kept.includes(key), false)
   // A value of fewer than eight characters is not looked for: it would be found inside ordinary words.
   await command(run, 'secrets', { do: 'set', name: 'PAY_KEY', value: 'short' })
-  await send(app, `${origin}/_t/call/leaks`, { headers: { origin } })
+  await send(app, `${origin}/_f/call/leaks`, { headers: { origin } })
   assert.equal(String(logRows(dataFolder, 'lines').at(-2)?.message), 'the key is short')
   // A secret whose value is an address: its user name and its password are taken out by themselves too.
   await command(run, 'secrets', {
@@ -156,7 +156,7 @@ test('[22-5] a secret that code did not reveal appears in no log and no answer, 
     name: 'MAIL',
     value: 'smtps://mailer-user-91:pw-7c1e9a44b2@mail.example.com:465',
   })
-  await send(app, `${origin}/_t/call/leaks`, { body: JSON.stringify({ input: { name: 'MAIL' } }), headers: { origin } })
+  await send(app, `${origin}/_f/call/leaks`, { body: JSON.stringify({ input: { name: 'MAIL' } }), headers: { origin } })
   const again = JSON.stringify(logRows(dataFolder, 'lines'))
   assert.equal(again.includes('pw-7c1e9a44b2'), false)
   assert.equal(again.includes('mailer-user-91'), false)
@@ -173,11 +173,11 @@ test('[22-14a] a secret that the app sets itself is a secret of its own mode, in
   // The value is in no log.
   assert.equal(JSON.stringify([logRows(dataFolder, 'lines'), logRows(dataFolder, 'calls')]).includes(payKey), false)
   await app.call('dropKey', { name: 'PAY_KEY' }, { as: system })
-  assert.equal(await codeOf(app.call('lengthOfKey', {}, { as: system })), 'T0019')
+  assert.equal(await codeOf(app.call('lengthOfKey', {}, { as: system })), 'F0019')
   // A function that states no `system` may not set one, whoever calls it but the system.
   assert.equal(
     await codeOf(app.call('setKeyAsAnyone', { name: 'X', value: 'another value' }, { as: { kind: 'nobody' } })),
-    'T0013',
+    'F0013',
   )
 })
 
@@ -213,13 +213,13 @@ test('[21-16@7a] the mode says which files are read: development and test read t
   }
 })
 
-test('[22-14a] a sealed column is stored encrypted under the key of the secrets, each value by itself, and is read back as it was written; with no key at hand it is T0019', async (t) => {
+test('[22-14a] a sealed column is stored encrypted under the key of the secrets, each value by itself, and is read back as it was written; with no key at hand it is F0019', async (t) => {
   const run = await running(t, { project: 'valued' })
   const { app, dataFolder } = run
   // With no key at hand a write of a sealed column fails, and names the column.
   assert.equal(
     await codeOf(app.call('keep', { title: 'first', note: 'the note of the first' }, { as: system })),
-    'T0019',
+    'F0019',
   )
   makeSecretKey(dataFolder)
   // The key is looked for at the next call.

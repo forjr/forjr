@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import type { ServerResponse } from 'node:http'
 import test from 'node:test'
 import { get, post, service, text } from '../../core/index.ts'
-import type { TentError } from '../../core/index.ts'
+import type { ForjrError } from '../../core/index.ts'
 import { calling, codeOf } from './calling.ts'
 import { standIn } from './servers.ts'
 
@@ -31,7 +31,7 @@ test('[24-3] the waits between tries grow four times each, and the tries are as 
   const server = await answering(t, [503, 502, 504, 429])
   const shop = service('shop', { url: server.origin, tries: 4, calls: { one: get('/o', { input: {} }) } })
   const made = calling([shop])
-  assert.equal(await codeOf(made.call('shop', 'one', {})), 'T7115')
+  assert.equal(await codeOf(made.call('shop', 'one', {})), 'F7115')
   assert.equal(server.asked.length, 4)
   assert.deepEqual(made.slept, [1000, 4000, 16000])
 })
@@ -43,7 +43,7 @@ test('[24-3] a post with no once-only key is not tried again, and one that carri
     onceOnlyHeader: 'Idempotency-Key',
     calls: { pay: post('/pay', { input: { n: text() } }) },
   })
-  assert.equal(await codeOf(calling([shop]).call('shop', 'pay', { n: 'a' })), 'T7115')
+  assert.equal(await codeOf(calling([shop]).call('shop', 'pay', { n: 'a' })), 'F7115')
   assert.equal(server.asked.length, 1)
   await calling([shop], { once: () => 'key-of-the-step' }).call('shop', 'pay', { n: 'a' })
   assert.deepEqual(
@@ -79,9 +79,9 @@ test('[24-3] `Retry-After` is waited for up to `tries.wait`, in seconds and as a
   const both = calling([shop])
   const error = await both.call('shop', 'one', {}).then(
     () => undefined,
-    (failed: TentError) => failed,
+    (failed: ForjrError) => failed,
   )
-  assert.equal(error?.code, 'T7115')
+  assert.equal(error?.code, 'F7115')
   assert.equal(error?.service?.status, 429)
   assert.equal(server.asked.length, 4)
   // Three seconds; the moment of the date, which the clock of the test stands seven seconds before; a word that
@@ -92,7 +92,7 @@ test('[24-3] `Retry-After` is waited for up to `tries.wait`, in seconds and as a
   assert.equal(both.slept[2], 16000)
 })
 
-test('[24-3] a 404 is T7115 with the status and the body in `service`, and is not tried again', async (t) => {
+test('[24-3] a 404 is F7115 with the status and the body in `service`, and is not tried again', async (t) => {
   const server = await standIn(t, (_, response) => {
     response.writeHead(404, { 'content-type': 'application/json' })
     response.end('{"error":{"code":"missing"}}')
@@ -102,9 +102,9 @@ test('[24-3] a 404 is T7115 with the status and the body in `service`, and is no
     .call('shop', 'one', {})
     .then(
       () => undefined,
-      (failed: TentError) => failed,
+      (failed: ForjrError) => failed,
     )
-  assert.equal(error?.code, 'T7115')
+  assert.equal(error?.code, 'F7115')
   assert.deepEqual(error?.service, { status: 404, body: { error: { code: 'missing' } } })
   assert.equal(server.asked.length, 1)
 })
@@ -124,13 +124,13 @@ test('[24-3] the body that a failure keeps is cut at `limits.error`, as text whe
     .call('shop', 'one', {})
     .then(
       () => undefined,
-      (failed: TentError) => failed,
+      (failed: ForjrError) => failed,
     )
   assert.equal(error?.service?.status, 500)
   assert.equal(error?.service?.body, 'x'.repeat(1024))
 })
 
-test('[24-3] an answer after `limits.time` is T7115, with no status', async (t) => {
+test('[24-3] an answer after `limits.time` is F7115, with no status', async (t) => {
   const server = await standIn(t, () => undefined)
   const shop = service('shop', {
     url: server.origin,
@@ -143,9 +143,9 @@ test('[24-3] an answer after `limits.time` is T7115, with no status', async (t) 
     .call('shop', 'one', {})
     .then(
       () => undefined,
-      (failed: TentError) => failed,
+      (failed: ForjrError) => failed,
     )
-  assert.equal(error?.code, 'T7115')
+  assert.equal(error?.code, 'F7115')
   assert.equal(error?.service?.status, undefined)
   assert.ok(performance.now() - began < 5000)
 })
@@ -188,7 +188,7 @@ test('[24-3] the signal of the call ends a wait, and the call fails with what it
   const shop = service('shop', { url: server.origin, calls: { one: get('/o', { input: {} }) } })
   const made = calling([shop], { real: true })
   const stop = new AbortController()
-  const reason = Object.assign(new Error('the time is up'), { code: 'T0008' })
+  const reason = Object.assign(new Error('the time is up'), { code: 'F0008' })
   setTimeout(() => stop.abort(reason), 100)
-  assert.equal(await codeOf(made.call('shop', 'one', {}, { signal: stop.signal })), 'T0008')
+  assert.equal(await codeOf(made.call('shop', 'one', {}, { signal: stop.signal })), 'F0008')
 })

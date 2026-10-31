@@ -11,7 +11,7 @@ const size = 16 * 1024 * 1024
 const listed = 512 * 1024
 const rooms = 8 + listed * 8
 
-const keyOf = (name: string): string => `tent.thread.lines.${name}`
+const keyOf = (name: string): string => `forjr.thread.lines.${name}`
 
 // The memory of each name that this program made for its threads.
 const made = new Map<string, SharedArrayBuffer>()

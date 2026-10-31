@@ -9,7 +9,7 @@ const root = join(import.meta.dirname, '..', '..', '..')
 export type Reported = { file: string; line: number; words: string }
 
 /**
- * Takes a name and the files of a small project, each a text by its path, in which `tentjs` and `tentjs/ui` are
+ * Takes a name and the files of a small project, each a text by its path, in which `forjr` and `forjr/ui` are
  * imported by those names. Writes them to a folder of their own under `results/`, carries the type checker out on
  * them with the settings of the root, and answers what it reported. Throws where it could not be started.
  */
@@ -22,7 +22,7 @@ export function typeCheck(name: string, files: Record<string, string>): Reported
     compilerOptions: {
       ...compilerOptions,
       declaration: false,
-      paths: { tentjs: entry('core'), 'tentjs/ui': entry('screens') },
+      paths: { forjr: entry('core'), 'forjr/ui': entry('screens') },
     },
     include: ['**/*.ts', '**/*.tsx'],
   }

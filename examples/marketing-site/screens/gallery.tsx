@@ -1,4 +1,4 @@
-import { anyone, asset, Image, Link, read, screen, message } from 'tentjs/ui'
+import { anyone, asset, Image, Link, read, screen, message } from 'forjr/ui'
 import { SiteFrame } from '../components/SiteFrame'
 import { featureList } from '../functions/features'
 import { featureScreen } from './feature'

@@ -37,7 +37,7 @@ test('[27-18] the sequence of section 8: sequence 1.1 holds its stored form, the
   assert.equal(await rowsOf(app, maya, 'allRefunds'), 3)
   assert.equal(await rowsOf(app, maya, 'allReceipts'), 3)
   const last = Object(faked.sent.at(-1)?.input)
-  assert.doesNotMatch(JSON.stringify(last.messages), /"item":"tent"/, 'no row reaches the model')
+  assert.doesNotMatch(JSON.stringify(last.messages), /"item":"forjr"/, 'no row reaches the model')
 })
 
 test('[27-18] calls written without await, as an argument of another call, in the test of an if, and in an each answer their value; a sequence beside another tool of the same answer gives steps whose names do not meet', async (t) => {
@@ -64,19 +64,19 @@ test('[27-18] calls written without await, as an argument of another call, in th
   assert.equal(await rowsOf(app, maya, 'allLates'), 1)
 })
 
-test('[27-18] before anything runs: let, a method of a list, a read of process and now() are T7121 with their line; a field the answer lacks and a missing field are T7121 with the two lines of the tool; a tool the starter may not use is T3101 also in a branch that would not run; and in each case no call was made', async (t) => {
+test('[27-18] before anything runs: let, a method of a list, a read of process and now() are F7121 with their line; a field the answer lacks and a missing field are F7121 with the two lines of the tool; a tool the starter may not use is F3101 also in a branch that would not run; and in each case no call was made', async (t) => {
   const { app, maya } = await sequencedApp(t)
   const cases: [string, RegExp][] = [
-    [lines('const open = myOrders({})', 'let n = 1'), /^Error T7121: .*`let`.* line 2/s],
-    [lines('const open = myOrders({})', 'open.push(1)'), /^Error T7121: .*method.* line 2/s],
-    ['return process.env', /^Error T7121: .*`process`.* line 1/s],
-    ['return now()', /^Error T7121: .*`now`/s],
+    [lines('const open = myOrders({})', 'let n = 1'), /^Error F7121: .*`let`.* line 2/s],
+    [lines('const open = myOrders({})', 'open.push(1)'), /^Error F7121: .*method.* line 2/s],
+    ['return process.env', /^Error F7121: .*`process`.* line 1/s],
+    ['return now()', /^Error F7121: .*`now`/s],
     [
       lines('const open = myOrders({})', 'for (const o of open) {', '  markLate({ order: o.colour })', '}'),
-      /^Error T7121: .*`colour`.* line 3.*\nmyOrders\(\) -> /s,
+      /^Error F7121: .*`colour`.* line 3.*\nmyOrders\(\) -> /s,
     ],
-    ['markLate({})', /^Error T7121: .*`order`.*\nmarkLate\(order: id of orders\) -> string\n {2}Marks one order late/s],
-    [lines('if (1 > 2) {', '  closeShop({})', '}', 'return 1'), /^Error T3101: .*closeShop/s],
+    ['markLate({})', /^Error F7121: .*`order`.*\nmarkLate\(order: id of orders\) -> string\n {2}Marks one order late/s],
+    [lines('if (1 > 2) {', '  closeShop({})', '}', 'return 1'), /^Error F3101: .*closeShop/s],
   ]
   for (const [text, refused] of cases) {
     app.fake('writer', handing(text))
@@ -102,12 +102,12 @@ test('[27-18] a call that fails, fail in a sequence, a return past limits.result
     'helper',
     lines('const open = myOrders({})', 'markLate({ order: open[0].id })', 'broken({ order: open[0].id })', 'return 1'),
   )
-  assert.match(String(failed), /^Error T0009: .*line 3/s)
+  assert.match(String(failed), /^Error F0009: .*line 3/s)
   assert.match(String(failed), /"tool":"myOrders".*"tool":"markLate"/s)
   const own = await toldOf('helper', lines('const open = myOrders({})', "fail('too-late', 'Nothing to do.')"))
   assert.match(String(own), /^Error too-late: Nothing to do\..*line 2/s)
   const large = await toldOf('tight', "return each(range(0, 200), (i) => 'a text of some length')")
-  assert.match(String(large), /too large|T5102/)
+  assert.match(String(large), /too large|F5102/)
   const quiet = await toldOf('helper', lines('const open = myOrders({})', 'markLate({ order: open[1].id })'))
   assert.match(JSON.stringify(quiet), /"tool":"myOrders".*"tool":"markLate".*"answer":"late /s)
 })
@@ -122,7 +122,7 @@ test('[27-18] all runs its calls side by side, answers in the order of the entri
   for (const e of [1, 2, 3, 4]) assert.ok(names.includes(`tool 1.1.2.${e}.1 markLate`), names.join(', '))
   app.fake('writer', handing(lines('const open = myOrders({})', 'return all(open, (o) => broken({ order: o.id }))')))
   const failing = notDropped(await app.start('helper', { message: 'Break.' }, { as: maya }))
-  assert.match(await answered(app, failing.run), /Error T0009/)
+  assert.match(await answered(app, failing.run), /Error F0009/)
   app.fake(
     'writer',
     handing(lines('const open = myOrders({})', 'return all(open, (o) => broken({ order: o.id }), { goOn: true })')),
@@ -131,7 +131,7 @@ test('[27-18] all runs its calls side by side, answers in the order of the entri
   const gone = JSON.parse((await answered(app, goingOn.run)).slice('Done: '.length))
   assert.equal(gone.length, 4)
   assert.ok(
-    gone.every((one: { failed?: boolean; code?: string }) => one.failed === true && one.code === 'T0009'),
+    gone.every((one: { failed?: boolean; code?: string }) => one.failed === true && one.code === 'F0009'),
     JSON.stringify(gone),
   )
 })
@@ -151,7 +151,7 @@ test('[27-18] a fill in a sequence is one call with the shape and the prompt alo
   )
   app.fake('plainWriter', handing("return fill(boolean(), 'Is it late?')"))
   const plain = notDropped(await app.start('listing', { message: 'Judge.' }, { as: maya }))
-  assert.match(await answered(app, plain.run), /Error T7121: .*`fill`/s)
+  assert.match(await answered(app, plain.run), /Error F7121: .*`fill`/s)
   const listing = app.fake('plainWriter', handing(lines('const open = myOrders({})', 'return open.length')))
   const listed = notDropped(await app.start('listing', { message: 'Count.' }, { as: maya }))
   assert.equal(await answered(app, listed.run), 'Done: 4')

@@ -1,4 +1,4 @@
-import { screen, choice } from 'tentjs/ui'
+import { screen, choice } from 'forjr/ui'
 
 // A constant that the view reads, and one that only an option reads.
 const LABELS = { open: 'Open', paid: 'Paid' }

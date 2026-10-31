@@ -1,6 +1,6 @@
 import { join, resolve } from 'node:path'
 import type { Finding } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { finding, programRuns } from '../core/internal.ts'
 import type { App } from '../engine/index.ts'
 import { createEngine, engineFileOf, ownEngineFile, provedAt } from '../engine/index.ts'
@@ -26,15 +26,15 @@ export interface Running {
  * file of another user, is no engine. A file whose program runs no more was left behind. And the number of a
  * program may have been given to another since: what listens proves that it holds the token before it is taken
  * for the engine. For anything else the token is sent nowhere. Throws where a folder lies in the place of the file,
- * and T0006 where the engine runs behind a proxy named by an address of this computer, which takes no command.
+ * and F0006 where the engine runs behind a proxy named by an address of this computer, which takes no command.
  */
 export async function engineAt(dataFolder: string): Promise<Running | undefined> {
   const at = engineFileOf(dataFolder)
   if (!at || !programRuns(at.pid)) return undefined
   const proof = await provedAt(at.port, at.token)
   if (proof === 'refused')
-    throw new TentError(
-      'T0006',
+    throw new ForjrError(
+      'F0006',
       `The engine that runs on the data folder ${dataFolder}, in the program ${at.pid}, takes no command of this computer: the proxies it was named hold 127.0.0.1, the address a command of this computer comes from, so a command reaches it as a request through a proxy.`,
       {
         fix: 'Have the host in front reach the engine from another address of this computer, `127.0.0.2` (on macOS first add it with `sudo ifconfig lo0 alias 127.0.0.2`), and name that one in `--proxy from` in place of 127.0.0.1; or type the command while no engine runs on the data folder.',
@@ -59,16 +59,25 @@ async function read(response: Response): Promise<Asked> {
   if (body.ok === true) return { value: body.value }
   const error: Record<string, unknown> = Object(body.error)
   const fix = typeof error.fix === 'string' ? { fix: error.fix } : {}
-  return { findings: [finding(String(error.code ?? 'T0009'), String(error.message ?? 'The engine failed.'), fix)] }
+  const sent: unknown = error.fields
+  const fields =
+    typeof sent === 'object' && sent !== null
+      ? { fields: Object.fromEntries(Object.entries(sent).map(([name, value]) => [name, String(value)])) }
+      : {}
+  return {
+    findings: [
+      finding(String(error.code ?? 'F0009'), String(error.message ?? 'The engine failed.'), { ...fix, ...fields }),
+    ],
+  }
 }
 
-/** The data folder that a command works on: the one that `--data` named, or `.tent/` of the project. */
+/** The data folder that a command works on: the one that `--data` named, or `.forjr/` of the project. */
 export const dataFolderOf = (o: { folder: string; data?: unknown }): string =>
-  typeof o.data === 'string' ? resolve(o.folder, o.data) : join(o.folder, '.tent')
+  typeof o.data === 'string' ? resolve(o.folder, o.data) : join(o.folder, '.forjr')
 
 /** The request of a command to the admin channel of an engine. */
 const request = (at: Running, command: string, args: object, origin = `http://127.0.0.1:${at.port}`): Request =>
-  new Request(`${origin}/_t/admin/${command}`, {
+  new Request(`${origin}/_f/admin/${command}`, {
     method: 'POST',
     headers: { 'content-type': 'application/json', authorization: `Bearer ${at.token}` },
     body: JSON.stringify({ args }),
@@ -104,7 +113,7 @@ export async function askedOfRunning(
     running = await engineAt(dataFolderOf(o))
   } catch (error) {
     // What lies in the place of the file lets no engine run there: the command says so, and ends.
-    if (!(error instanceof TentError)) throw error
+    if (!(error instanceof ForjrError)) throw error
     return { findings: [finding(error.code, error.message, error.fix === undefined ? {} : { fix: error.fix })] }
   }
   return running ? read(await fetch(request(running, command, args))) : undefined
@@ -113,8 +122,8 @@ export async function askedOfRunning(
 /** What a command for the machines of a running app answers where no engine runs on the data folder: it starts none. */
 export const noneRuns = (command: string): Asked => ({
   findings: [
-    finding('T0013', `No engine runs on the data folder: \`tent ${command}\` is for an app that runs.`, {
-      fix: 'Start the app with `tent start`, and name its data folder with `--data`.',
+    finding('F0013', `No engine runs on the data folder: \`forjr ${command}\` is for an app that runs.`, {
+      fix: 'Start the app with `forjr start`, and name its data folder with `--data`.',
     }),
   ],
 })
@@ -130,7 +139,7 @@ export async function asked(o: { folder: string; data?: unknown }, command: stri
   const dataFolder = dataFolderOf(o)
   const running = await askedOfRunning(o, command, args)
   if (running) return running
-  // The build is loaded only where a command must build the project: `tent start` loads none of it.
+  // The build is loaded only where a command must build the project: `forjr start` loads none of it.
   const { buildProject } = await import('../build/index.ts')
   const built = await buildProject(o.folder, { for: 'dev', ...guardOf(o.folder, dataFolder) })
   if (built.findings.some((one) => one.level === 'error')) return { findings: built.findings }

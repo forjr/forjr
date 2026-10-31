@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import { louder } from 'tiny-louder'
-import { component, text } from 'tentjs/ui'
+import { component, text } from 'forjr/ui'
 import { shout } from './shout'
 
 // A helper of the file that only the part drawn on the server alone uses: no browser file may hold it.

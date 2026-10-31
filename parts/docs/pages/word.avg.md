@@ -14,7 +14,7 @@ The mean, and nothing for an empty list. Handed one text and nothing else, it an
 
 ## Errors
 
-`code.T0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
+`code.F0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
 
 ## See also
 

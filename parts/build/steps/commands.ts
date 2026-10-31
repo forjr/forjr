@@ -49,7 +49,7 @@ export const step: Step = {
             small: false,
             pure: () => false,
             instead(lies) {
-              if (lies === 'tentjs/cli') return { outside: 'tentjs/cli' }
+              if (lies === 'forjr/cli') return { outside: 'forjr/cli' }
               const held = backend.get(lies)
               if (!held) return undefined
               const declared = held.seen?.declared ?? []
@@ -74,7 +74,7 @@ export const step: Step = {
       } catch (error) {
         found(
           work,
-          'T1014',
+          'F1014',
           file,
           1,
           `The command file cannot be loaded: ${error instanceof Error ? error.message.split('\n')[0] : String(error)}`,

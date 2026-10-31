@@ -1,4 +1,4 @@
-import { screen, read, useTranslations, Link, Form } from 'tentjs/ui'
+import { screen, read, useTranslations, Link, Form } from 'forjr/ui'
 import { Card } from '../components/Card'
 import { addOrder, openOrders } from '../functions/orders'
 

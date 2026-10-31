@@ -15,7 +15,7 @@ interface Lease {
 ## Example
 
 ```ts
-import { createEngine, type Lease } from 'tentjs/engine'
+import { createEngine, type Lease } from 'forjr/engine'
 
 const lease: Lease = { hold: ({ machine }) => machine === process.env.WRITER }
 const engine = createEngine({ makers: { lease: () => lease } })

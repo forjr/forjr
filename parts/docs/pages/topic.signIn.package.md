@@ -7,8 +7,8 @@ A package that proves who a person is - by its own form, by a provider, by a tok
 **`identify` reads the package's own token** from each request and names the user. It is asked where nothing else named one: no session, no key and no token of a program. Here a package signs a cookie `acme_token` with a key kept as a secret:
 
 ```ts
-// tent.ts
-import { project, secrets } from 'tentjs'
+// forjr.ts
+import { project, secrets } from 'forjr'
 import { readToken } from '@acme/tokens'
 
 export const shop = project('shop', {

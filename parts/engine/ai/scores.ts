@@ -1,5 +1,5 @@
 import type { Caller, Judge } from '../../core/index.ts'
-import { fingerprint, number, TentError, text } from '../../core/index.ts'
+import { fingerprint, number, ForjrError, text } from '../../core/index.ts'
 import { judgeInput, judgePrompt } from '../../core/internal.ts'
 import { callerText, rowIds } from '../../data/index.ts'
 import { callerOfBy } from '../flows/words.ts'
@@ -28,7 +28,7 @@ interface Scored {
 /** Keeps one rating or score in the engine's table of them, in a write of its own. */
 export function kept(o: Opened, one: Scored): void {
   if (!Number.isFinite(one.score))
-    throw new TentError('T0002', 'A rating is a number.', { fields: { score: 'type' }, fix: 'Rate with a number.' })
+    throw new ForjrError('F0002', 'A rating is a number.', { fields: { score: 'type' }, fix: 'Rate with a number.' })
   const now = new Date(o.clock.now())
   o.store.write((tx) =>
     tx.add(
@@ -59,12 +59,13 @@ function ratedAgent(o: Opened, run: RunView): string | undefined {
 
 /**
  * `runs.rate(run, { score, note })`: a rating kept with a run of an agent, as the rating of the run's starter,
- * for code that states `system` and has held its own rule. Throws T0001 for a run that is no run of an agent.
+ * for code that states `system` and has held its own rule. Throws F0001 for a run that is no run of an agent.
  */
 export function rateRun(o: Opened, run: string, given: unknown): void {
   const found = o.flows?.runner.read(run)
   const agent = found ? ratedAgent(o, found) : undefined
-  if (!found || !agent) throw new TentError('T0001', `No run ${JSON.stringify(run).slice(0, 80)} of an agent is there.`)
+  if (!found || !agent)
+    throw new ForjrError('F0001', `No run ${JSON.stringify(run).slice(0, 80)} of an agent is there.`)
   const by = callerOfBy(o, found.startedBy)
   const score: unknown = Reflect.get(Object(given), 'score')
   const note: unknown = Reflect.get(Object(given), 'note')

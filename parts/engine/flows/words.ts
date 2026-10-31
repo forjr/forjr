@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { userCaller, projectZone } from '../../core/internal.ts'
 import type { At, By, Runner } from '../../flows/index.ts'
 import type { CallContext } from '../context.ts'
@@ -33,7 +33,7 @@ export const startedBy = (started: By, by: By): boolean =>
   started.kind === by.kind && started.id === by.id && (by.kind === 'system' || by.id !== undefined)
 
 /**
- * Builds the caller of a run again, with the roles it has today. Throws T3101 for a starter who is gone: a user
+ * Builds the caller of a run again, with the roles it has today. Throws F3101 for a starter who is gone: a user
  * whose row was removed, and a key that was removed or has ended.
  */
 export function callerOfBy(o: Opened, by: By): Caller {
@@ -41,7 +41,7 @@ export function callerOfBy(o: Opened, by: By): Caller {
   // A visitor id that the start itself gave is no visitor's yet: the run is counted with those who have none.
   if (by.kind === 'visitor')
     return { kind: 'nobody', ...(by.id === undefined || by.fresh === true ? {} : { visitor: by.id }) }
-  const gone = new TentError('T3101', `The ${by.kind} that started the run is no longer there.`, {
+  const gone = new ForjrError('F3101', `The ${by.kind} that started the run is no longer there.`, {
     fix: 'Start the run again as a caller that is there.',
   })
   if (by.kind === 'key' && by.id !== undefined) {
@@ -66,7 +66,7 @@ export function flowOf(cx: CallContext, name: string): Record<string, unknown> |
   return Object.hasOwn(flows, name) ? flows[name] : undefined
 }
 
-/** What a flow is given, held to the types of its `input`. Throws T0002 where it does not fit. */
+/** What a flow is given, held to the types of its `input`. Throws F0002 where it does not fit. */
 export function inputFor(
   o: Opened,
   name: string,
@@ -97,19 +97,19 @@ function fromStep(cx: CallContext, name: string, input: unknown): { at: At; call
 
 /**
  * `start(flow, input)`: starts a run and does not wait. In a change the run is part of the write. Inside a step
- * the run is found again by a step that runs a second time. Throws T0001 for what is no flow, T0013 in a query,
- * and T0002 for an input that does not fit.
+ * the run is found again by a step that runs a second time. Throws F0001 for what is no flow, F0013 in a query,
+ * and F0002 for an input that does not fit.
  */
 export function startFlow(o: Opened, runner: Runner, cx: CallContext, asked: string, given: unknown): StartedRun {
   const found = flowOf(cx, asked)
   // A start of an agent on a conversation that it handed over is the start of the one that holds it.
   const { name, record } = found ? holderOf(o, asked, found, given) : { name: asked, record: undefined }
   if (!record)
-    throw new TentError('T0001', `No flow named ${JSON.stringify(name).slice(0, 80)} can be started.`, {
+    throw new ForjrError('F0001', `No flow named ${JSON.stringify(name).slice(0, 80)} can be started.`, {
       fix: 'Hand `start` a flow of the app.',
     })
   if (cx.work.kind === 'query' || cx.work.kind === 'rule')
-    throw new TentError('T0013', `\`start\` was used in the ${cx.work.kind} ${cx.work.name}, which starts nothing.`, {
+    throw new ForjrError('F0013', `\`start\` was used in the ${cx.work.kind} ${cx.work.name}, which starts nothing.`, {
       fix: 'Start a flow from a change, an action, a route or a step.',
     })
   if (cx.reads) throw readOnly('`start`')
@@ -141,9 +141,9 @@ export type StartedRun = { run: string; dropped?: undefined } | { run?: undefine
 const startedOf = (run: string): StartedRun => (run === '' ? { dropped: true } : { run })
 
 /**
- * A flow that code calls and waits for: it starts a run and answers a promise of the flow's answer. Throws T0013
+ * A flow that code calls and waits for: it starts a run and answers a promise of the flow's answer. Throws F0013
  * in a query and a change, and for a flow that does not run as its starter where the code has no full access,
- * T0002 for an input that does not fit, and T5105 for a called run that would stand too deep.
+ * F0002 for an input that does not fit, and F5105 for a called run that would stand too deep.
  */
 export function callFlow(
   o: Opened,
@@ -154,8 +154,8 @@ export function callFlow(
   given: unknown,
 ): Promise<unknown> {
   if (cx.work.kind !== 'action' && cx.work.kind !== 'seed')
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `The flow ${name} was called from the ${cx.work.kind} ${cx.work.name}, which waits for nothing.`,
       {
         fix: 'Call a flow from an action, a route or a step. A change starts one with `start`, and does not wait.',
@@ -165,8 +165,8 @@ export function callFlow(
   if (cx.reads) throw readOnly(`The flow ${name}`)
   // A flow that does not run as its starter has full access: only code that has it too may wait for its answer.
   if (record.as !== 'starter' && record.agent === undefined && !hasFullAccess(cx))
-    throw new TentError(
-      'T0013',
+    throw new ForjrError(
+      'F0013',
       `The flow ${name} has full access, and ${cx.work.name}, which called it and waits for it, has none.`,
       {
         fix: "State `as: 'starter'` on the flow, or `system: 'why'` on the function that calls it. `start` is not held so.",
@@ -176,8 +176,8 @@ export function callFlow(
   const from = fromStep(cx, name, input)
   const most = storedLimit(o.description, 'callDepth')
   if (cx.run && depthOf(runner, cx.run.id) + 1 > most)
-    throw new TentError(
-      'T5105',
+    throw new ForjrError(
+      'F5105',
       `The flow ${name} was called ${most + 1} runs deep, past \`limits.callDepth\` of ${most}.`,
       {
         fix: 'Start the flow with `start` where its answer is not needed, or raise `callDepth` in `project.limits`.',

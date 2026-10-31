@@ -1,5 +1,5 @@
-.tent/
+.forjr/
 node_modules/
-tent.d.ts
+forjr.d.ts
 walk/pictures/
 results/

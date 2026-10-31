@@ -1,8 +1,9 @@
 import type { Description } from '../../core/internal.ts'
-import { isStored } from '../../core/internal.ts'
+import { isStored, ruleWords } from '../../core/internal.ts'
 import type { ImpactLine } from './face.ts'
 import type { Stored } from './read.ts'
-import { doorOf, doorsOf, fileOf, kindOf, rankOf, recordsOf, whoOf } from './read.ts'
+import { placedIn } from './placed.ts'
+import { doorOf, doorsOf, rankOf, recordsOf } from './read.ts'
 
 // What each rule of a table lets a caller do, in the word of the finding.
 const verbs: [string, string][] = [
@@ -32,8 +33,7 @@ function toolsOf(record: Stored | undefined): string[] {
 export function widerRights(live: Description, next: Description): ImpactLine[] {
   const found: ImpactLine[] = []
   const add = (name: string, changes: string[]): void => {
-    if (changes.length)
-      found.push({ name, kind: kindOf(next, name), file: fileOf(next, name), change: changes.join('; ') })
+    if (changes.length) found.push({ name, ...placedIn(next, name), change: changes.join('; ') })
   }
   for (const part of ['functions', 'flows', 'routes']) {
     const [was, is] = [recordsOf(live, part), recordsOf(next, part)]
@@ -41,7 +41,7 @@ export function widerRights(live: Description, next: Description): ImpactLine[] 
       const before = was[name]
       const changes: string[] = []
       if (rankOf(record.access) < 3 && (!before || rankOf(record.access) < rankOf(before.access)))
-        changes.push(`now callable by ${whoOf(record.access)}`)
+        changes.push(`now callable by ${ruleWords(record.access)}`)
       for (const door of doorsOf(record))
         if (!doorsOf(before).includes(door)) changes.push(`now offered to ${doorOf(door)}`)
       add(name, changes)
@@ -61,7 +61,7 @@ export function widerRights(live: Description, next: Description): ImpactLine[] 
     add(
       name,
       verbs.flatMap(([rule, verb]) =>
-        rankOf(rules[rule]) < rankOf(ruled[rule]) ? [`now ${verb} by ${whoOf(rules[rule])}`] : [],
+        rankOf(rules[rule]) < rankOf(ruled[rule]) ? [`now ${verb} by ${ruleWords(rules[rule])}`] : [],
       ),
     )
   }
@@ -71,7 +71,7 @@ export function widerRights(live: Description, next: Description): ImpactLine[] 
     const before = screensWas[name]
     const changes: string[] = []
     if (rankOf(record.access) < 3 && (!before || rankOf(record.access) < rankOf(before.access)))
-      changes.push(`now open to ${whoOf(record.access)}`)
+      changes.push(`now open to ${ruleWords(record.access)}`)
     if (cachedAsPublic(record) && !cachedAsPublic(before)) changes.push('now cached as public')
     add(name, changes)
   }

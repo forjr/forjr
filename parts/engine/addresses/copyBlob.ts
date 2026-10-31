@@ -1,10 +1,10 @@
 import type { Address } from '../door/address.ts'
 import { keyed } from '../door/keyed.ts'
 
-const prefix = '/_t/copy/blob/'
+const prefix = '/_f/copy/blob/'
 
 /**
- * `GET /_t/copy/blob/<fingerprint>`: the bytes of one file of a loadable version, with its length. Not found for
+ * `GET /_f/copy/blob/<fingerprint>`: the bytes of one file of a loadable version, with its length. Not found for
  * a fingerprint that no loadable version names, and for anything that is no fingerprint, as a path.
  */
 export const address: Address = {

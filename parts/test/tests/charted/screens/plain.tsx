@@ -1,4 +1,4 @@
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 // A screen that draws with no package.
 export const plainScreen = screen('plainScreen', {

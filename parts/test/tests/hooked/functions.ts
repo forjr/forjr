@@ -12,7 +12,7 @@ import {
   table,
   text,
   verified,
-} from 'tentjs'
+} from 'forjr'
 
 export const users = table('users', { columns: { roles: list(text()) }, access: { read: 'owner' } })
 

@@ -266,8 +266,8 @@ function taken(file, node, how) {
   if (node.type === 'ExportAllDeclaration')
     throw new Error(`${file}: export * from ${node.source.value} is not loaded where it is needed: name what it gives`)
   if (node.type === 'ExportNamedDeclaration') {
-    const taken = node.specifiers.map((one, k) => `${nameOf(one.local)}: __tent${node.start}_${k}`)
-    const given = node.specifiers.map((one, k) => `__tent${node.start}_${k} as ${nameOf(one.exported)}`)
+    const taken = node.specifiers.map((one, k) => `${nameOf(one.local)}: __forjr${node.start}_${k}`)
+    const given = node.specifiers.map((one, k) => `__forjr${node.start}_${k} as ${nameOf(one.exported)}`)
     return `const { ${taken.join(', ')} } = ${from}; export { ${given.join(', ')} };`
   }
   if (!node.specifiers.length) return `${from};`
@@ -383,7 +383,7 @@ async function bundled(root, layout, out, part, files, alone) {
     },
     plugins: [
       {
-        name: 'tent-parts',
+        name: 'forjr-parts',
         resolveId(source, importer) {
           if (isAbsolute(source) || !importer) return source
           if (!source.startsWith('./') && !source.startsWith('../')) return { id: source, external: true }

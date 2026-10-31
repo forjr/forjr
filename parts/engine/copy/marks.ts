@@ -82,7 +82,7 @@ export function wroteMark(epoch: number, commits: Commit[]): Mark | undefined {
 }
 
 // The tables that the door itself reads to know the caller.
-const ofTheDoor = ['users', '_t_sessions', '_t_api_keys', '_t_oauth']
+const ofTheDoor = ['users', '_f_sessions', '_f_api_keys', '_f_oauth']
 
 const isCode = (rule: unknown): boolean => typeof Reflect.get(Object(rule), 'export') === 'string'
 

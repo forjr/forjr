@@ -5,7 +5,7 @@ Makes a control of your own a field of the `Form` it stands in: it gives what a 
 ## Example
 
 ```tsx
-import { useField } from 'tentjs/ui'
+import { useField } from 'forjr/ui'
 
 export function NoteField() {
   const f = useField('note')
@@ -74,11 +74,11 @@ export function MoneyField({ name, label }: { name: string; label: string }) {
 
 Such a control sends once the page has come alive: a visitor with no script sends the form without it.
 
-Outside a `Form` the hook fails. A name written in place that the input does not have is `code.T6009`; a name worked out while running that it does not have holds nothing, and in development the console names it.
+Outside a `Form` the hook fails. A name written in place that the input does not have is `code.F6009`; a name worked out while running that it does not have holds nothing, and in development the console names it.
 
 ## Errors
 
-`code.T6009`: a name that the function of the form does not take.
+`code.F6009`: a name that the function of the form does not take.
 
 ## See also
 

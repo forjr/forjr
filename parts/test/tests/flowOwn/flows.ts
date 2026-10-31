@@ -1,4 +1,4 @@
-import { flow, text } from 'tentjs'
+import { flow, text } from 'forjr'
 
 const shout = (name: string): string => name.toUpperCase()
 

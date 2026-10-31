@@ -8,7 +8,7 @@ Every table has `id`, `createdAt` and `updatedAt` by itself. Its `access` says w
 
 ```ts
 // tables/orders.ts
-import { boolean, number, role, table, text } from 'tentjs'
+import { boolean, number, role, table, text } from 'forjr'
 
 export const orders = table('orders', {
   columns: { title: text({ min: 1, max: 200 }), total: number({ min: 0 }), done: boolean({ default: false }) },
@@ -22,7 +22,7 @@ A query reads, a change writes, and each states who may call it.
 
 ```ts
 // functions/orders.ts
-import { change, input, link, query, role } from 'tentjs'
+import { change, input, link, query, role } from 'forjr'
 import { orders } from '../tables/orders'
 
 export const openOrders = query('openOrders', {

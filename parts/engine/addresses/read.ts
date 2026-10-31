@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Address } from '../door/address.ts'
 import { called } from '../door/call.ts'
 import { drawnFor } from '../door/drawnFor.ts'
@@ -14,10 +14,10 @@ import { isLiveMember } from '../ai/members.ts'
 import { nameAfter } from '../web/decoded.ts'
 import { isWritten } from '../../core/internal.ts'
 
-const prefix = '/_t/read/'
+const prefix = '/_f/read/'
 
 /**
- * `POST /_t/read/<name>`: a read from a page, with the body and the answer of a call. Whatever a page asks again
+ * `POST /_f/read/<name>`: a read from a page, with the body and the answer of a call. Whatever a page asks again
  * goes here: an entry of `data` whose input changed, one that the page did not wait for, and a `useQuery`. It
  * passes the ten steps of the door, and takes a query, the member `working` of an agent, of a flow or of an
  * action, or an action, and nothing else.
@@ -42,7 +42,7 @@ export const address: Address = {
     try {
       const body = readJson(await bodyOf(request, limitOf(app.description, 'callSize')))
       if (!isWritten(body))
-        throw new TentError('T0002', 'The body of a read is one record: { "input": { ... } }.', {
+        throw new ForjrError('F0002', 'The body of a read is one record: { "input": { ... } }.', {
           fields: { '': 'type' },
         })
       drawnFor(caller, body.as)
@@ -74,11 +74,11 @@ export const address: Address = {
   },
 }
 
-const notRead = (name: string): TentError =>
-  new TentError(
-    'T0001',
+const notRead = (name: string): ForjrError =>
+  new ForjrError(
+    'F0001',
     `No query, no action and no member working named ${JSON.stringify(name).slice(0, 80)} can be read.`,
     {
-      fix: 'A page reads a query, an action or the member working of an agent or a run. A change is called at `/_t/call/<name>`.',
+      fix: 'A page reads a query, an action or the member working of an agent or a run. A change is called at `/_f/call/<name>`.',
     },
   )

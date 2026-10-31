@@ -1,5 +1,5 @@
 import { BookOpen, FileText, Search, Upload } from 'lucide-react'
-import { Form, read, role, screen, useCall, useTranslations } from 'tentjs/ui'
+import { Form, read, role, screen, useCall, useTranslations } from 'forjr/ui'
 import { StaffFrame, Waiting } from '../components/frames'
 import { addGuide, findInGuide, guideList } from '../functions/guides'
 
@@ -43,7 +43,7 @@ export const guidesScreen = screen('guidesScreen', {
               {guides.map((guide) => (
                 <li key={guide.id} id={`guide-${guide.id}`}>
                   <a
-                    href={`/_t/files/${guide.file}`}
+                    href={`/_f/files/${guide.file}`}
                     className="flex items-center gap-3 px-5 py-3.5 hover:bg-base-200/60 focus-visible:bg-base-200/60"
                   >
                     <span className="grid size-9 shrink-0 place-items-center rounded-lg bg-accent text-accent-content">

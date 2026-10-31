@@ -1,4 +1,4 @@
-import { read, screen } from 'tentjs/ui'
+import { read, screen } from 'forjr/ui'
 import { findThing } from './functions'
 
 // A screen whose entry is needed: where its query says the thing is not found, the screen is not found.

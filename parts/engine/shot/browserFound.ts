@@ -68,19 +68,19 @@ function hiddenInsides(): string[][] {
 
 /**
  * Answers the program of a browser of the Chromium family to drive. For a test, the hidden one of the pinned build
- * alone. Else the one that `TENT_BROWSER` names, else one that is installed on the computer, else the hidden one,
- * fetched on first use. Throws T0016, naming the part, where none is found and the hidden one cannot be fetched.
+ * alone. Else the one that `FORJR_BROWSER` names, else one that is installed on the computer, else the hidden one,
+ * fetched on first use. Throws F0016, naming the part, where none is found and the hidden one cannot be fetched.
  */
 export const browserFound = (o: { test?: boolean } = {}): Promise<string> =>
   browserProgram(o, {
     part: 'browser',
     insides: hiddenInsides(),
     tests: { folder: 'chromium_headless_shell', named: /^chromium(_headless_shell)?-\d+$/, insides: insidesOf() },
-    variable: 'TENT_BROWSER',
+    variable: 'FORJR_BROWSER',
     places: placesOf(),
     known: 'hidden browser',
     none: {
       message: 'No browser of the Chromium family was found on the computer, and the hidden one could not be fetched.',
-      fix: 'Install Chrome or Chromium, or name the program of one in TENT_BROWSER.',
+      fix: 'Install Chrome or Chromium, or name the program of one in FORJR_BROWSER.',
     },
   })

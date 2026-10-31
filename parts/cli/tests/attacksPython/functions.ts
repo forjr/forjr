@@ -1,4 +1,4 @@
-import { action, change, choice, file, files, input, json, link, number, object, python, query, role, text } from 'tentjs'
+import { action, change, choice, file, files, input, json, link, number, object, python, query, role, text } from 'forjr'
 import { customers, notes, orders } from './tables.ts'
 
 export const customerName = query('customerName', {

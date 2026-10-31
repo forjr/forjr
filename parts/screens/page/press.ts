@@ -24,7 +24,7 @@ export function seenOf(error: unknown): WireError {
       ...(typeof ref === 'string' ? { ref } : {}),
     }
   }
-  return { code: 'T0009', name: 'failed', message: 'Something went wrong. Try again.' }
+  return { code: 'F0009', name: 'failed', message: 'Something went wrong. Try again.' }
 }
 
 const sides: readonly unknown[] = ['top', 'bottom', 'start', 'end']

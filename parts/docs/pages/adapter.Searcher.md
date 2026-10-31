@@ -20,7 +20,7 @@ For a table that keeps a data file for each tenant, `wrote` and `find` are hande
 ## Example
 
 ```ts
-import type { Searcher } from 'tentjs/data'
+import type { Searcher } from 'forjr/data'
 
 const texts = new Map<string, string>()
 export const searcher: Searcher = {

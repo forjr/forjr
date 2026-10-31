@@ -1,5 +1,5 @@
 import type { WireError } from '../core/index.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { CodeRow } from '../core/internal.ts'
 import { codes } from '../core/internal.ts'
 import { failureOf, isShown, statusOf } from './door/failure.ts'
@@ -10,7 +10,7 @@ import { spanNow } from './trace/span.ts'
 const registry: Record<string, CodeRow> = codes
 
 // What live data says of an error that is not the caller's to see, and of a code that has no sentence of its own.
-const general = codes.T0009.sentence
+const general = codes.F0009.sentence
 
 /**
  * The general sentence of a code, which is all that live data says of an error. It stands in the row of the code
@@ -20,11 +20,11 @@ const sentenceOf = (code: string): string =>
   (Object.hasOwn(registry, code) ? registry[code].sentence : undefined) ?? general
 
 // The codes of the framework whose `fields` a caller is sent.
-const withFields = ['T0002', 'T0029', 'T0008', 'T7117', 'T7120', 'T9101', 'T9103', 'T9104', 'T9107', 'T9108']
+const withFields = ['F0002', 'F0029', 'F0008', 'F7117', 'F7120', 'F9101', 'F9103', 'F9104', 'F9107', 'F9108']
 
 // The codes with no status that a browser is sent as themselves: a value that does not fit, no mailer, mail not
 // sent, and an address the guarded fetch refused, which tell the caller nothing of the engine.
-const asThemselves = ['T2107', 'T0020', 'T0021', 'T0022']
+const asThemselves = ['F2107', 'F0020', 'F0021', 'F0022']
 
 // What every answer of the engine says: its type is not to be guessed, and it is kept by nobody.
 export const everyAnswer = { 'x-content-type-options': 'nosniff', 'cache-control': 'no-store' }
@@ -50,9 +50,9 @@ function changedCaller(): { caller?: 'changed' } {
 /**
  * Takes an error, whether the full message is told, which holds on test data alone, and what the error names
  * beside itself, and whether a command is told it. Answers the wire error and its status: a code of the framework
- * that has a status as itself, an own `fail` of the app with its own code and words and 400, T2107, T0020, T0021
- * and T0022 as themselves with 500 and the ref, and so every code of the framework to a command, and anything else as
- * T0009 with 500 and its ref. On
+ * that has a status as itself, an own `fail` of the app with its own code and words and 400, F2107, F0020, F0021
+ * and F0022 as themselves with 500 and the ref, and so every code of the framework to a command, and anything else as
+ * F0009 with 500 and its ref. On
  * live data the message is the general sentence of the code, and neither `fix` nor `where` is sent.
  */
 export function wireError(
@@ -60,7 +60,7 @@ export function wireError(
   full: boolean,
   more: { ref?: string; running?: string; command?: boolean } = {},
 ): { status: number; error: WireError } {
-  const told = error instanceof TentError ? error : undefined
+  const told = error instanceof ForjrError ? error : undefined
   const place =
     full && told ? { ...(told.fix ? { fix: told.fix } : {}), ...(told.where ? { where: told.where } : {}) } : {}
   if (isShown(error)) {
@@ -82,15 +82,16 @@ export function wireError(
         code: error.code,
         name: error.name,
         message: full ? error.message : sentenceOf(error.code),
-        ...(error.fields && withFields.includes(error.code) ? { fields: error.fields } : {}),
-        ...(error.code === 'T0007' && more.running ? { running: more.running } : {}),
+        // A command of the admin channel is told the fields of every code, as it is told every code as itself.
+        ...(error.fields && (withFields.includes(error.code) || more.command) ? { fields: error.fields } : {}),
+        ...(error.code === 'F0007' && more.running ? { running: more.running } : {}),
         ...place,
       },
     }
   }
-  // A code of the framework that has no status, with the status of T0009 and its ref: a command is told every
+  // A code of the framework that has no status, with the status of F0009 and its ref: a command is told every
   // one as itself, and a browser the codes of what the app itself did, which tell nothing of the engine.
-  if (told && /^T\d{4}$/.test(told.code) && (more.command || asThemselves.includes(told.code)))
+  if (told && /^F\d{4}$/.test(told.code) && (more.command || asThemselves.includes(told.code)))
     return {
       status: 500,
       error: {
@@ -104,7 +105,7 @@ export function wireError(
   const message = full ? (error instanceof Error ? error.message : String(error)) : general
   return {
     status: 500,
-    error: { code: 'T0009', name: 'internal', message, ...(more.ref ? { ref: more.ref } : {}), ...place },
+    error: { code: 'F0009', name: 'internal', message, ...(more.ref ? { ref: more.ref } : {}), ...place },
   }
 }
 

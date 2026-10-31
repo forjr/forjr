@@ -63,7 +63,7 @@ test('[25-4] above toolsListed the list is the pair: findFunction finds by the w
   const answered = await client.call('callFunction', { name: 'revenueByMonth', input: {} })
   assert.deepEqual(answered.structuredContent, { value: 'revenueByMonth' })
   const refused = await client.call('callFunction', { name: 'staffRevenue', input: {} })
-  assert.equal(errorOf(refused).code, 'T3101')
+  assert.equal(errorOf(refused).code, 'F3101')
   // A function that is not listed is still found by its name.
   assert.deepEqual((await client.call('ordersToday', {})).structuredContent, { value: 'ordersToday' })
 })
@@ -82,7 +82,7 @@ test('[25-4] [05-13.24] findFunction answers none that the caller would not be l
     'staffRevenue',
   ])
   const outside = await client.call('callFunction', { name: 'lastOne', input: {} })
-  assert.equal(errorOf(outside).code, 'T3101')
+  assert.equal(errorOf(outside).code, 'F3101')
   const wide = await mcpApp(t, [{ from: 'mcp: { names: {} }', to: 'mcp: { toolsListed: 30, names: {} }' }], 'mcpBudget')
   const { key: wideKey } = await wide.key({ scopes: allButLast })
   const listed = (await wide.mcp({ as: { token: wideKey } }).tools()).map((one) => String(one.name))

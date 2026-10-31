@@ -18,7 +18,7 @@ const step = (name: string, words: string): object => ({
 /** The text of the file of a code action, with the place of its definition. */
 function refundFile(lines: string[]): { text: string; from: number; to: number } {
   const definition = `export const refund = action('refund', {\n  access: 'signedIn',\n  run: async () => {\n${lines.map((line) => `    ${line}\n`).join('')}  },\n})`
-  const text = `import { action } from 'tentjs'\n\n${definition}\n`
+  const text = `import { action } from 'forjr'\n\n${definition}\n`
   return { text, from: text.indexOf('export'), to: text.indexOf('export') + definition.length - 1 }
 }
 
@@ -188,7 +188,7 @@ test('[40-2] for a pair of points that holds each row of the table of compare, c
 })
 
 test('[40-2] a definition that is missing on one side and new on the other is removed and added, and never guessed to be a rename, and a step of onFail carries onFail in its name', (t) => {
-  const { project: folder, history } = started(t, { 'tent.ts': 'x' })
+  const { project: folder, history } = started(t, { 'forjr.ts': 'x' })
   const orders = table('orders', { columns: { total: number() }, access: { read: 'signedIn' } })
   const flowOf = (words: string, around: unknown): Loaded => ({
     value: flow('bigOrder', { run, onFail: run }),
@@ -226,7 +226,7 @@ test('[40-2] a definition that is missing on one side and new on the other is re
 })
 
 test('[40-2] a step whose name the body writes twice names no step, and is a change of the body around: no step of that name is said to change', (t) => {
-  const { project: folder, history } = started(t, { 'tent.ts': 'x' })
+  const { project: folder, history } = started(t, { 'forjr.ts': 'x' })
   const flowOf = (second: string): Loaded => ({
     value: flow('bigOrder', { run }),
     bodies: { run: [step('notify', 'first'), step('notify', second), step('close', 'done')] },
@@ -249,7 +249,7 @@ test('[40-2] a step whose name the body writes twice names no step, and is a cha
 })
 
 test('[40-2] a was that names a thing which is still there is no rename: the newer thing is added, and the one it names is matched with itself', (t) => {
-  const { project: folder, history } = started(t, { 'tent.ts': 'x' })
+  const { project: folder, history } = started(t, { 'forjr.ts': 'x' })
   const customers = table('customers', { columns: { name: text() }, access: { read: 'signedIn' } })
   const one = described([{ value: project('shop', {}) }, { value: customers }])
   const two = described([
@@ -262,22 +262,22 @@ test('[40-2] a was that names a thing which is still there is no rename: the new
   assert.deepEqual(history.compare('one', 'two'), [{ change: 'added', what: 'table', name: 'clients' }])
 })
 
-test('[16-2@7d] [40-2] comparing with a point that is not there, and with one that was dropped, is T9107', (t) => {
+test('[16-2@7d] [40-2] comparing with a point that is not there, and with one that was dropped, is F9107', (t) => {
   t.mock.timers.enable({ apis: ['Date'], now: Date.UTC(2026, 9, 14) })
-  const { project: folder, history } = started(t, { 'tent.ts': '0' })
+  const { project: folder, history } = started(t, { 'forjr.ts': '0' })
   const old = history.record(folder, { by: ada, kind: 'save' })
   t.mock.timers.tick(31 * day)
-  put(folder, 'tent.ts', '1')
+  put(folder, 'forjr.ts', '1')
   history.record(folder, { by: ada, kind: 'named', name: 'kept' })
-  assert.deepEqual(history.compare(old.id, 'kept'), [{ change: 'changed', what: 'file', name: 'tent.ts', lines: 1 }])
+  assert.deepEqual(history.compare(old.id, 'kept'), [{ change: 'changed', what: 'file', name: 'forjr.ts', lines: 1 }])
   history.tidy(Date.now(), { kept: 30 * day })
   assert.equal(
     codeOf(() => history.compare(old.id, 'kept')),
-    'T9107',
+    'F9107',
   )
   assert.equal(
     codeOf(() => history.compare('kept', 'no such point')),
-    'T9107',
+    'F9107',
   )
 })
 
@@ -301,7 +301,7 @@ test('[40-3b] a history of 10,000 points compares two of its points within a sec
         at: 1_790_000_000_000 + n * 60_000,
         by: ada,
         kind: 'command',
-        files: { ...files, 'tent.ts': fingerprintOf(bytes) },
+        files: { ...files, 'forjr.ts': fingerprintOf(bytes) },
       }),
     )
   }
@@ -310,6 +310,6 @@ test('[40-3b] a history of 10,000 points compares two of its points within a sec
   const began = performance.now()
   const changes = history.compare(points[17].id, 'now')
   const took = performance.now() - began
-  assert.deepEqual(changes, [{ change: 'changed', what: 'file', name: 'tent.ts', lines: 33 }])
+  assert.deepEqual(changes, [{ change: 'changed', what: 'file', name: 'forjr.ts', lines: 33 }])
   held('history.compare', took, 'ms')
 })

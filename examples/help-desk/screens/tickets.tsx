@@ -1,5 +1,5 @@
 import { Inbox } from 'lucide-react'
-import { Link, read, role, screen, useTranslations } from 'tentjs/ui'
+import { Link, read, role, screen, useTranslations } from 'forjr/ui'
 import { StaffFrame, Waiting } from '../components/frames'
 import { Overview } from '../components/Overview'
 import { StatusPill } from '../components/status'

@@ -25,7 +25,7 @@ import {
   writeToldNotes,
 } from '../engine/index.ts'
 
-// Loaded into the program of each test file of an app under `tent test`, before the file itself, and into each
+// Loaded into the program of each test file of an app under `forjr test`, before the file itself, and into each
 // program of the runtime that a test starts. What the test file imports as `node:test` is the face that runs each
 // test as its own work. What it and the app's code import as `node:fs` notes that the test under way reached outside
 // what the engine holds for it, and so does every way out of the program; where the program holds what reaches
@@ -36,11 +36,11 @@ import {
 const face = new URL('./testFace.ts', import.meta.url).href
 const engine = new URL('../engine/index.ts', import.meta.url).href
 // The test that started this program, and the folder of its project, where a test started it.
-const started = process.env.TENT_STARTED_TEST
-const folder = process.env.TENT_STARTED_FOLDER ?? process.cwd()
+const started = process.env.FORJR_STARTED_TEST
+const folder = process.env.FORJR_STARTED_FOLDER ?? process.cwd()
 const project = `${pathToFileURL(folder).href}/`
 // The scheme of the modules of the runtime that note each use.
-const scheme = 'tent-noted:'
+const scheme = 'forjr-noted:'
 
 /** Whether a module is the app's: a file of its project that is no package, or a module of its code the engine loaded. */
 const ofApp = (parent: string | undefined): boolean => parent !== undefined && isAppModule(parent, project)
@@ -75,7 +75,7 @@ function notingText(name: string): string {
 function placeIn(path: string): string | undefined {
   const place = relative(folder, resolve(path)).split(sep).join('/')
   if (place === '' || place.startsWith('..') || isAbsolute(place)) return undefined
-  return /(?:^|\/)(?:node_modules|\.tent)(?:\/|$)/.test(place) ? undefined : place
+  return /(?:^|\/)(?:node_modules|\.forjr)(?:\/|$)/.test(place) ? undefined : place
 }
 
 /**
@@ -83,7 +83,7 @@ function placeIn(path: string): string | undefined {
  * app's code that the engine loaded: what that stands on is the fingerprint of its definition.
  */
 const placeOf = (url: string): string | undefined =>
-  !url.startsWith(project) || new URL(url).searchParams.has('tent-app')
+  !url.startsWith(project) || new URL(url).searchParams.has('forjr-app')
     ? undefined
     : placeIn(fileURLToPath(url.split('?')[0]))
 
@@ -116,10 +116,10 @@ registerHooks({
 const carry = (test: string, env: NodeJS.ProcessEnv): NodeJS.ProcessEnv => ({
   ...env,
   NODE_OPTIONS: `${env.NODE_OPTIONS ?? ''} --import=${import.meta.url}`.trim(),
-  TENT_STARTED_TEST: test,
-  TENT_STARTED_FOLDER: folder,
-  ...(process.env.TENT_TOUCHED ? { TENT_TOUCHED: process.env.TENT_TOUCHED } : {}),
-  ...(outsideHeld() ? { TENT_HELD_OUTSIDE: '1' } : {}),
+  FORJR_STARTED_TEST: test,
+  FORJR_STARTED_FOLDER: folder,
+  ...(process.env.FORJR_TOUCHED ? { FORJR_TOUCHED: process.env.FORJR_TOUCHED } : {}),
+  ...(outsideHeld() ? { FORJR_HELD_OUTSIDE: '1' } : {}),
 })
 noteWaysOut({ carry })
 
@@ -160,7 +160,7 @@ if (started !== undefined) {
   reading(fs, [...ways, ...ways.map((one) => `${one}Sync`), 'createReadStream'])
   reading(fs.promises, ways)
   syncBuiltinESMExports()
-  const notes = process.env.TENT_TOUCHED
+  const notes = process.env.FORJR_TOUCHED
   const write = (): void => {
     if (notes) writeNotes(notes, `${process.pid}-${threadId}-started`)
   }
@@ -171,7 +171,7 @@ if (started !== undefined) {
 // program of the runtime it starts does: all its work is the test's, and so is every thread it starts. The notes that
 // each hands as it takes them, at any depth, this program writes as it ends, beside those a thread writes itself as
 // it ends by itself.
-const notesFolder = process.env.TENT_TOUCHED
+const notesFolder = process.env.FORJR_TOUCHED
 if (threadId === 0 && notesFolder)
   linesTold('notes', (lines) => writeToldNotes(notesFolder, `${process.pid}-handed`, lines))
 const Started = workerThreads.Worker

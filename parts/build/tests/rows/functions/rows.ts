@@ -1,4 +1,4 @@
-import { choice, connections, each, fail, flow, later, mail, settings, start, text, where } from 'tentjs'
+import { choice, connections, each, fail, flow, later, mail, settings, start, text, where } from 'forjr'
 import { addUser, bigOrder, calendar, encodeOne, helper, markPaid, ordersPage, sendWelcome, shop, stripe, videos, writer } from '../app'
 import intro from '../prompts/intro.md'
 

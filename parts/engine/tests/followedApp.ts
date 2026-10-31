@@ -35,7 +35,7 @@ const opened = new Set<() => void>()
 
 /** Holds the steps that wait at a gate of that name until the answer is called. */
 export function gateOf(name: string): () => void {
-  const key = Symbol.for('tentjs.test.followed')
+  const key = Symbol.for('forjr.test.followed')
   const held: unknown = Reflect.get(globalThis, key)
   const gates: Map<string, Promise<void>> = held instanceof Map ? held : new Map()
   Reflect.set(globalThis, key, gates)
@@ -52,7 +52,7 @@ export function gateOf(name: string): () => void {
 
 /** Has a step of that name fail once, when it next ends. */
 export function failOnce(name: string): void {
-  const key = Symbol.for('tentjs.test.followed.fail')
+  const key = Symbol.for('forjr.test.followed.fail')
   const held: unknown = Reflect.get(globalThis, key)
   const names: Set<string> = held instanceof Set ? held : new Set()
   Reflect.set(globalThis, key, names.add(name))

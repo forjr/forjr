@@ -24,5 +24,5 @@ test('[29-7] a second takeOver while one is under way is answered as the first i
   assert.deepEqual(await titles(near), ['one', 'two'])
   assert.equal((await send(near, 'addOrder', { title: 'by the new writer' })).status, 200)
   // Asked once it is done, it is the writer already.
-  assert.equal(await codeOf(near.takeOver()), 'T0030')
+  assert.equal(await codeOf(near.takeOver()), 'F0030')
 })

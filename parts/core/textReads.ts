@@ -153,7 +153,7 @@ function namesOfFile(file: string, definitions: ReadonlySet<string>): Set<string
     }
   }
   for (const [, what, from] of file.matchAll(importsOf)) {
-    if (from.startsWith('tentjs') || /^type\s/.test(what)) continue
+    if (from.startsWith('forjr') || /^type\s/.test(what)) continue
     const whole = /^([A-Za-z_$][\w$]*)/.exec(what)
     if (whole) names.add(whole[1])
     const all = /\*\s+as\s+([A-Za-z_$][\w$]*)/.exec(what)

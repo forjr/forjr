@@ -1,4 +1,4 @@
-import { action, change, query, text } from 'tentjs'
+import { action, change, query, text } from 'forjr'
 import { notes } from './tables'
 
 // A code query of one read.

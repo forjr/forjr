@@ -1,4 +1,4 @@
-import { messages } from 'tentjs/ui'
+import { messages } from 'forjr/ui'
 
 export default messages('en', {
   app: { name: 'Orders', loading: 'Loading' },

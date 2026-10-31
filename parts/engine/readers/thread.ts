@@ -1,5 +1,5 @@
 import { parentPort, workerData } from 'node:worker_threads'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { readOwn } from './own.ts'
 
 // A thread that reads one file with our own readers, and tells its words or what stopped it: a file that is
@@ -10,7 +10,7 @@ try {
   parentPort?.postMessage({ text: readOwn(kind, bytes, most) })
 } catch (error) {
   const told =
-    error instanceof TentError
+    error instanceof ForjrError
       ? { code: error.code, message: error.message, ...(error.fix === undefined ? {} : { fix: error.fix }) }
       : { message: error instanceof Error ? error.message : String(error) }
   parentPort?.postMessage({ error: told })

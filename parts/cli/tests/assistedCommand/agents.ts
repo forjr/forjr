@@ -1,4 +1,4 @@
-import { agent, model } from 'tentjs'
+import { agent, model } from 'forjr'
 
 // A model whose provider the project makes in engine.ts, and an agent that the command line offers.
 export const writer = model('writer', { provider: 'mine', name: 'm-1', abilities: ['reply'], takes: 100000 })

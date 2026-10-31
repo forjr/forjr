@@ -1,4 +1,4 @@
-import { action, allow, change, flow, mail, number, query, route, text } from 'tentjs'
+import { action, allow, change, flow, mail, number, query, route, text } from 'forjr'
 
 Reflect.set(globalThis, 'crossingLoaded', [...(Reflect.get(globalThis, 'crossingLoaded') ?? []), import.meta.url])
 

@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Tx } from '../../data/index.ts'
 import type { CallContext } from '../context.ts'
 import { atOf, onceKey, whichCall } from '../flows/inside.ts'
@@ -38,16 +38,16 @@ interface Recalled {
 }
 
 /** The error of a conversation the starter may not open: told as one that is not there. */
-const notThere = (thread: string): TentError =>
-  new TentError('T2103', `No conversation ${JSON.stringify(thread).slice(0, 60)} is there for this caller.`, {
+const notThere = (thread: string): ForjrError =>
+  new ForjrError('F2103', `No conversation ${JSON.stringify(thread).slice(0, 60)} is there for this caller.`, {
     fix: 'Start the agent on a conversation that the caller may read.',
   })
 
-/** The memory of an agent, as the description of the version holds it. Throws T0001 for one that has none. */
+/** The memory of an agent, as the description of the version holds it. Throws F0001 for one that has none. */
 export function memoryOf(o: Opened, agent: string): MemoryOf {
   const flow = Object.hasOwn(o.description.flows, agent) ? o.description.flows[agent] : undefined
   const memory: unknown = Reflect.get(Object(flow?.agent), 'memory')
-  if (!isStored(memory)) throw new TentError('T0001', `The agent ${agent} keeps no memory.`)
+  if (!isStored(memory)) throw new ForjrError('F0001', `The agent ${agent} keeps no memory.`)
   const table = String(memory.in)
   const thread = typeof memory.thread === 'string' ? memory.thread : 'thread'
   const stored = Object.hasOwn(o.description.tables, table) ? o.description.tables[table] : undefined
@@ -83,7 +83,7 @@ export function memoryOf(o: Opened, agent: string): MemoryOf {
 /**
  * The first of the two checks that open a conversation that are the engine's here: that the starter may read the
  * row that the conversation's value names, under the read rule of the table its column links to. The agent's
- * `access` was asked at the start. Throws T2103 otherwise, as for a row that is not there.
+ * `access` was asked at the start. Throws F2103 otherwise, as for a row that is not there.
  */
 export function mayOpen(o: Opened, memory: { linked?: string }, thread: string, caller: Caller): void {
   if (!memory.linked || caller.kind === 'system') return
@@ -187,10 +187,10 @@ async function recalled(o: Opened, row: Record<string, unknown>): Promise<Recall
 }
 
 /**
- * `_t_memoryRead({ agent, thread, nearest? })`: the rows of a conversation that are sent, by the agent's
+ * `_f_memoryRead({ agent, thread, nearest? })`: the rows of a conversation that are sent, by the agent's
  * memory, in the order they were added, each file of them read, with the older rows that `nearest` names among
  * them; and where a summary is due, the rows it is written of, as `due`. It takes the starter from the call context
- * and checks first that the starter may open the conversation (T2103). It writes nothing.
+ * and checks first that the starter may open the conversation (F2103). It writes nothing.
  */
 export async function memoryRead(cx: CallContext, given: unknown): Promise<{ rows: Recalled[]; due?: Recalled[] }> {
   const o = cx.app
@@ -222,10 +222,10 @@ function holdNamed(o: Opened, tx: Tx, table: string, row: Record<string, unknown
 }
 
 /**
- * `_t_memoryAdd({ agent, thread, run, rows })`: adds the rows to the conversation in one write, each with its
+ * `_f_memoryAdd({ agent, thread, run, rows })`: adds the rows to the conversation in one write, each with its
  * run and the conversation's value, the starter in the owner column where the starter is a user and the row is no
  * summary, and each file a row names held by it. It takes the starter from the call context and checks first that
- * the starter may open the conversation (T2103). Inside a step it carries the once-only key of its place, so a step
+ * the starter may open the conversation (F2103). Inside a step it carries the once-only key of its place, so a step
  * that runs twice adds its rows once. Answers the ids of the rows.
  */
 export function memoryAdd(cx: CallContext, given: unknown): { rows: string[] } {
@@ -235,7 +235,7 @@ export function memoryAdd(cx: CallContext, given: unknown): { rows: string[] } {
   const thread = String(asked.thread)
   mayOpen(o, memory, thread, cx.caller)
   const at = cx.run?.step ? atOf(cx) : undefined
-  const key = at ? onceKey(at, whichCall(cx, '_t_memoryAdd', given)) : undefined
+  const key = at ? onceKey(at, whichCall(cx, '_f_memoryAdd', given)) : undefined
   const user = cx.caller.user?.id
   const rows = (Array.isArray(asked.rows) ? asked.rows : []).filter(isStored)
   const { value } = o.store.write((tx) => {

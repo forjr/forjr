@@ -13,16 +13,16 @@ export const churn = python('churn', {
 })
 ```
 
-The file holds one `run`, which is handed the checked input as plain values and `tent`, and answers the output:
+The file holds one `run`, which is handed the checked input as plain values and `forjr`, and answers the output:
 
 ```python
 # ml/churn.py
-def run(input, tent):
-    orders = tent.db().execute("select total from orders").fetchall()   # the rows of `rows`
+def run(input, forjr):
+    orders = forjr.db().execute("select total from orders").fetchall()   # the rows of `rows`
     return {"risk": 0.2}
 ```
 
-`tent` gives `db()`, `call(name, input)`, `file(id)`, `folder` (a folder of the call, for files it writes and answers), `disk` (a folder that outlasts calls and restarts), `save_progress(value)` and `progress()` inside a step, `stopping()`, `say(value)`, `log(message)`, and `Fail`, `Error` and `Back`. A `print` is a line of the log. Python runs in a program of its own beside the engine, in an environment made from the project's lock: run `tent python lock` after each change of `packages`. The program loads the file at its first call and keeps it loaded, and is ended when it stood idle for `limits.pythonStopAfter`; a new version runs in a new one.
+`forjr` gives `db()`, `call(name, input)`, `file(id)`, `folder` (a folder of the call, for files it writes and answers), `disk` (a folder that outlasts calls and restarts), `save_progress(value)` and `progress()` inside a step, `stopping()`, `say(value)`, `log(message)`, and `Fail`, `Error` and `Back`. A `print` is a line of the log. Python runs in a program of its own beside the engine, in an environment made from the project's lock: run `forjr python lock` after each change of `packages`. The program loads the file at its first call and keeps it loaded, and is ended when it stood idle for `limits.pythonStopAfter`; a new version runs in a new one.
 
 ## Options
 
@@ -62,17 +62,17 @@ A function that answers a promise, called like an action.
 
 ## Errors
 
-`code.T0010`: it was called with no engine: nothing stands in the runtime slot.
+`code.F0010`: it was called with no engine: nothing stands in the runtime slot.
 
-`code.T7119`: the code raised an error, its Python program ended, or it passed its memory.
+`code.F7119`: the code raised an error, its Python program ended, or it passed its memory.
 
-`code.T7020`: its lock is not there, or was made from other entries of `packages`.
+`code.F7020`: its lock is not there, or was made from other entries of `packages`.
 
-`code.T0016`: the Python, the installer or a package could not be fetched, or a package file does not fit its lock.
+`code.F0016`: the Python, the installer or a package could not be fetched, or a package file does not fit its lock.
 
-`code.T0008`: the call took longer than `limits.time`.
+`code.F0008`: the call took longer than `limits.time`.
 
-`code.T1014`: an entry of `packages` holds an option or an address.
+`code.F1014`: an entry of `packages` holds an option or an address.
 
 ## See also
 

@@ -12,7 +12,7 @@ import { asleepError } from './sleeper.ts'
  * Takes what an app that may sleep is held by, and its name. Answers its members: a member that answers a promise
  * wakes the app first, and is a use where it stands for a caller (`call`, `request`, `page`, `start`); a member that
  * answers at once is answered from what was kept where that is enough (`description`, `versions`), and else throws
- * T0013 while the app sleeps.
+ * F0013 while the app sleeps.
  */
 export function sleepingMembers(s: Sleeping, name: string): App {
   /** The open app, for a member that answers at once. */

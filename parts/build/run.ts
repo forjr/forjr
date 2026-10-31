@@ -13,14 +13,14 @@ import { ownSettings } from './ownSettings.ts'
 import { namedFile, textOf } from './source.ts'
 import type { SourceFile, Work } from './work.ts'
 
-// A module that the builder made names the framework by its import, `tentjs`. While a file is run to collect its
+// A module that the builder made names the framework by its import, `forjr`. While a file is run to collect its
 // definitions, that import is answered with the very entry file this part uses, so that both hold one framework.
 const entry = new URL('../core/index.ts', import.meta.url).href
 
 registerHooks({
   // A command file names its entry: run to collect its definitions, it is handed the words of the same entry file.
   resolve: (name, context, next) =>
-    name === 'tentjs' || name === 'tentjs/cli' ? { url: entry, shortCircuit: true } : next(name, context),
+    name === 'forjr' || name === 'forjr/cli' ? { url: entry, shortCircuit: true } : next(name, context),
 })
 
 const print = (text: string): string => fingerprintOf(new TextEncoder().encode(text))
@@ -30,13 +30,13 @@ export const moduleName = (path: string): string => path.replace(/\.tsx?$/, '').
 
 /** The folder in which the build keeps what it made, which is safe to delete. */
 export function cacheFolder(work: Work): string {
-  const inProject = join(work.folder, '.tent', 'cache')
+  const inProject = join(work.folder, '.forjr', 'cache')
   try {
     mkdirSync(inProject, { recursive: true })
     return inProject
   } catch {
     // A project that cannot be written is still built: what is kept lies with the system's temporary files.
-    const elsewhere = join(tmpdir(), 'tent-cache', print(work.folder).slice(0, 12))
+    const elsewhere = join(tmpdir(), 'forjr-cache', print(work.folder).slice(0, 12))
     mkdirSync(elsewhere, { recursive: true })
     return elsewhere
   }
@@ -108,7 +108,7 @@ async function modulesOf(work: Work, files: SourceFile[]): Promise<Made[]> {
     folder: work.folder,
     tsconfig: ownSettings(work.folder, cacheFolder(work)),
     inputs: Object.fromEntries(files.map((file) => [moduleName(file.path), file.file])),
-    external: ['tentjs', 'tentjs/ui', 'tentjs/cli'],
+    external: ['forjr', 'forjr/ui', 'forjr/cli'],
     read: (file) => {
       const text = texts.get(file)
       if (text !== undefined) read.add(file)

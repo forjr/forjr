@@ -3,7 +3,7 @@ import type { IncomingMessage } from 'node:http'
 import { request as overHttp } from 'node:http'
 import { request as overHttps } from 'node:https'
 import { Writable } from 'node:stream'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { FileStore } from '../makers.ts'
 import { streamed } from '../web/streamed.ts'
 import { fingerprintOf } from '../../core/internal.ts'
@@ -142,7 +142,7 @@ function sent(
     // or an upload never waits for ever on a store that hangs.
     asked.setTimeout(idleMs, () =>
       asked.destroy(
-        new TentError('T0009', `The store of files said nothing for ${idleMs / 1000} seconds.`, {
+        new ForjrError('F0009', `The store of files said nothing for ${idleMs / 1000} seconds.`, {
           fix: 'See that the store answers, and ask again.',
         }),
       ),
@@ -153,11 +153,11 @@ function sent(
 }
 
 /** Reads what a response that is no success says, and answers the error of the store. */
-async function refusedBy(response: IncomingMessage, what: string): Promise<TentError> {
+async function refusedBy(response: IncomingMessage, what: string): Promise<ForjrError> {
   const parts: Buffer[] = []
   for await (const part of response) parts.push(Buffer.from(part))
   const said = /<Code>([^<]*)<\/Code>/.exec(Buffer.concat(parts).toString('utf8'))?.[1] ?? ''
-  return new TentError('T0009', `The store of files refused ${what}: ${response.statusCode} ${said}`.trim(), {
+  return new ForjrError('F0009', `The store of files refused ${what}: ${response.statusCode} ${said}`.trim(), {
     fix: 'See that the address, the bucket and the key of the store are right, and that the store answers.',
   })
 }
@@ -171,8 +171,8 @@ function held(fingerprint: string): string {
 /**
  * Takes where a store of the S3 protocol answers, with its bucket, its region and its key. Answers a store of
  * files that keeps bytes there under their fingerprint and knows nothing else, as every store does. Bytes go in
- * and out as streams. A read of bytes that are gone fails at its first byte, with T0001, and one that the store
- * refuses with T0009. Every machine reaches it, and it hands out an address for an upload straight to it.
+ * and out as streams. A read of bytes that are gone fails at its first byte, with F0001, and one that the store
+ * refuses with F0009. Every machine reaches it, and it hands out an address for an upload straight to it.
  */
 export function s3Store(place: S3Place): FileStore {
   return {
@@ -210,7 +210,7 @@ export function s3Store(place: S3Place): FileStore {
             }
             if (response.statusCode === 404) {
               response.resume()
-              throw new TentError('T0001', `The store of files holds no bytes under ${fingerprint}.`)
+              throw new ForjrError('F0001', `The store of files holds no bytes under ${fingerprint}.`)
             }
             if (response.statusCode !== 200 && response.statusCode !== 206)
               throw await refusedBy(response, `the bytes of ${fingerprint}`)

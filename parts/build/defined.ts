@@ -38,12 +38,12 @@ export function loadedOf(
   }
 }
 
-/** Reports each definition that a file makes where no top-level `export const` takes it: T1001. */
+/** Reports each definition that a file makes where no top-level `export const` takes it: F1001. */
 export function looseFound(work: Work, file: SourceFile): void {
   for (const one of file.seen?.loose ?? [])
     found(
       work,
-      'T1001',
+      'F1001',
       file,
       one.node,
       `A \`${one.word}\` is made where no top-level \`export const\` takes it.`,

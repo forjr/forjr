@@ -2,7 +2,7 @@ import type { Description } from './description.ts'
 import type { Type } from './type.ts'
 
 /**
- * `_t_counts`: what the engine counted, one row for each day, thing that was used, caller where callers are
+ * `_f_counts`: what the engine counted, one row for each day, thing that was used, caller where callers are
  * counted, and unit, with its amount. `day`, `name`, `answeredBy`, `caller` and `unit` are its key, `id` is unique,
  * and it carries an index over `user` and `day` and one over `caller` and `day`. It is declared here, since a table
  * of an app may show it, and the engine's table gives this same record.
@@ -15,7 +15,7 @@ export const countsLayout: {
   unique: string[][]
   search: string[]
 } = {
-  name: '_t_counts',
+  name: '_f_counts',
   columns: {
     id: { kind: 'text' },
     day: { kind: 'date' },
@@ -38,13 +38,13 @@ export const countsLayout: {
 }
 
 /**
- * `_t_scores`: the ratings that people gave the runs of agents, and the scores that a judge gave them, one row
+ * `_f_scores`: the ratings that people gave the runs of agents, and the scores that a judge gave them, one row
  * for each, with the run, the agent, whether it is a rating or a score, the score, and the note of a person or
  * the reason of a judge. Its key is `id`, and it carries an index over `run` and one over `user`. It is declared
  * here, since a table of an app may show it, and the engine's table gives this same record.
  */
 export const scoresLayout: typeof countsLayout = {
-  name: '_t_scores',
+  name: '_f_scores',
   columns: {
     id: { kind: 'text' },
     run: { kind: 'text' },
@@ -68,7 +68,7 @@ export const scoresLayout: typeof countsLayout = {
 export const shownLayouts: Record<string, typeof countsLayout> = { counts: countsLayout, scores: scoresLayout }
 
 /**
- * Takes a description and the name of a table. Answers the columns of the table as the types, `tent.d.ts`, the
+ * Takes a description and the name of a table. Answers the columns of the table as the types, `forjr.d.ts`, the
  * check and the data hold them: those it states, and for a table that states `shows` those of the engine's table
  * it shows, with `user` a link to `users` where the project has that table and no such column where it has none.
  */

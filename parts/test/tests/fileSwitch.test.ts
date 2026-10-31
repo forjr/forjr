@@ -45,7 +45,7 @@ test('[50-5@6] app.switch is refused where one file holds a misfit, naming the t
   // `code` must hold a value from the next version on, and one order of South holds none.
   const required = await app.add(await deskBundle(t, { codeRequired: true }))
   const refused = await refusalOf(app.switch(required))
-  assert.equal(refused?.code, 'T2001')
+  assert.equal(refused?.code, 'F2001')
   assert.match(String(refused?.message), new RegExp(`1 row of \`orders\`.*\`orders\\.code\`.*teams ${south}`))
   // Nothing was changed: the version before runs, every file stands where it stood, and it writes a row without the column.
   assert.equal(running(app), first)
@@ -56,7 +56,7 @@ test('[50-5@6] app.switch is refused where one file holds a misfit, naming the t
   const rug = await addOrder(app, north, 'a rug')
   assert.deepEqual(await titlesOf(app, north), ['a lamp', 'a rug'])
   // Asked for dry, the switch counts the same misfits, of two files by now, and changes nothing.
-  assert.equal((await refusalOf(app.switch(required, { dry: true })))?.code, 'T2001')
+  assert.equal((await refusalOf(app.switch(required, { dry: true })))?.code, 'F2001')
 
   // With every row mended, the files are closed, so that nobody holds one open, and the switch is taken.
   await app.write([{ change: 'orders', of: south, id: chair, values: { code: 'C1' } }], { as: 'system' })
@@ -160,10 +160,10 @@ test("[50-5@6] after a switch a file that cannot be brought up is marked failed,
   // The file is refused with the count of its rows that do not fit. In one run of some it is refused by the
   // store instead, with the code of a value that does not fit its column: the count was read before the hand wrote.
   const code = String(failed.failed?.code)
-  assert.deepEqual([failed.id, ['T2001', 'T2107'].includes(code)], [last, true], JSON.stringify(failed.failed))
-  if (code === 'T2001') assert.match(String(failed.failed?.message), new RegExp(`1 row of \`orders\`.*teams ${last}`))
-  // Its requests answer T0009, and those of every other file are answered.
-  assert.equal(await codeOf(app.call('listOrders', { team: last }, system)), 'T0009')
+  assert.deepEqual([failed.id, ['F2001', 'F2107'].includes(code)], [last, true], JSON.stringify(failed.failed))
+  if (code === 'F2001') assert.match(String(failed.failed?.message), new RegExp(`1 row of \`orders\`.*teams ${last}`))
+  // Its requests answer F0009, and those of every other file are answered.
+  assert.equal(await codeOf(app.call('listOrders', { team: last }, system)), 'F0009')
   const other = teams.find((team) => team !== last) ?? ''
   assert.equal((await titlesOf(app, other)).length, 1)
   // A file that failed is behind: the next switch that changes a tenant table is not taken.
@@ -180,7 +180,7 @@ test("[50-5@6] after a switch a file that cannot be brought up is marked failed,
 /** How many holds the data file of a team keeps, read with no engine. */
 function holdsOf(dataFolder: string, team: string): number {
   try {
-    const [row] = readFile(fileOf(dataFolder, team), `SELECT "value" FROM "_t_meta" WHERE "key" = 'holds'`)
+    const [row] = readFile(fileOf(dataFolder, team), `SELECT "value" FROM "_f_meta" WHERE "key" = 'holds'`)
     const held: unknown = row ? JSON.parse(String(row.value)) : []
     return Array.isArray(held) ? held.length : 0
   } catch {
@@ -191,7 +191,7 @@ function holdsOf(dataFolder: string, team: string): number {
 
 /** The check that the shared file of a data folder names as standing, read with no engine, or nothing. */
 function checkIn(dataFolder: string): unknown {
-  const [row] = readFile(join(dataFolder, 'data.db'), `SELECT "value" FROM "_t_meta" WHERE "key" = 'check'`)
+  const [row] = readFile(join(dataFolder, 'data.db'), `SELECT "value" FROM "_f_meta" WHERE "key" = 'check'`)
   return row ? (JSON.parse(String(row.value)) ?? undefined) : undefined
 }
 
@@ -205,7 +205,7 @@ async function teamsOf(app: TestApp, count: number): Promise<string[]> {
   return teams
 }
 
-test('[50-5@6] while the check of a switch stands, a file that passed is held to its steps: a write of the old version that would break one is T2107; the misfit of a later file refuses the switch, and then no hold counts, none is left in any file, and the old version writes that row', async (t) => {
+test('[50-5@6] while the check of a switch stands, a file that passed is held to its steps: a write of the old version that would break one is F2107; the misfit of a later file refuses the switch, and then no hold counts, none is left in any file, and the old version writes that row', async (t) => {
   const { app, dataFolder } = await deskOf(t, { filesAtOnce: 1 })
   const first = running(app)
   const teams = await teamsOf(app, 60)
@@ -219,13 +219,13 @@ test('[50-5@6] while the check of a switch stands, a file that passed is held to
   await until('the first file is held', () => holdsOf(dataFolder, early) > 0, 4000)
   assert.equal(Object(checkIn(dataFolder)).version, required)
   const held = await refusalOf(app.call('addOrder', { team: early, title: 'breaks the hold' }, system))
-  assert.equal(held?.code, 'T2107')
+  assert.equal(held?.code, 'F2107')
   assert.equal(running(app), first)
   // A write that keeps to the step is taken meanwhile, by the old version.
   await addOrder(app, early, 'keeps to it', { code: 'K' })
   // The last file does not fit: the switch is refused, naming the tenant and the count.
   const refused = await switching
-  assert.equal(refused?.code, 'T2001')
+  assert.equal(refused?.code, 'F2001')
   assert.match(String(refused?.message), new RegExp(`1 row of \`orders\`.*\`orders\\.code\`.*teams ${last}`))
   assert.deepEqual([running(app), checkIn(dataFolder)], [first, undefined])
   // No hold outlives its check: the write that was refused is taken at once, and a pass takes the holds out of every file.
@@ -319,7 +319,7 @@ test('[50-11@6] a file that the check of a switch held on the writer, and let go
   // The first file fits and is held, the second does not: the switch is refused, and the hold is let go again.
   const required = await writer.app.add(await deskBundle(t, { codeRequired: true }))
   await until2('the reader holds the version', () => reader.app.versions().some((one) => one.id === required))
-  assert.equal((await refusalOf(writer.app.switch(required)))?.code, 'T2001')
+  assert.equal((await refusalOf(writer.app.switch(required)))?.code, 'F2001')
   await until2('the hold is let go on the writer', () => holdsOf(writer.dataFolder, early) === 0)
   // Each write of a file thread took a number of the app: the hold, and its letting go, beside the check itself.
   assert.ok(writer.app.at().n >= before + 2, `${before} to ${writer.app.at().n}`)
@@ -340,7 +340,7 @@ function heldIn(dataFolder: string, team: string): unknown {
     columns: readFile(file, 'SELECT name, type, "notnull" FROM pragma_table_info(\'orders\')'),
     meta: readFile(
       file,
-      `SELECT "key", "value" FROM "_t_meta" WHERE "key" IN ('table', 'tenant', 'fingerprint', 'holds', 'n', 'epoch') ORDER BY "key"`,
+      `SELECT "key", "value" FROM "_f_meta" WHERE "key" IN ('table', 'tenant', 'fingerprint', 'holds', 'n', 'epoch') ORDER BY "key"`,
     ),
   }
 }

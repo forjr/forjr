@@ -20,7 +20,7 @@ const ran = join(folder, 'ran.log')
 const seen = join(folder, 'seen.log')
 const once = join(folder, 'killed-once')
 const description = {
-  format: 'tent.description/1',
+  format: 'forjr.description/2',
   app: { name: 'killed', needsEngine: '1' },
   project: {},
   tables: {},

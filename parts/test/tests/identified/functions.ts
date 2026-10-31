@@ -1,4 +1,4 @@
-import { action, anyone, list, number, query, sessions, table, text } from 'tentjs'
+import { action, anyone, list, number, query, sessions, table, text } from 'forjr'
 import { howOften } from './asked'
 
 const open = anyone('a test looks who it is')

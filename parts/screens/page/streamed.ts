@@ -55,9 +55,9 @@ export function streamedParts(
     createElement(
       Fragment,
       null,
-      createElement('template', { 'data-t-wait': name }),
+      createElement('template', { 'data-f-wait': name }),
       loading ? createElement(Use, { record: loading, given: {} }) : null,
-      createElement('template', { 'data-t-end': name }),
+      createElement('template', { 'data-f-end': name }),
     )
   const streamed: StreamedParts['streamed'] = (component, answers, drawn, given) => {
     const own = personal.includes(component)
@@ -71,7 +71,7 @@ export function streamedParts(
       waiting.push(name)
       return place(name)
     }
-    return pending.includes(name) ? createElement('template', { 'data-t-done': name }, drawn) : drawn
+    return pending.includes(name) ? createElement('template', { 'data-f-done': name }, drawn) : drawn
   }
   return { streamed, waiting, personal: met }
 }

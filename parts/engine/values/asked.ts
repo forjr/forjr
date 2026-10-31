@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Opened } from '../opened.ts'
 import { readAllAgain } from '../readAgain.ts'
 import type { ValueKind } from './files.ts'
@@ -15,12 +15,12 @@ import { carriedOut } from './stored.ts'
  * `remove` or `list`, with `name`, `value`, and `live` for the live file. Carries it out as the engine that holds
  * the key: it writes the file, and where the file is the one its own mode reads, it uses the new value from the
  * next use on. A setting that changed has every live group run again, since a query may read one. Answers what
- * the command prints. Throws T0002 for a word that is none of the three.
+ * the command prints. Throws F0002 for a word that is none of the three.
  */
 export function valuesAsked(o: Opened, kind: ValueKind, args: object): unknown {
   const act: unknown = Reflect.get(args, 'do')
   if (act !== 'set' && act !== 'remove' && act !== 'list')
-    throw new TentError('T0002', 'The command takes `set`, `remove` or `list` as `do`.', { fields: { do: 'values' } })
+    throw new ForjrError('F0002', 'The command takes `set`, `remove` or `list` as `do`.', { fields: { do: 'values' } })
   const [name, value]: unknown[] = [Reflect.get(args, 'name'), Reflect.get(args, 'value')]
   const live = Reflect.get(args, 'live') === true
   const asked: ValuesAsked = {

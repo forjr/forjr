@@ -57,7 +57,7 @@ const lastOf = (request: ReplyRequest): { text: string; tool: boolean } => {
 /** A query of the notes, as a plain file that a turn writes: its name and its limit say the turn. */
 const queryOf = (n: number): string =>
   [
-    "import { anyone, query } from 'tentjs'",
+    "import { anyone, query } from 'forjr'",
     "import { notes } from '../tables/users'",
     '',
     `export const counted${n} = query('counted${n}', {`,
@@ -98,7 +98,7 @@ export function filesOf(folder: string): Record<string, string> {
     for (const name of readdirSync(at)) {
       const path = join(at, name)
       const shown = relative(folder, path).replaceAll('\\', '/')
-      if (shown === '.tent' || shown === 'tent.d.ts') continue
+      if (shown === '.forjr' || shown === 'forjr.d.ts') continue
       if (statSync(path).isDirectory()) walk(path)
       else files[shown] = readFileSync(path).toString('base64')
     }

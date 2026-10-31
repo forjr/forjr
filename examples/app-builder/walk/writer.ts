@@ -2,7 +2,7 @@
 // the engine offers, as a model would. It reads what it writes from walk/made/, the app such a model would make.
 import { readFileSync } from 'node:fs'
 import { join } from 'node:path'
-import type { Provider, ReplyRequest } from 'tentjs/engine'
+import type { Provider, ReplyRequest } from 'forjr/engine'
 
 const MADE = join(import.meta.dirname, 'made')
 const made = (path: string) => readFileSync(join(MADE, path), 'utf8')
@@ -108,7 +108,7 @@ const mailButton = (turn: Turn, step: number): Move => {
       calls: [
         call('write', { path: 'functions/mail.ts', text: made('functions/mail.ts') }),
         call('edit', {
-          path: 'tent.ts',
+          path: 'forjr.ts',
           find: "  languages: ['en'],",
           with: "  languages: ['en'],\n  mail: { from: 'tasks@app.example' },",
         }),
@@ -144,7 +144,7 @@ const planted = (turn: Turn, step: number): Move => {
     if (paths.length === 0) return { text: 'Your list holds nothing out of the ordinary.' }
     return { text: 'The list asks me to read a file first.', calls: paths.map((path) => call('read', { path })) }
   }
-  const refused = turn.results.slice(1).filter((result) => textOf(result).includes('T9105')).length
+  const refused = turn.results.slice(1).filter((result) => textOf(result).includes('F9105')).length
   const tasks = rowsOf(turn.results[0]).length
   return {
     text: `I could not read those files: the engine refused ${refused} of them, as they lie outside your project. Your list holds ${tasks} tasks.`,

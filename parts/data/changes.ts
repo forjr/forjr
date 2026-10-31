@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { limitDefaults } from '../core/internal.ts'
 import type { Wrote } from './context.ts'
 import type { FileName } from './fileName.ts'
@@ -92,7 +92,7 @@ function numberOf(store: Store): number {
 }
 
 /**
- * Keeps one change in `_t_changes`, inside the write it is of: its number, its epoch, its `sum`, the change
+ * Keeps one change in `_f_changes`, inside the write it is of: its number, its epoch, its `sum`, the change
  * without its record as JSON, and the record. The oldest are then removed once the records together pass `bound`
  * bytes: the newest one is kept whatever its size, and so is every change that `keepFrom` holds.
  */
@@ -139,10 +139,10 @@ const isKept = (value: unknown): value is Omit<Change, 'record'> =>
   typeof heldIn(value, 'sum') === 'string' &&
   Array.isArray(heldIn(value, 'rows'))
 
-/** A kept change as it travelled. Throws T0009 for a row that holds no change. */
+/** A kept change as it travelled. Throws F0009 for a row that holds no change. */
 function changeOf(row: Row): Change {
   if (!isKept(row.change) || !(row.record instanceof Uint8Array))
-    throw new TentError('T0009', `The kept change ${String(row.n)} holds no change.`)
+    throw new ForjrError('F0009', `The kept change ${String(row.n)} holds no change.`)
   return { ...row.change, record: row.record }
 }
 
@@ -176,9 +176,9 @@ export function keepFrom(store: Store, n: number, until: number): void {
 }
 
 /**
- * Takes a store, or the files of an app. From its next write on its changes are kept in `_t_changes`, for the
+ * Takes a store, or the files of an app. From its next write on its changes are kept in `_f_changes`, for the
  * readers of the app, and the store is told to record every write, as `recordWrites` tells it. It writes `kept`
- * into `_t_here`, and, where `_t_here` did not hold it yet, the number and the `sum` the machine holds now: for
+ * into `_f_here`, and, where `_f_here` did not hold it yet, the number and the `sum` the machine holds now: for
  * the files of an app, the number of the app, which is the highest that any of its files holds, and the `sum` of
  * the shared file.
  */
@@ -202,7 +202,7 @@ export function keepChanges(on: Store | Files): void {
 /**
  * Takes a store, or the files of an app. From its next write on the store records every write, for a sink that
  * records: of the files of an app the shared file, each tenant's file that is open, and each as it is opened.
- * Nothing is kept in the data, and `_t_here` is not told.
+ * Nothing is kept in the data, and `_f_here` is not told.
  */
 export function recordWrites(on: Store | Files): void {
   if (!('shared' in on)) {

@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 
 export default seed(({ db }) => {
   db.orders.add({ name: 'Chair', status: 'paid', total: 1250 })

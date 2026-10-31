@@ -128,7 +128,7 @@ function dayFrom(count: number): string {
 /**
  * Takes a word, a day, a number and a unit. Answers the day moved on the calendar by that many whole days, weeks,
  * months or years, backwards for a number below zero: a move by months lands on the same day of that month, or on
- * its last day where it is shorter. Throws T0027 for another unit, for a number that is not whole, and for a move
+ * its last day where it is shorter. Throws F0027 for another unit, for a number that is not whole, and for a move
  * that leaves the calendar.
  */
 export function moveDay(word: string, day: string, n: number, unit: string): string {

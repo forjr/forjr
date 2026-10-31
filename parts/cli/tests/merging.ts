@@ -68,7 +68,7 @@ export async function twoSides(t: TestContext, name: string, ours: Edits, theirs
   let history: History | undefined
   t.after(() => history?.close())
   const project = copied(t, name, 'merging')
-  history = openHistory(join(project, '.tent'))
+  history = openHistory(join(project, '.forjr'))
   const base = textsOf(project, [ours, theirs])
   history.record(project, { by: ada, kind: 'save', description: await describedNow(project) })
   history.branch('side')

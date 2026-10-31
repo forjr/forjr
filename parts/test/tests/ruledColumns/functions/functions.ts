@@ -1,4 +1,4 @@
-import { change, count, input, number, query, sum, text } from 'tentjs'
+import { change, count, input, number, query, sum, text } from 'forjr'
 import { accounts, desks, staff } from '../tables/tables'
 
 export const addStaff = change('addStaff', {

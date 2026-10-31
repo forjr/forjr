@@ -10,8 +10,8 @@ import { keptFile, keptGone } from '../stored/keptFile.ts'
 import type { Remember } from './keyOf.ts'
 
 const system = { kind: 'system' } as const
-const table = '_t_remembered'
-const rowsTable = '_t_remembered_rows'
+const table = '_f_remembered'
+const rowsTable = '_f_remembered_rows'
 
 /** One read that a piece of work made: its plan, and the fingerprint of what it answered. */
 export interface KeptRead {
@@ -164,7 +164,7 @@ function fedKeys(tx: Pick<Tx, 'read'>, table: string, ids: string[]): Set<string
  */
 export function fedTx(o: Opened, tx: Tx): Tx {
   const forget = (table: string, id: unknown): void => {
-    if (table.startsWith('_t_')) return
+    if (table.startsWith('_f_')) return
     const keys = fedKeys(tx, table, [String(Reflect.get(Object(id), 'id') ?? id)])
     if (keys.size) forgetIn(o, tx, keys)
   }
@@ -187,7 +187,7 @@ export function fedTx(o: Opened, tx: Tx): Tx {
  * or removed row fed, in a write of the shared file right after that commit, before anything else is answered.
  */
 export function forgetFed(o: Opened, touched: Touched[]): void {
-  const rows = touched.filter((one) => !one.table.startsWith('_t_') && one.ids.length)
+  const rows = touched.filter((one) => !one.table.startsWith('_f_') && one.ids.length)
   if (!rows.length) return
   const shared = { read: (plan: Parameters<Tx['read']>[0]) => o.store.read(plan, system).value }
   const keys = new Set(rows.flatMap((one) => [...fedKeys(shared, one.table, one.ids)]))

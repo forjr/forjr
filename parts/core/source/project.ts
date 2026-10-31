@@ -42,7 +42,7 @@ const each =
 
 /**
  * The options of a project, in the order they are written. A definition that the project names is written as its
- * name in text, so that the file of the project imports no file that may import it. Throws T0013 for a project
+ * name in text, so that the file of the project imports no file that may import it. Throws F0013 for a project
  * that states `identify`, `onRequest` or `build`, which are code.
  */
 export function projectEntries(w: Writing, project: Stored): Doc[] {

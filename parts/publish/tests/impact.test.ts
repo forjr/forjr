@@ -143,8 +143,8 @@ test('[44-2] the impact of each kind of change at once: wider rights, breaks for
   // Wider rights: a rule of a table and of a function widened, a function newly offered to MCP.
   assert.deepEqual(named(impact.rights).sort(), ['notes', 'openOrders', 'staffNotes'])
   const notes = impact.rights.find((one) => one.name === 'notes')
-  assert.equal(notes?.change, 'now readable by anyone')
-  assert.equal(impact.rights.find((one) => one.name === 'staffNotes')?.change, 'now callable by anyone')
+  assert.equal(notes?.change, 'now readable by anyone (why: a test)')
+  assert.equal(impact.rights.find((one) => one.name === 'staffNotes')?.change, 'now callable by anyone (why: a test)')
   // Breaks for callers outside, with the callers of the last 30 days by the log: a column of a table that the API
   // returns, by the query offered there, is one.
   assert.deepEqual(
@@ -182,7 +182,7 @@ test('[44-2] the impact of each kind of change at once: wider rights, breaks for
   assert.ok(reached)
   assert.match(JSON.stringify(reached.tree), /openOrders/)
   assert.match(JSON.stringify(reached.tree), /ordersScreen/)
-  assert.equal(data['orders.total']?.reaches, 2)
+  assert.equal(data['orders.total']?.reaches, 5)
   // Tests: what touched each changed definition in its last run, and what no test touches.
   assert.deepEqual(impact.tests.find((one) => one.name === 'openOrders')?.tests, ['orders.test.ts'])
   assert.ok(impact.untested.includes('staffNotes'))
@@ -218,16 +218,17 @@ test('[44-2] each line of the impact names the definition, its file, what change
   ])
   assert.ok(
     lines.includes(
-      '  orders.total (column, number -> money, hard, 1500 rows)  tables/orders.ts  reaches 1 function, 1 screen, 1 offered to the API, 1 offered to MCP',
+      '  orders.total (column, number -> money, hard, 1500 rows)  tables/orders.ts  reaches 2 functions, 1 screen, 1 agent, 1 backfill, 1 offered to the API, 1 offered to MCP',
     ),
     lines.join('\n'),
   )
   assert.ok(
     lines.includes(
-      '  pay (action, input.order became required)  functions/pay.ts  used by 12 callers in the last 30 days',
+      '  pay (action, input.order became required)  functions/pay.ts  reaches 1 agent  used by 12 callers in the last 30 days',
     ),
+    lines.join('\n'),
   )
-  assert.ok(lines.includes('  staffNotes (query, now callable by anyone)  functions/staffNotes.ts'))
+  assert.ok(lines.includes('  staffNotes (query, now callable by anyone (why: a test))  functions/staffNotes.ts'))
   assert.equal(
     lines.some((line) => line.includes('unchanged') || line.includes(' same ')),
     false,

@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Driver } from '../../flows/index.ts'
 import type { AiEnv, Message } from '../face.ts'
 import { written } from '../layer/writing.ts'
@@ -65,7 +65,7 @@ async function firstMessage(r: Running, message: string, files: ReadFile[]): Pro
 /** The messages of the conversation as the model is sent them in a model step: from memory, or from this run's rounds. */
 async function conversation(r: Running, first: Message, rounds: Round[], thread?: string): Promise<Message[]> {
   if (r.agent.memory && thread !== undefined) {
-    const read: unknown = await r.env.call('_t_memoryRead', [
+    const read: unknown = await r.env.call('_f_memoryRead', [
       { agent: r.agent.name, thread, ...(r.nearest.length ? { nearest: r.nearest } : {}) },
     ])
     const rows: Recalled[] = isStored(read) && Array.isArray(read.rows) ? read.rows : []
@@ -108,7 +108,7 @@ function withOwn(r: Running, messages: Message[]): Message[] {
   }
   const { words } = r.agent
   if (r.agent.facts !== undefined) {
-    const read: unknown = r.env.call('_t_facts', [{ agent: r.agent.name }])
+    const read: unknown = r.env.call('_f_facts', [{ agent: r.agent.name }])
     const facts: unknown = Reflect.get(Object(read), 'facts')
     const lines = (Array.isArray(facts) ? facts : []).map(
       (one) => `${String(Reflect.get(Object(one), 'id'))}: ${String(Reflect.get(Object(one), 'fact'))}`,
@@ -192,21 +192,21 @@ function oneRow(added: unknown): { row?: string } {
 }
 
 /**
- * Where the memory shortens older turns and a summary is due, as `_t_memoryRead` says, writes it in a step of its
+ * Where the memory shortens older turns and a summary is due, as `_f_memoryRead` says, writes it in a step of its
  * own and adds it to the conversation, covering the rows up to the last one it shortens.
  */
 async function summaryWhenDue(r: Running, thread: string): Promise<void> {
   const shrink = r.agent.memory?.shrink
   // The nearest older turns are chosen anew each run: no summary is written of them.
   if (shrink !== 'summary' && (typeof shrink !== 'object' || 'nearest' in shrink)) return
-  const read: unknown = await r.env.call('_t_memoryRead', [{ agent: r.agent.name, thread }])
+  const read: unknown = await r.env.call('_f_memoryRead', [{ agent: r.agent.name, thread }])
   const due: Recalled[] = isStored(read) && Array.isArray(read.due) ? read.due : []
   if (!due.length) return
   const upTo = due.filter((row) => row.who !== 'summary').at(-1)?.id
   await r.step('summary', async () => {
     const text = await summarized({ env: r.env, agent: r.agent, run: r.run, starter: r.starter }, due)
     return oneRow(
-      await r.env.call('_t_memoryAdd', [
+      await r.env.call('_f_memoryAdd', [
         { agent: r.agent.name, thread, run: r.run.id, rows: [{ who: 'summary', text, data: { upTo } }] },
       ]),
     )
@@ -304,7 +304,7 @@ export function agentDriver(env: AiEnv): Driver {
     if (remembered)
       await run.step('remember', async () =>
         oneRow(
-          await env.call('_t_memoryAdd', [
+          await env.call('_f_memoryAdd', [
             {
               agent: agent.name,
               thread,
@@ -321,7 +321,7 @@ export function agentDriver(env: AiEnv): Driver {
       rows: { who: string; text?: string; data?: unknown }[],
     ): Promise<unknown> =>
       run.step(n === undefined ? 'remember answer' : `remember ${n}`, () =>
-        env.call('_t_memoryAdd', [{ agent: agent.name, thread, run: run.id, rows }]),
+        env.call('_f_memoryAdd', [{ agent: agent.name, thread, run: run.id, rows }]),
       )
     // The person's message meets the `in` guards before the model reads it.
     try {
@@ -338,7 +338,7 @@ export function agentDriver(env: AiEnv): Driver {
     const nearest = typeof shrink === 'object' && 'nearest' in shrink
     if (remembered && thread !== undefined && (agent.memory?.recall || nearest)) {
       const read: unknown = await run.step('recall', () =>
-        env.call('_t_recall', [{ agent: agent.name, thread, text: message }]),
+        env.call('_f_recall', [{ agent: agent.name, thread, text: message }]),
       )
       const rows: unknown = Reflect.get(Object(read), 'rows')
       r.recalled = (Array.isArray(rows) ? rows : []).map((one) => ({
@@ -359,9 +359,9 @@ export function agentDriver(env: AiEnv): Driver {
             return await modelStep(r, n, await conversation(r, first, rounds, thread))
           } catch (error) {
             // A conversation that does not fit the model is told so, with the way to make it fit.
-            if (!remembered || !(error instanceof TentError) || error.code !== 'T7109') throw error
-            throw new TentError(
-              'T7101',
+            if (!remembered || !(error instanceof ForjrError) || error.code !== 'F7109') throw error
+            throw new ForjrError(
+              'F7101',
               `The conversation ${thread} has grown too long for the model: ${error.message}`,
               {
                 fix: "Give the memory a `shrink`: 'drop' or 'summary' sends less of the older turns.",

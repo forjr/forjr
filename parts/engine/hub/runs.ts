@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { RunView, Told } from '../../flows/index.ts'
 import type { RunsReading } from '../ai/working.ts'
 import { asksOf, isAgentRun, toolOfStep } from '../ai/working.ts'
@@ -28,7 +28,7 @@ interface Following {
 
 /** What the hub does for the runs that pages follow. */
 export interface Runs {
-  /** Takes a `run-watch` of a connection: sends where the run stands, or `failed` with T0001. */
+  /** Takes a `run-watch` of a connection: sends where the run stands, or `failed` with F0001. */
   watch(c: Connected, asked: RunWatching, caller: Caller): void
   /** Takes a watch away, where the connection follows a run under that id. */
   leave(c: Connected, id: string): boolean
@@ -118,7 +118,7 @@ export function runsOf(
     if (run.state === 'failed')
       return {
         kind: 'failed',
-        error: wireError(run.error ?? new TentError('T0009', 'The run failed.'), o.mode !== 'live').error,
+        error: wireError(run.error ?? new ForjrError('F0009', 'The run failed.'), o.mode !== 'live').error,
       }
     if (run.state === 'stopped') return { kind: 'stopped' }
     const used = usedOf(o, run.id)
@@ -180,7 +180,7 @@ export function runsOf(
       leave(c, asked.id)
       const run = runner()?.read(asked.run)
       try {
-        if (!run) throw new TentError('T0001', `No run ${JSON.stringify(asked.run).slice(0, 80)} is there.`)
+        if (!run) throw new ForjrError('F0001', `No run ${JSON.stringify(asked.run).slice(0, 80)} is there.`)
         mayFollow(o, run, caller)
       } catch (error) {
         const seen = wireError(error, o.mode !== 'live').error

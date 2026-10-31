@@ -1,4 +1,4 @@
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { limitDefaults } from '../core/internal.ts'
 import type { App, BrowserEngine } from '../engine/index.ts'
 import { browsed, drivenSession, noteTouched } from '../engine/index.ts'
@@ -46,11 +46,11 @@ const stepOf = (app: App): number => {
 function addressOf(target: string | Alone, props: Record<string, unknown> | undefined): string {
   if (typeof target !== 'string') {
     const name = String(target.definition)
-    return `/_t/part/${encodeURIComponent(name)}?props=${encodeURIComponent(JSON.stringify(props ?? {}))}`
+    return `/_f/part/${encodeURIComponent(name)}?props=${encodeURIComponent(JSON.stringify(props ?? {}))}`
   }
   if (!target.startsWith('/') || target.startsWith('//'))
-    throw new TentError(
-      'T0002',
+    throw new ForjrError(
+      'F0002',
       'A page is opened at a path of the app, which starts with one slash, or for a component.',
       {
         fix: "Name a path, as `app.open('/orders')`, or a component, as `app.open(Badge, { props })`.",
@@ -65,16 +65,16 @@ async function refusedAlone(app: App, address: string): Promise<void> {
   if (answer.ok) return
   const told: unknown = await answer.json().catch(() => undefined)
   const error: Record<string, unknown> = Object(Reflect.get(Object(told), 'error'))
-  throw new TentError(String(error.code ?? 'T0001'), String(error.message ?? `The engine answered ${answer.status}.`))
+  throw new ForjrError(String(error.code ?? 'F0001'), String(error.message ?? `The engine answered ${answer.status}.`))
 }
 
 /**
  * `app.open(path, o)`: opens the address of the app in a real browser, as nobody or as the user that `as` names, by
  * the cookie of a session made as `app.session` makes one, set into the browser before its first request and ended
  * when the page closes, and answers the page once it has landed. `app.open(Component, { props })` opens a component
- * alone, at `/_t/part/<component>`, which only the mode `test` answers. The window is 1280 by 800 where `size` names
+ * alone, at `/_f/part/<component>`, which only the mode `test` answers. The window is 1280 by 800 where `size` names
  * none. The app is the one that runs on the machine of the test app now.
- * Throws T0002 for an address that is no path of the app, T0016 where the browser cannot be had, and T0008 where
+ * Throws F0002 for an address that is no path of the app, F0016 where the browser cannot be had, and F0008 where
  * the page does not land within `limits.testStep`.
  */
 export const opener =
@@ -83,7 +83,7 @@ export const opener =
     const app = appNow()
     const path = addressOf(target, o.props)
     const [width, height] = o.size ?? [1280, 800]
-    // Under `tent test`, the engine of the browser the test drove, whose build is part of what its result stands on.
+    // Under `forjr test`, the engine of the browser the test drove, whose build is part of what its result stands on.
     noteTouched('browsers', o.engine ?? 'chromium')
     // A session of a browser that the program drives: it ends no session of the user's own, and ends with the page.
     const session = o.as === undefined || o.as === 'nobody' ? undefined : drivenSession(app, o.as)

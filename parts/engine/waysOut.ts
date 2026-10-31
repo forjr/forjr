@@ -51,7 +51,7 @@ const ofRuntime = (command: unknown): boolean =>
 let made = false
 
 /**
- * Has every way out of this program note, under `tent test`, that the test whose work is under way reached outside,
+ * Has every way out of this program note, under `forjr test`, that the test whose work is under way reached outside,
  * and refuse where the program holds what reaches outside. It is held where every way passes, at the lowest layer the
  * runtime gives: the connect of a socket, under `fetch`, `WebSocket`, `node:http`, `node:http2`, `node:net` and
  * `node:tls` alike, and the send of a datagram. A program that is started reaches outside, but one of this runtime
@@ -71,7 +71,7 @@ export function noteWaysOut(
   const under = o.under ?? (() => testUnderWay() !== undefined)
   const note = o.note ?? noteOutside
   const here = import.meta.url
-  const project = `${pathToFileURL(process.env.TENT_STARTED_FOLDER ?? process.cwd()).href}/`
+  const project = `${pathToFileURL(process.env.FORJR_STARTED_FOLDER ?? process.cwd()).href}/`
   const listen = net.Server.prototype.listen
   Reflect.set(net.Server.prototype, 'listen', function (this: net.Server, ...given: unknown[]): unknown {
     this.once('listening', () => {

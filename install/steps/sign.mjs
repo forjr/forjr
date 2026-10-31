@@ -9,11 +9,11 @@ const safe = (text) => Buffer.from(text, 'base64').toString('base64url')
 /** The first 16 characters of the fingerprint of a public key, which a line of a signature starts with. */
 export const keyPrint = (publicKey) => createHash('sha256').update(Buffer.from(publicKey, 'base64')).digest('hex').slice(0, 16)
 
-/** Reads a key file of a maker, `{ format: 'tent.maker/1', name, public, private }`. Throws for a file of another form. */
+/** Reads a key file of a maker, `{ format: 'forjr.maker/1', name, public, private }`. Throws for a file of another form. */
 export function keyFile(file) {
   const read = JSON.parse(readFileSync(file, 'utf8'))
-  if (read.format !== 'tent.maker/1' || typeof read.public !== 'string' || typeof read.private !== 'string')
-    throw new Error(`${file} is no key: a key is { "format": "tent.maker/1", "name", "public", "private" }`)
+  if (read.format !== 'forjr.maker/1' || typeof read.public !== 'string' || typeof read.private !== 'string')
+    throw new Error(`${file} is no key: a key is { "format": "forjr.maker/1", "name", "public", "private" }`)
   return read
 }
 

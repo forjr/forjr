@@ -14,9 +14,9 @@ const listOf = (written: unknown): string[] | undefined =>
     : undefined
 
 /**
- * `tent access key add <name>`, `list` and `remove <id>`: the keys of programs, as the handle `keys` makes them,
+ * `forjr access key add <name>`, `list` and `remove <id>`: the keys of programs, as the handle `keys` makes them,
  * with full access. `add` answers the key once, with its id; `list` answers every key without it. On a reader the
- * write is the writer's. Throws T0002 for a field that does not fit, and T2103 for a user of no row.
+ * write is the writer's. Throws F0002 for a field that does not fit, and F2103 for a user of no row.
  */
 export const admin: Admin = {
   name: 'access-key',

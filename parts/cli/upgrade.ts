@@ -29,13 +29,13 @@ const newerThan = (one: string, other: string): boolean => {
   return a[0] !== b[0] ? a[0] > b[0] : (a[1] ?? 0) > (b[1] ?? 0)
 }
 
-/** The line of the framework that a project names in `engines.tentjs` of its package file, or that of this one. */
+/** The line of the framework that a project names in `engines.forjr` of its package file, or that of this one. */
 function lineOfProject(folder: string): string {
   const file = join(folder, 'package.json')
   if (!existsSync(file)) return coreVersion
   const named: unknown = Reflect.get(
     Object(Reflect.get(Object(JSON.parse(readFileSync(file, 'utf8'))), 'engines')),
-    'tentjs',
+    'forjr',
   )
   return typeof named === 'string' && /^\d+\.\d+$/.test(named) ? named : coreVersion
 }
@@ -45,7 +45,7 @@ function writeLine(folder: string, line: string): void {
   const file = join(folder, 'package.json')
   if (!existsSync(file)) return
   const about = Object(JSON.parse(readFileSync(file, 'utf8')))
-  writeFileSync(file, `${JSON.stringify({ ...about, engines: { ...Object(about.engines), tentjs: line } }, null, 2)}\n`)
+  writeFileSync(file, `${JSON.stringify({ ...about, engines: { ...Object(about.engines), forjr: line } }, null, 2)}\n`)
 }
 
 /**
@@ -73,7 +73,7 @@ export async function upgradeProject(folder: string, upgrades: Upgrade[]): Promi
       said: `There is no step to upgrade a project of ${from} to ${coreVersion}: nothing was changed.`,
     }
   await commandPoint(folder)
-  const history = openHistory(join(folder, '.tent'))
+  const history = openHistory(join(folder, '.forjr'))
   const before = history.list({ kinds: ['command'], newest: 1 })[0]?.id
   history.close()
   const steps: string[] = []
@@ -87,7 +87,7 @@ export async function upgradeProject(folder: string, upgrades: Upgrade[]): Promi
   await commandPoint(folder)
   const { checkProject } = await import('../check/index.ts')
   const { findings } = await checkProject(folder)
-  const after = openHistory(join(folder, '.tent'))
+  const after = openHistory(join(folder, '.forjr'))
   const now = after.list({ kinds: ['command'], newest: 1 })[0]?.id
   const changes = before && now && before !== now ? after.compare(before, now).map((one) => lineOf(one)) : []
   after.close()

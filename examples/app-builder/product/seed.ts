@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 import { users } from './tables/users'
 
 // Two people, each of whom builds an app of their own.

@@ -25,7 +25,7 @@ interface Commanding {
 /** Sends a command to the admin channel of an app, as a command of this computer does, with no network. */
 function command(run: Running, name: string, args: object = {}, o: Commanding = {}): Promise<Answered> {
   const token = o.token === undefined ? tokenOf(run.dataFolder) : o.token
-  return send(run.app, `${o.host ?? run.origin}/_t/admin/${name}`, {
+  return send(run.app, `${o.host ?? run.origin}/_f/admin/${name}`, {
     body: o.body ?? JSON.stringify({ args }),
     headers: { ...(token === null ? {} : { authorization: `Bearer ${token}` }), ...o.headers },
     ...(o.from === undefined ? {} : { from: o.from }),
@@ -112,11 +112,11 @@ test('[15-6@4] the admin channel: each command of the engine answers its value i
   assert.equal((await did(run, 'run', { name: 'whoAmI' })).value, 'no user')
   assert.equal(Array.isArray((await did(run, 'run', { name: 'staffTags', as: adaId })).value), true)
   const refused = await command(run, 'run', { name: 'staffTags', as: String(bob.user?.id) })
-  assert.deepEqual([refused.status, refused.error.code], [403, 'T3101'])
-  assert.equal((await command(run, 'run', { name: 'staffTags', as: 'nobody' })).error.code, 'T0006')
-  assert.equal((await command(run, 'run', { name: 'whoAmI', as: 'no-such-user' })).error.code, 'T2103')
-  assert.equal((await command(run, 'run', { name: 'noSuchFunction' })).error.code, 'T0001')
-  assert.equal((await command(run, 'run', {})).error.code, 'T0002')
+  assert.deepEqual([refused.status, refused.error.code], [403, 'F3101'])
+  assert.equal((await command(run, 'run', { name: 'staffTags', as: 'nobody' })).error.code, 'F0006')
+  assert.equal((await command(run, 'run', { name: 'whoAmI', as: 'no-such-user' })).error.code, 'F2103')
+  assert.equal((await command(run, 'run', { name: 'noSuchFunction' })).error.code, 'F0001')
+  assert.equal((await command(run, 'run', {})).error.code, 'F0002')
   // What a command is told of a failure is the full message, in every mode: whoever holds the token holds the data.
   assert.match(String(refused.error.message), /staff/)
 
@@ -130,7 +130,7 @@ test('[15-6@4] the admin channel: each command of the engine answers its value i
     true,
   )
   assert.equal(
-    calls.some((call) => call.name === 'breaks' && call.code === 'T0009'),
+    calls.some((call) => call.name === 'breaks' && call.code === 'F0009'),
     true,
   )
   const errors = await did(run, 'logs', { errors: true })
@@ -141,7 +141,7 @@ test('[15-6@4] the admin channel: each command of the engine answers its value i
   )
   // `since` is a length of time back from now: a moment ago holds every call, and nothing is that new a day on.
   assert.equal(Object(await did(run, 'logs', { since: '5 minutes' })).calls.length, calls.length)
-  assert.equal((await command(run, 'logs', { since: 'lately' })).error.code, 'T0002')
+  assert.equal((await command(run, 'logs', { since: 'lately' })).error.code, 'F0002')
 
   // `access`: one table of who can do what.
   const access = await did(run, 'access')
@@ -171,9 +171,9 @@ test('[15-6@4] the admin channel: each command of the engine answers its value i
     (Array.isArray(rows.body.value) ? rows.body.value : []).map((row) => row.name),
     ['Ada', 'Bob'],
   )
-  assert.equal((await command(run, 'data', { what: 'rows' })).error.code, 'T0002')
-  assert.equal((await command(run, 'data', { what: 'nothing' })).error.code, 'T0001')
-  assert.equal((await command(run, 'data', {})).error.code, 'T0001')
+  assert.equal((await command(run, 'data', { what: 'rows' })).error.code, 'F0002')
+  assert.equal((await command(run, 'data', { what: 'nothing' })).error.code, 'F0001')
+  assert.equal((await command(run, 'data', {})).error.code, 'F0001')
 
   // `data backup`, `data restore`, `data clean`.
   const backup = await did(run, 'data', { what: 'backup' })
@@ -202,7 +202,7 @@ test('[16-2@4] the admin channel is closed to whoever lacks the token, to anothe
     ['a token that differs in its last character', { token: token.slice(0, -1) + last }],
     ['a token of another length', { token: token.slice(0, 20) }],
     ['the token with no scheme', { token: null, headers: { authorization: token } }],
-    ['the token in another header', { token: null, headers: { 'x-tent-token': token, cookie: `token=${token}` } }],
+    ['the token in another header', { token: null, headers: { 'x-forjr-token': token, cookie: `token=${token}` } }],
     ['another computer', { from: '203.0.113.5' }],
     ['another computer of the same network', { from: '192.168.1.7' }],
     ['a named proxy, for this computer', { from: '10.0.0.1', headers: { 'x-forwarded-for': '127.0.0.1' } }],
@@ -210,17 +210,17 @@ test('[16-2@4] the admin channel is closed to whoever lacks the token, to anothe
   ]
   for (const [what, how] of closed) {
     const answered = await command(run, 'run', args, how)
-    assert.deepEqual([answered.status, answered.error.code], [401, 'T0006'], what)
+    assert.deepEqual([answered.status, answered.error.code], [401, 'F0006'], what)
     // A refusal says nothing of the channel: not which command there is, and not what was wrong.
     assert.doesNotMatch(String(answered.error.message), /token|proxy|computer|addTag/i, what)
   }
   // A name of its own, as a page of another site would state it, is none of the names of the app.
-  assert.equal((await command(run, 'run', args, { host: 'http://evil.test' })).error.code, 'T0017')
+  assert.equal((await command(run, 'run', args, { host: 'http://evil.test' })).error.code, 'F0017')
 
   // With the token: a command that is none, and a name that holds a slash or dots, is not found.
   for (const name of ['nothing', 'data/rows', 'data%2Frows', '..%2Fcall%2FaddTag', 'run.ts', '.', 'list', ''])
-    assert.deepEqual([(await command(run, name, args)).error.code, name], ['T0001', name])
-  assert.equal((await command(run, 'run', args, { method: 'GET' })).error.code, 'T0001')
+    assert.deepEqual([(await command(run, name, args)).error.code, name], ['F0001', name])
+  assert.equal((await command(run, 'run', args, { method: 'GET' })).error.code, 'F0001')
   // The body is `{ "args": { ... } }`, and nothing else.
   for (const body of ['[]', '"run"', '{"args":[]}', '{"args":{},"as":"system"}', '{"input":{}}', '{'])
     assert.equal((await command(run, 'run', args, { body })).status, 400, body)
@@ -230,7 +230,7 @@ test('[16-2@4] the admin channel is closed to whoever lacks the token, to anothe
   for (const from of ['127.0.0.1', '::1', '::ffff:127.0.0.1'])
     assert.equal((await command(run, 'run', { name: 'whoAmI' }, { from })).status, 200, from)
   // A header of ours on the request names nothing: step 1 of the door takes it out.
-  const stepped = await command(run, 'run', { name: 'whoAmI' }, { headers: { 'x-tent-caller': 'nobody' } })
+  const stepped = await command(run, 'run', { name: 'whoAmI' }, { headers: { 'x-forjr-caller': 'nobody' } })
   assert.equal(stepped.status, 200)
 })
 
@@ -361,7 +361,7 @@ test('[20-9] a backup is taken before a table change, and none where `beforeChan
   assert.deepEqual(tested(untested.dataFolder), [])
 })
 
-test('[20-9] `tent data clean` drops what was retired and nothing else, and a restore puts the data back under a running app', async (t) => {
+test('[20-9] `forjr data clean` drops what was retired and nothing else, and a restore puts the data back under a running app', async (t) => {
   const work = workFolder(t)
   const engine = engineOf(t)
   const dataFolder = join(work, 'data')
@@ -493,7 +493,7 @@ test("[20-7@4] a person's removal: the rows of the person go, and the log says `
   ] as const)
     await run.app.call('addNote', { title }, { as: who })
   // Bob is refused once, so that `denied` names him too.
-  await assert.rejects(run.app.call('addTag', { name: 'not for Bob' }, { as: bob }), { code: 'T3101' })
+  await assert.rejects(run.app.call('addTag', { name: 'not for Bob' }, { as: bob }), { code: 'F3101' })
   const named = (table: string, id: string): number =>
     logRows(run.dataFolder, table).filter((row) => row.callerId === id).length
   assert.equal(named('calls', bobId) >= 3, true)
@@ -534,8 +534,8 @@ test("[20-7@4] a person's removal: the rows of the person go, and the log says `
   // The backups made before still hold the person, and the command says how many.
   assert.equal(removed.backups, 0)
 
-  assert.equal((await command(run, 'data', { what: 'user', do: 'forget', id: adaId })).error.code, 'T0002')
-  assert.equal((await command(run, 'data', { what: 'user', do: 'export' })).error.code, 'T0002')
+  assert.equal((await command(run, 'data', { what: 'user', do: 'forget', id: adaId })).error.code, 'F0002')
+  assert.equal((await command(run, 'data', { what: 'user', do: 'export' })).error.code, 'F0002')
   // Nobody of that id: the export holds no row.
   const nobody = await did(run, 'data', { what: 'user', do: 'export', id: 'no-such-user' })
   assert.deepEqual([nobody.user, Object(nobody.rows).notes], [undefined, []])

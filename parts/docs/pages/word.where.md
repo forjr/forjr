@@ -14,7 +14,7 @@ As a value word: the rows of the list that fit, judged by the rules of a plan's 
 
 ## Errors
 
-`code.T0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
+`code.F0027`: a value of another kind than the word works with, or a value past the limit `valueSize`.
 
 ## See also
 

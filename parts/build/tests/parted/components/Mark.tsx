@@ -1,4 +1,4 @@
-import { asset, component, Image } from 'tentjs/ui'
+import { asset, component, Image } from 'forjr/ui'
 
 export const Mark = component('Mark', {
   view: () => (

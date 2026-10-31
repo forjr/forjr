@@ -5,12 +5,28 @@ import { doorOf } from './read.ts'
 /** A count with the word it counts, one or many. */
 const counted = (n: number, one: string, many: string): string => `${n} ${n === 1 ? one : many}`
 
-/** Where a definition leads, in words: what it reaches by kind, and the doors of what it reaches. */
+// The words a reached definition is counted under, in the order the text says them.
+const kinds = [
+  'function',
+  'screen',
+  'table',
+  'flow',
+  'agent',
+  'route',
+  'command',
+  'incoming call',
+  'service',
+  'model',
+  'backfill',
+  'event',
+  'package',
+]
+
+/** Where a definition leads, in words: what it reaches by kind, in their order, and the doors of what it reaches. */
 function leadsTo(tree: Reached[]): string {
-  const { functions, screens, offers } = countOf(tree)
+  const { kinds: reached, offers } = countOf(tree)
   return [
-    ...(functions ? [counted(functions, 'function', 'functions')] : []),
-    ...(screens ? [counted(screens, 'screen', 'screens')] : []),
+    ...kinds.flatMap((kind) => (reached[kind] ? [counted(reached[kind], kind, `${kind}s`)] : [])),
     ...Object.entries(offers).map(([door, n]) => `${n} offered to ${doorOf(door)}`),
   ].join(', ')
 }

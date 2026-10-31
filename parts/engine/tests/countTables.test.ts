@@ -18,9 +18,9 @@ const indexesOf = (folder: string, table: string): string[] =>
     })
     .sort()
 
-test('[16-4@9a] `_t_counts` and `_t_counting` exist in the data of an app with exactly their columns, their keys and their indexes', async (t) => {
+test('[16-4@9a] `_f_counts` and `_f_counting` exist in the data of an app with exactly their columns, their keys and their indexes', async (t) => {
   const { dataFolder } = await modeled(t)
-  assert.deepEqual(columnsOf(dataFolder, '_t_counts'), [
+  assert.deepEqual(columnsOf(dataFolder, '_f_counts'), [
     'id',
     'day key 1',
     'name key 2',
@@ -32,6 +32,6 @@ test('[16-4@9a] `_t_counts` and `_t_counting` exist in the data of an app with e
     'createdAt',
     'updatedAt',
   ])
-  assert.deepEqual(indexesOf(dataFolder, '_t_counts'), ['caller day', 'unique id', 'user day'])
-  assert.deepEqual(columnsOf(dataFolder, '_t_counting'), ['key key 1', 'value'])
+  assert.deepEqual(indexesOf(dataFolder, '_f_counts'), ['caller day', 'unique id', 'user day'])
+  assert.deepEqual(columnsOf(dataFolder, '_f_counting'), ['key key 1', 'value'])
 })

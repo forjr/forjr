@@ -1,5 +1,5 @@
 import type { Told } from '../../flows/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { toldPart } from '../ai/told.ts'
 import { storedLimit } from '../limits.ts'
 import type { Opened } from '../opened.ts'
@@ -35,7 +35,7 @@ function sent(o: Opened, run: string, one: Saying, value: unknown): void {
 
 /**
  * Takes an app, where the work of a step stands, and a value that it says. The value is held to `limits.inFrame`,
- * whose words T5102 names, and goes to whoever follows the run, `limits.saidPerSecond` times a second at most for
+ * whose words F5102 names, and goes to whoever follows the run, `limits.saidPerSecond` times a second at most for
  * one pass of one step: a value said sooner waits, and the newest takes the place of one that waits. It is kept as
  * the last value of that pass while the step works, for a watcher that comes late, and is never saved.
  */
@@ -43,7 +43,7 @@ export function said(o: Opened, at: { run: string; step?: { name: string; repeat
   const most = storedLimit(o.description, 'inFrame')
   const size = Buffer.byteLength(JSON.stringify(value) ?? 'null')
   if (size > most)
-    throw new TentError('T5102', `What the step said holds ${size} bytes, past \`limits.inFrame\` of ${most}.`, {
+    throw new ForjrError('F5102', `What the step said holds ${size} bytes, past \`limits.inFrame\` of ${most}.`, {
       fix: 'Say less at a time, within `limits.inFrame`: what a step says is a value to show, and its result is what is kept.',
     })
   const step = at.step

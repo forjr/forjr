@@ -1,6 +1,6 @@
 import type { DatabaseSync, StatementSync } from 'node:sqlite'
 import { constants } from 'node:sqlite'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { failed } from './failed.ts'
 import { isOneStatement } from './statement.ts'
 
@@ -17,14 +17,14 @@ const writes: number[] = [constants.SQLITE_INSERT, constants.SQLITE_UPDATE, cons
 // settings, and of its pages. https://sqlite.org/pragma.html#pragfunc https://sqlite.org/dbstat.html
 const ofTheFile = (table: string): boolean => table.startsWith('pragma_') || ['dbstat', 'sqlite_dbpage'].includes(table)
 
-const refused = (why: string): TentError =>
-  new TentError('T0013', `A raw SQL text ${why}.`, {
+const refused = (why: string): ForjrError =>
+  new ForjrError('F0013', `A raw SQL text ${why}.`, {
     fix: 'Write one statement that reads, adds, changes or removes rows of the tables of the app.',
   })
 
 /**
  * Takes the connection and a raw SQL text of an app. Answers the statement, compiled under SQLite's own
- * authorizer, and whether it writes rows. Throws T0013 for a text that holds anything after its first statement,
+ * authorizer, and whether it writes rows. Throws F0013 for a text that holds anything after its first statement,
  * for one that names a table of the engine or reads what tells of the data file itself, and for every statement
  * that is no reading, adding, changing or removing of rows: one that begins or ends a write, a setting, another
  * file, and whatever makes, changes or drops a table, an index, a view or a trigger.
@@ -36,7 +36,7 @@ export function guarded(db: DatabaseSync, text: string): { statement: StatementS
   let file = false
   db.setAuthorizer((action, first) => {
     const names = writes.includes(action) || action === constants.SQLITE_READ
-    if (names && typeof first === 'string' && first.toLowerCase().startsWith('_t_')) return constants.SQLITE_DENY
+    if (names && typeof first === 'string' && first.toLowerCase().startsWith('_f_')) return constants.SQLITE_DENY
     if (names && typeof first === 'string' && ofTheFile(first.toLowerCase())) {
       file = true
       return constants.SQLITE_DENY
@@ -58,7 +58,7 @@ export function guarded(db: DatabaseSync, text: string): { statement: StatementS
     if (file) throw refused('reads what tells of the data file itself, and not of a row')
     // SQLite looks for a table before it asks the guard, so a table of the engine that the file does not hold yet
     // is refused here, by its name, as one that the file holds is refused by the guard.
-    if (/no such table: (\w+\.)?_t_/i.test(error instanceof Error ? error.message : ''))
+    if (/no such table: (\w+\.)?_f_/i.test(error instanceof Error ? error.message : ''))
       throw refused('names a table of the engine')
     throw failed(error, '')
   } finally {

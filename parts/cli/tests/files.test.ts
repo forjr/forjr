@@ -52,14 +52,14 @@ const shapes: Record<string, Type> = {
 
 /** Holds what a command printed with `--json` to the stored shape of its name, and answers its value. */
 function shaped(name: string, output: Typed): Record<string, unknown> {
-  assert.equal(output.ended, 0, `tent ${name} ends with 0: ${output.printed}`)
+  assert.equal(output.ended, 0, `forjr ${name} ends with 0: ${output.printed}`)
   const printed = object({ ok: boolean(), value: shapes[name], findings: list(json()) })
-  assert.deepEqual(checkValue(printed, output.answer), [], `the shape of tent ${name} --json`)
+  assert.deepEqual(checkValue(printed, output.answer), [], `the shape of forjr ${name} --json`)
   assert.deepEqual([output.answer.ok, output.answer.findings], [true, []], name)
   return Object(output.answer.value)
 }
 
-test('[15-6@4] [50-6] `tent data files` lists each file with its layout and its size, `tent data rows orders --of <id>` reads one tenant, and each command of the files of tenants prints its stored shape with --json', async (t) => {
+test('[15-6@4] [50-6] `forjr data files` lists each file with its layout and its size, `forjr data rows orders --of <id>` reads one tenant, and each command of the files of tenants prints its stored shape with --json', async (t) => {
   const project = copied(t, 'files', desk)
   const run = async (name: string, input: object): Promise<string> =>
     String(Object(shaped('run', await typed(project, 'run', name, '--with', JSON.stringify(input), '--json')).value).id)
@@ -92,7 +92,7 @@ test('[15-6@4] [50-6] `tent data files` lists each file with its layout and its 
   assert.equal(noTenant.ended, 1)
   assert.deepEqual(
     noTenant.answer.findings?.map((one) => one.code),
-    ['T0002'],
+    ['F0002'],
   )
 
   // Each flag narrows the list, or does its work and says what it did.

@@ -85,7 +85,7 @@ function withValues(steps: TableStep[], at: number): TableStep[] {
  * `sealed` is added to or taken from over empty, and each of its values is written here, through `tx`, bound to its
  * row. Its values are read before the steps, since the store cannot read what is sealed. The value of such a column
  * is sealed or opened in every kept version of a row too. This is the writer's work alone: a reader is handed those
- * rows in the record of the write. Throws T0019 where a value is to be sealed or opened and no key is at hand.
+ * rows in the record of the write. Throws F0019 where a value is to be sealed or opened and no key is at hand.
  * `now` is the clock of the write, which a `db` is handed too: the moment of a default is read from it.
  */
 export function applySteps(

@@ -3,7 +3,7 @@ import { existsSync, readFileSync } from 'node:fs'
 import { lstat, mkdir, mkdtemp, readdir, rename, rm, stat } from 'node:fs/promises'
 import { homedir } from 'node:os'
 import { basename, dirname, join } from 'node:path'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import { fingerprintOf, limitDefaults } from '../core/internal.ts'
 import type { Mode } from '../data/index.ts'
 import type { PartFile } from './archive/unpack.ts'
@@ -31,7 +31,7 @@ export interface FetchedPart {
 /**
  * What `fetchPart` takes beside the name. What is not given is taken from where the call is made. `list` stands
  * in the place of the list that ships. `folder` stands in the place of the runner's folder, in whose `fetched/`
- * the parts lie. `from` is an address of the builder's own that serves every part, as `TENT_PARTS` names one.
+ * the parts lie. `from` is an address of the builder's own that serves every part, as `FORJR_PARTS` names one.
  * `mode` is the mode that the fetch is held to: left out, that of the app whose call the fetch is made in, and
  * `'live'` outside a call. `time` is how long a first fetch is waited for, in milliseconds: left out, as long as
  * `limits.fetchTime` of the project of that call says, and two minutes outside a call.
@@ -53,13 +53,13 @@ const leftAfter = 3_600_000
 const here = `${process.platform}-${process.arch}`
 
 /**
- * Answers the runner's folder, the one folder of the install for one person: what `TENT_HOME` names, and
- * otherwise `%LOCALAPPDATA%\Tent` on Windows and `~/.tent` on macOS and Linux. It is never a folder of the package.
+ * Answers the runner's folder, the one folder of the install for one person: what `FORJR_HOME` names, and
+ * otherwise `%LOCALAPPDATA%\Forjr` on Windows and `~/.forjr` on macOS and Linux. It is never a folder of the package.
  */
 export function runnerFolder(): string {
-  if (process.env.TENT_HOME) return process.env.TENT_HOME
-  if (process.platform !== 'win32') return join(homedir(), '.tent')
-  return join(process.env.LOCALAPPDATA ?? join(homedir(), 'AppData', 'Local'), 'Tent')
+  if (process.env.FORJR_HOME) return process.env.FORJR_HOME
+  if (process.platform !== 'win32') return join(homedir(), '.forjr')
+  return join(process.env.LOCALAPPDATA ?? join(homedir(), 'AppData', 'Local'), 'Forjr')
 }
 
 const isLine = (line: unknown): line is FetchedPart =>
@@ -95,9 +95,9 @@ function toldOf(error: unknown): string {
 }
 
 /** The error of a part that could not be fetched, which names the part and why. */
-function notFetched(name: string, why: string, cause?: unknown): TentError {
-  const error = new TentError('T0016', `The part ${name} could not be fetched: ${why}`, {
-    fix: 'See that this computer reaches the place the part comes from, or name a place of your own that serves the parts with TENT_PARTS.',
+function notFetched(name: string, why: string, cause?: unknown): ForjrError {
+  const error = new ForjrError('F0016', `The part ${name} could not be fetched: ${why}`, {
+    fix: 'See that this computer reaches the place the part comes from, or name a place of your own that serves the parts with FORJR_PARTS.',
   })
   if (cause !== undefined) error.cause = cause
   return error
@@ -202,7 +202,7 @@ async function fetched(
  * of the part, `fetched/<name>@<version>/` in the runner's folder. Where the part is not there yet, each of its files for this system is downloaded
  * through the guarded fetch, checked against the fingerprint of the list, and unpacked beside its place, and the
  * folder is then renamed into it: so a part is there whole or not at all. Two calls for one part at once share
- * one download where they ask alike: into the same folder, from the same address and in the same mode. Throws T0016, which names the part, where the list holds none of that name for this system, where
+ * one download where they ask alike: into the same folder, from the same address and in the same mode. Throws F0016, which names the part, where the list holds none of that name for this system, where
  * a file cannot be fetched or does not have its fingerprint, and where an archive holds a path or a link that
  * leaves the folder of the part.
  */
@@ -223,7 +223,7 @@ export function fetchPart(name: string, o: FetchPartOptions = {}): Promise<strin
   const place = join(o.folder ?? told.folder ?? runnerFolder(), 'fetched', `${name}@${first.version}`)
   const ofProject: unknown = Reflect.get(Object(app?.description.project.limits), 'fetchTime')
   const asked = {
-    own: o.from ?? told.from ?? process.env.TENT_PARTS,
+    own: o.from ?? told.from ?? process.env.FORJR_PARTS,
     mode: o.mode ?? app?.mode ?? 'live',
     time: o.time ?? (typeof ofProject === 'number' ? ofProject : Number(limitDefaults.project.fetchTime)),
   }
@@ -243,12 +243,12 @@ export function fetchPart(name: string, o: FetchPartOptions = {}): Promise<strin
       : work
   const waited = fetching.get(key)
   if (waited) return outOfTime(waited)
-  /** Answers the place of the part, fetched where it does not stand there whole. Whatever fails, the call is told T0016. */
+  /** Answers the place of the part, fetched where it does not stand there whole. Whatever fails, the call is told F0016. */
   const there = async (): Promise<string> => {
     try {
       return (await standsWhole(place)) ? place : await fetched(name, lines, place, asked)
     } catch (error) {
-      throw error instanceof TentError && error.code === 'T0016' ? error : notFetched(name, toldOf(error), error)
+      throw error instanceof ForjrError && error.code === 'F0016' ? error : notFetched(name, toldOf(error), error)
     }
   }
   const work = there().finally(() => fetching.delete(key))

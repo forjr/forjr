@@ -1,4 +1,4 @@
-import { query } from 'tentjs'
+import { query } from 'forjr'
 
 // A query that fails as it reads, with words that the error page of production must not show.
 export const stuckDrawer = query('stuckDrawer', {

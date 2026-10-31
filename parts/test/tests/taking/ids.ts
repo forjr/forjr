@@ -22,7 +22,7 @@ for (;;) {
     took = await app.takeOver()
     break
   } catch (error) {
-    if (!['T0032', 'T0029'].includes(error?.code)) throw error
+    if (!['F0032', 'F0029'].includes(error?.code)) throw error
     await sleep(50)
   }
 }

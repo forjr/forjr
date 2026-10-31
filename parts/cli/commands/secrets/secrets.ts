@@ -1,4 +1,4 @@
-import { boolean, choice, TentError, text } from '../../../core/index.ts'
+import { boolean, choice, ForjrError, text } from '../../../core/index.ts'
 import { finding } from '../../../core/internal.ts'
 import type { Command } from '../../command.ts'
 import { newSecretKey, replaceSecretKey } from '../../../engine/index.ts'
@@ -6,7 +6,7 @@ import { hiddenValue } from '../../hidden.ts'
 import { dataFolderOf } from '../../reach.ts'
 
 /**
- * `tent secrets key` prints a new key and keeps nothing: it is how the value of `TENT_SECRET_KEY` is made. With `--replace`, and the engine stopped, it
+ * `forjr secrets key` prints a new key and keeps nothing: it is how the value of `FORJR_SECRET_KEY` is made. With `--replace`, and the engine stopped, it
  * makes a new key and seals every secret and every sealed value again under it.
  */
 export const command: Command = {
@@ -22,7 +22,7 @@ export const command: Command = {
     try {
       return { value: await replaceSecretKey(dataFolderOf({ folder, data: args.data }), { kept }) }
     } catch (error) {
-      if (!(error instanceof TentError)) throw error
+      if (!(error instanceof ForjrError)) throw error
       return { findings: [finding(error.code, error.message, error.fix === undefined ? {} : { fix: error.fix })] }
     }
   },
@@ -33,6 +33,6 @@ export const command: Command = {
  * nothing is sealed under a key that nobody holds.
  */
 async function kept(key: string): Promise<boolean> {
-  process.stderr.write(`The new key of the secrets, to give the engine as TENT_SECRET_KEY from now on:\n${key}\n`)
+  process.stderr.write(`The new key of the secrets, to give the engine as FORJR_SECRET_KEY from now on:\n${key}\n`)
   return /^y(es)?$/i.test((await hiddenValue('Type yes when it is kept: ')).trim())
 }

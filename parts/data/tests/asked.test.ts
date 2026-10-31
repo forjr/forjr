@@ -2,7 +2,7 @@ import assert from 'node:assert/strict'
 import { join } from 'node:path'
 import { DatabaseSync } from 'node:sqlite'
 import { test } from 'node:test'
-import { avg, count, link, max, min, project, sum, TentError, table, text, vector } from '../../core/index.ts'
+import { avg, count, link, max, min, project, sum, ForjrError, table, text, vector } from '../../core/index.ts'
 import type { Row, Searcher, Store, TableLayout } from '../index.ts'
 import { connected, createDb, historyTable, layoutOf } from '../index.ts'
 import { at, described, reading, seal, seedShop, shopStore, sqlOf, user, writing } from './shop.ts'
@@ -170,7 +170,7 @@ test('[20-2] with a Searcher connected the store keeps no index of its own and n
   assert.equal(words.search('batch odd').count(), 50, 'the columns that were added while the searcher was connected')
 })
 
-test('[16-2@3] T1014: a limit and a skip that are under zero or no whole number, from data', (t) => {
+test('[16-2@3] F1014: a limit and a skip that are under zero or no whole number, from data', (t) => {
   const description = described()
   const store: Store = shopStore(t)
   const s = seedShop(store, description)
@@ -201,7 +201,7 @@ test('[16-2@3] T1014: a limit and a skip that are under zero or no whole number,
     ]
     for (const plan of plans) {
       const read = () => db.read(plan, handed({ n: wrong }))
-      assert.equal(codeOf(read), 'T1014', what)
+      assert.equal(codeOf(read), 'F1014', what)
       assert.throws(read, new RegExp(`The \`${name}\` of a plan of \`orders\` is no whole number of 0 or more`), what)
     }
     // The same plans are read where the reference works out to a whole number of zero or more.
@@ -209,11 +209,11 @@ test('[16-2@3] T1014: a limit and a skip that are under zero or no whole number,
   }
   assert.equal(
     codeOf(() => db.read({ from: 'orders', limit: -1 })),
-    'T1014',
+    'F1014',
   )
   assert.equal(
     codeOf(() => db.read({ from: 'orders', skip: 1.5 })),
-    'T1014',
+    'F1014',
   )
   // A limit under zero read every row before, under a bound of rows too: it reads none now.
   assert.deepEqual(orders().limit(0).all(), [])
@@ -221,7 +221,7 @@ test('[16-2@3] T1014: a limit and a skip that are under zero or no whole number,
   assert.equal(orders().skip(0).limit(3).all()[0].id, s.first)
 })
 
-test('[20-3] [16-2@3] T1014: a pick names columns of the table itself, so a name in it that is no column of the table, a path through a link among them, is refused while running and named', (t) => {
+test('[20-3] [16-2@3] F1014: a pick names columns of the table itself, so a name in it that is no column of the table, a path through a link among them, is refused while running and named', (t) => {
   const description = described()
   const store: Store = shopStore(t)
   const s = seedShop(store, description)
@@ -245,11 +245,11 @@ test('[20-3] [16-2@3] T1014: a pick names columns of the table itself, so a name
           .all(),
       () => Reflect.get(db, 'read')({ from: 'lines', pick: ['order.note'] }),
     ]) {
-      assert.equal(codeOf(wrong), 'T1014')
+      assert.equal(codeOf(wrong), 'F1014')
       assert.throws(wrong, /`order\.(note|net|placedBy\.name)`/)
     }
     for (const wrong of [() => lines().pick(['nope']).all(), () => lines().pick(['qty', '_n']).all()]) {
-      assert.equal(codeOf(wrong), 'T1014')
+      assert.equal(codeOf(wrong), 'F1014')
       assert.throws(wrong, /`(nope|_n)`/)
     }
     // A column of the table itself is picked as ever: a link as the id it holds, and what every row has.
@@ -309,7 +309,7 @@ test('[20-3] a group with no key answers one record for the rows it reads, as a 
   )
 })
 
-test('[16-2@3] T0009: a failure of SQLite itself while the store reads a plan reaches the caller as an error of ours, with that failure as its cause', (t) => {
+test('[16-2@3] F0009: a failure of SQLite itself while the store reads a plan reaches the caller as an error of ours, with that failure as its cause', (t) => {
   const store: Store = shopStore(t)
   // The store is handed a plan as it is: one that names what the table does not have is turned into a text that SQLite refuses.
   const wrong = [
@@ -326,24 +326,24 @@ test('[16-2@3] T0009: a failure of SQLite itself while the store reads a plan re
   }
   for (const plan of wrong) {
     const outside = thrown(() => store.read(plan, system))
-    assert.ok(outside instanceof TentError, JSON.stringify(plan))
-    assert.equal(outside.code, 'T0009')
+    assert.ok(outside instanceof ForjrError, JSON.stringify(plan))
+    assert.equal(outside.code, 'F0009')
     assert.match(String(Object(outside.cause).message), /no such column/)
     const begun = store.begin?.()
     assert.ok(begun)
     const inside = thrown(() => begun.tx.read(plan, system))
     begun.undo()
-    assert.ok(inside instanceof TentError && inside.code === 'T0009', JSON.stringify(plan))
+    assert.ok(inside instanceof ForjrError && inside.code === 'F0009', JSON.stringify(plan))
     assert.equal(
       codeOf(() => store.write((tx) => tx.read(plan, system))),
-      'T0009',
+      'F0009',
     )
   }
   // The store reads on after each.
   assert.deepEqual(store.read({ from: 'lines', count: true }, system).value, 0)
 })
 
-test('[20-3] [16-2@3] T1014: the sum, the average, the smallest and the largest of a link column are refused while running and name the column, since a link is no measure and no record of a group holds a number of the inside', (t) => {
+test('[20-3] [16-2@3] F1014: the sum, the average, the smallest and the largest of a link column are refused while running and name the column, since a link is no measure and no record of a group holds a number of the inside', (t) => {
   const description = described()
   const store: Store = shopStore(t)
   const s = seedShop(store, description)
@@ -372,7 +372,7 @@ test('[20-3] [16-2@3] T1014: the sum, the average, the smallest and the largest 
             .group([], { m: counted('order.customer.team') })
             .count(),
       ]) {
-        assert.equal(codeOf(wrong), 'T1014')
+        assert.equal(codeOf(wrong), 'F1014')
         assert.throws(wrong, /`(customer|placedBy|order|order\.customer|order\.customer\.team)`/)
       }
     }

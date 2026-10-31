@@ -59,12 +59,12 @@ test('[22-6@7a] a part of several package files of the npm registry lays each in
   const other = workFolder(t)
   const wrong = [list[0], { ...list[1], fingerprint: integrityOf(own) }]
   const refused = await refusal(fetchPart('resizer', { list: wrong, folder: other, mode: 'development' }))
-  assert.equal(refused.code, 'T0016', refused.message)
+  assert.equal(refused.code, 'F0016', refused.message)
   assert.deepEqual(everythingIn(join(other, 'fetched')), ['.tmp'])
   // A folder that climbs out of the part is refused as a path in an archive is.
   const out = [list[0], { ...list[1], into: '../outside' }]
   assert.equal(
     (await refusal(fetchPart('resizer', { list: out, folder: workFolder(t), mode: 'development' }))).code,
-    'T0016',
+    'F0016',
   )
 })

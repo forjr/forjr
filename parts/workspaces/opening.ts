@@ -2,7 +2,7 @@ import { existsSync, readFileSync, writeFileSync } from 'node:fs'
 import { join } from 'node:path'
 import type { Finding } from '../core/index.ts'
 import type { Description } from '../core/internal.ts'
-import { TentError } from '../core/index.ts'
+import { ForjrError } from '../core/index.ts'
 import type { App, OpenOptions, Sandbox } from '../engine/index.ts'
 import { sandboxOf } from '../engine/index.ts'
 import type { Point, Writer } from '../history/index.ts'
@@ -20,10 +20,10 @@ const asleepAfter = '10 minutes'
 const errorsOf = (findings: Finding[]): Finding[] => findings.filter((one) => one.level === 'error')
 
 /** The error of a build that wrote no bundle: the first error it found, with how many there were. */
-function unbuilt(id: string, findings: Finding[]): TentError {
+function unbuilt(id: string, findings: Finding[]): ForjrError {
   const [first] = errorsOf(findings)
-  return new TentError(
-    first?.code ?? 'T0011',
+  return new ForjrError(
+    first?.code ?? 'F0011',
     `The workspace ${id} does not build: ${first?.message ?? 'no bundle was written'}`,
     {
       fields: { count: String(errorsOf(findings).length) },
@@ -33,9 +33,9 @@ function unbuilt(id: string, findings: Finding[]): TentError {
 }
 
 /** The error of code that is neither trusted nor built in a box and run in a room: it is neither built nor run. */
-const notRun = (id: string): TentError =>
-  new TentError(
-    'T9105',
+const notRun = (id: string): ForjrError =>
+  new ForjrError(
+    'F9105',
     `The workspace ${id} is code, and neither a role that \`trusted\` names nor a \`sandbox\` with a \`room\` lets it run.`,
     {
       fields: { rule: 'code' },
@@ -104,7 +104,7 @@ function boxOf(one: One, sandbox: Sandbox): HeldBox {
 /**
  * Builds a workspace: in the engine's program where its owner is trusted, and in its box otherwise, where the
  * workspaces hold a room to run what it built in. Answers what the build wrote and found, and whether it was built
- * in a box. Throws T9105 where nothing lets it be built and run.
+ * in a box. Throws F9105 where nothing lets it be built and run.
  */
 async function builtOf(
   held: Held,
@@ -120,7 +120,7 @@ async function builtOf(
   return { versionId: built.versionId, findings: built.findings, bundle: built.bundle, boxed: true }
 }
 
-/** The box of a workspace whose owner is not trusted, made at its first use. Throws T9105 where no sandbox lets one be made. */
+/** The box of a workspace whose owner is not trusted, made at its first use. Throws F9105 where no sandbox lets one be made. */
 export function boxedOf(held: Held, one: One): HeldBox {
   const sandbox = sandboxFor(held)
   if (!sandbox) throw notRun(one.workspace.id)
@@ -130,7 +130,7 @@ export function boxedOf(held: Held, one: One): HeldBox {
 /**
  * Takes what the workspaces hold, a workspace whose owner is not trusted, and what it is built for: its test side,
  * as a development build, or a release. Builds it in its box and checks it there, where nothing of it runs in the
- * program of the product. Answers what the build wrote, with what the build and the check found. Throws T9105 where
+ * program of the product. Answers what the build wrote, with what the build and the check found. Throws F9105 where
  * no sandbox lets a box be made.
  */
 export async function checkedInBox(held: Held, one: One, kind: 'dev' | 'release'): Promise<BoxBuilt> {
@@ -175,7 +175,7 @@ async function builtAndRun(
  * and its files did not change; built when they changed and made the running version. An app whose last build
  * kept the print of the files as they stand is opened on that build, with nothing built. With `asItRuns` nothing
  * is built where a version runs or was built: the app is answered as it runs, or opened on its last build, so that
- * what changed since can be held against it. Throws T0001 for no workspace, T9105 for code that nothing lets run,
+ * what changed since can be held against it. Throws F0001 for no workspace, F9105 for code that nothing lets run,
  * and the first error of a build where no version runs yet.
  */
 export function runWorkspace(held: Held, id: string, o: { asItRuns?: true } = {}): Promise<App> {

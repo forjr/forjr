@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Address } from '../door/address.ts'
 import { failureOf } from '../door/failure.ts'
 import { keyIn } from '../keys/caller.ts'
@@ -13,15 +13,15 @@ import { jsonAnswer, okAnswer, wireError } from '../wire.ts'
 import { logShown, runShown } from '../keys/unvalued.ts'
 import { isWritten } from '../../core/internal.ts'
 
-const prefix = '/_t/admin/'
+const prefix = '/_f/admin/'
 
 /** The commands of the admin channel that a key of the right `operate` reaches: the run commands and the log. */
 export const operated = ['runs', 'logs']
 
 /** What every refusal says, so that it tells nothing of what was wrong: the words of the admin channel. */
-const closed = (): TentError =>
-  new TentError('T0006', 'The commands of an engine are for whoever started it.', {
-    fix: 'Reach a server with a key of the right `operate`, which `tent access key add <name> --right operate` makes there, for `tent runs` and `tent logs` alone.',
+const closed = (): ForjrError =>
+  new ForjrError('F0006', 'The commands of an engine are for whoever started it.', {
+    fix: 'Reach a server with a key of the right `operate`, which `forjr access key add <name> --right operate` makes there, for `forjr runs` and `forjr logs` alone.',
   })
 
 /** The answer to a command that failed, in the wire form, with its full words: whoever holds the key operates the app. */
@@ -32,7 +32,7 @@ function failed(o: Opened, name: string, error: unknown): Response {
 }
 
 /**
- * `POST /_t/admin/runs` and `/_t/admin/logs` with a key of the right `operate`, from anywhere: the run commands
+ * `POST /_f/admin/runs` and `/_f/admin/logs` with a key of the right `operate`, from anywhere: the run commands
  * and the log of an app on a server, as on this computer. It passes steps 1 to 4 of the door, and `onRequest` as
  * every request. The key is the caller of an act on a run, which is kept in the log with its id. A key without the
  * right, and one of another form, is refused in the words of the admin channel; the mails of the log are refused,
@@ -54,7 +54,7 @@ export const address: Address = {
     try {
       const body = readJson(await bodyOf(request, limitOf(app.description, 'callSize')))
       if (!isWritten(body) || !isWritten(body.args) || Object.keys(body).length !== 1)
-        throw new TentError('T0002', 'The body of a command is one record: { "args": { ... } }.', {
+        throw new ForjrError('F0002', 'The body of a command is one record: { "args": { ... } }.', {
           fields: { args: 'type' },
         })
       const args = body.args

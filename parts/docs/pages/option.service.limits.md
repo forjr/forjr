@@ -28,7 +28,7 @@ export const stripe = service('stripe', {
 
 ## Errors
 
-`code.T7115`: an answer that passes `time` or `size`.
+`code.F7115`: an answer that passes `time` or `size`.
 
 ## See also
 

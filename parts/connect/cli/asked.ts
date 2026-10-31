@@ -1,5 +1,5 @@
 // Asks the app in the wire form: a call, a read, the list of commands, and the upload of a file.
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored } from '../../core/internal.ts'
 import type { Reach } from '../env.ts'
 import { answerSize, boundedJson, listSize } from './bounded.ts'
@@ -41,12 +41,12 @@ export async function asked(
       ...(o.signal ? { signal: o.signal } : {}),
     }),
   )
-  return wireOf(answer, path.startsWith('/_t/cli') ? listSize : answerSize, path.split('?')[0])
+  return wireOf(answer, path.startsWith('/_f/cli') ? listSize : answerSize, path.split('?')[0])
 }
 
 /**
  * Takes how the app is reached, the bytes of a file, and the name, the function and the field it is sent for.
- * Uploads it to `/_t/files`, and answers what the app answered in the wire form, the id of the file in its value.
+ * Uploads it to `/_f/files`, and answers what the app answered in the wire form, the id of the file in its value.
  */
 export async function sentFile(
   reach: Reach,
@@ -59,13 +59,13 @@ export async function sentFile(
     ...(o.field === undefined ? {} : { field: o.field }),
   })
   const answer = await reach.request(
-    new Request(`${base}/_t/files?${query}`, {
+    new Request(`${base}/_f/files?${query}`, {
       method: 'POST',
       headers: { 'content-type': 'application/octet-stream', 'content-length': String(bytes.length) },
       body: new Uint8Array(bytes),
     }),
   )
-  return wireOf(answer, answerSize, '/_t/files')
+  return wireOf(answer, answerSize, '/_f/files')
 }
 
 /** The id of a file in what the app answered an upload, or nothing where it refused it. */
@@ -74,10 +74,10 @@ export const fileIdOf = (answer: Wire): string | undefined => {
   return typeof id === 'string' ? id : undefined
 }
 
-/** The error that the app answered, as a `TentError` with its code, its message, its fix and its fields. */
-export function wireError(error: Record<string, unknown> | undefined): TentError {
+/** The error that the app answered, as a `ForjrError` with its code, its message, its fix and its fields. */
+export function wireError(error: Record<string, unknown> | undefined): ForjrError {
   const told = error ?? {}
-  return new TentError(String(told.code ?? 'T0009'), String(told.message ?? 'The app failed.'), {
+  return new ForjrError(String(told.code ?? 'F0009'), String(told.message ?? 'The app failed.'), {
     ...(typeof told.fix === 'string' ? { fix: told.fix } : {}),
     ...(isStored(told.fields)
       ? { fields: Object.fromEntries(Object.entries(told.fields).map(([k, v]) => [k, String(v)])) }

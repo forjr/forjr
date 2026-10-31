@@ -28,26 +28,26 @@ function named(t: TestContext, name: string, value: string): void {
 const ofBuild = (program: string, folder: string, part: string, version: string): boolean =>
   program.includes(`${folder}-${version}`) || program.includes(`${part}@${version}`)
 
-test('[48-1] in the mode test the Chromium that is driven is the build of the pinned version that the tool of tests installs, whatever TENT_BROWSER names', async (t) => {
+test('[48-1] in the mode test the Chromium that is driven is the build of the pinned version that the tool of tests installs, whatever FORJR_BROWSER names', async (t) => {
   // A program that is there and is no browser: were it taken, the test would see it.
-  named(t, 'TENT_BROWSER', process.execPath)
+  named(t, 'FORJR_BROWSER', process.execPath)
   const program = await browserFound({ test: true })
   assert.notEqual(program, process.execPath)
   assert.ok(ofBuild(program, 'chromium_headless_shell', 'browser', pinned('browser')), program)
-  // Outside the mode test, as `tent shot` drives it, the program it names still stands first.
+  // Outside the mode test, as `forjr shot` drives it, the program it names still stands first.
   assert.equal(await browserFound(), process.execPath)
 })
 
-test('[48-1] in the mode test the Firefox that is driven is the build of the pinned version that the tool of tests installs, whatever TENT_FIREFOX names', async (t) => {
-  named(t, 'TENT_FIREFOX', process.execPath)
+test('[48-1] in the mode test the Firefox that is driven is the build of the pinned version that the tool of tests installs, whatever FORJR_FIREFOX names', async (t) => {
+  named(t, 'FORJR_FIREFOX', process.execPath)
   const program = await firefoxFound({ test: true })
   assert.notEqual(program, process.execPath)
   assert.ok(ofBuild(program, 'firefox', 'firefox', pinned('firefox')), program)
   assert.equal(await firefoxFound(), process.execPath)
 })
 
-test('[48-1] in the mode test no WebKit of the computer is driven: with no pinned WebKit that speaks WebDriver BiDi, none is found and a test in it is not run, whatever TENT_WEBKIT names', async (t) => {
-  named(t, 'TENT_WEBKIT', process.execPath)
+test('[48-1] in the mode test no WebKit of the computer is driven: with no pinned WebKit that speaks WebDriver BiDi, none is found and a test in it is not run, whatever FORJR_WEBKIT names', async (t) => {
+  named(t, 'FORJR_WEBKIT', process.execPath)
   assert.equal(await webkitFound({ test: true }), undefined)
   // Outside the mode test the program it names still stands first.
   assert.equal(await webkitFound(), process.execPath)

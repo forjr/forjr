@@ -1,4 +1,4 @@
-import { seed } from 'tentjs'
+import { seed } from 'forjr'
 import { addTag, remind } from './functions.ts'
 
 export default seed(async ({ db, call, now }) => {

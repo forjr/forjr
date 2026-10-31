@@ -58,7 +58,7 @@ test('[25-13] each type of the input reaches run as its row of the Python side s
   assert.match(seen.f.name, /^[\w-]+\.txt$/)
 })
 
-test('[25-13] a file that Python wrote into the folder of the call comes back as a file id, and tent.file gives the path of a copy of it; a path outside the folder, straight or through a link, and a file larger than uploadSize are T7119 with nothing stored', async (t) => {
+test('[25-13] a file that Python wrote into the folder of the call comes back as a file id, and forjr.file gives the path of a copy of it; a path outside the folder, straight or through a link, and a file larger than uploadSize are F7119 with nothing stored', async (t) => {
   const { app, user } = await opened(t, shared)
   const ada = await user()
   const made = Object(await app.call('writes', { where: 'inside' }, { as: ada }))
@@ -70,7 +70,7 @@ test('[25-13] a file that Python wrote into the folder of the call comes back as
       t.diagnostic(`${where}: this user may make no link to a file on this computer, so the link is not held here`)
       continue
     }
-    assert.equal(error.code, 'T7119', where)
+    assert.equal(error.code, 'F7119', where)
     // Each is refused by the engine's check of the path or of the size, not by an error of the code.
     assert.match(error.message, /no file of the folder of its call|uploadSize/, where)
   }
@@ -85,7 +85,7 @@ test('[25-13] a json value that holds a text id is laid in the rows file as JSON
   assert.deepEqual(JSON.parse(String(read.tables.notes.rows[0].meta)), { id: 'a1', kind: 'tag' })
 })
 
-test('[25-13] tent.db() holds the rows of each plan as the caller may read them, in the columns of the rows file, with a second table for a plan that follows a link, a table of one row for a count, and no table of the app; system on the definition lifts the rules', async (t) => {
+test('[25-13] forjr.db() holds the rows of each plan as the caller may read them, in the columns of the rows file, with a second table for a plan that follows a link, a table of one row for a count, and no table of the app; system on the definition lifts the rules', async (t) => {
   const { app, user } = await opened(t, shared)
   const [ada, grace] = [await user(), await user()]
   const rows = await app.write([{ add: 'customers', values: { name: 'Lovelace' } }], { as: 'system' })
@@ -115,7 +115,7 @@ test('[25-13] tent.db() holds the rows of each plan as the caller may read them,
   assert.equal(all.tables.orders.rows.length, 2)
 })
 
-test('[25-13] a call of a service through tent.call, which uses names, is answered by the service', async (t) => {
+test('[25-13] a call of a service through forjr.call, which uses names, is answered by the service', async (t) => {
   const { app, user } = await opened(t, shared)
   app.standIn('weather', { today: (input: { city: string }) => ({ sky: `clear over ${input.city}` }) })
   assert.deepEqual(await app.call('asksService', { city: 'Ankara' }, { as: await user() }), {
@@ -123,7 +123,7 @@ test('[25-13] a call of a service through tent.call, which uses names, is answer
   })
 })
 
-test("[25-13] tent.call of a name in uses passes that function's own rule, and its refusal arrives as T3101; of any other name it is T0013", async (t) => {
+test("[25-13] forjr.call of a name in uses passes that function's own rule, and its refusal arrives as F3101; of any other name it is F0013", async (t) => {
   const { app, user } = await opened(t, shared)
   const ada = await user()
   const rows = await app.write([{ add: 'customers', values: { name: 'Lovelace' } }], { as: 'system' })
@@ -131,16 +131,16 @@ test("[25-13] tent.call of a name in uses passes that function's own rule, and i
   const back = Object(await app.call('callsBack', { customer, what: 'back' }, { as: ada }))
   assert.equal(back.name, 'Lovelace')
   assert.equal(back.note, 'from Python')
-  assert.equal(back.refused.code, 'T3101')
+  assert.equal(back.refused.code, 'F3101')
   // Let out of `run`, a refusal arrives as itself, and so does a name that `uses` does not hold.
-  assert.equal((await refusal(app.call('callsBack', { customer, what: 'refused' }, { as: ada }))).code, 'T3101')
-  assert.equal((await refusal(app.call('callsBack', { customer, what: 'unknown' }, { as: ada }))).code, 'T0013')
+  assert.equal((await refusal(app.call('callsBack', { customer, what: 'refused' }, { as: ada }))).code, 'F3101')
+  assert.equal((await refusal(app.call('callsBack', { customer, what: 'unknown' }, { as: ada }))).code, 'F0013')
 })
 
 test('[25-13] without gpu: true the Python program sees no graphics card, and with it does; the environment holds no key of the engine and nothing of a Python of the person', async (t) => {
-  process.env.TENT_SECRET_KEY = 'the-key-of-the-secrets-in-the-environment'
+  process.env.FORJR_SECRET_KEY = 'the-key-of-the-secrets-in-the-environment'
   t.after(() => {
-    delete process.env.TENT_SECRET_KEY
+    delete process.env.FORJR_SECRET_KEY
   })
   const { app, user } = await opened(t, shared)
   const ada = await user()
@@ -153,7 +153,7 @@ test('[25-13] without gpu: true the Python program sees no graphics card, and wi
   assert.notEqual(shown.cards, '')
 })
 
-test('[25-13] a number and a list of a number package arrive as numbers and a date as text in the standard form; a value with no plain form is T7119 whose words name the field', async (t) => {
+test('[25-13] a number and a list of a number package arrive as numbers and a date as text in the standard form; a value with no plain form is F7119 whose words name the field', async (t) => {
   const { app, user } = await opened(t, shared)
   const ada = await user()
   assert.deepEqual(await app.call('numbers', {}, { as: ada }), {
@@ -162,11 +162,11 @@ test('[25-13] a number and a list of a number package arrive as numbers and a da
     at: '2026-10-15T12:30:00.000Z',
   })
   const error = await refusal(app.call('notANumber', {}, { as: ada }))
-  assert.equal(error.code, 'T7119')
+  assert.equal(error.code, 'F7119')
   assert.match(error.message, /value/)
 })
 
-test("[25-13] [16-2@9d] tent.Fail arrives as the app's own code with status 400; another error is T7119 with its Python trace in the log; a print is a line of the log and the answer is still right", async (t) => {
+test("[25-13] [16-2@9d] forjr.Fail arrives as the app's own code with status 400; another error is F7119 with its Python trace in the log; a print is a line of the log and the answer is still right", async (t) => {
   const { app, user, dataFolder } = await opened(t, shared)
   const ada = await user()
   const failed = await refusal(app.call('fails', {}, { as: ada }))
@@ -174,7 +174,7 @@ test("[25-13] [16-2@9d] tent.Fail arrives as the app's own code with status 400;
   assert.equal(failed.message, 'No more of it.')
   assert.deepEqual(failed.fields, { item: 'teapot' })
   const crashed = await refusal(app.call('crashes', {}, { as: ada }))
-  assert.equal(crashed.code, 'T7119')
+  assert.equal(crashed.code, 'F7119')
   const errors = JSON.stringify(logOf(dataFolder, 'errors'))
   assert.match(errors, /Traceback/)
   assert.match(errors, /ValueError: a value that is wrong/)
@@ -186,7 +186,7 @@ test("[25-13] [16-2@9d] tent.Fail arrives as the app's own code with status 400;
     () => lines().includes('prints: a line that print wrote'),
     'the line that print wrote is in the log',
   )
-  assert.ok(lines().includes('prints: a line that tent.log wrote'), lines().join('\n'))
+  assert.ok(lines().includes('prints: a line that forjr.log wrote'), lines().join('\n'))
 })
 
 test('[25-13] what Python writes to its standard output never reaches the channel, a frame of its own form among it, and reading its standard input finds it closed', async (t) => {

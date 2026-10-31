@@ -5,7 +5,7 @@ Tells a view whether a row is shown ahead of the answer of the change that made 
 ## Example
 
 ```tsx
-import { screen, read, optimistic, Form } from 'tentjs/ui'
+import { screen, read, optimistic, Form } from 'forjr/ui'
 import { addNote, notesOf } from '../functions/notes'
 
 export const notesScreen = screen('notesScreen', {

@@ -1,9 +1,9 @@
 # From a description back to text
 
-A plain definition is stored whole in the description, so its text can be written from its record. Two functions of `tentjs/core` do it. They are pure: a record in, text out. A tool that changes an app uses them to write a definition anew.
+A plain definition is stored whole in the description, so its text can be written from its record. Two functions of `forjr/core` do it. They are pure: a record in, text out. A tool that changes an app uses them to write a definition anew.
 
 ```ts
-import { definitionSource, fileSource } from 'tentjs/core'
+import { definitionSource, fileSource } from 'forjr/core'
 
 definitionSource(description, 'openOrders')            // export const openOrders = query('openOrders', { ... })
 fileSource(description, ['openOrders', 'markPaid'], { path: 'functions/orders.ts' })   // a whole file
@@ -13,8 +13,8 @@ fileSource(description, ['openOrders', 'markPaid'], { path: 'functions/orders.ts
 
 | Function | Answers |
 |---|---|
-| `definitionSource(description, name)` | `export const name = <word>('name', { ... })`, with its options one to a line in one fixed order. A type is written as its call, a reference as its helper (`input('limit')`), a plan as a chain from its table, a rule as its word, a length of time and a size in words (`'30 seconds'`, `'10 MB'`), and a `run` that was read as its arrow. A screen and a component, whose view is code, have no such text (`code.T0013`). An option that equals what holds when it is left out is not written |
-| `fileSource(description, names, { path })` | A whole file: one import line from `tentjs` with the words the text uses, one for each other file of the project that it names, one for each text file, then each top-level `const` that the definitions read, then each definition, with an empty line between. `['seed']` names the starter data, and `['texts:<language>@<path>']` a language file |
+| `definitionSource(description, name)` | `export const name = <word>('name', { ... })`, with its options one to a line in one fixed order. A type is written as its call, a reference as its helper (`input('limit')`), a plan as a chain from its table, a rule as its word, a length of time and a size in words (`'30 seconds'`, `'10 MB'`), and a `run` that was read as its arrow. A screen and a component, whose view is code, have no such text (`code.F0013`). An option that equals what holds when it is left out is not written |
+| `fileSource(description, names, { path })` | A whole file: one import line from `forjr` with the words the text uses, one for each other file of the project that it names, one for each text file, then each top-level `const` that the definitions read, then each definition, with an empty line between. `['seed']` names the starter data, and `['texts:<language>@<path>']` a language file |
 
 Reading what was written gives the same record. A definition that a person wrote, read and written back, may be laid out differently, has its columns, its inputs and every other map in sorted order, and holds no comments.
 
@@ -34,7 +34,7 @@ What nobody wrote is never written: `kind`, `form`, `module`, `stepNames`, and t
 
 ## Errors
 
-`code.T0013` for a definition that is code: a function or a flow whose arrow holds more than our words, a screen and a component, a `python`, a route, a command, a table one of whose rules is code, and a project that states `identify`, `onRequest` or `build`. Code has no text of this kind: a tool changes the text of its file. Also from `fileSource` where two of the definitions hold different values under one top-level name. `code.T0001` for a name that the description holds no definition of, and from `fileSource` for a definition that the text names and whose file the description does not say.
+`code.F0013` for a definition that is code: a function or a flow whose arrow holds more than our words, a screen and a component, a `python`, a route, a command, a table one of whose rules is code, and a project that states `identify`, `onRequest` or `build`. Code has no text of this kind: a tool changes the text of its file. Also from `fileSource` where two of the definitions hold different values under one top-level name. `code.F0001` for a name that the description holds no definition of, and from `fileSource` for a definition that the text names and whose file the description does not say.
 
 ## See also
 

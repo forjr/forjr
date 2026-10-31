@@ -22,22 +22,22 @@ interface Own {
   signal?: AbortSignal
 }
 
-/** Whether the app turns the browser's way of `login` off, as `/_t/cli/me` says: `cli: { login: 'key' }`. */
+/** Whether the app turns the browser's way of `login` off, as `/_f/cli/me` says: `cli: { login: 'key' }`. */
 async function keysAlone(reach: Reach): Promise<boolean> {
-  const answer = await reach.request(new Request('http://localhost/_t/cli/me'))
-  const read = await boundedJson(answer, listSize, 'The answer of the app to /_t/cli/me')
+  const answer = await reach.request(new Request('http://localhost/_f/cli/me'))
+  const read = await boundedJson(answer, listSize, 'The answer of the app to /_f/cli/me')
   return Reflect.get(Object(Reflect.get(Object(read), 'value')), 'login') === 'key'
 }
 
-/** Who a key, or the caller of a request, is, as `/_t/cli/me` answers it, or nothing for nobody. */
+/** Who a key, or the caller of a request, is, as `/_f/cli/me` answers it, or nothing for nobody. */
 async function whoIs(
   reach: Reach,
   key?: string,
 ): Promise<{ user?: { id: string }; key?: { name: string }; system?: true } | undefined> {
   const answer = await reach.request(
-    new Request('http://localhost/_t/cli/me', key ? { headers: { authorization: `Bearer ${key}` } } : {}),
+    new Request('http://localhost/_f/cli/me', key ? { headers: { authorization: `Bearer ${key}` } } : {}),
   )
-  const read = await boundedJson(answer, listSize, 'The answer of the app to /_t/cli/me')
+  const read = await boundedJson(answer, listSize, 'The answer of the app to /_f/cli/me')
   const value: unknown = Reflect.get(Object(read), 'value')
   const me: Record<string, unknown> = Object(value)
   return me.user || me.key || me.system ? Object(value) : undefined
@@ -53,7 +53,7 @@ async function login(o: Own): Promise<number> {
   const key = (await o.terminal.line({ hidden: true }))?.trim() ?? ''
   const me = key === '' ? undefined : await whoIs(o.reach, key)
   if (!me) {
-    o.terminal.error('error T0006 not-signed-in: the key names nobody at this server, and nothing was kept.\n')
+    o.terminal.error('error F0006 not-signed-in: the key names nobody at this server, and nothing was kept.\n')
     return 1
   }
   keepKey(o.home, o.address, key)
@@ -97,9 +97,9 @@ export async function ownWord(word: string, o: Own): Promise<number | undefined>
   if (!id || !out) throw new Unrunnable('`file <id> --out <path>` downloads a file: --out is needed.')
   if (existsSync(out) && (statSync(out).isDirectory() || !o.yes))
     throw new Unrunnable(`${out} is there already: type --yes before the word to write over it.`)
-  const answer = await o.reach.request(new Request(`http://localhost/_t/files/${encodeURIComponent(id)}`))
+  const answer = await o.reach.request(new Request(`http://localhost/_f/files/${encodeURIComponent(id)}`))
   if (!answer.ok) {
-    o.terminal.error(`error T0001 not-found: no file ${safe(id.slice(0, 40))} is here for this caller.\n`)
+    o.terminal.error(`error F0001 not-found: no file ${safe(id.slice(0, 40))} is here for this caller.\n`)
     return 1
   }
   await written(answer, out)

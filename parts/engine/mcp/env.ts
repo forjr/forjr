@@ -1,6 +1,6 @@
 import type { McpEnv } from '../../connect/index.ts'
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { isStored } from '../../core/internal.ts'
 import { called } from '../door/call.ts'
 import { failureOf } from '../door/failure.ts'
@@ -18,26 +18,26 @@ import { callIdOf } from '../door/callIds.ts'
 import { answeredBy, listened, requestDown, whoOf } from './streams.ts'
 
 /** The refusal of a call that the person answered no. */
-const saidNo = (): TentError =>
-  new TentError('T7120', 'The person said no to this call, which asks a person before it runs.', {
+const saidNo = (): ForjrError =>
+  new ForjrError('F7120', 'The person said no to this call, which asks a person before it runs.', {
     fix: 'Call it again, and ask the person again.',
   })
 
 /**
- * The T7120 of a call that asks a person, for a caller that has a user: it carries the address of the app's page
+ * The F7120 of a call that asks a person, for a caller that has a user: it carries the address of the app's page
  * where that person says yes or no, and the engine keeps the call there, for `askTime`: for the ask of a run, the
  * run and its step, which the page then answers, and for the ask of a sequence every call it lists.
  */
 function paged(o: Opened, error: unknown, name: string, input: unknown, caller: Caller, origin: string): unknown {
-  const text = error instanceof TentError && error.code === 'T7120' ? error.fields?.ask : undefined
+  const text = error instanceof ForjrError && error.code === 'F7120' ? error.fields?.ask : undefined
   const user = caller.user?.id
-  if (typeof text !== 'string' || user === undefined || !(error instanceof TentError)) return error
+  if (typeof text !== 'string' || user === undefined || !(error instanceof ForjrError)) return error
   const ask = runAskOf(o, text)
   const run = ask ? { run: { id: ask.run, step: ask.step, repeat: ask.repeat } } : {}
   if (!keepWaiting(o, text, { name, input, who: whoOf(caller), user, ...run, ...listedOf(error.fields) })) return error
-  return new TentError('T7120', error.message, {
+  return new ForjrError('F7120', error.message, {
     ...(error.fix ? { fix: error.fix } : {}),
-    fields: { ...error.fields, page: `${origin}/_t/ask?a=${encodeURIComponent(text)}` },
+    fields: { ...error.fields, page: `${origin}/_f/ask?a=${encodeURIComponent(text)}` },
   })
 }
 

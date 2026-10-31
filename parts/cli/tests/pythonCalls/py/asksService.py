@@ -1,2 +1,2 @@
-def run(input, tent):
-    return tent.call("weather.today", {"city": input["city"]})
+def run(input, forjr):
+    return forjr.call("weather.today", {"city": input["city"]})

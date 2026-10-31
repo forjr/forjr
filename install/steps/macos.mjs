@@ -24,7 +24,7 @@ export function macos(c) {
   for (const system of systems) {
     const stage = join(c.work, `${system}-pkg`)
     rmSync(stage, { recursive: true, force: true })
-    const root = join(stage, 'root', '.tent-package', c.version)
+    const root = join(stage, 'root', '.forjr-package', c.version)
     mkdirSync(root, { recursive: true })
     for (const one of ['runtime', 'player', 'tools']) cpSync(join(c.work, system, one), join(root, one), { recursive: true })
     const scripts = join(stage, 'scripts')
@@ -32,14 +32,14 @@ export function macos(c) {
     const after = readFileSync(join(c.root, 'install', 'macos', 'postinstall'), 'utf8').replaceAll('@VERSION@', c.version)
     writeFileSync(join(scripts, 'postinstall'), after)
     chmodSync(join(scripts, 'postinstall'), 0o755)
-    const part = join(stage, 'tent.pkg')
-    done('pkgbuild', ['--root', join(stage, 'root'), '--identifier', 'com.tentjs.player', '--version', c.version, '--install-location', '/', '--scripts', scripts, part], 'pkgbuild')
+    const part = join(stage, 'forjr.pkg')
+    done('pkgbuild', ['--root', join(stage, 'root'), '--identifier', 'com.forjr.player', '--version', c.version, '--install-location', '/', '--scripts', scripts, part], 'pkgbuild')
     const distribution = join(stage, 'distribution.xml')
     writeFileSync(
       distribution,
-      `<?xml version="1.0" encoding="utf-8"?>\n<installer-gui-script minSpecVersion="2">\n  <title>Tent.js ${c.version}</title>\n  <domains enable_anywhere="false" enable_currentUserHome="true" enable_localSystem="false"/>\n  <options customize="never" require-scripts="false" hostArchitectures="${system.endsWith('arm64') ? 'arm64' : 'x86_64'}"/>\n  <choices-outline><line choice="tent"/></choices-outline>\n  <choice id="tent" title="Tent.js"><pkg-ref id="com.tentjs.player"/></choice>\n  <pkg-ref id="com.tentjs.player" version="${c.version}">tent.pkg</pkg-ref>\n</installer-gui-script>\n`,
+      `<?xml version="1.0" encoding="utf-8"?>\n<installer-gui-script minSpecVersion="2">\n  <title>Forjr ${c.version}</title>\n  <domains enable_anywhere="false" enable_currentUserHome="true" enable_localSystem="false"/>\n  <options customize="never" require-scripts="false" hostArchitectures="${system.endsWith('arm64') ? 'arm64' : 'x86_64'}"/>\n  <choices-outline><line choice="forjr"/></choices-outline>\n  <choice id="forjr" title="Forjr"><pkg-ref id="com.forjr.player"/></choice>\n  <pkg-ref id="com.forjr.player" version="${c.version}">forjr.pkg</pkg-ref>\n</installer-gui-script>\n`,
     )
-    const pkg = join(c.out, `tent-${c.version}-${system}.pkg`)
+    const pkg = join(c.out, `forjr-${c.version}-${system}.pkg`)
     done('productbuild', ['--distribution', distribution, '--package-path', stage, pkg], 'productbuild')
     c.say(`macos: ${pkg}`)
   }
@@ -51,7 +51,7 @@ export function macos(c) {
  * says so.
  */
 export function signApple(c) {
-  const pkgs = c.systems.filter((one) => one.startsWith('darwin')).map((one) => join(c.out, `tent-${c.version}-${one}.pkg`)).filter((one) => existsSync(one))
+  const pkgs = c.systems.filter((one) => one.startsWith('darwin')).map((one) => join(c.out, `forjr-${c.version}-${one}.pkg`)).filter((one) => existsSync(one))
   if (process.platform !== 'darwin' || !c.settings.apple?.installer) {
     c.say(`sign-apple: ${pkgs.length} macOS packages are unsigned: ${process.platform !== 'darwin' ? 'they are signed on a Mac' : 'the settings name no Apple identity'}`)
     return

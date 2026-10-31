@@ -1,4 +1,4 @@
-import { screen, read, Form } from 'tentjs/ui'
+import { screen, read, Form } from 'forjr/ui'
 import { addHome, allHomes } from './moves'
 
 export const homesScreen = screen('homesScreen', {

@@ -1,5 +1,5 @@
 import type { Caller } from '../../core/index.ts'
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import type { Row } from '../../data/index.ts'
 import { keyAt } from '../keys/kept.ts'
 import { limitOf } from '../limits.ts'
@@ -37,7 +37,7 @@ export function countedFor(o: Opened, key: string, limit: number): boolean {
 /**
  * Step 4 of the door: one request is counted for its caller. A caller who is nobody is held to `anyonePerMinute`
  * for their address, a key to its own `perMinute`, and any other signed-in caller to `callerPerMinute`. Throws
- * T0005 for one request more.
+ * F0005 for one request more.
  */
 export function counted(o: Opened, caller: Caller, from: string): void {
   const id = caller.key?.id ?? caller.grant?.id ?? caller.user?.id
@@ -48,7 +48,7 @@ export function counted(o: Opened, caller: Caller, from: string): void {
       ? [`anyone:${countedAs(from)}`, limitOf(o.description, 'anyonePerMinute')]
       : [`${caller.kind}:${id}`, own ?? limitOf(o.description, 'callerPerMinute')]
   if (!countedFor(o, key, limit))
-    throw new TentError('T0005', `More than ${limit} requests in a minute came from ${key}.`, {
+    throw new ForjrError('F0005', `More than ${limit} requests in a minute came from ${key}.`, {
       fix: 'Send fewer requests, or raise the limit in `project.limits`.',
     })
 }

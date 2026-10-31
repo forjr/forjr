@@ -14,7 +14,7 @@ const addOne = (store: Store, k: number) => store.write((tx) => tx.add('entries'
 /** How many rows the table holds, as the store reads them. */
 const count = (store: Store): unknown => store.read({ from: 'entries', count: true }, system).value
 
-test('[20-9] a restore whose file cannot be put in its place fails with T0009 and leaves the store open on the data as it was, which then is written, put back and closed', async (t) => {
+test('[20-9] a restore whose file cannot be put in its place fails with F0009 and leaves the store open on the data as it was, which then is written, put back and closed', async (t) => {
   const folder = workFolder(t)
   const store = opened(folder)
   made(store, [entries])
@@ -26,7 +26,7 @@ test('[20-9] a restore whose file cannot be put in its place fails with T0009 an
   const coming = join(folder, 'data.db.coming')
   mkdirSync(coming)
   writeFileSync(join(coming, 'held'), '')
-  await assert.rejects(restore(store, snapshot), { code: 'T0009' })
+  await assert.rejects(restore(store, snapshot), { code: 'F0009' })
   assert.equal(count(store), 2)
   addOne(store, 3)
   assert.equal(count(store), 3)

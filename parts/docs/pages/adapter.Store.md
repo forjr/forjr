@@ -37,14 +37,14 @@ Two members are for a store that does more. `begin` begins a write that whoever 
 ## Example
 
 ```ts
-import { sqliteStore, type Store } from 'tentjs/data'
+import { sqliteStore, type Store } from 'forjr/data'
 
 const store: Store = sqliteStore()
-store.open('.tent')
+store.open('.forjr')
 const { value, tables } = store.read({ from: 'orders', limit: 10 }, { kind: 'system' })
 store.close()
 ```
 
 ## See also
 
-`code.T0012`, `code.T0013`, `adapter.ChangeSink`
+`code.F0012`, `code.F0013`, `adapter.ChangeSink`

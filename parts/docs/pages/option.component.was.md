@@ -9,7 +9,7 @@ One name, or a list of names.
 ## Example
 
 ```tsx
-import { component } from 'tentjs/ui'
+import { component } from 'forjr/ui'
 
 export const PriceTag = component('PriceTag', {
   was: 'Price',

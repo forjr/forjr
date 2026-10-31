@@ -15,7 +15,7 @@ import {
   sessions,
   table,
   text,
-} from 'tentjs'
+} from 'forjr'
 
 const open = anyone('a test tries the files')
 

@@ -50,7 +50,7 @@ export function readerPlaced(
     link.close()
     return undefined
   }
-  if (w.stopped) return refuse({ t: 'no', code: 'T0030', ...(w.stopped.own ? { writer: w.stopped.own } : {}) })
+  if (w.stopped) return refuse({ t: 'no', code: 'F0030', ...(w.stopped.own ? { writer: w.stopped.own } : {}) })
   asks.lostNoMore()
   const layout = o.store.version().layout
   if (told.layout !== layout) {
@@ -60,7 +60,7 @@ export function readerPlaced(
       ours: layout,
       fix: 'Run one engine on every machine, the writer first.',
     })
-    return refuse({ t: 'no', code: 'T0034' })
+    return refuse({ t: 'no', code: 'F0034' })
   }
   const other = w.links.get(id)
   if (other && other.key.id !== key.id) {
@@ -69,7 +69,7 @@ export function readerPlaced(
   }
   if (newer(theirs, w.epoch)) {
     asks.heard(theirs)
-    return refuse({ t: 'no', code: 'T0030' })
+    return refuse({ t: 'no', code: 'F0030' })
   }
   const far = key.far || told.far === true
   const isNear = !far && settling.isNear(id)

@@ -1,4 +1,4 @@
-import { choice, json, link, role, table, text } from 'tentjs'
+import { choice, json, link, role, table, text } from 'forjr'
 
 // The memory of the assistant: only the engine writes it, so it states no add and no change rule.
 export const messages = table('messages', {

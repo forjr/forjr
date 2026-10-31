@@ -5,7 +5,7 @@ import { turned } from './turned.ts'
 
 // A query that orders the notes by a column they do not have: the build of the workspace finds an error in it.
 const broken = [
-  "import { anyone, query } from 'tentjs'",
+  "import { anyone, query } from 'forjr'",
   "import { notes } from '../tables/users'",
   '',
   "export const broken = query('broken', {",
@@ -52,7 +52,7 @@ test('[40-13] a forced fix loop stops at three rounds, with the findings that ar
 test('[40-13] a turn stops at the first call of the model after its budget was passed, as stopped budget', async (t) => {
   const at = await turned(t)
   // The model reads a file again and again, and each answer reports 10 tokens out.
-  const model = scripted(() => ({ calls: [{ tool: 'read', with: { path: 'tent.ts' } }], tokensOut: 10 }))
+  const model = scripted(() => ({ calls: [{ tool: 'read', with: { path: 'forjr.ts' } }], tokensOut: 10 }))
   at.app.standIn('writer', model.provider)
   const turn = await at.workspaces.turn(at.made.id, 'builder', 'Read the project', {
     caller: at.caller,

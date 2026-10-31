@@ -1,6 +1,6 @@
-// The named step `npm`: the npm door. `tentjs`, which holds the player and the build tools as code with every
-// borrowed part that is code packed inside it; one package for each system, `@tentislabs/tentjs-runtime-<system>`, which
-// holds what differs by system; and `create-tent`. Each is packed with the npm of the runtime, a package of a
+// The named step `npm`: the npm door. `forjr`, which holds the player and the build tools as code with every
+// borrowed part that is code packed inside it; one package for each system, `@forjr/runtime-<system>`, which
+// holds what differs by system; and `create-forjr`. Each is packed with the npm of the runtime, a package of a
 // system with the modes its layer gives, whatever system packs it; and each is published by the owner alone.
 import { spawnSync } from 'node:child_process'
 import { cpSync, mkdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
@@ -15,15 +15,15 @@ import { headersOf, modeIn } from './tar.mjs'
 export const allSystems = ['win32-x64', 'win32-arm64', 'darwin-x64', 'darwin-arm64', 'linux-x64', 'linux-arm64']
 
 // The address of the docs site, which is also the home page of every package.
-const site = 'https://tentjs.com'
+const site = 'https://forjr.dev'
 
-/** What the page of each package on npm shows of who makes Tent.js and where it lives, beside its own words. */
+/** What the page of each package on npm shows of who makes Forjr and where it lives, beside its own words. */
 const about = {
   author: 'Tentis Labs',
   license: 'MIT',
   homepage: site,
-  repository: { type: 'git', url: 'git+https://github.com/tentislabs/tent.js.git' },
-  bugs: { url: 'https://github.com/tentislabs/tent.js/issues' },
+  repository: { type: 'git', url: 'git+https://github.com/forjr/forjr.git' },
+  bugs: { url: 'https://github.com/forjr/forjr/issues' },
 }
 
 const json = (file, value) => writeFileSync(file, `${JSON.stringify(value, null, 2)}\n`)
@@ -71,13 +71,13 @@ export function npm(c) {
   mkdirSync(into, { recursive: true })
   const made = []
   const first = c.systems[0]
-  // tentjs: the trees of the player and the build tools, and every package they carry in one folder of packages.
-  const main = join(c.work, 'npm', 'tentjs')
+  // forjr: the trees of the player and the build tools, and every package they carry in one folder of packages.
+  const main = join(c.work, 'npm', 'forjr')
   rmSync(main, { recursive: true, force: true })
   const laid = join(c.work, first)
   cpSync(join(c.work, 'tree', 'player'), join(main, 'player'), { recursive: true })
   cpSync(join(c.work, 'tree', 'tools'), join(main, 'tools'), { recursive: true })
-  for (const file of ['tent.mjs', 'shipped.json', 'trust.json', 'package.json'])
+  for (const file of ['forjr.mjs', 'shipped.json', 'trust.json', 'package.json'])
     cpSync(join(laid, 'player', file), join(main, 'player', file))
   cpSync(join(c.root, 'install', 'npm', 'bin'), join(main, 'bin'), { recursive: true })
   cpSync(join(c.out, 'systems.json'), join(main, 'systems.json'))
@@ -89,27 +89,27 @@ export function npm(c) {
   cpSync(npmFolder(), join(main, 'node_modules', 'npm'), { recursive: true })
   const shippedNpm = JSON.parse(readFileSync(join(npmFolder(), 'package.json'), 'utf8'))
   const bundled = { ...named(code), npm: shippedNpm.version }
-  // The tent of this package and create-tent run on every Node.js that npm, which starts them, runs on.
+  // The forjr of this package and create-forjr run on every Node.js that npm, which starts them, runs on.
   const engines = { node: shippedNpm.engines.node }
   // A program of a project imports the framework by the names of the docs, as it imports any package.
   const exported = Object.entries(entryPlaces(c.root)).map(([name, place]) => [
-    name === 'tentjs' ? '.' : `./${name.slice('tentjs/'.length)}`,
+    name === 'forjr' ? '.' : `./${name.slice('forjr/'.length)}`,
     { types: `./${place.types}`, default: `./${place.code}` },
   ])
   const manifest = {
-    name: 'tentjs',
+    name: 'forjr',
     version: c.version,
     description: 'The full-stack React framework built for AI.',
     keywords: ['framework', 'full-stack', 'react', 'typescript', 'ai', 'agents', 'database', 'workflows', 'api', 'mcp'],
     ...about,
     type: 'module',
     exports: Object.fromEntries(exported),
-    bin: { tent: 'bin/tent.js' },
+    bin: { forjr: 'bin/forjr.js' },
     files: ['bin', 'player', 'tools', 'systems.json', 'THIRD-PARTY.md'],
     engines,
     dependencies: bundled,
     bundleDependencies: Object.keys(bundled).sort(),
-    optionalDependencies: Object.fromEntries(allSystems.map((one) => [`@tentislabs/tentjs-runtime-${one}`, c.version])),
+    optionalDependencies: Object.fromEntries(allSystems.map((one) => [`@forjr/runtime-${one}`, c.version])),
   }
   json(join(main, 'package.json'), manifest)
   made.push({ file: packed(main, into), manifest })
@@ -124,10 +124,10 @@ export function npm(c) {
     for (const one of natives) cpSync(join(c.work, system, 'tools', one.place), join(folder, one.place), { recursive: true })
     const deps = Object.fromEntries(natives.map((one) => [one.name, one.version]))
     const one = {
-      name: `@tentislabs/tentjs-runtime-${system}`,
+      name: `@forjr/runtime-${system}`,
       version: c.version,
-      description: `What Tent.js needs on ${system}: the runtime, and the program files of the build tools.`,
-      keywords: ['tentjs', 'runtime', system],
+      description: `What Forjr needs on ${system}: the runtime, and the program files of the build tools.`,
+      keywords: ['forjr', 'runtime', system],
       ...about,
       os: [os],
       cpu: [cpu],
@@ -138,20 +138,20 @@ export function npm(c) {
     json(join(folder, 'package.json'), one)
     made.push({ file: packedAs(folder, into, system), manifest: one })
   }
-  // create-tent holds one line, and no code of the framework.
-  const create = join(c.work, 'npm', 'create-tent')
+  // create-forjr holds one line, and no code of the framework.
+  const create = join(c.work, 'npm', 'create-forjr')
   rmSync(create, { recursive: true, force: true })
   mkdirSync(create, { recursive: true })
-  for (const file of ['index.js', 'README.md']) cpSync(join(c.root, 'install', 'create-tent', file), join(create, file))
+  for (const file of ['index.js', 'README.md']) cpSync(join(c.root, 'install', 'create-forjr', file), join(create, file))
   cpSync(join(c.root, 'LICENSE'), join(create, 'LICENSE'))
   const creating = {
-    name: 'create-tent',
+    name: 'create-forjr',
     version: c.version,
-    description: 'npm create tent <name>: a new project of Tent.js, the full-stack React framework built for AI.',
-    keywords: ['tentjs', 'create', 'new project', 'react', 'framework'],
+    description: 'npm create forjr <name>: a new project of Forjr, the full-stack React framework built for AI.',
+    keywords: ['forjr', 'create', 'new project', 'react', 'framework'],
     ...about,
     type: 'module',
-    bin: { 'create-tent': 'index.js' },
+    bin: { 'create-forjr': 'index.js' },
     files: ['index.js'],
     engines,
   }

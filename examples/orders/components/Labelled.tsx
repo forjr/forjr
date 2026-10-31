@@ -1,5 +1,5 @@
 import { type ReactNode, useState } from 'react'
-import { useField, useTranslations } from 'tentjs/ui'
+import { useField, useTranslations } from 'forjr/ui'
 
 function Shell({
   id,

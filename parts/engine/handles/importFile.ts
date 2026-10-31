@@ -1,4 +1,4 @@
-import { TentError } from '../../core/index.ts'
+import { ForjrError } from '../../core/index.ts'
 import { callOf } from '../handleCall.ts'
 import type { ImportAsked } from '../import/asRun.ts'
 import { imported, startImport } from '../import/asRun.ts'
@@ -19,7 +19,7 @@ export const handle = (o: Opened): object => ({
     // The file is held to the rule of a download of the caller, as every member of `files` holds it.
     const info: unknown = await Reflect.apply(Reflect.get(files, 'info'), files, [id])
     if (info === undefined)
-      throw new TentError('T0001', `No file has the id ${(JSON.stringify(id) ?? 'nothing').slice(0, 60)}.`, {
+      throw new ForjrError('F0001', `No file has the id ${(JSON.stringify(id) ?? 'nothing').slice(0, 60)}.`, {
         fix: 'Name the id of a file that this caller may download.',
       })
     const given: Record<string, unknown> = isStored(how) ? how : {}

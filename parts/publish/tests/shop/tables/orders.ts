@@ -1,4 +1,4 @@
-import { boolean, choice, number, table, text } from 'tentjs'
+import { boolean, choice, number, table, text } from 'forjr'
 
 const NOTE_LENGTH = 200
 

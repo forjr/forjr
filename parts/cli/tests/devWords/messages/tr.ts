@@ -1,3 +1,3 @@
-import { messages } from 'tentjs/ui'
+import { messages } from 'forjr/ui'
 
 export default messages('tr', { lead: 'İlk söz.' })

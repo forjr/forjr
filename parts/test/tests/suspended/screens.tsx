@@ -1,5 +1,5 @@
 import { Suspense } from 'react'
-import { screen } from 'tentjs/ui'
+import { screen } from 'forjr/ui'
 
 // A part of a view that fails while it is drawn, inside a boundary that the view writes itself.
 function Broken(): never {

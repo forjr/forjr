@@ -57,9 +57,9 @@ test(
     })
     await level(app, near)
     const shown = await near.mcp({ as: { token: given.token } }).call('ordersScreen', {})
-    const pass = String(Object(shown._meta)['tent.pass'])
+    const pass = String(Object(shown._meta)['forjr.pass'])
     const answer = await near.request(
-      new Request('http://localhost/_t/read/openOrders', {
+      new Request('http://localhost/_f/read/openOrders', {
         method: 'POST',
         headers: { authorization: `Bearer ${pass}`, 'content-type': 'application/json', origin: 'null' },
         body: JSON.stringify({ input: {} }),
@@ -76,14 +76,14 @@ test(
   async (t) => {
     const app = await mcpApp(t, [], 'mcpSigned')
     const ada = await app.user({ email: 'ada@example.com' })
-    // A token for the whole app reads a query at `/_t/call/`, which the far reader answers by itself.
+    // A token for the whole app reads a query at `/_f/call/`, which the far reader answers by itself.
     const given = await app.grant({ user: callerIdOf(ada), scopes: ['read'], client: 'reports-app', for: 'app' })
     const far = await app.reader({ far: true })
     await current(app, far)
     await level(app, far)
     const read = async (): Promise<Record<string, unknown>> => {
       const answer = await far.request(
-        new Request('http://localhost/_t/call/openOrders', {
+        new Request('http://localhost/_f/call/openOrders', {
           method: 'POST',
           headers: { authorization: `Bearer ${given.token}`, 'content-type': 'application/json' },
           body: JSON.stringify({ input: {} }),
@@ -93,6 +93,6 @@ test(
     }
     assert.equal((await read()).ok, true, 'the token reads on the far reader')
     await app.as(ada).call('endGrant', { id: given.id })
-    assert.equal(Object((await read()).error).code, 'T0006', 'the far reader holds the end once it is answered')
+    assert.equal(Object((await read()).error).code, 'F0006', 'the far reader holds the end once it is answered')
   },
 )
