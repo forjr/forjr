@@ -2,7 +2,7 @@
 
 Every release of Forjr, newest first. A version is three numbers: a change that breaks a project comes only with a new major version, and with `forjr upgrade`, which rewrites a project for it.
 
-## Forjr 1.1.0 - not yet released
+## Forjr 1.1.0 - 2026-11-01
 
 ### Core Changes
 
