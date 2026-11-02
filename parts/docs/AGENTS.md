@@ -1,8 +1,10 @@
 # This project is built with Forjr
 
-Run `forjr map` to see the app, and `forjr map <name>` before you change a definition.
+Read this file first. Run every command as `npx forjr <command>`.
 
-Read this file first. Run `forjr check` after every change: it reports every mistake at once, each with its fix. Then run `forjr test`: only the tests that your change touched run again, and a failure tells everything you need to mend it.
+1. Before you read any file: `npx forjr map`. It lists every definition of the app on one line each: its file and line, who may call it, what it reads and writes, who uses it, and its tests. Use it in place of searching the files. `npx forjr map --all` lists every definition, with no cut.
+2. Before you change a definition: `npx forjr map <name>`. It shows its code, everything that reads or writes it, and the tests that touched it.
+3. After every change: `npx forjr check`. It reports every mistake at once, each with its fix. Then `npx forjr test`: only the tests your change touched run again, and a failure tells everything you need to mend it.
 
 ## The three file rules
 

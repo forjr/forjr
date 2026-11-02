@@ -8,7 +8,7 @@ Makes a bare project folder - one screen and the query it reads, and the mark of
 forjr new <name>
 ```
 
-`<name>` is the name of the folder: letters and digits, with a hyphen between words. The project is named the same in camelCase, so `forjr new my-app` makes the project `myApp` in the folder `my-app`.
+`<name>` is the name of the folder: letters and digits, with a hyphen between words. The project is named the same in camelCase, so `forjr new my-app` makes the project `myApp` in the folder `my-app`. `forjr new .` makes the project in the folder it is typed in, named after that folder, which may hold hidden entries such as `.git` and no other file; `npm create forjr .` does the same.
 
 ## Example
 

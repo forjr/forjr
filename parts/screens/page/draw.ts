@@ -234,12 +234,13 @@ async function drawnPage(o: DrawInput): Promise<Drawn> {
   const browser: unknown = o.description.browser
   const main =
     isStored(browser) && isStored(browser.page) && typeof browser.page.main === 'string' ? browser.page.main : undefined
+  // A title that is a word is written in the language of the page.
+  const titleText =
+    spokenText(title, store.words, page.language) ?? (title === undefined || title === null ? '' : String(title))
   // The screen's own entries have decided the head: it is told at once, and the body is drawn after it.
   const head = documentHead({
     page,
-    // A title that is a word is written in the language of the page.
-    title:
-      spokenText(title, store.words, page.language) ?? (title === undefined || title === null ? '' : String(title)),
+    title: titleText,
     ...(store.slashed ? { slash: 'keep' } : {}),
     ...(isStored(o.description.project.html) ? { html: textsOf(o.description.project.html) } : {}),
     // A page that keeps a state between visits keeps it under the name of its app, and an exported page knows
@@ -247,7 +248,9 @@ async function drawnPage(o: DrawInput): Promise<Drawn> {
     ...(keeps(o.description.project.state) || keeps(record.state) || page.exported === true
       ? { app: o.description.app.name }
       : {}),
-    head: open ? [] : headLines({ description: o.description, record, handed, page, words: store.words }),
+    head: open
+      ? []
+      : headLines({ description: o.description, record, handed, page, title: titleText, words: store.words }),
   })
   o.heard?.(head)
   let drawing = ''

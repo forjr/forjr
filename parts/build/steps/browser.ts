@@ -95,7 +95,12 @@ export function entryText(
   const code = [
     'view: o.view',
     ...['data', 'title'].filter((field) => isCode(stored[field])).map((field) => `${field}: o.${field}`),
-    ...(seo.length ? [`seo: { ${seo.map((field) => `${field}: o.seo.${field}`).join(', ')} }`] : []),
+    // The code of a field of `seo` is laid over its stored record, so its stored fields, a picture or `index`, stay.
+    ...(seo.length
+      ? [
+          `seo: { ...${JSON.stringify(record.seo ?? {})}, ${seo.map((field) => `${field}: o.seo.${field}`).join(', ')} }`,
+        ]
+      : []),
   ]
   return [
     `import { ${exportName} as made } from ${JSON.stringify(file)};`,

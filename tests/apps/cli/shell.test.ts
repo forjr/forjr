@@ -107,7 +107,7 @@ test('[15-4] forjr new, then forjr check, passes with no finding', () => {
     'model',
   ])
     assert.match(agents.toString('utf8'), new RegExp(`= ${word}\\('`), `AGENTS.md shows ${word} by an example`)
-  assert.match(agents.toString('utf8'), /Run `forjr check` after every change/)
+  assert.match(agents.toString('utf8'), /After every change: `npx forjr check`/)
 
   const checked = run(project, 'check', '--json')
   assert.equal(checked.status, 0, checked.stdout + checked.stderr)

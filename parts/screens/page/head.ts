@@ -18,17 +18,19 @@ const textOf = (value: unknown): string | undefined =>
   value === undefined || value === null || typeof value === 'object' ? undefined : String(value)
 
 /**
- * Takes the description, the record of the screen, what its view is handed, and the page. Answers the lines of
- * the head beside the title and the files of the page: the description of the screen, its picture, its one
- * address and the address of the screen in each other language, a word to search engines to leave it out, its
- * structured data, the icon of the site, and the lines of `head` of the project and of the screen. Every text of
- * them is written as text, and structured data as a block that no text of a row can end.
+ * Takes the description, the record of the screen, what its view is handed, the page and its title. Answers the
+ * lines of the head beside the title and the files of the page: the description of the screen, its picture, its one
+ * address and the address of the screen in each other language, the card of a shared link, a word to search
+ * engines to leave it out, its structured data, the icon of the site, and the lines of `head` of the project and
+ * of the screen. Every text of them is written as text, and structured data as a block that no text of a row can end.
  */
 export function headLines(o: {
   description: Description
   record: ViewRecord
   handed: Record<string, unknown>
   page: Page
+  // The title of the page as it is written in its language, which the card of a shared link repeats.
+  title?: string
   // The words of the language of the page, which a field that is a word is written in.
   words?: Words
 }): string[] {
@@ -59,6 +61,17 @@ export function headLines(o: {
     : addressOf(isStored(seo.image) && typeof seo.image.asset === 'string' ? seo.image : worked(seo.image, o.handed))
   if (image !== undefined) lines.push(`<meta property="og:image" content="${asText(full(image))}">`)
   lines.push(...(drawn ?? []))
+  // The card that X, LinkedIn, Slack and the others draw of a shared link: they read these lines, not the title. A
+  // line of the card that `head` of the project or the screen states is the builder's, and stands alone.
+  const stated = new Set(linesOf(description, o.record.name).flatMap(metaNameOf))
+  const card = (name: string, value: string | undefined, by: 'property' | 'name' = 'property'): void => {
+    if (value !== undefined && !stated.has(name)) lines.push(`<meta ${by}="${name}" content="${asText(value)}">`)
+  }
+  card('og:title', o.title || undefined)
+  card('og:description', description_)
+  card('og:type', 'website')
+  card('og:site_name', textOf(description.project.title))
+  card('twitter:card', image !== undefined || drawn !== undefined ? 'summary_large_image' : 'summary', 'name')
   if (seo.index === false) lines.push('<meta name="robots" content="noindex">')
   if (page.origin) {
     // A project that keeps a slash at the end of every address of a screen names its addresses so.
@@ -68,6 +81,7 @@ export function headLines(o: {
     const inLanguage = (language: string): string =>
       asText(`${page.origin}${named(page, kept(spokenIn(page.path, language, page.languages)))}`)
     lines.push(`<link rel="canonical" href="${inLanguage(page.language)}">`)
+    card('og:url', inLanguage(page.language))
     if (page.languages.length > 1) {
       for (const language of page.languages)
         lines.push(`<link rel="alternate" hreflang="${asText(language)}" href="${inLanguage(language)}">`)
@@ -105,6 +119,14 @@ function pictureLines(o: Parameters<typeof headLines>[0], image: Record<string, 
     `<meta property="og:image:width" content="${size[0]}">`,
     `<meta property="og:image:height" content="${size[1]}">`,
   ]
+}
+
+/** The name of the meta line of `head` that names one, by its property or its name. */
+function metaNameOf(line: unknown): string[] {
+  const meta: unknown = isStored(line) ? line.meta : undefined
+  if (!isStored(meta)) return []
+  const name: unknown = meta.property ?? meta.name
+  return typeof name === 'string' ? [name] : []
 }
 
 /** The lines of `head` of the project and of a screen, in that order. */

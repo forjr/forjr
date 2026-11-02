@@ -1,5 +1,5 @@
 import { existsSync, mkdirSync, readdirSync, writeFileSync } from 'node:fs'
-import { dirname, join } from 'node:path'
+import { basename, dirname, join } from 'node:path'
 import { text } from '../../core/index.ts'
 import { coreVersion, finding } from '../../core/internal.ts'
 import { agentsText } from '../../docs/index.ts'
@@ -14,11 +14,17 @@ export const command: Command = {
   args: { name: text() },
   needs: 'nothing',
   run: async ({ args, folder }) => {
-    const typed = String(args.name)
+    // `.` makes the project in the folder the command is typed in, named after that folder.
+    const here = String(args.name) === '.'
+    const typed = here ? basename(folder) : String(args.name)
     if (!/^[a-zA-Z][a-zA-Z0-9]*(?:-[a-zA-Z0-9]+)*$/.test(typed))
       throw new Error(`"${typed}" is no name of a project: write letters and digits, with a hyphen between words.`)
-    const lies = join(folder, typed)
-    if (existsSync(lies) && readdirSync(lies).length) throw new Error(`The folder ${typed} is there, and holds files.`)
+    const lies = here ? folder : join(folder, typed)
+    // A folder may already hold what a repository or an editor keeps hidden, as `.git`, but no file of a project.
+    const held = existsSync(lies)
+      ? readdirSync(lies).filter((entry) => !entry.startsWith('.') || entry === '.gitignore')
+      : []
+    if (held.length) throw new Error(`The folder ${typed} is there, and holds files.`)
     // The name of the definition is the name of the folder in camelCase, and its title the same in words.
     const words = typed.split('-')
     const name = words
@@ -66,7 +72,7 @@ ${installed.said}`,
           ]
         : []
     return {
-      value: { folder: typed, files: Object.keys(files).sort() },
+      value: { folder: here ? '.' : typed, files: Object.keys(files).sort() },
       ...(unInstalled.length ? { findings: unInstalled } : {}),
     }
   },

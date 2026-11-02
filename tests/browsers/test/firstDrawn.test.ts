@@ -34,6 +34,8 @@ const html = new Set([
   'charset',
   'name',
   'content',
+  // The meta lines of a shared link's card name their field by it, as the Open Graph protocol writes them.
+  'property',
   'rel',
   'href',
   'as',

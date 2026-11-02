@@ -1,5 +1,5 @@
 import assert from 'node:assert/strict'
-import { mkdirSync, readdirSync, readFileSync, rmSync, statSync } from 'node:fs'
+import { mkdirSync, readdirSync, readFileSync, rmSync, statSync, writeFileSync } from 'node:fs'
 import { join, relative } from 'node:path'
 import type { TestContext } from 'node:test'
 import { test } from 'node:test'
@@ -84,6 +84,24 @@ test('[43-1] the .gitignore of forjr new leaves out the engine folder, the packa
     .filter(Boolean)
     .sort()
   assert.deepEqual(ignored, ['.forjr/', 'forjr.d.ts', 'node_modules/', 'results/'])
+})
+
+test('[43-1] forjr new . makes the project in the folder it is typed in, named after it, beside its hidden entries, and refuses one that holds a file', async (t) => {
+  const folder = join(workFolder(t, 'new-here'), 'my-app')
+  mkdirSync(join(folder, '.git'), { recursive: true })
+  const made = await typed(folder, 'new', '.', '--json')
+  assert.equal(made.ended, 0, made.printed)
+  assert.equal(Object(made.answer.value).folder, '.')
+  assert.equal(JSON.parse(readFileSync(join(folder, 'package.json'), 'utf8')).name, 'my-app')
+  assert.ok(readdirSync(join(folder, '.git')).length === 0, 'the hidden entry stays as it was')
+
+  const held = join(folder, '..', 'held')
+  mkdirSync(held)
+  writeFileSync(join(held, 'notes.txt'), 'mine')
+  const refused = await typed(held, 'new', '.', '--json')
+  assert.notEqual(refused.ended, 0)
+  assert.match(refused.printed, /The folder held is there, and holds files\./)
+  assert.deepEqual(readdirSync(held), ['notes.txt'])
 })
 
 test('[43-1] forjr copy is no command, and forjr new takes no --with', async (t) => {

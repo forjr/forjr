@@ -6,9 +6,10 @@ import { copied } from '../../../parts/cli/tests/typed.ts'
 
 test('[55-10] AGENTS.md tells the agent of a new project to run forjr map first, within its 8 kB, and its row of forjr map says what it gives', () => {
   const text = agentsText()
-  const [heading, first] = text.split('\n\n')
+  const [heading, first, steps] = text.split('\n\n')
   assert.equal(heading, '# This project is built with Forjr')
-  assert.equal(first, 'Run `forjr map` to see the app, and `forjr map <name>` before you change a definition.')
+  assert.equal(first, 'Read this file first. Run every command as `npx forjr <command>`.')
+  assert.ok(steps?.startsWith('1. Before you read any file: `npx forjr map`.'))
   assert.ok(new TextEncoder().encode(text).length <= 8192)
   assert.ok(
     text.includes(

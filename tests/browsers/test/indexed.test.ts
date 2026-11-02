@@ -41,6 +41,18 @@ test('[32-10] a screen whose title and description are arrows over its data has 
   assert.ok(!(await headOf(address, '/')).includes('noindex'))
 })
 
+test('[32-10] the head carries the card of a shared link: the title, the description, the one address, the name of the site and a large card where there is a picture, each written as text', async () => {
+  const { address } = await shop()
+  const head = await headOf(address, '/products/chair')
+  assert.match(head, /<meta property="og:title" content="The chair">/)
+  assert.match(head, /<meta property="og:description" content="A chair to sit on">/)
+  assert.match(head, new RegExp(`<meta property="og:url" content="${address}/products/chair">`))
+  assert.match(head, /<meta property="og:site_name" content="Shop">/)
+  assert.match(head, /<meta name="twitter:card" content="summary_large_image">/)
+  const lamp = await headOf(address, '/products/lamp')
+  assert.match(lamp, /<meta property="og:title" content="Lamp &lt;\/script&gt;&lt;b&gt;bold&lt;\/b&gt;">/)
+})
+
 test('[32-10] the sitemap lists each public screen, a screen with values once for each row of seo.addresses, and leaves out one with index: false, one that needs a sign-in and one with values and no addresses; in the mode test robots.txt lets nothing be read', async () => {
   const { address } = await shop()
   const answered = await fetch(`${address}/sitemap.xml`)
@@ -68,8 +80,10 @@ test('[32-14] a meta line of the project is in every page and one of a screen on
     assert.match(head, /<link rel="preconnect" href="https:\/\/widgets\.example\.com">/)
     assert.match(head, /<link rel="icon" href="\/_f\/b\/assets\/icon\.[0-9a-f]{12}\.svg">/)
   }
+  // The screen's own line of the card stands alone there; the home page has the engine's.
+  assert.equal(product.match(/property="og:type"/g)?.length, 1)
   assert.match(product, /<meta property="og:type" content="product">/)
-  assert.ok(!home.includes('og:type'))
+  assert.match(home, /<meta property="og:type" content="website">/)
   // A script of the head carries the nonce of the page, which a library's script before the first paint needs.
   assert.match(product, /<script src="\/_f\/b\/assets\/widget\.[0-9a-f]{12}\.js" async nonce="[\w-]+"><\/script>/)
   const icon = /<link rel="icon" href="([^"]+)">/.exec(home)?.[1] ?? ''

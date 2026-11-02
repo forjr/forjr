@@ -52,6 +52,21 @@ test('[41-12.33] forjr service with a launcher that another user can write is re
   assert.match(refused.out, /launcher .* is refused: others can write/i)
 })
 
+test('[41-12.33] forjr service on Linux takes a launcher its group may write where that group is the person alone, as npm leaves it under the umask Ubuntu gives', {
+  todo: process.platform === 'linux' ? false : 'a private group of the user is a thing of Linux: owed to it',
+}, async (t) => {
+  assert.equal(process.platform, 'linux', 'a private group of the user is a thing of Linux')
+  const folder = folderOf(t, 'install-service-group')
+  const bundle = await bundleOf(shopIn(folder))
+  const home = join(folder, 'home')
+  mkdirSync(join(home, 'bin'), { recursive: true })
+  const launcher = join(home, 'bin', 'forjr')
+  writeFileSync(launcher, 'a launcher')
+  spawnSync('chmod', ['-R', 'g+w,o-w', home])
+  const kept = await typed(['service', bundle, '--data', join(folder, 'data')], folder, home)
+  assert.equal(kept.code, 0, kept.out)
+})
+
 test('[41-12.42] a project in the home folder itself, whose .forjr/ would be the folder of the install, is refused', async (t) => {
   const folder = folderOf(t, 'install-home')
   const project = shopIn(folder)
