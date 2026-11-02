@@ -2,6 +2,16 @@
 
 Every release of Forjr, newest first. A version is three numbers: a change that breaks a project comes only with a new major version, and with `forjr upgrade`, which rewrites a project for it.
 
+## Forjr 1.1.1 - 2026-11-02
+
+### Core Changes
+
+- Open `AGENTS.md` with the steps an agent takes, each through `npx forjr`: the map before any file is read, the map of one definition before it changes, then the check and the tests: d903e14
+- Add the tags a shared link's preview is drawn from to every page: its title, description, address, kind, site name and card, a tag the project states standing alone: d903e14
+- Add `forjr new .` and `npm create forjr .`, which make the project in the folder they are typed in: d903e14
+- Fix a screen's stored picture, description and `index` being lost where another of its fields is code: d903e14
+- Fix `forjr service` refusing an npm install on Linux, whose folders are open to the user's own group: d903e14
+
 ## Forjr 1.1.0 - 2026-11-01
 
 ### Core Changes
